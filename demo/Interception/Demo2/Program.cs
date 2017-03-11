@@ -21,6 +21,7 @@ namespace Demo2
                .UseKestrel()
                .ConfigureLogging(loggerFactory => loggerFactory.AddConsole((category, level) => category == "Demo2"))
                .UseStartup<Startup>()
+               .UseInterception()
                .Build();
             Host.Run();
         }
@@ -32,9 +33,8 @@ namespace Demo2
         {
             services
                 .AddSingleton<IFoobarService, FoobarService>()
-                .AddInterception()
+                .AddCastleInterception()
                 .AddMvc();
-            services.ToInterceptable();
         }
 
         public void Configure(IApplicationBuilder app)

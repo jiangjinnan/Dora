@@ -20,11 +20,12 @@ namespace Demo1
                 .ConfigureLogging(loggerFactory => loggerFactory.AddConsole((category, level) => category == "Demo1"))
                 .ConfigureServices(svcs => svcs
                     .AddSingleton<IFoobarService, FoobarService>()
-                    .AddInterception()
+                    .AddCastleInterception()
                     .AddMvc())
                 .Configure(app => app
                     .UseDeveloperExceptionPage()
                     .UseMvc())
+                //.UseInterception()
                 .Build()
                 .Run();
         }

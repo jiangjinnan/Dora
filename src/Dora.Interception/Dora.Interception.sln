@@ -1,28 +1,30 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Dora.Interception", "Dora.Interception\Dora.Interception.xproj", "{165F610E-00F6-47E4-B7A5-A330EB3ED019}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A403508B-E8F0-4B7E-BB30-3FE1554BC485}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Dora.Interception.Castle", "Dora.Interception.Castle\Dora.Interception.Castle.xproj", "{140E72CA-293C-4C89-AFA3-9DFEA4EC1C3D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{61BD3B4B-C901-426A-85F0-DDB515977B2A}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Demo1", "..\..\demo\Interception\Demo1\Demo1.xproj", "{35767EF9-CFA0-4733-9B8A-BFB2E49AACC3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9CB9A722-8E23-4F39-8474-F40F57281A7F}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\demo\Interception\global.json = ..\..\demo\Interception\global.json
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Demo2", "..\..\demo\Interception\Demo2\Demo2.xproj", "{5FA3FC35-41DC-4C73-AE28-6838B3D8DCE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception", "Dora.Interception\Dora.Interception.csproj", "{165F610E-00F6-47E4-B7A5-A330EB3ED019}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Demo3", "..\..\demo\Interception\Demo3\Demo3.xproj", "{14A18874-35AE-47F1-BD5C-856B00E98E15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception.Castle", "Dora.Interception.Castle\Dora.Interception.Castle.csproj", "{140E72CA-293C-4C89-AFA3-9DFEA4EC1C3D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo1", "..\..\demo\Interception\Demo1\Demo1.csproj", "{35767EF9-CFA0-4733-9B8A-BFB2E49AACC3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo2", "..\..\demo\Interception\Demo2\Demo2.csproj", "{5FA3FC35-41DC-4C73-AE28-6838B3D8DCE7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo3", "..\..\demo\Interception\Demo3\Demo3.csproj", "{14A18874-35AE-47F1-BD5C-856B00E98E15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.Interception.AspNetCore", "Dora.Interception.AspNetCore\Dora.Interception.AspNetCore.csproj", "{D2413F1A-7F33-4331-BEB6-D3AD5FDE0B67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{14A18874-35AE-47F1-BD5C-856B00E98E15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14A18874-35AE-47F1-BD5C-856B00E98E15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14A18874-35AE-47F1-BD5C-856B00E98E15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2413F1A-7F33-4331-BEB6-D3AD5FDE0B67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2413F1A-7F33-4331-BEB6-D3AD5FDE0B67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2413F1A-7F33-4331-BEB6-D3AD5FDE0B67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2413F1A-7F33-4331-BEB6-D3AD5FDE0B67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,5 +66,6 @@ Global
 		{35767EF9-CFA0-4733-9B8A-BFB2E49AACC3} = {61BD3B4B-C901-426A-85F0-DDB515977B2A}
 		{5FA3FC35-41DC-4C73-AE28-6838B3D8DCE7} = {61BD3B4B-C901-426A-85F0-DDB515977B2A}
 		{14A18874-35AE-47F1-BD5C-856B00E98E15} = {61BD3B4B-C901-426A-85F0-DDB515977B2A}
+		{D2413F1A-7F33-4331-BEB6-D3AD5FDE0B67} = {8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}
 	EndGlobalSection
 EndGlobal

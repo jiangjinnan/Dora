@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Dora.Interception
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class InterceptorChainBuilderExtensions
     {
         private delegate Task InvokeDelegate(object interceptor, InvocationContext context, IServiceProvider serviceProvider);
@@ -16,13 +19,36 @@ namespace Dora.Interception
         private static Dictionary<Type, InvokeDelegate> _invokers = new Dictionary<Type, InvokeDelegate>();
         private static object _syncHelper = new object();
 
+        /// <summary>
+        /// Register the interceptor of <typeparamref name="TInterceptor"/> type to specified interceptor chain builder.
+        /// </summary>
+        /// <typeparam name="TInterceptor">The interceptor type.</typeparam>
+        /// <param name="builder">The interceptor chain builder to which the interceptor is registered.</param>
+        /// <param name="order">The order for the registered interceptor in the built chain.</param>
+        /// <param name="arguments">The non-injected arguments passes to the constructor.</param>
+        /// <returns>The interceptor chain builder with registered interceptor.</returns>
+        /// <exception cref="ArgumentNullException">The argument <paramref name="builder"/> is null.</exception>
         public static IInterceptorChainBuilder Use<TInterceptor>(this IInterceptorChainBuilder builder, int order, params object[] arguments)
         {
+            Guard.ArgumentNotNull(builder, nameof(builder));
             return builder.Use(typeof(TInterceptor), order, arguments);
         }
 
+        /// <summary>
+        /// Register the interceptor of <paramref name="interceptorType"/> to specified interceptor chain builder.
+        /// </summary>
+        /// <param name="builder">The interceptor chain builder to which the interceptor is registered.</param>
+        /// <param name="interceptorType">The interceptor type.</param>
+        /// <param name="order">The order for the registered interceptor in the built chain.</param>
+        /// <param name="arguments">The non-injected arguments passes to the constructor.</param>
+        /// <returns>The interceptor chain builder with registered interceptor.</returns>
+        /// <exception cref="ArgumentNullException">The argument <paramref name="builder"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">The argument <paramref name="interceptorType"/> is null.</exception>
         public static IInterceptorChainBuilder Use(this IInterceptorChainBuilder builder, Type interceptorType, int order, params object[] arguments)
         {
+            Guard.ArgumentNotNull(builder, nameof(builder));
+            Guard.ArgumentNotNull(interceptorType, nameof(interceptorType));
+
             InterceptorDelegate interceptor = next => (async context=>{
                 object[] newArguments = new object[arguments.Length + 1];
                 newArguments[0] = next;

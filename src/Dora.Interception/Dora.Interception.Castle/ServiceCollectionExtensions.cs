@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddInterception(this IServiceCollection services)
+        public static IServiceCollection AddCastleInterception(this IServiceCollection services)
         {
             return services.AddInterception<DynamicProxyFactory>();
         }

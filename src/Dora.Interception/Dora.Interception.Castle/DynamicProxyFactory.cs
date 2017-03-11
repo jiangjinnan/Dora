@@ -17,7 +17,7 @@ namespace Dora.Interception.Castle
 
         public override object CreateProxy(Type typeToProxy, object target)
         {
-            if (target.GetType().Namespace.StartsWith("Castle."))
+            if (target == null || target.GetType().Namespace.StartsWith("Castle."))
             {
                 return target;
             }
@@ -26,6 +26,10 @@ namespace Dora.Interception.Castle
 
         protected override object CreateProxyCore(Type typeToProxy, object target, IDictionary<MethodInfo, InterceptorDelegate> initerceptors)
         {
+            if (!initerceptors.Any())
+            {
+                return target;
+            }
             IDictionary<MethodInfo, IInterceptor> dic = initerceptors.ToDictionary(it => it.Key, it => (IInterceptor)new DynamicProxyInterceptor(it.Value));
             var selector = new DynamicProxyInterceptorSelector(dic);
             var options = new ProxyGenerationOptions { Selector = selector };
