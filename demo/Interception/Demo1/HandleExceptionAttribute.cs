@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace Demo1
 {
-    public class HandleExceptionAttribute : InterceptorAttribute
+  public class HandleExceptionAttribute : InterceptorAttribute
+  {
+    private string _logCategory;
+    public HandleExceptionAttribute(string logCategory)
     {
-        private string _logCategory;
-        public HandleExceptionAttribute(string logCategory)
-        {
-            _logCategory = logCategory;
-        }
-        public override void Use(IInterceptorChainBuilder builder)
-        {
-            builder.Use<ExceptionHandler>(this.Order, _logCategory);
-        }
+      _logCategory = logCategory;
     }
+    public override void Use(IInterceptorChainBuilder builder)
+    {
+
+      builder.Use<ExceptionHandler>(this.Order, _logCategory);
+    }
+  }
 }

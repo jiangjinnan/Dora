@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 
 namespace Dora.Interception
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public static class InterceptorChainBuilderExtensions
+  /// <summary>
+  /// Define some extension methods specific to <see cref="IInterceptorChainBuilder"/>.
+  /// </summary>
+  public static class InterceptorChainBuilderExtensions
     {
         private delegate Task InvokeDelegate(object interceptor, InvocationContext context, IServiceProvider serviceProvider);
-
         private static MethodInfo _getServiceMethod = typeof(InterceptorChainBuilderExtensions).GetTypeInfo().GetMethod("GetService", BindingFlags.Static| BindingFlags.NonPublic);
         private static Dictionary<Type, InvokeDelegate> _invokers = new Dictionary<Type, InvokeDelegate>();
         private static object _syncHelper = new object();
@@ -114,6 +113,7 @@ namespace Dora.Interception
             Expression callGetService = Expression.Call(_getServiceMethod, serviceProvider,serviceType);
             return Expression.Convert(callGetService, parameterType);
         }
+
         private static object GetService(IServiceProvider serviceProvider,Type type)
         {
             return serviceProvider.GetService(type);

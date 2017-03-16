@@ -6,13 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Demo2
 {
-    public class Program
+  public class Program
     {
         public static IWebHost Host {get;set;}
         public static void Main(string[] args)
@@ -33,7 +31,7 @@ namespace Demo2
         {
             services
                 .AddSingleton<IFoobarService, FoobarService>()
-                .AddCastleInterception()
+                .AddInterception(builder=>builder.SetDynamicProxyFactory())
                 .AddMvc();
         }
 

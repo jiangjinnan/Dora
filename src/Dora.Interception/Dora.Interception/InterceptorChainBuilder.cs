@@ -41,7 +41,6 @@ namespace Dora.Interception
         public IInterceptorChainBuilder Use(InterceptorDelegate interceptor, int order)
         {
             Guard.ArgumentNotNull(interceptor, nameof(interceptor));
-
             _interceptors.Add(new Tuple<int, InterceptorDelegate>(order, interceptor));
             return this;
         }

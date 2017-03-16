@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Dora.Interception.Castle
 {
-    public class DynamicProxyInterceptorSelector : IInterceptorSelector
+    internal class DynamicProxyInterceptorSelector : IInterceptorSelector
     {
         IDictionary<MethodInfo, IInterceptor> _interceptors;
 

@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Dora.Interception;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Builder;
-using Dora.Interception;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace Demo1
 {
-    public class Program
+  public class Program
     {
         public static void Main(string[] args)
         {
@@ -20,12 +18,11 @@ namespace Demo1
                 .ConfigureLogging(loggerFactory => loggerFactory.AddConsole((category, level) => category == "Demo1"))
                 .ConfigureServices(svcs => svcs
                     .AddSingleton<IFoobarService, FoobarService>()
-                    .AddCastleInterception()
+                    .AddInterception(builder=>builder.SetDynamicProxyFactory())
                     .AddMvc())
                 .Configure(app => app
                     .UseDeveloperExceptionPage()
                     .UseMvc())
-                //.UseInterception()
                 .Build()
                 .Run();
         }
@@ -51,7 +48,8 @@ namespace Demo1
     {
         Task InvokeAsync();
     }
-
+  
+    [Foobar]
     public class FoobarService : IFoobarService
     {
         [HandleException("Demo1")]
@@ -60,4 +58,7 @@ namespace Demo1
             return Task.FromException(new Exception("Manually thrown exception"));
         }
     }
+
+  public class FoobarAttribute : Attribute
+  { }
 }
