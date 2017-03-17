@@ -1,8 +1,8 @@
 ## Dora.Interception
-Dora.Interception provides an abstract interception model for AOP programming. Leveraging such an interception model, we can define -Interceptor- to conduct non-business cross-cutting functions in a very graceful programming style. Dora.Interception is designed for .NET Core, and the -Dependency Injection (Microsoft.Extensions.DependencyInjection)- is directly integrated.
-There is only interception implementation based on Castle. You can provide your custom interception implementation if you want.
+Dora.Interception provides an abstract interception model for AOP programming. Leveraging such an interception model, we can define _Interceptor_ to conduct non-business cross-cutting functions in a very graceful programming style. Dora.Interception is designed for .NET Core, and the _Dependency Injection (Microsoft.Extensions.DependencyInjection)_ is directly integrated.
+There is only interception implementation based on _Castle_. You can provide your custom interception implementation if you want.
 ### 1. How to define an interceptor?
-Considering consuming dependent services in a DI manner, we do not use an interface or abstract class to represent an interceptor. An interceptor class can be defined following the programming convention below:
+Considering consuming dependent services in a _DI_ style, we do not use an interface or abstract class to represent an interceptor. An interceptor class can be defined following the programming convention below:
 ```csharp
 public class CacheInterceptor
 {
@@ -77,19 +77,19 @@ public class CacheInterceptor
   }
 }
 ```
-The CacheInterceptor is a simple interceptor which help us to cache a method’s return value, and the key is generated based on the arguments. For the subsequent invocation against the same method, the cached value will be directly returned and target method will not be invoked. What is used for caching by this interceptor is an IMemoryCache object.
-The CacheInterceptor illustrates the typical programming convention of interceptor class:
+The _CacheInterceptor_ is a simple interceptor which help us to cache a method’s return value, and the key is generated based on the arguments. For the subsequent invocation against the same method, the cached value will be directly returned and target method will not be invoked. What is used for caching by this interceptor is an _IMemoryCache_ object.
+The _CacheInterceptor_ illustrates the typical programming convention of interceptor class:
 * The interceptor class must be an instance class, and static class is illegal.
 * The interceptor must have such a public instance constructor:  
-  * Its first parameter’s type must be InterceptDelegate, which is used to invoke the next interceptor or target method.  
-  * It is allowed to own any number of parameters. (e.g. CacheInterceptor’s constructor have a parameter cache of IMemoryCache type).
-* The interceptor must have such an InvokeAsync method to conduct specific cross-cutting functionalities:  
+  * Its first parameter’s type must be _InterceptDelegate_, which is used to invoke the next interceptor or target method.  
+  * It is allowed to own any number of parameters. (e.g. _CacheInterceptor_’s constructor have a parameter cache of _IMemoryCache_ type).
+* The interceptor must have such an _InvokeAsync_ method to conduct specific cross-cutting functionalities:  
   * This method must be an instance method instead of static one.  
-  * This method must be asynchronous method whose return type is Task.  
-  * This method’s first parameter must be an InvocationContext object, which carries the contextual information about the method invocation, including the MethodInfo and arguments, etc. This context object can be also used to set return value or output parameters. 
-  * It is allowed to own any number of parameters, which is bound in a DI manner, so the related service registrations must be added in advanced.  
-  * If we need to proceed to next interceptor or target instance, we must invoke the InterceptDelegate delegate initialized in constructor.
-The following code snippet illustrates another definition of CacheInterceptor, in which the IMemoryCache service and IOptions<MemoryCacheEntryOptions> are both directly injected into the InvokeAsync method.
+  * This method must be asynchronous method whose return type is _Task_.  
+  * This method’s first parameter must be an _InvocationContext_ object, which carries the contextual information about the method invocation, including the MethodInfo and arguments, etc. This context object can be also used to set return value or output parameters. 
+  * It is allowed to own any number of parameters, which is bound in a _DI_ manner, so the related service registrations must be added in advanced.  
+  * If we need to proceed to next interceptor or target instance, we must invoke the _InterceptDelegate_ delegate initialized in constructor.
+The following code snippet illustrates another definition of _CacheInterceptor_, in which the _IMemoryCache_ service and _IOptions&lt;MemoryCacheEntryOptions&gt;_ are both directly injected into the _InvokeAsync_ method.
 ```csharp
 public class CacheInterceptor
 {
@@ -122,7 +122,7 @@ public class CacheInterceptor
 }
 ```
 ### 2. How to apply the interceptor?
-The interceptor is applied to target method by declaring specific attribute to the method or class, and we call such an attribute as “interceptor provider attribute”. Each interceptor class has its specific provider attribute, which is usually derived from the InterceptorAttribute class. For the above CacheInterceptor, we can define its provider attribute like this:
+The interceptor is applied to target method by declaring specific attribute to the method or class, and we call such an attribute as “_interceptor provider attribute_”. Each interceptor class has its specific provider attribute, which is usually derived from the _InterceptorAttribute_ class. For the above CacheInterceptor, we can define its provider attribute like this:
 ```csharp
 [AttributeUsage( AttributeTargets.Method)]
 public class CacheReturnValueAttribute : InterceptorAttribute
@@ -133,11 +133,11 @@ public class CacheReturnValueAttribute : InterceptorAttribute
   }
 } 
 ```
-Concrete interceptor provider attribute class must override the abstract Use method, which has a parameter of IInterceptorChainBuilder. We just need to call this IInterceptorChainBuilder object’s Use<TInterceptor> method to register the specific interceptor. Except for specify the interceptor type as the generate argument, we must specify the order which determine the position for the interceptor in the built interceptor chain. When interceptor is instantiated, the arguments of constructor can be provided in a DI manner. For the arguments which cannot be injected, we must explicitly specify them. This is very similar to register ASP.NET Core middleware.
+Concrete interceptor provider attribute class must override the abstract _Use_ method, which has a parameter of _IInterceptorChainBuilder_. We just need to call this _IInterceptorChainBuilder_ object’s _Use&lt;TInterceptor&gt_; method to register the specific interceptor. Except for specifying the interceptor type as the generate argument, we must specify the order which determine the position for the interceptor in the built interceptor chain. When interceptor is instantiated, the arguments of constructor can be provided in a _DI_ manner. For the arguments which cannot be injected, we must explicitly specify them. This is very similar to register ASP.NET Core middleware.
 ```csharp
 public static IInterceptorChainBuilder Use<TInterceptor>(this IInterceptorChainBuilder builder, int order, params object[] arguments)
 ```
-The interceptor provider attribute can be declared to class or method. As illustrated in the following code snippet, we declare the CacheRetuenValueAttribute to the GetCurrentTime method of SystemClock class.
+The interceptor provider attribute can be declared to class or method. As illustrated in the following code snippet, we declare the _CacheRetuenValueAttribute_ to the _GetCurrentTime_ method of _SystemClock_ class.
 ```csharp
 public interface ISystomClock
 {
@@ -154,7 +154,7 @@ public class SystomClock : ISystomClock
 }
 ```
 #### 2.1 Suppress the interceptor providers
-If the interceptor provider attribute is declared to a particular class, it means the specific interceptor is applied to all of its method. If this class has a method which cannot be injected, we can declare a NonInterceptableAttribute to this method. When declaring the NonInterceptableAttribute, we can specify the types of interceptor provider attribute to suppress. If no interceptor provider type is specified, it means to suppress all kinds of interceptor.
+If the interceptor provider attribute is declared to a particular class, it means the specific interceptor is applied to all of its methods. If this class has a method which cannot be injected, we can declare a _NonInterceptableAttribute_ to this method. When declaring the _NonInterceptableAttribute_, we can specify the types of interceptor provider attribute to suppress. If no interceptor provider type is specified, it means to suppress all kinds of interceptor.
 ```csharp
 [Interceptor1]
 [Interceptor2]
@@ -165,7 +165,7 @@ public class Service: IService
     public void M2();
 }
 ```
-By default, the interceptor provider attributes declared in the base class can be inherited by its sub class. The NonInterceptableAttribute can also be used to suppress the interceptor provider attributes declared in base class.
+By default, the interceptor provider attributes declared in the base class can be inherited by its sub classes. The _NonInterceptableAttribute_ can also be used to suppress the interceptor provider attributes declared in base class.
 ```csharp
 [Interceptor1]
 [Interceptor2]
@@ -180,7 +180,7 @@ public class Service2: Service1
 }
 ```
 #### 2.2 Control the execution order
-If multiple interceptors are applied to the same method, we can determine their execution order by specifying specific interceptor provider attribute's Order property. 
+If multiple interceptors are applied to the same method, we can determine their execution order by specifying specific interceptor provider attribute's _Order_ property. 
 ```csharp
 public class Foobar: IFoobar
 {
@@ -190,16 +190,16 @@ public class Foobar: IFoobar
 }
 ```
 ### 3. Use ServiceProvider to create proxy
-Proxy based interception mechanism adopted by Dora.Interception. An internal service proxy is provided to create a proxy to wrap the target instance, and the applied interceptors are applied to the proxy. Only the method is called against the proxy instead of target instance can be injected. Dora.Interception integrates .NET Core based dependency injection frameowork, such a proxy can be provided by ServiceProvdier.
+Proxy based interception mechanism adopted by _Dora.Interception_. An internal service proxy is provided to create a proxy to wrap the target instance, and the applied interceptors are applied to the proxy. Only the method is called against the proxy instead of target instance can be injected. _Dora.Interception_ integrates .NET Core _Dependency Injection_ frameowork, such a proxy can be provided by _ServiceProvdier_.
 #### 3.1 Use IInterceptable&lt;T&gt; to get the proxy
-Instead of provide the target service instance, we can use ServiceProvider to provide a specific IInterceptable<T> instance. Its Proxy proeprty return the proxy which can be injected.
+Instead of provide the target service instance, we can use ServiceProvider to provide a specific _IInterceptable&lt;T&gt_; instance. Its _Proxy_ proeprty return the proxy which can be injected.
 ```charp
 public interface IInterceptable<T> where T : class
 {
     T Proxy { get; }
 }
 ```
-In the following program, we following dependency injection programming convention to get the SystemClock specific proxy.
+In the following program, we following dependency injection programming convention to get the _SystemClock_ specific proxy.
 ```csharp
 var clock = new ServiceCollection()
   .AddMemoryCache()
@@ -215,7 +215,7 @@ for (int i = 0; i < int.MaxValue; i++)
   Task.Delay(1000).Wait();
 }
 ```
-The CacheInterceptor is applied to the SystemClock class, so the return value of GetCurrentTime will be cached. After runing the above program, we will get the following output on the console. The reason why every 5 method invocations return the same value is that the absolute expiration time is configured to 5 seconds.
+The _CacheInterceptor_ is applied to the _SystemClock_ class, so the return value of _GetCurrentTime_ will be cached. After runing the above program, we will get the following output on the console. The reason why every 5 method invocations return the same value is that the absolute expiration time is configured to 5 seconds.
 ```
 Current time: 3/17/2017 8:00:31 AM
 Current time: 3/17/2017 8:00:31 AM
@@ -229,7 +229,7 @@ Current time: 3/17/2017 8:00:37 AM
 Current time: 3/17/2017 8:00:37 AM
 ```
 #### 3.2 Let ServiceProvider to create proxy
-There is another way to get the proxy which can be injected. We can call ToInterceptable method (it is an extension method of IServiceProvider interface) to create an InterceptableServiceProvider, which can directly create the proxy.
+There is another way to get the proxy which can be injected. We can call the _ToInterceptable_ method (it is an extension method of IServiceProvider interface) to create an _InterceptableServiceProvider_, which can directly create the proxy.
 ```charp
 var clock = new ServiceCollection()
   .AddMemoryCache()
@@ -249,7 +249,7 @@ for (int i = 0; i < int.MaxValue; i++)
 ### 4 Interception programming in ASP.NET Core
 In ASP.NET Core application, there are also two kinds of interception programming.
 #### 4.1 Inject IInterceptable&lt;T&gt; service
-In order to change the method invocation to target instance to the one to the specific proxy, we can inject the IInterceptable<T> like this.
+In order to change the method invocation to target instance to the one to the specific proxy, we can inject the _IInterceptable&lt;T&gt;_ like this.
 ```csharp
 public class HomeController: Controller
 {
@@ -287,7 +287,7 @@ new WebHostBuilder()
     .Run();
 ```
 #### 4.2 Register a middleware to create an InterceptableServiceProvider 
-If we do not want to inject IInterceptable<T> service, we need to make the InterceptableServiceProvider to provide the dependent services. This can be achieved by registering a middleware, which can be done by calling the UseInterception method (it is the extension method of IWebHostBuilder interface).
+If we do not want to inject _IInterceptable&lt;T&gt;_ service, we need to make the _InterceptableServiceProvider_ to provide the dependent services. This can be achieved by registering a middleware, which can be done by calling the _UseInterception_ method (it is the extension method of _IWebHostBuilder_ interface).
 ```charp
 new WebHostBuilder()
     .UseKestrel()
