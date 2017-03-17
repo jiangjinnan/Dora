@@ -192,7 +192,7 @@ public class Foobar: IFoobar
 ### 3. Use ServiceProvider to create proxy
 Proxy based interception mechanism adopted by _Dora.Interception_. An internal service proxy is provided to create a proxy to wrap the target instance, and the applied interceptors are applied to the proxy. Only the method is called against the proxy instead of target instance can be injected. _Dora.Interception_ integrates .NET Core _Dependency Injection_ frameowork, such a proxy can be provided by _ServiceProvdier_.
 #### 3.1 Use IInterceptable&lt;T&gt; to get the proxy
-Instead of provide the target service instance, we can use ServiceProvider to provide a specific _IInterceptable&lt;T&gt_; instance. Its _Proxy_ proeprty return the proxy which can be injected.
+Instead of provide the target service instance, we can use ServiceProvider to provide a specific _IInterceptable&lt;T&gt;_ instance. Its _Proxy_ proeprty return the proxy which can be injected.
 ```charp
 public interface IInterceptable<T> where T : class
 {
