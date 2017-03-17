@@ -91,4 +91,61 @@ The CacheInterceptor illustrates the typical programming convention of intercept
   * This method’s first parameter must be an InvocationContext object, which carries the contextual information about the method invocation, including the MethodInfo and arguments, etc. This context object can be also used to set return value or output parameters. 
   * It is allowed to own any number of parameters, which is bound in a DI manner, so the related service registrations must be added in advanced.  
   * If we need to proceed to next interceptor or target instance, we must invoke the InterceptDelegate delegate initialized in constructor.
+### How to apply the interceptor?
+The interceptor is applied to target method by declaring specific attribute to the method or class, and we call such an attribute as “interceptor provider attribute”. Each interceptor class has its specific provider attribute, which is usually derived from the InterceptorAttribute class. For the above CacheInterceptor, we can define its provider attribute like this:
+```csharp
+[AttributeUsage( AttributeTargets.Method)]
+public class CacheReturnValueAttribute : InterceptorAttribute
+{
+  public override void Use(IInterceptorChainBuilder builder)
+  {
+    builder.Use<CacheInterceptor>(this.Order);
+  }
+} 
+```
+Concrete interceptor provider attribute class must override the abstract Use method, which has a parameter of IInterceptorChainBuilder. We just need to call this IInterceptorChainBuilder object’s Use<TInterceptor> method to register the specific interceptor. Except for specify the interceptor type as the generate argument, we must specify the order which determine the position for the interceptor in the built interceptor chain. When interceptor is instantiated, the arguments of constructor can be provided in a DI manner. For the arguments which cannot be injected, we must explicitly specify them. This is very similar to register ASP.NET Core middleware.
+```csharp
+public static IInterceptorChainBuilder Use<TInterceptor>(this IInterceptorChainBuilder builder, int order, params object[] arguments)
+```
+The interceptor provider attribute can be declared to class or method. As illustrated in the following code snippet, we declare the CacheRetuenValueAttribute to the GetCurrentTime method of SystemClock class.
+```csharp
+public interface ISystomClock
+{
+  DateTime GetCurrentTime();
+}
 
+public class SystomClock : ISystomClock
+{
+  [CacheReturnValue]
+  public DateTime GetCurrentTime()
+  {
+    return DateTime.UtcNow;
+  }
+}
+```
+#### Suppress the interceptor providers
+If the interceptor provider attribute is declared to a particular class, it means the specific interceptor is applied to all of its method. If this class has a method which cannot be injected, we can declare a NonInterceptableAttribute to this method. When declaring the NonInterceptableAttribute, we can specify the types of interceptor provider attribute to suppress. If no interceptor provider type is specified, it means to suppress all kinds of interceptor.
+```csharp
+[Interceptor1]
+[Interceptor2]
+public class Service: IService
+{
+    public void M1();
+   [NonInterceptable(typeof(Interceptor1Attribute))]
+    public void M2();
+}
+```
+By default, the interceptor provider attributes declared in the base class can be inherited by its sub class. The NonInterceptableAttribute can also be used to suppress the interceptor provider attributes declared in base class.
+```csharp
+[Interceptor1]
+[Interceptor2]
+public class Service1: IService
+{
+    …
+}
+[NonInterceptable(typeof(Interceptor1Attribute))]
+public class Service2: IService
+{
+    …
+}
+```
