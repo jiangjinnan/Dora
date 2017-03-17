@@ -144,7 +144,7 @@ public class Service1: IService
     …
 }
 [NonInterceptable(typeof(Interceptor1Attribute))]
-public class Service2: IService
+public class Service2: Service1
 {
     …
 }
