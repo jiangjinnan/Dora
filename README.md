@@ -12,8 +12,6 @@ public class CacheInterceptor
   public CacheInterceptor(InterceptDelegate next, IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
   {
     _next = next;
-    _cache = cache;
-    _options = optionsAccessor.Value;
   }
 
   public async Task InvokeAsync(InvocationContext context)
