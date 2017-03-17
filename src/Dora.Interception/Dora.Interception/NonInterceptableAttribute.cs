@@ -5,11 +5,24 @@ using System.Threading.Tasks;
 
 namespace Dora.Interception
 {
+  /// <summary>
+  /// An attribute indicating the target method is not allowed to be intercepted.
+  /// </summary>
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+  public class NonInterceptableAttribute : Attribute
+  {
     /// <summary>
-    /// An attribute indicating the target method is not allowed to be intercepted.
+    /// The type of interceptor provider to suppress.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class| AttributeTargets.Method)]
-    public class NonInterceptableAttribute:Attribute
+    public Type[] InterceptorProviderTypes { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="interceptorProviderTypes"></param>
+    public NonInterceptableAttribute(params Type[] interceptorProviderTypes)
     {
+      this.InterceptorProviderTypes = interceptorProviderTypes;
     }
+  }
 }

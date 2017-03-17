@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,55 +11,51 @@ using System.Threading.Tasks;
 namespace Demo1
 {
   public class Program
+  {
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            new WebHostBuilder()
-                .UseKestrel()
-                .ConfigureLogging(loggerFactory => loggerFactory.AddConsole((category, level) => category == "Demo1"))
-                .ConfigureServices(svcs => svcs
-                    .AddSingleton<IFoobarService, FoobarService>()
-                    .AddInterception(builder=>builder.SetDynamicProxyFactory())
-                    .AddMvc())
-                .Configure(app => app
-                    .UseDeveloperExceptionPage()
-                    .UseMvc())
-                .Build()
-                .Run();
-        }
-    }
+var clock1 = new ServiceCollection()
+  .AddMemoryCache()
+  .Configure<MemoryCacheEntryOptions>(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5))
+  .AddSingleton<ISystomClock, SystomClock>()
+  .AddInterception(builder => builder.SetDynamicProxyFactory())
+  .BuildServiceProvider()
+  .GetRequiredService<IInterceptable<ISystomClock>>()
+  .Proxy;
+for (int i = 0; i < int.MaxValue; i++)
+{
+  Console.WriteLine($"Current time: {clock1.GetCurrentTime()}");
+  Task.Delay(1000).Wait();
+}
 
-    public class HomeController : Controller
+
+var clock2 = new ServiceCollection()
+  .AddMemoryCache()
+  .Configure<MemoryCacheEntryOptions>(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5))
+  .AddSingleton<ISystomClock, SystomClock>()
+  .AddInterception(builder => builder.SetDynamicProxyFactory())
+  .BuildServiceProvider()
+  .ToInterceptable()
+  .GetRequiredService<ISystomClock>();
+
+for (int i = 0; i < int.MaxValue; i++)
+{
+  Console.WriteLine($"Current time: {clock2.GetCurrentTime()}");
+  Task.Delay(1000).Wait();
+}
+    }
+  }
+  public interface ISystomClock
+  {
+    DateTime GetCurrentTime();
+  }
+
+  public class SystomClock : ISystomClock
+  {
+    [CacheReturnValue]
+    public DateTime GetCurrentTime()
     {
-        private IFoobarService _service;
-
-        public HomeController(IInterceptable<IFoobarService> service)
-        {
-            _service = service.Proxy;
-        }
-
-        [HttpGet("/")]
-        public async Task Index()
-        {
-            await _service.InvokeAsync();
-        }
+      return DateTime.UtcNow;
     }
-
-    public interface IFoobarService
-    {
-        Task InvokeAsync();
-    }
-  
-    [Foobar]
-    public class FoobarService : IFoobarService
-    {
-        [HandleException("Demo1")]
-        public Task InvokeAsync()
-        {
-            return Task.FromException(new Exception("Manually thrown exception"));
-        }
-    }
-
-  public class FoobarAttribute : Attribute
-  { }
+  }
 }

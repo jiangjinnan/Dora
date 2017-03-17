@@ -4,12 +4,22 @@
     <TargetFramework>netstandard1.6</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>A .NET Core based interception framework for AOP programming.</Description>
+    <Authors>Jiang Jin Nan</Authors>
+    <Company>Artech</Company>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Product>Dora</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
-    <DocumentationFile>bin\Debug\netstandard1.6\Dora.Interception.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.6\Dora.Interception.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

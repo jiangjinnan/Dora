@@ -11,7 +11,7 @@ namespace Dora
   {
     private static ConcurrentDictionary<object, Attribute[]> _attributes = new ConcurrentDictionary<object, Attribute[]>();
     private static ConcurrentDictionary<object, Attribute[]> _ownAttributes = new ConcurrentDictionary<object, Attribute[]>();
-    public static IEnumerable<Attribute> GetCustomAttributes(MemberInfo memberInfo, bool inherit)
+    public static IEnumerable<Attribute> GetCustomAttributes(MemberInfo memberInfo, bool inherit = true)
     {
       Attribute[] attributes;
       if (inherit)
@@ -25,7 +25,7 @@ namespace Dora
         ? attributes
         : _attributes[memberInfo] = memberInfo.GetCustomAttributes(false).ToArray();
     }
-    public static IEnumerable<Attribute> GetCustomAttributes(Type type, bool inherit)
+    public static IEnumerable<Attribute> GetCustomAttributes(Type type, bool inherit = true)
     {
       TypeInfo typeInfo = type.GetTypeInfo();
       Attribute[] attributes;
@@ -39,6 +39,22 @@ namespace Dora
       return _ownAttributes.TryGetValue(typeInfo, out attributes)
         ? attributes
         : _attributes[type] = typeInfo.GetCustomAttributes(false).ToArray();
+    }
+    public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(MemberInfo memberInfo, bool inherit = true) 
+    {
+      return GetCustomAttributes(memberInfo, inherit).OfType<TAttribute>();
+    }
+    public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(Type type, bool inherit = true) 
+    {
+      return GetCustomAttributes(type, inherit).OfType<TAttribute>();
+    }
+    public static TAttribute GetCustomAttribute<TAttribute>(MemberInfo memberInfo, bool inherit = true) 
+    {
+      return GetCustomAttributes(memberInfo, inherit).OfType<TAttribute>().FirstOrDefault();
+    }
+    public static TAttribute GetCustomAttribute<TAttribute>(Type type, bool inherit = true) 
+    {
+      return GetCustomAttributes(type, inherit).OfType<TAttribute>().FirstOrDefault();
     }
   }
 }

@@ -77,25 +77,42 @@ namespace Dora.Interception
     /// <returns>The proxy wrapping the specified target instance.</returns>
     protected abstract object CreateProxyCore(Type typeToProxy, object target, IDictionary<MethodInfo, InterceptorDelegate> initerceptors);
 
-    private Dictionary<MethodInfo, InterceptorDelegate> CreateInterceptors(Type typeToProxy, object target)
+    internal Dictionary<MethodInfo, InterceptorDelegate> CreateInterceptors(Type typeToProxy, object target)
     {
       Dictionary<MethodInfo, InterceptorDelegate> interceptors = new Dictionary<MethodInfo, InterceptorDelegate>();
-      var providersOfClass = this.GetInterceptorProvidersForClass(target);
+      var providersOfClass = this.GetInterceptorProvidersForClass(target, out NonInterceptableAttribute nonInterceptable4Class);
+      if (null != nonInterceptable4Class && !nonInterceptable4Class.InterceptorProviderTypes.Any())
+      {
+        return interceptors;
+      }
       foreach (var method in typeToProxy.GetTypeInfo().GetMethods())
       {
         if (method.DeclaringType != typeToProxy)
         {
           continue;
         }
-        var providersOfMethod = this.GetInterceptorProvidersForMethod(method, target).ToList();
+        var providersOfMethod = this.GetInterceptorProvidersForMethod(method, target, out NonInterceptableAttribute nonInterceptable4Method).ToList();
+        if (null != nonInterceptable4Method && !nonInterceptable4Method.InterceptorProviderTypes.Any())
+        {
+          continue;
+        }
         foreach (var provider in providersOfClass)
         {
           if (!provider.AllowMultiple && providersOfMethod.Any(it => it.GetType() == provider.GetType()))
           {
             continue;
           }
+          if (null != nonInterceptable4Method && nonInterceptable4Method.InterceptorProviderTypes.Contains(provider.GetType()))
+          {
+            continue;
+          }
+
+          if (null != nonInterceptable4Class && nonInterceptable4Class.InterceptorProviderTypes.Contains(provider.GetType()))
+          {
+            continue;
+          }
           providersOfMethod.Add(provider);
-        }
+        }   
 
         if (providersOfMethod.Any())
         {
@@ -110,26 +127,42 @@ namespace Dora.Interception
       return interceptors;
     }
 
-    private IEnumerable<IInterceptorProvider> GetInterceptorProvidersForClass(object target)
+    private IEnumerable<IInterceptorProvider> GetInterceptorProvidersForClass(object target, out NonInterceptableAttribute nonInterceptableAttribute)
     {
+      var attribute = CustomAttributeAccessor.GetCustomAttribute<NonInterceptableAttribute>(target.GetType());
+      nonInterceptableAttribute = attribute;
       var providers = target.GetType().GetTypeInfo().GetCustomAttributes().OfType<IInterceptorProvider>();
+      if (null != attribute)
+      {
+        if (!nonInterceptableAttribute.InterceptorProviderTypes.Any())
+        {
+          return new IInterceptorProvider[0];
+        }
+        providers = providers.Where(it => !attribute.InterceptorProviderTypes.Contains(it.GetType()));
+      }
       foreach (var provider in providers)
       {
         (provider as IAttributeCollection)?.AddRange(CustomAttributeAccessor.GetCustomAttributes(target.GetType(), true));
-      }
+      }      
       return providers;
     }
 
-    private IEnumerable<IInterceptorProvider> GetInterceptorProvidersForMethod(MethodInfo proxyMethod, object target)
+    private IEnumerable<IInterceptorProvider> GetInterceptorProvidersForMethod(MethodInfo proxyMethod, object target, out NonInterceptableAttribute nonInterceptableAttribute)
     {
       MethodInfo targetMethod = target.GetType().GetTypeInfo().GetMethods().FirstOrDefault(it => Match(proxyMethod, it));
-      if (null == targetMethod ||
-          targetMethod.GetCustomAttribute<NonInterceptableAttribute>() != null ||
-          target.GetType().GetTypeInfo().GetCustomAttribute<NonInterceptableAttribute>() != null)
+      var attribute = CustomAttributeAccessor.GetCustomAttribute<NonInterceptableAttribute>(targetMethod);
+      nonInterceptableAttribute = attribute;
+      var providers = CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(targetMethod);
+
+      if (null != attribute)
       {
-        return new IInterceptorProvider[0];
+        if (!nonInterceptableAttribute.InterceptorProviderTypes.Any())
+        {
+          return new IInterceptorProvider[0];
+        }
+        providers = providers.Where(it => !attribute.InterceptorProviderTypes.Contains(it.GetType()));
       }
-      var providers = targetMethod.GetCustomAttributes().OfType<IInterceptorProvider>();
+
       foreach (var provider in providers)
       {
         (provider as IAttributeCollection)?.AddRange(CustomAttributeAccessor.GetCustomAttributes(proxyMethod, true));

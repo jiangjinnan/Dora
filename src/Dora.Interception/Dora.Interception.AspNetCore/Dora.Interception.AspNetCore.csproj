@@ -4,12 +4,22 @@
     <TargetFramework>netstandard1.6</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
+    <Description>Interception extension for ASP.NET Core, and it provides a middleware to change the current request context's service provider to the one which can provide interceptable proxies.</Description>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Authors>Jiang Jin Nan</Authors>
+    <Company>Artech</Company>
+    <Product>Dora</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
     <DocumentationFile>bin\Debug\netstandard1.6\.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.6\.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
