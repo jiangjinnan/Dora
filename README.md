@@ -82,13 +82,13 @@ public class CacheInterceptor
 The CacheInterceptor is a simple interceptor which help us to cache a method’s return value, and the key is generated based on the arguments. For the subsequent invocation against the same method, the cached value will be directly returned and target method will not be invoked. What is used for caching by this interceptor is an IMemoryCache object.
 The CacheInterceptor illustrates the typical programming convention of interceptor class:
 * The interceptor class must be an instance class, and static class is illegal.
-* The interceptor must have such a public instance constructor:
-- Its first parameter’s type must be InterceptDelegate, which is used to invoke the next interceptor or target method.
-- It is allowed to own any number of parameters. (e.g. CacheInterceptor’s constructor have a parameter cache of IMemoryCache type).
-* The interceptor must have such an InvokeAsync method to conduct specific cross-cutting functionalities:
-** This method must be an instance method instead of static one.
-** This method must be asynchronous method whose return type is Task.
-** This method’s first parameter must be an InvocationContext object, which carries the contextual information about the method invocation, including the MethodInfo and arguments, etc. This context object can be also used to set return value or output parameters.
-** It is allowed to own any number of parameters, which is bound in a DI manner, so the related service registrations must be added in advanced.
-** If we need to proceed to next interceptor or target instance, we must invoke the InterceptDelegate delegate initialized in constructor.
+* The interceptor must have such a public instance constructor:  
+  * Its first parameter’s type must be InterceptDelegate, which is used to invoke the next interceptor or target method.  
+  * It is allowed to own any number of parameters. (e.g. CacheInterceptor’s constructor have a parameter cache of IMemoryCache type).
+* The interceptor must have such an InvokeAsync method to conduct specific cross-cutting functionalities:  
+  * This method must be an instance method instead of static one.  
+  * This method must be asynchronous method whose return type is Task.  
+  * This method’s first parameter must be an InvocationContext object, which carries the contextual information about the method invocation, including the MethodInfo and arguments, etc. This context object can be also used to set return value or output parameters. 
+  * It is allowed to own any number of parameters, which is bound in a DI manner, so the related service registrations must be added in advanced.  
+  * If we need to proceed to next interceptor or target instance, we must invoke the InterceptDelegate delegate initialized in constructor.
 
