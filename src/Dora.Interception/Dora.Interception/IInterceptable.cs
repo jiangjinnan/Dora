@@ -17,13 +17,13 @@ namespace Dora.Interception
     /// Represents the service with a proxy against which the method invocation can be intercepted.
     /// </summary>
     /// <typeparam name="T">The declaration type of service.</typeparam>
-    public interface IInterceptable<T> where T : class
-    {
-        /// <summary>
-        /// The proxy against which the method invocation can be intercepted.
-        /// </summary>
-        T Proxy { get; }
-    }
+public interface IInterceptable<T> where T : class
+{
+    /// <summary>
+    /// The proxy against which the method invocation can be intercepted.
+    /// </summary>
+    T Proxy { get; }
+}
 
     /// <summary>
     /// Represents the service with a proxy against which the method invocation can be intercepted.

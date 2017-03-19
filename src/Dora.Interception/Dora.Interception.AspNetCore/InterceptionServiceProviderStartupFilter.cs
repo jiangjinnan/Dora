@@ -1,20 +1,28 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.AspNetCore.Builder;
 
 namespace Dora.Interception.AspNetCore
 {
-    public class InterceptionServiceProviderStartupFilter : IStartupFilter
+  /// <summary>
+  /// A custom startup filter to register <see cref="InterceptionServiceProviderMiddleware"/>.
+  /// </summary>
+  public class InterceptionServiceProviderStartupFilter : IStartupFilter
+  {
+    /// <summary>
+    /// Register <see cref="InterceptionServiceProviderMiddleware"/>.
+    /// </summary>
+    /// <param name="next">A delegate to perform subsequent configuration.</param>
+    /// <returns>The delegate to configure the application.</returns>
+    /// <exception cref="ArgumentNullException">The argument <paramref name="next"/> is null.</exception>
+    public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
     {
-        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
-        {
-            return builder =>
-            {
-                builder.UseMiddleware<InterceptionServiceProviderMiddleware>();
-                next(builder);
-            };
-        }
+      Guard.ArgumentNotNull(next, nameof(next));
+      return builder =>
+      {
+        builder.UseMiddleware<InterceptionServiceProviderMiddleware>();
+        next(builder);
+      };
     }
+  }
 }

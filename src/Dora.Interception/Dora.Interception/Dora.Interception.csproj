@@ -4,19 +4,34 @@
     <TargetFramework>netstandard1.6</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>A .NET Core based interception framework for AOP programming.</Description>
+    <Authors>Jiang Jin Nan</Authors>
+    <Company>Artech</Company>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Product>Dora</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
-    <DocumentationFile>bin\Debug\netstandard1.6\Dora.Interception.xml</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard1.6\Dora.Interception.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Dora.Shared\Dora.Shared\Guard.cs" Link="Guard.cs" />
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\CustomAttributeAccessor.cs" Link="shared\CustomAttributeAccessor.cs" />
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\Guard.cs" Link="shared\Guard.cs" />
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\StringExtensions.cs" Link="shared\StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.0" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="shared\" />
   </ItemGroup>
 </Project>

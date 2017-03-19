@@ -1,12 +1,5 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTrademark("")]
-// Setting ComVisible to false makes the types in this assembly not visible
-// to COM components.  If you need to access a type in this assembly from
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("165f610e-00f6-47e4-b7a5-a330eb3ed019")]
+[assembly: InternalsVisibleTo("Dora.Interception.AspNetCore, PublicKey=0024000004800000940000000602000000240000525341310004000001000100bbd7e7523613bdd0c9e3381b7b56654fe8b8686edadc4595f4c0691bb2cd961d37ed722feb37cb3de76763827af3f821870d22c0db0d6ade891ede211f7b944bdc53b9875aacfcddc87d8e6599660c671eb719a53a750aae509b9a8bb2bdb6d833734782ac7530478f44d7c33f44316ce238fa47321396d94a150cb532d0f4b6")]
+[assembly: InternalsVisibleTo("Dora.Interception.Castle, PublicKey=0024000004800000940000000602000000240000525341310004000001000100bbd7e7523613bdd0c9e3381b7b56654fe8b8686edadc4595f4c0691bb2cd961d37ed722feb37cb3de76763827af3f821870d22c0db0d6ade891ede211f7b944bdc53b9875aacfcddc87d8e6599660c671eb719a53a750aae509b9a8bb2bdb6d833734782ac7530478f44d7c33f44316ce238fa47321396d94a150cb532d0f4b6")]
+[assembly: InternalsVisibleTo("Dora.Interception.Test, PublicKey=0024000004800000940000000602000000240000525341310004000001000100bbd7e7523613bdd0c9e3381b7b56654fe8b8686edadc4595f4c0691bb2cd961d37ed722feb37cb3de76763827af3f821870d22c0db0d6ade891ede211f7b944bdc53b9875aacfcddc87d8e6599660c671eb719a53a750aae509b9a8bb2bdb6d833734782ac7530478f44d7c33f44316ce238fa47321396d94a150cb532d0f4b6")]
