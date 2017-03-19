@@ -219,7 +219,7 @@ for (int i = 0; i < int.MaxValue; i++)
   Task.Delay(1000).Wait();
 }
 ```
-The _IInterceptorChainBuilder_ interface's extension method _SetDynamicProxyFactory_ is used to registered a _DynamicProxyFactory_ service, which completes _Castle_ based interception implementation. This custom _ProxyFactory_ class is defined in the _NuGet_ package _"Dora.Interception.Castle"_. To install _Dora.Interception.AspNetCore_, run the following command in the _Package Manager Console_ 
+The _IInterceptorChainBuilder_ interface's extension method _SetDynamicProxyFactory_ is used to registere a _DynamicProxyFactory_ service, which completes _Castle_ based interception implementation. This custom _ProxyFactory_ class is defined in the _NuGet_ package _"Dora.Interception.Castle"_. To install _Dora.Interception.AspNetCore_, run the following command in the _Package Manager Console_ 
 ```
 PM>Install-Package Dora.Interception.Castle
 ```
