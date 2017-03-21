@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception.AspNetCor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception.Castle", "src\Dora.Interception\Dora.Interception.Castle\Dora.Interception.Castle.csproj", "{5730227D-6109-4DC4-ACA5-D1643B709BA4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{9BAF9871-37B9-43D0-BAFE-D1A6C44E4154}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Documents", "doc\Documents\Documents.csproj", "{6FD7BD53-24E7-4C44-A82A-5A52B0F0FFE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +33,10 @@ Global
 		{5730227D-6109-4DC4-ACA5-D1643B709BA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5730227D-6109-4DC4-ACA5-D1643B709BA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5730227D-6109-4DC4-ACA5-D1643B709BA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FD7BD53-24E7-4C44-A82A-5A52B0F0FFE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FD7BD53-24E7-4C44-A82A-5A52B0F0FFE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FD7BD53-24E7-4C44-A82A-5A52B0F0FFE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FD7BD53-24E7-4C44-A82A-5A52B0F0FFE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -37,5 +45,6 @@ Global
 		{7A3582F7-61D3-4C7F-9FEC-69A45E4E2DFD} = {446ED1AE-1405-4542-B96E-5F18028046F3}
 		{1EFA3266-EB71-48D9-8AAD-00BD7A1E5095} = {446ED1AE-1405-4542-B96E-5F18028046F3}
 		{5730227D-6109-4DC4-ACA5-D1643B709BA4} = {446ED1AE-1405-4542-B96E-5F18028046F3}
+		{6FD7BD53-24E7-4C44-A82A-5A52B0F0FFE1} = {9BAF9871-37B9-43D0-BAFE-D1A6C44E4154}
 	EndGlobalSection
 EndGlobal
