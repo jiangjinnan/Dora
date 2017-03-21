@@ -1,22 +1,20 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Dora.Caching.Memory
 {
   public class MemoryCacheFactory : CacheFactory
   {
     private readonly IMemoryCache _cache;
+
     public MemoryCacheFactory(IMemoryCache cache)
     {
-      Guard.ArgumentNotNull(cache, nameof(cache));
-      _cache = cache;
+      _cache = Guard.ArgumentNotNull(cache, nameof(cache));
     }
-    protected override ICache Create(string name, CacheEntryOptions options)
+    internal protected override ICache Create(string name, CacheEntryOptions options)
     {
       Guard.ArgumentNotNullOrWhiteSpace(name, nameof(name));
       Guard.ArgumentNotNull(options, nameof(options));
+
       MemoryCacheEntryOptions options2 = new MemoryCacheEntryOptions
       {
         AbsoluteExpiration = options.AbsoluteExpiration,

@@ -19,10 +19,11 @@ namespace Dora.Caching.Distributed
       _options = Guard.ArgumentNotNull(options, nameof(options));
     }
 
-    protected override async Task<CacheValue> GetCoreAsync(string key, Type valueType)
+    internal protected override async Task<CacheValue> GetCoreAsync(string key, Type valueType)
     {
       Guard.ArgumentNotNullOrWhiteSpace(key, nameof(key));
       Guard.ArgumentNotNull(valueType, nameof(valueType));
+
       var bytes = await _cache.GetAsync(key);
       if (null == bytes)
       {
@@ -31,13 +32,13 @@ namespace Dora.Caching.Distributed
       return new CacheValue { Exists = true, Value = _serializer.Deserialized(bytes, valueType) };
     }
 
-    protected override async Task RemoveCoreAsync(string key)
+    internal protected override async Task RemoveCoreAsync(string key)
     {
        Guard.ArgumentNotNullOrWhiteSpace(key, nameof(key));
        await _cache.RemoveAsync(key);
     }
 
-    protected override async Task SetCoreAsync(string key, object value, CacheEntryOptions options= null)
+    internal protected override async Task SetCoreAsync(string key, object value, CacheEntryOptions options= null)
     {
       Guard.ArgumentNotNullOrWhiteSpace(key, nameof(key));
       var options2 = options != null ? new DistributedCacheEntryOptions

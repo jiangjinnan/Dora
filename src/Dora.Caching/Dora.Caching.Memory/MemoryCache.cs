@@ -8,25 +8,24 @@ namespace Dora.Caching.Memory
   {
     private readonly IMemoryCache _cache;
     private readonly MemoryCacheEntryOptions _options;
+
     public MemoryCache(string name, IMemoryCache cache, MemoryCacheEntryOptions options) : base(name)
     {
-      Guard.ArgumentNotNull(cache, nameof(cache));
-      Guard.ArgumentNotNull(options, nameof(options));
-      _cache = cache;
-      _options = options;
+      _cache = Guard.ArgumentNotNull(cache, nameof(cache));
+      _options = Guard.ArgumentNotNull(options, nameof(options));
     }
 
-    protected override Task  RemoveCoreAsync(string key)
+    internal protected override Task  RemoveCoreAsync(string key)
     {
       Guard.ArgumentNotNullOrWhiteSpace(key, nameof(key));
       _cache.Remove(key);
       return Task.CompletedTask;
     }
 
-    protected override Task SetCoreAsync(string key, object value, CacheEntryOptions options)
+    internal protected override Task SetCoreAsync(string key, object value, CacheEntryOptions options = null)
     {
       Guard.ArgumentNotNullOrWhiteSpace(key, nameof(key));
-      MemoryCacheEntryOptions options2 = options!= null ?new MemoryCacheEntryOptions
+      MemoryCacheEntryOptions options2 = options!= null ? new MemoryCacheEntryOptions
       {
         AbsoluteExpiration = options.AbsoluteExpiration,
         AbsoluteExpirationRelativeToNow = options.AbsoluteExpirationRelativeToNow,
@@ -37,7 +36,7 @@ namespace Dora.Caching.Memory
       return Task.CompletedTask;
     }
 
-    protected override Task<CacheValue> GetCoreAsync(string key, Type valueType)
+    internal protected override Task<CacheValue> GetCoreAsync(string key, Type valueType)
     {
       Guard.ArgumentNotNullOrWhiteSpace(key, nameof(key));
       CacheValue cacheValue = _cache.TryGetValue(key, out object value)

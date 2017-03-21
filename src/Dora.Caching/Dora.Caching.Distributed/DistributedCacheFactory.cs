@@ -16,7 +16,7 @@ namespace Dora.Caching.Distributed
       _serializer = Guard.ArgumentNotNull(serializer, nameof(serializer));
     }
 
-    protected override ICache Create(string name, CacheEntryOptions options)
+    internal protected override ICache Create(string name, CacheEntryOptions options)
     {
       Guard.ArgumentNotNullOrWhiteSpace(name, nameof(name));
       Guard.ArgumentNotNull(options, nameof(options));

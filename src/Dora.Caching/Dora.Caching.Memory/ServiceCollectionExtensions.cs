@@ -1,11 +1,7 @@
 ﻿using Dora;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Dora.Caching;
 using Dora.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

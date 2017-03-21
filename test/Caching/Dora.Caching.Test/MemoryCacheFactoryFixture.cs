@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dora.Caching.Memory;
+using Microsoft.Extensions.Caching.Memory;
 using System;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Dora.Caching.Test
@@ -8,50 +8,51 @@ namespace Dora.Caching.Test
   public class MemoryCacheFactoryFixture
   {
     [Fact]
-    public async void Set_And_Get_Value_Memory()
+    public void New_Argument_Not_Allow_Null()
     {
-      ICache cache = new ServiceCollection()
-        .AddMemoryCacheFactory()
-        .BuildServiceProvider()
-        .GetRequiredService<ICacheFactory>()
-        .Map("Cache1", new CacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(2) })
-        .Get("Cache1");
-
-      object value = new object();
-      await cache.SetAsync("key1", value);
-      var cacheValue = await cache.GetAsync("key1");
-      Assert.Same((await cache.GetValueAsync<object>("key1")), value);
-      await Task.Delay(2000);
-      Assert.Null((await cache.GetValueAsync<object>("key1")));
-
-      await cache.SetAsync("key2", null);
-      cacheValue = await cache.GetAsync("key2");
-      Assert.True(cacheValue.Exists);
-      Assert.Null(cacheValue.Value);
+      Assert.Throws<ArgumentNullException>(() => new MemoryCacheFactory(null));
+    }
+    [Theory]
+    [InlineData(null, "1")]
+    [InlineData("", "1")]
+    [InlineData(" ", "1")]
+    [InlineData("1", null)]
+    public void Create_Arguments_Not_Allow_Null_Or_White_Space(string name, string optionsIndicator)
+    {
+      CacheEntryOptions options = optionsIndicator == null ? null : new CacheEntryOptions();
+      var factory = new MemoryCacheFactory(new FoobarCache());
+      Assert.ThrowsAny<ArgumentException>(() => factory.Create(name, options));
     }
 
     [Fact]
-    public async void Set_And_Get_Value_Distributed()
+    public void Create()
     {
-      ICache cache = new ServiceCollection()
-        .AddDistributedRedisCache(options=>options.Configuration = "localhost")
-        .AddDistributedCacheFactory(builder=>builder.SetJsonSerializer())
-        .BuildServiceProvider()
-        .GetRequiredService<ICacheFactory>()
-        .Map("Cache1", new CacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(2) })
-        .Get("Cache1");
+      var factory = new MemoryCacheFactory(new FoobarCache());
+      var cache = (Memory.MemoryCache)factory.Create("Foobar", new CacheEntryOptions());
+      Assert.Equal("Foobar", cache.Name);
+    }
 
-      object value = "abc";
-      await cache.SetAsync("key1", value);
-      var cacheValue = await cache.GetAsync("key1");
-      Assert.Equal((await cache.GetValueAsync<object>("key1")), value);
-      await Task.Delay(2000);
-      Assert.Null((await cache.GetValueAsync<object>("key1")));
+    private class FoobarCache : IMemoryCache
+    {
+      public ICacheEntry CreateEntry(object key)
+      {
+        throw new NotImplementedException();
+      }
 
-      await cache.SetAsync("key2", null);
-      cacheValue = await cache.GetAsync("key2");
-      Assert.True(cacheValue.Exists);
-      Assert.Null(cacheValue.Value);
+      public void Dispose()
+      {
+        throw new NotImplementedException();
+      }
+
+      public void Remove(object key)
+      {
+        throw new NotImplementedException();
+      }
+
+      public bool TryGetValue(object key, out object value)
+      {
+        throw new NotImplementedException();
+      }
     }
   }
 }
