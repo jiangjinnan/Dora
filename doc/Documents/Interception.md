@@ -97,12 +97,10 @@ The following code snippet illustrates another definition of _CacheInterceptor_,
 ```csharp
 public class CacheInterceptor
 {
-    private readonly InterceptDelegate _next;
+  private readonly InterceptDelegate _next;
   public CacheInterceptor(InterceptDelegate next)
   {
     _next = next;
-    _cache = cache;
-    _options = optionsAccessor.Value;
   }
 
   public async Task InvokeAsync(InvocationContext context, IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
