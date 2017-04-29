@@ -356,7 +356,3 @@ public class HomeController: Controller
   }
 }
 ```
-The _IWebHostBuilder_ interface's extension method is defined in the NuGet package _Dora.Interception.AspNet_. To install _Dora.Interception.AspNetCore_, run the following command in the _Package Manager Console_: 
-```
-PM>Install-Package Dora.Interception.AspNetCore
-```
