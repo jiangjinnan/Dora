@@ -6,75 +6,89 @@ Considering consuming dependent services in a _DI_ style, we do not use an inter
 ```csharp
 public class CacheInterceptor
 {
-  private readonly InterceptDelegate _next;
-  private readonly IMemoryCache _cache;
-  private readonly MemoryCacheEntryOptions _options;
-  public CacheInterceptor(InterceptDelegate next, IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
-  {
-    _next = next;
-  }
-
-  public async Task InvokeAsync(InvocationContext context)
-  {
-    if (!context.Method.GetParameters().All(it => it.IsIn))
+    private readonly InterceptDelegate _next;
+    private readonly IMemoryCache _cache;
+    private readonly MemoryCacheEntryOptions _options;
+    public CacheInterceptor(InterceptDelegate next, IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
     {
-      await _next(context);
+        _next = next;
+        _cache = cache;
+        _options = optionsAccessor.Value;
     }
 
-    var key = new Cachekey(context.Method, context.Arguments);
-    if (_cache.TryGetValue(key, out object value))
+    public async Task InvokeAsync(InvocationContext context)
     {
-      context.ReturnValue = value;
-    }
-    else
-    {
-      await _next(context);
-      _cache.Set(key, context.ReturnValue, _options);
-    }
-  }
-
-  private class Cachekey
-  {
-    public MethodInfo Method { get; }
-    public object[] InputArguments { get; }
-
-    public Cachekey(MethodInfo method, object[] arguments)
-    {
-      this.Method = method;
-      this.InputArguments = arguments;
-    }
-
-    public override bool Equals(object obj)
-    {
-      Cachekey another = obj as Cachekey;
-      if (null == another)
-      {
-        return false;
-      }
-      if (!this.Method.Equals(another.Method))
-      {
-        return false;
-      }
-      for (int index = 0; index < this.InputArguments.Length; index++)
-      {
-        if (!this.InputArguments[index].Equals(another.InputArguments[index]))
+        if (!context.Method.GetParameters().All(it => it.IsIn))
         {
-          return false;
+            await _next(context);
         }
-      }
-      return true;
+
+        var key = new Cachekey(context.Method, context.Arguments);
+        if (_cache.TryGetValue(key, out object value))
+        {
+            context.ReturnValue = value;
+        }
+        else
+        {
+            await _next(context);
+            _cache.Set(key, context.ReturnValue, _options);
+        }
     }
 
-    public override int GetHashCode()
+    private class Cachekey
     {
-      int hashCode = this.Method.GetHashCode();
-      foreach (var argument in this.InputArguments)
-      {
-        hashCode = hashCode ^ argument.GetHashCode();
-      }
-      return hashCode;
+        public MethodInfo Method { get; }
+        public object[] InputArguments { get; }
+
+        public Cachekey(MethodInfo method, object[] arguments)
+        {
+            this.Method = method;
+            this.InputArguments = arguments;
+        }
+
+        public override bool Equals(object obj)
+        {
+            Cachekey another = obj as Cachekey;
+            if (null == another)
+            {
+                return false;
+            }
+            if (!this.Method.Equals(another.Method))
+            {
+                return false;
+            }
+            for (int index = 0; index < this.InputArguments.Length; index++)
+            {
+                var argument1 = this.InputArguments[index];
+                var argument2 = another.InputArguments[index];
+                if (argument1 == null && argument2 == null)
+                {
+                    continue;
+                }
+
+                if (argument1 == null || argument2 == null)
+                {
+                    return false;
+                }
+
+                if (!argument2.Equals(argument2))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = this.Method.GetHashCode();
+            foreach (var argument in this.InputArguments)
+            {
+                hashCode = hashCode ^ argument.GetHashCode();
+            }
+            return hashCode;
+        }
     }
-  }
 }
 ```
 The two classes _InterceptDelegate_ and _InvocationContext_ are defined in the NuGet package "_Dora.Interception_". To install _Dora.Interception_, run the following command in the _Package Manager Console_:
@@ -205,7 +219,6 @@ In the following program, we follow dependency injection programming style to ge
 ```csharp
 var clock = new ServiceCollection()
   .AddMemoryCache()
-  .Configure<MemoryCacheEntryOptions>(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5))
   .AddSingleton<ISystomClock, SystomClock>()
   .AddInterception(builder => builder.SetDynamicProxyFactory())
   .BuildServiceProvider()
@@ -235,15 +248,12 @@ Current time: 3/17/2017 8:00:37 AM
 Current time: 3/17/2017 8:00:37 AM
 ```
 #### 3.2 Let ServiceProvider to create proxy
-There is another way to get the proxy which can be injected. We can call the _ToInterceptable_ method (it is an extension method of _IServiceProvider_ interface) to create an _InterceptableServiceProvider_, which can directly create the proxy.
+There is another way to get the proxy which can be injected. We can call the _BuilderInterceptableServiceProvider_ method (it is an extension method of _IServiceCollection_ interface) to create an _Interceptable_ ServiceProvider, which can directly create the proxy.
 ```charp
 var clock = new ServiceCollection()
   .AddMemoryCache()
-  .Configure<MemoryCacheEntryOptions>(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5))
   .AddSingleton<ISystomClock, SystomClock>()
-  .AddInterception(builder => builder.SetDynamicProxyFactory())
-  .BuildServiceProvider()
-  .ToInterceptable()
+  .BuilderInterceptableServiceProvider()
   .GetRequiredService<ISystomClock>();
 
 for (int i = 0; i < int.MaxValue; i++)
@@ -292,20 +302,35 @@ new WebHostBuilder()
     .Build()
     .Run();
 ```
-#### 4.2 Register a middleware to create an InterceptableServiceProvider 
-If we do not want to inject _IInterceptable&lt;T&gt;_ service, we need to make the _InterceptableServiceProvider_ to provide the dependent services. This can be achieved by registering a middleware, which can be done by calling the _UseInterception_ method (it is the extension method of _IWebHostBuilder_ interface).
+#### 4.2 Create an interceptable ServiceProvider 
+If we do not want to inject _IInterceptable&lt;T&gt;_ service, we need to make the _interceptable_ ServiceProvider to provide the dependent services. This can be achieved by return such an interceptable ServiceProvider from Startup class's ConfigureServices method. As the following code snippet illustrated, we just need to create the afore-mentioned extension method _BuilderInterceptableServiceProvider_.
 ```charp
-new WebHostBuilder()
-    .UseKestrel()
-    .ConfigureServices(svcs => svcs
-        .AddSingleton<ISystomClock, SystomClock>()
-        .Configure<MemoryCacheEntryOptions>(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(2))
-        .AddInterception(builder => builder.SetDynamicProxyFactory())
-        .AddMvc())
-    .Configure(app => app.UseMvc())
-    .UseInterception()
-    .Build()
-    .Run();
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        new WebHostBuilder()
+                .UseKestrel()
+                .UseStartup<Startup>()
+                .Build()
+                .Run();
+    }
+}
+
+public class Startup
+{
+    public IServiceProvider ConfigureServices(IServiceCollection services)
+    {
+        services
+            .AddScoped<ISystomClock, SystomClock>()
+            .AddMvc();
+        return services.BuilderInterceptableServiceProvider(builder => builder.SetDynamicProxyFactory());
+    }
+    public void Configure(IApplicationBuilder app)
+    {
+        app.UseMvc();
+    }
+}
 ```
 Now we can use the general programming to inject the service.
 ```csharp
