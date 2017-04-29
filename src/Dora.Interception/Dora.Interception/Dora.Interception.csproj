@@ -11,6 +11,7 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Product>Dora</Product>
     <Version>1.1.0</Version>
+    <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
