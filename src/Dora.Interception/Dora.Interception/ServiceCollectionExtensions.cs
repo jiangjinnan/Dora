@@ -14,6 +14,12 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configure"></param>
+        /// <returns></returns>
         public static IServiceCollection AddInterception(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {
             Guard.ArgumentNotNull(services, nameof(services));
@@ -24,6 +30,12 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configure"></param>
+        /// <returns></returns>
         public static IServiceProvider BuilderInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {           
             return new ServiceProvider(services.AddInterception(configure), false, services.BuildServiceProvider().GetRequiredService<IProxyFactory>());

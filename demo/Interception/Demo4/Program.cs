@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Memory;
 using System.Reflection;
 
-namespace Demo4
+namespace Demo
 {
     public class Program
     {

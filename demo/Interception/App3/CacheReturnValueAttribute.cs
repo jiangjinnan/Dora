@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Demo
+namespace App
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class CacheReturnValueAttribute : InterceptorAttribute

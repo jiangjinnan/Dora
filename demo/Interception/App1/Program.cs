@@ -1,14 +1,9 @@
 ﻿using Dora.Interception;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace Demo
+namespace App
 {
     public class Program
     {
@@ -39,19 +34,6 @@ namespace Demo
                 Console.WriteLine($"Current time: {clock2.GetCurrentTime()}");
                 Task.Delay(1000).Wait();
             }
-        }
-    }
-    public interface ISystomClock
-    {
-        DateTime GetCurrentTime();
-    }
-
-    public class SystomClock : ISystomClock
-    {
-        [CacheReturnValue]
-        public DateTime GetCurrentTime()
-        {
-            return DateTime.UtcNow;
         }
     }
 }
