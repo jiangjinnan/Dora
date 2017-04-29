@@ -1,4 +1,4 @@
-﻿## Dora.Interception
+## Dora.Interception
 _Dora.Interception_ provides an abstract interception model for AOP programming. Leveraging such an interception model, we can define an _Interceptor_ to conduct non-business cross-cutting function in a very graceful programming style. _Dora.Interception_ is designed for _.NET Core_, and the _Dependency Injection (Microsoft.Extensions.DependencyInjection)_ is directly integrated.
 There is only interception implementation based on _Castle_. You can provide your custom interception implementation if you want.
 ### 1. How to define an interceptor?
@@ -77,6 +77,10 @@ public class CacheInterceptor
   }
 }
 ```
+The two classes _InterceptDelegate_ and _InvocationContext_ are defined in the NuGet package "_Dora.Interception_". To install _Dora.Interception_, run the following command in the _Package Manager Console_:
+```
+PM>Install-Package Dora.Interception
+```
 The above _CacheInterceptor_ is a simple interceptor class which helps us to cache a method’s return value, and the key is generated based on all input arguments (If target method has ref or output parameters, caching will be disabled). For the subsequent invocations against the same method, the cached value will be directly returned and target method will not be invoked. What is used for caching by this interceptor is an _IMemoryCache_ object.
 The _CacheInterceptor_ illustrates the typical programming convention to define an interceptor class:
 * The interceptor class must be an instance class, and static class is illegal.
@@ -93,12 +97,10 @@ The following code snippet illustrates another definition of _CacheInterceptor_,
 ```csharp
 public class CacheInterceptor
 {
-    private readonly InterceptDelegate _next;
+  private readonly InterceptDelegate _next;
   public CacheInterceptor(InterceptDelegate next)
   {
     _next = next;
-    _cache = cache;
-    _options = optionsAccessor.Value;
   }
 
   public async Task InvokeAsync(InvocationContext context, IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
@@ -215,6 +217,10 @@ for (int i = 0; i < int.MaxValue; i++)
   Task.Delay(1000).Wait();
 }
 ```
+The _IInterceptorChainBuilder_ interface's extension method _SetDynamicProxyFactory_ is used to registere a _DynamicProxyFactory_ service, which completes _Castle_ based interception implementation. This custom _ProxyFactory_ class is defined in the _NuGet_ package _"Dora.Interception.Castle"_. To install _Dora.Interception.AspNetCore_, run the following command in the _Package Manager Console_ 
+```
+PM>Install-Package Dora.Interception.Castle
+```
 The _CacheInterceptor_ is applied to the _SystemClock_ class, so the return value of _GetCurrentTime_ will be cached. After runing the above program, we will get the following output on the console. The reason why every 5 method invocations return the same value is that the absolute expiration time is configured to 5 seconds.
 ```
 Current time: 3/17/2017 8:00:31 AM
@@ -324,4 +330,8 @@ public class HomeController: Controller
     await this.Response.WriteAsync("</ul><body></html>");
   }
 }
+```
+The _IWebHostBuilder_ interface's extension method is defined in the NuGet package _Dora.Interception.AspNet_. To install _Dora.Interception.AspNetCore_, run the following command in the _Package Manager Console_: 
+```
+PM>Install-Package Dora.Interception.AspNetCore
 ```
