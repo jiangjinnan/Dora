@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Dora.Interception\Dora.Interception.AspNetCore\Dora.Interception.AspNetCore.csproj" />
     <ProjectReference Include="..\..\..\src\Dora.Interception\Dora.Interception.Castle\Dora.Interception.Castle.csproj" />
   </ItemGroup>
 

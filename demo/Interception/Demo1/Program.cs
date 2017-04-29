@@ -15,8 +15,7 @@ namespace Demo1
     public static void Main(string[] args)
     {
 var clock1 = new ServiceCollection()
-  .AddMemoryCache()
-  .Configure<MemoryCacheEntryOptions>(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5))
+  .AddMemoryCache(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5))
   .AddSingleton<ISystomClock, SystomClock>()
   .AddInterception(builder => builder.SetDynamicProxyFactory())
   .BuildServiceProvider()
@@ -30,8 +29,7 @@ for (int i = 0; i < int.MaxValue; i++)
 
 
 var clock2 = new ServiceCollection()
-  .AddMemoryCache()
-  .Configure<MemoryCacheEntryOptions>(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5))
+  .AddMemoryCache(options => options.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5))
   .AddSingleton<ISystomClock, SystomClock>()
   .AddInterception(builder => builder.SetDynamicProxyFactory())
   .BuildServiceProvider()

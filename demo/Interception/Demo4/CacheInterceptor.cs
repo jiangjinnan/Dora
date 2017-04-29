@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Demo2
+namespace Demo4
 {
     public class CacheInterceptor
     {

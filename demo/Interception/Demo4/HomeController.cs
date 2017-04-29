@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Demo2
+namespace Demo4
 {
     public class HomeController : Controller
     {
-        private readonly ISystomClock _clock;
-        public HomeController(IInterceptable<ISystomClock> interceptable)
+        private readonly ITimeProvider _clock;
+        public HomeController(ITimeProvider clock)
         {
-            _clock = interceptable.Proxy;
+            _clock = clock;
         }
 
         [HttpGet("/")]
@@ -26,18 +26,38 @@ namespace Demo2
                 await this.Response.WriteAsync($"<li>{_clock.GetCurrentTime()}({DateTime.UtcNow})</li>");
                 await Task.Delay(1000);
             }
-
             await this.Response.WriteAsync("</ul><body></html>");
         }
     }
 
-    public interface ISystomClock
+    public interface ITimeProvider
+    {
+        DateTime GetCurrentTime();
+    }
+    public class TimeProvider: ITimeProvider
+    {
+        private ISystomClock _clock;
+        public TimeProvider(ISystomClock clock)
+        {
+            _clock = clock;
+        }
+        public DateTime GetCurrentTime()
+        {
+            return _clock.GetCurrentTime();
+        }
+    }
+    public interface ISystomClock: IDisposable
     {
         DateTime GetCurrentTime();
     }
 
     public class SystomClock : ISystomClock
     {
+        public void Dispose()
+        {
+            
+        }
+
         [CacheReturnValue]
         public DateTime GetCurrentTime()
         {

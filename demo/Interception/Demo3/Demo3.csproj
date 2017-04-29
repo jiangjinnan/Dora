@@ -23,4 +23,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.2.0-preview1-22942" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Dora.Interception\Dora.Interception.Castle\Dora.Interception.Castle.csproj" />
+    <ProjectReference Include="..\..\..\src\Dora.Interception\Dora.Interception\Dora.Interception.csproj" />
+  </ItemGroup>
+
 </Project>
