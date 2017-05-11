@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>    
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <RootNamespace>Dora.ExceptionHandling</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\CustomAttributeAccessor.cs" Link="shared\CustomAttributeAccessor.cs" />
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\Guard.cs" Link="shared\Guard.cs" />
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\StringExtensions.cs" Link="shared\StringExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="shared\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
