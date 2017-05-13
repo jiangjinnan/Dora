@@ -46,20 +46,17 @@ namespace Dora.ExceptionHandling
             Guard.ArgumentNotNull(builder, nameof(builder));
             Guard.ArgumentNotNull(handlerType, nameof(handlerType));
 
+            if (!TryGetInvoke(handlerType, out HandleExceptionDelegate handlerDelegate))
+            {
+                throw new ArgumentException("Invalid exception handler type", nameof(handlerType));
+            }
+
             Func<ExceptionContext, Task> handler = async context =>
             {
                 object[] newArguments = new object[arguments.Length];
                 arguments.CopyTo(newArguments, 0);
                 object instance = ActivatorUtilities.CreateInstance(builder.ServiceProvider, handlerType, newArguments);
-                HandleExceptionDelegate handlerDelegate;
-                if (TryGetInvoke(handlerType, out handlerDelegate))
-                {
-                    await handlerDelegate(instance, context, builder.ServiceProvider);
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid exception handler type", nameof(handlerType));
-                }
+                await handlerDelegate(instance, context, builder.ServiceProvider);
             };
             return builder.Use(handler);
         }

@@ -41,7 +41,6 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentNullException">The <paramref name="postHandler"/> is null.</exception>
         public ExceptionPolicy(IEnumerable<ExceptionPolicyEntry> policyEntries, Func<ExceptionContext, Task> preHandler, Func<ExceptionContext, Task> postHandler)
         {
-
             var list = new List<ExceptionPolicyEntry>(Guard.ArgumentNotNullOrEmpty(policyEntries, nameof(policyEntries)));
             var group = list.GroupBy(it => it.ExceptionType).FirstOrDefault(it => it.Count() > 1);
             if(null != group)
@@ -68,7 +67,12 @@ namespace Dora.ExceptionHandling
             Guard.ArgumentNotNull(exception, nameof(exception));
             ExceptionPolicyEntry policyEntry = this.GetPolicyEntry(exception.GetType());
             postHandlingAction = policyEntry.PostHandlingAction;
-            return async context => await policyEntry.ExceptionHandler(context);
+            return async context =>
+            {
+                await this.PreHandler(context);
+                await policyEntry.ExceptionHandler(context);
+                await this.PostHandler(context);
+            };
         }
 
         /// <summary>
@@ -77,7 +81,7 @@ namespace Dora.ExceptionHandling
         /// <param name="exceptionType">The type of exception to which the retrieved <see cref="ExceptionPolicyEntry"/> is specific.</param>
         /// <returns>The <see cref="ExceptionPolicyEntry"/> specific to given exception type.</returns>
         /// <exception cref="ArgumentNullException">The <paramref name="exceptionType"/> is null.</exception>
-        protected ExceptionPolicyEntry GetPolicyEntry(Type exceptionType)
+        internal protected ExceptionPolicyEntry GetPolicyEntry(Type exceptionType)
         {
             Guard.ArgumentNotAssignableTo<Exception>(exceptionType, nameof(exceptionType));
             var entry = this.PolicyEntries.FirstOrDefault(it => it.ExceptionType == exceptionType);

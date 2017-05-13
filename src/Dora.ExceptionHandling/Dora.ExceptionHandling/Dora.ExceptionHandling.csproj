@@ -15,8 +15,4 @@
     <ProjectReference Include="..\Dora.ExceptionHandling.Abstractions\Dora.ExceptionHandling.Abstractions.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>

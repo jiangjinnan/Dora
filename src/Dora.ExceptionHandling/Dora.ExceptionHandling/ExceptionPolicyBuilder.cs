@@ -45,10 +45,11 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentNullException">The <paramref name="exceptionType"/> is null.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="postHandlingAction"/> is null.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="configure"/> is null.</exception>
-        public IExceptionPolicyBuilder UseHandlers(Type exceptionType, PostHandlingAction postHandlingAction, Action<IExceptionHandlerBuilder> configure)
+        public IExceptionPolicyBuilder For(Type exceptionType, PostHandlingAction postHandlingAction, Action<IExceptionHandlerBuilder> configure)
         {
             Guard.ArgumentNotNull(exceptionType, nameof(exceptionType));
             Guard.ArgumentNotNull(configure, nameof(configure));
+
             if (_policyEntries.Any(it => it.ExceptionType == exceptionType))
             {
                 throw new ArgumentException(Resources.ExceptionDuplicateExceptionType.Fill(exceptionType.FullName), nameof(exceptionType));
@@ -67,13 +68,14 @@ namespace Dora.ExceptionHandling
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
         /// <exception cref="ArgumentNullException">The <paramref name="predicate"/> is null.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="configure"/> is null.</exception>
-        public IExceptionPolicyBuilder UsePostHandlers(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure)
+        public IExceptionPolicyBuilder Post(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure)
         {
             Guard.ArgumentNotNull(predicate, nameof(predicate));
             Guard.ArgumentNotNull(configure, nameof(configure));
+
             ExceptionHandlerBuilder builder = new ExceptionHandlerBuilder(this.ServiceProvider);
             configure(builder);
-            _preHanlderBuilder.Use(async context =>
+            _postHanlderBuilder.Use(async context =>
             {
                 if (predicate(context.Exception))
                 {
@@ -91,13 +93,13 @@ namespace Dora.ExceptionHandling
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
         /// <exception cref="ArgumentNullException">The <paramref name="predicate"/> is null.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="configure"/> is null.</exception>
-        public IExceptionPolicyBuilder UsePreHandlers(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure)
+        public IExceptionPolicyBuilder Pre(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure)
         {
             Guard.ArgumentNotNull(predicate, nameof(predicate));
             Guard.ArgumentNotNull(configure, nameof(configure));
             ExceptionHandlerBuilder builder = new ExceptionHandlerBuilder(this.ServiceProvider);
             configure(builder);
-            _postHanlderBuilder.Use(async context =>
+            _preHanlderBuilder.Use(async context =>
             {
                 if (predicate(context.Exception))
                 {

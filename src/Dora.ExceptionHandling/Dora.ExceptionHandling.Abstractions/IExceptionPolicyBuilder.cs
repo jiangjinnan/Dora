@@ -19,7 +19,7 @@ namespace Dora.ExceptionHandling
         /// <param name="postHandlerAction">Determining what action should occur after an exception is handled by the configured exception handling chain.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
-        IExceptionPolicyBuilder UseHandlers(Type exceptionType, PostHandlingAction postHandlerAction, Action<IExceptionHandlerBuilder> configure);
+        IExceptionPolicyBuilder For(Type exceptionType, PostHandlingAction postHandlerAction, Action<IExceptionHandlerBuilder> configure);
 
         /// <summary>
         /// Register common exception handler chain which is invoked before the ones registered to exception type.
@@ -27,7 +27,7 @@ namespace Dora.ExceptionHandling
         /// <param name="predicate">A filter used to determine whether the registered exception handler should be invoked.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
-        IExceptionPolicyBuilder UsePreHandlers(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure);
+        IExceptionPolicyBuilder Pre(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure);
 
         /// <summary>
         /// Register common exception handler chain which is invoked after the ones registered to exception type.
@@ -35,7 +35,7 @@ namespace Dora.ExceptionHandling
         /// <param name="predicate">A filter used to determine whether the registered exception handler should be invoked.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
-        IExceptionPolicyBuilder UsePostHandlers(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure);
+        IExceptionPolicyBuilder Post(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure);
 
         /// <summary>
         /// Build the exception policy.
