@@ -60,7 +60,7 @@ namespace Dora
         public static Type ArgumentNotAssignableTo<T>(Type argumentValue, string argumentName)
         {
             Guard.ArgumentNotNull(argumentValue, argumentName);
-            if (typeof(T).GetTypeInfo().IsAssignableFrom(argumentValue))
+            if (!typeof(T).GetTypeInfo().IsAssignableFrom(argumentValue))
             {
                 throw new ArgumentException(argumentName, "The specified type \"{0}\"  cannot be assigned to the type \"{1}\".".Fill(argumentValue.FullName, typeof(T).FullName));
             }

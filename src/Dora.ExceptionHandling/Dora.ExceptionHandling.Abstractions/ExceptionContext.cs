@@ -1,19 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Dora.ExceptionHandling
 {
+    /// <summary>
+    /// Represents the execution context in which the exception is handled by registered handlers.
+    /// </summary>
     public class ExceptionContext
     {
+        /// <summary>
+        /// The originally thrown exception.
+        /// </summary>
         public Exception OriginalException { get; }
+
+        /// <summary>
+        /// The new exception used to wrap or replace the <seealso cref="OriginalException"/>.
+        /// </summary>
         public Exception Exception { get; set; }
+
+        /// <summary>
+        /// A <see cref="Guid"/> to uniquely identify the current exception handler operation.
+        /// </summary>
         public Guid HandlingId { get; }
+
+        /// <summary>
+        /// A dictionary to store any properties which may be used by a particular exception handler.
+        /// </summary>
         public IDictionary<string, object> Properties { get; } 
-        public ExceptionContext(Exception exception, Guid handlingId)
+
+        /// <summary>
+        /// Create a new <see cref="ExceptionContext"/>.
+        /// </summary>
+        /// <param name="exception">The exception to handle.</param>
+        /// <exception cref="ArgumentNullException">The <paramref name="exception"/> is null.</exception>
+        public ExceptionContext(Exception exception)
         {
             this.Exception = this.OriginalException = Guard.ArgumentNotNull(exception, nameof(exception));
-            this.HandlingId = Guard.ArgumentNotNullOrEmpty(handlingId, nameof(handlingId));
+            this.HandlingId = Guid.NewGuid();
             this.Properties = new Dictionary<string, object>();
         }
     }

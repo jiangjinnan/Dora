@@ -62,6 +62,15 @@ namespace Dora.ExceptionHandling.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The default exception policy is not set..
+        /// </summary>
+        internal static string ExceptionDefaultPolicyNotExists {
+            get {
+                return ResourceManager.GetString("ExceptionDefaultPolicyNotExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There are multiple exception policies for the exception type &quot;{0}&quot;..
         /// </summary>
         internal static string ExceptionDuplicateExceptionType {

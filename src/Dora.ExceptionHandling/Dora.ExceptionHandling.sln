@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.ExceptionHandling.Abst
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{95484558-037F-41B7-9FEC-D9AA667F382D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{0FED5618-727D-4EFC-8733-4E75ADBAAB30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.ExceptionHandling.Test", "..\..\test\ExceptionHandling\Dora.ExceptionHandling.Test\Dora.ExceptionHandling.Test.csproj", "{82EABF39-2F98-4F63-BF55-4B0812A2A218}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +27,10 @@ Global
 		{878BFCDF-1C04-4141-8ECA-C0A268742697}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{878BFCDF-1C04-4141-8ECA-C0A268742697}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{878BFCDF-1C04-4141-8ECA-C0A268742697}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82EABF39-2F98-4F63-BF55-4B0812A2A218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82EABF39-2F98-4F63-BF55-4B0812A2A218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82EABF39-2F98-4F63-BF55-4B0812A2A218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82EABF39-2F98-4F63-BF55-4B0812A2A218}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,5 +38,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E626FD9D-1B64-43C0-9140-D1A895E4BC9E} = {95484558-037F-41B7-9FEC-D9AA667F382D}
 		{878BFCDF-1C04-4141-8ECA-C0A268742697} = {95484558-037F-41B7-9FEC-D9AA667F382D}
+		{82EABF39-2F98-4F63-BF55-4B0812A2A218} = {0FED5618-727D-4EFC-8733-4E75ADBAAB30}
 	EndGlobalSection
 EndGlobal

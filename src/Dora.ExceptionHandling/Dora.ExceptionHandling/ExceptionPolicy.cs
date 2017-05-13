@@ -8,51 +8,75 @@ using System.Threading.Tasks;
 
 namespace Dora.ExceptionHandling
 {
+    /// <summary>
+    /// The default implementation of exception policy.
+    /// </summary>
     public class ExceptionPolicy : IExceptionPolicy
     {
+        /// <summary>
+        /// Exception policy entries each of which is specific to an exception type.
+        /// </summary>
         public IEnumerable<ExceptionPolicyEntry> PolicyEntries { get; }
+
+        /// <summary>
+        /// The common exception handler chain invoked before all type specific handler chain.
+        /// </summary>
         public Func<ExceptionContext, Task> PreHandler { get; }
+
+        /// <summary>
+        /// The common exception handler chain invoked after all type specific handler chain.
+        /// </summary>
         public Func<ExceptionContext, Task> PostHandler { get; }
 
+        /// <summary>
+        /// Create a new <see cref="ExceptionPolicy"/>.
+        /// </summary>
+        /// <param name="policyEntries">Exception policy entries each of which is specific to an exception type.</param>
+        /// <param name="preHandler">The common exception handler chain invoked before all type specific handler chain.</param>
+        /// <param name="postHandler">The common exception handler chain invoked after all type specific handler chain.</param>
+        /// <exception cref="ArgumentNullException">The <paramref name="policyEntries"/> is null.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="policyEntries"/> is empty.</exception>
+        /// <exception cref="InvalidOperationException">The <paramref name="policyEntries"/> has multiple entries for the same exception type..</exception>
+        /// <exception cref="ArgumentNullException">The <paramref name="preHandler"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">The <paramref name="postHandler"/> is null.</exception>
         public ExceptionPolicy(IEnumerable<ExceptionPolicyEntry> policyEntries, Func<ExceptionContext, Task> preHandler, Func<ExceptionContext, Task> postHandler)
         {
+
             var list = new List<ExceptionPolicyEntry>(Guard.ArgumentNotNullOrEmpty(policyEntries, nameof(policyEntries)));
             var group = list.GroupBy(it => it.ExceptionType).FirstOrDefault(it => it.Count() > 1);
             if(null != group)
             {
-                throw new InvalidOperationException(Resources.ExceptionDuplicateExceptionType.Fill(group.First().ExceptionType.FullName)));
+                throw new InvalidOperationException(Resources.ExceptionDuplicateExceptionType.Fill(group.First().ExceptionType.FullName));
             }
-            if (this.PolicyEntries.Any(it => it.ExceptionType != typeof(Exception)))
+            if (list.Any(it => it.ExceptionType != typeof(Exception)))
             {
                 list.Add(new ExceptionPolicyEntry(typeof(Exception), PostHandlingAction.ThrowNew, _ => Task.CompletedTask));
             }
             this.PolicyEntries = list;
             this.PreHandler = Guard.ArgumentNotNull(preHandler, nameof(preHandler));
             this.PostHandler = Guard.ArgumentNotNull(postHandler, nameof(postHandler));
-        }
+        }        
 
-        public async Task<Exception> HandleException(Exception exception, Guid handlingId)
+        /// <summary>
+        /// Create an exception handler based on specified exception to handle.
+        /// </summary>
+        /// <param name="exception">The exception to handle.</param>
+        /// <param name="postHandlingAction">A <see cref="PostHandlingAction"/> determining what action should occur after an exception is handled by the configured exception handling chain. </param>
+        /// <returns>A <see cref="Func{TExceptionContext, Task}"/> representing the exception handler.</returns>
+        public Func<ExceptionContext, Task> CreateExceptionHandler(Exception exception, out PostHandlingAction postHandlingAction)
         {
-            ExceptionContext context = new ExceptionContext(Guard.ArgumentNotNull(exception, nameof(exception)), Guard.ArgumentNotNullOrEmpty(handlingId, nameof(handlingId)));
+            Guard.ArgumentNotNull(exception, nameof(exception));
             ExceptionPolicyEntry policyEntry = this.GetPolicyEntry(exception.GetType());
-            try
-            {
-                await this.PreHandler(context);
-                await policyEntry.ExceptionHandler(context);
-                await this.PostHandler(context);
-                switch (policyEntry.PostHandlingAction)
-                {
-                    case PostHandlingAction.ThrowNew: return context.Exception;
-                    case PostHandlingAction.ThrowOriginal: return context.OriginalException;
-                    default: return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ExceptionHandlingException(Resources.ExceptionHandlingError, ex);
-            }
+            postHandlingAction = policyEntry.PostHandlingAction;
+            return async context => await policyEntry.ExceptionHandler(context);
         }
 
+        /// <summary>
+        /// Get <see cref="ExceptionPolicyEntry"/> specific to given exception type.
+        /// </summary>
+        /// <param name="exceptionType">The type of exception to which the retrieved <see cref="ExceptionPolicyEntry"/> is specific.</param>
+        /// <returns>The <see cref="ExceptionPolicyEntry"/> specific to given exception type.</returns>
+        /// <exception cref="ArgumentNullException">The <paramref name="exceptionType"/> is null.</exception>
         protected ExceptionPolicyEntry GetPolicyEntry(Type exceptionType)
         {
             Guard.ArgumentNotAssignableTo<Exception>(exceptionType, nameof(exceptionType));
