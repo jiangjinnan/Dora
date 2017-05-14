@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Abstractions\Dora.ExceptionHandling.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Logging\Dora.ExceptionHandling.Logging.csproj" />
+    <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling\Dora.ExceptionHandling.csproj" />
+  </ItemGroup>
+
+</Project>
