@@ -9,6 +9,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
+    <DocumentationFile>bin\Debug\netcoreapp1.1\.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

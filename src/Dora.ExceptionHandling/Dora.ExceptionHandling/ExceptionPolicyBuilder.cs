@@ -39,7 +39,7 @@ namespace Dora.ExceptionHandling
         /// Register exception handler chain for specified exception type.
         /// </summary>
         /// <param name="exceptionType">The type of exception handled by the registered exception handler chain.</param>
-        /// <param name="postHandlerAction">Determining what action should occur after an exception is handled by the configured exception handling chain.</param>
+        /// <param name="postHandlingAction">Determining what action should occur after an exception is handled by the configured exception handling chain.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
         /// <exception cref="ArgumentNullException">The <paramref name="exceptionType"/> is null.</exception>

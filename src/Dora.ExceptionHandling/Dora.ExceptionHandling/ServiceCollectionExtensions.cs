@@ -3,6 +3,9 @@ using System;
 
 namespace Dora.ExceptionHandling
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class ServiceCollectionExtensions
     {
         /// <summary>

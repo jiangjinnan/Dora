@@ -89,6 +89,24 @@ namespace Dora.ExceptionHandling.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The excecption type &quot;{0}&quot; is not a valid replace exception type..
+        /// </summary>
+        internal static string ExceptionInvalidReplaceExceptionType {
+            get {
+                return ResourceManager.GetString("ExceptionInvalidReplaceExceptionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The excecption type &quot;{0}&quot; is not a valid wrap exception type..
+        /// </summary>
+        internal static string ExceptionInvalidWrapExceptionType {
+            get {
+                return ResourceManager.GetString("ExceptionInvalidWrapExceptionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Specified exception policy &quot;{0}&quot; does not exist..
         /// </summary>
         internal static string ExceptionPolicyNotFound {
