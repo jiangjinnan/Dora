@@ -46,7 +46,7 @@ namespace Dora.ExceptionHandling
         /// </summary>
         /// <param name="context">The exception hanlding execution context.</param>
         /// <returns>The task to handle the exception.</returns>
-        public Task HanleExceptionAsync(ExceptionContext context)
+        public Task HandleExceptionAsync(ExceptionContext context)
         {
             Guard.ArgumentNotNull(context, nameof(context));
             context.Exception = (Exception)Activator.CreateInstance(this.WrapExcecptionType, this.Message, context.Exception);
