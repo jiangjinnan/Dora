@@ -33,7 +33,7 @@ namespace Dora.ExceptionHandling
         public static IExceptionPolicyBuilder Pre(this IExceptionPolicyBuilder builder, Action<IExceptionHandlerBuilder> configure)
         {
             Guard.ArgumentNotNull(builder, nameof(builder));
-            return builder.Pre(_ => true, configure);
+            return builder.Pre( configure, _ => true);
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Dora.ExceptionHandling
         public static IExceptionPolicyBuilder Post(this IExceptionPolicyBuilder builder, Action<IExceptionHandlerBuilder> configure)
         {
             Guard.ArgumentNotNull(builder, nameof(builder));
-            return builder.Post(_ => true, configure);
+            return builder.Post( configure, _ => true);
         }
 
         /// <summary>
@@ -55,10 +55,10 @@ namespace Dora.ExceptionHandling
         /// <param name="predicate">A filter used to determine whether the registered exception handler should be invoked.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
-        public static IExceptionPolicyBuilder Use(this IExceptionPolicyBuilder builder, Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure)
+        public static IExceptionPolicyBuilder Use(this IExceptionPolicyBuilder builder, Action<IExceptionHandlerBuilder> configure, Func<Exception, bool> predicate)
         {
             Guard.ArgumentNotNull(builder, nameof(builder));
-            return builder.Post(predicate, configure);
+            return builder.Post(configure, predicate);
         }
 
         /// <summary>

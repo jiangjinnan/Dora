@@ -56,7 +56,7 @@ namespace Dora.ExceptionHandling.Test
                 ? null as Action<IExceptionHandlerBuilder>
                 : _ => { };
             var builder = new ExceptionPolicyBuilder(new ServiceCollection().BuildServiceProvider());
-            Assert.Throws<ArgumentNullException>(() => builder.Pre(predicate,  configure));
+            Assert.Throws<ArgumentNullException>(() => builder.Pre(configure, predicate));
         }
 
         [Theory]
@@ -71,7 +71,7 @@ namespace Dora.ExceptionHandling.Test
                 ? null as Action<IExceptionHandlerBuilder>
                 : _ => { };
             var builder = new ExceptionPolicyBuilder(new ServiceCollection().BuildServiceProvider());
-            Assert.Throws<ArgumentNullException>(() => builder.Post(predicate, configure));
+            Assert.Throws<ArgumentNullException>(() => builder.Post(configure, predicate));
         }
 
         [Fact]
@@ -83,10 +83,10 @@ namespace Dora.ExceptionHandling.Test
             builder.For<BarException>(PostHandlingAction.ThrowNew, _ => _.Use(context => { _flag += "Bar:"; return Task.CompletedTask; }));
             builder.For<BazException>(PostHandlingAction.ThrowNew, _ => _.Use(context => { _flag += "Baz:"; return Task.CompletedTask; }));
 
-            builder.Pre(ex => ex is FoobarException, _ => _.Use(context => { _flag += "Foobar:"; return Task.CompletedTask; }));
-            builder.Pre(ex => ex is BazException, _ => _.Use(context => { _flag += "Baz:"; return Task.CompletedTask; }));
-            builder.Post(ex => ex is FoobarException, _ => _.Use(context => { _flag += "Foobar:"; return Task.CompletedTask; }));
-            builder.Post(ex => ex is BazException, _ => _.Use(context => { _flag += "Baz:"; return Task.CompletedTask; }));
+            builder.Pre( _ => _.Use(context => { _flag += "Foobar:"; return Task.CompletedTask; }), ex => ex is FoobarException);
+            builder.Pre( _ => _.Use(context => { _flag += "Baz:"; return Task.CompletedTask; }), ex => ex is BazException);
+            builder.Post(_ => _.Use(context => { _flag += "Foobar:"; return Task.CompletedTask; }), ex => ex is FoobarException);
+            builder.Post( _ => _.Use(context => { _flag += "Baz:"; return Task.CompletedTask; }),ex => ex is BazException);
 
 
             var policy = builder.Build();

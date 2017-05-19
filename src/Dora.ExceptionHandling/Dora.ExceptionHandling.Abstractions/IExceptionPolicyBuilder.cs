@@ -27,7 +27,7 @@ namespace Dora.ExceptionHandling
         /// <param name="predicate">A filter used to determine whether the registered exception handler should be invoked.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
-        IExceptionPolicyBuilder Pre(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure);
+        IExceptionPolicyBuilder Pre(Action<IExceptionHandlerBuilder> configure, Func<Exception, bool> predicate);
 
         /// <summary>
         /// Register common exception handler chain which is invoked after the ones registered to exception type.
@@ -35,7 +35,7 @@ namespace Dora.ExceptionHandling
         /// <param name="predicate">A filter used to determine whether the registered exception handler should be invoked.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
-        IExceptionPolicyBuilder Post(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure);
+        IExceptionPolicyBuilder Post(Action<IExceptionHandlerBuilder> configure, Func<Exception, bool> predicate);
 
         /// <summary>
         /// Build the exception policy.

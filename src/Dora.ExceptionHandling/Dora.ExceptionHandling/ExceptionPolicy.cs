@@ -41,13 +41,13 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentNullException">The <paramref name="postHandler"/> is null.</exception>
         public ExceptionPolicy(IEnumerable<ExceptionPolicyEntry> policyEntries, Func<ExceptionContext, Task> preHandler, Func<ExceptionContext, Task> postHandler)
         {
-            var list = new List<ExceptionPolicyEntry>(Guard.ArgumentNotNullOrEmpty(policyEntries, nameof(policyEntries)));
+            var list = new List<ExceptionPolicyEntry>(Guard.ArgumentNotNull(policyEntries, nameof(policyEntries)));
             var group = list.GroupBy(it => it.ExceptionType).FirstOrDefault(it => it.Count() > 1);
             if(null != group)
             {
                 throw new InvalidOperationException(Resources.ExceptionDuplicateExceptionType.Fill(group.First().ExceptionType.FullName));
             }
-            if (list.Any(it => it.ExceptionType != typeof(Exception)))
+            if (!list.Any(it => it.ExceptionType == typeof(Exception)))
             {
                 list.Add(new ExceptionPolicyEntry(typeof(Exception), PostHandlingAction.ThrowNew, _ => Task.CompletedTask));
             }

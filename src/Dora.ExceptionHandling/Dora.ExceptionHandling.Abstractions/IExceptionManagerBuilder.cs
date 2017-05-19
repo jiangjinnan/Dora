@@ -17,7 +17,14 @@ namespace Dora.ExceptionHandling
         /// </summary>
         /// <param name="policyName">The name of exception policy to register.</param>
         /// <param name="configure">A <see cref="Action{IExceptionPolicyBuilder}"/> to build the registered exception policy.</param>
-        void AddPolicy(string policyName, Action<IExceptionPolicyBuilder> configure);
+        IExceptionManagerBuilder AddPolicy(string policyName, Action<IExceptionPolicyBuilder> configure);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="policyName"></param>
+        /// <returns></returns>
+        IExceptionManagerBuilder SetDefaultPolicy(string policyName);
 
         /// <summary>
         /// Build the <see cref="ExceptionManager"/>.

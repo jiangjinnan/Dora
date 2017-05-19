@@ -8,11 +8,14 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Dora.Interception.Castle" Version="1.1.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Abstractions\Dora.ExceptionHandling.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Interception\Dora.ExceptionHandling.Interception.csproj" />
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Logging\Dora.ExceptionHandling.Logging.csproj" />
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling\Dora.ExceptionHandling.csproj" />
   </ItemGroup>

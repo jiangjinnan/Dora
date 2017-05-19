@@ -68,7 +68,7 @@ namespace Dora.ExceptionHandling
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
         /// <exception cref="ArgumentNullException">The <paramref name="predicate"/> is null.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="configure"/> is null.</exception>
-        public IExceptionPolicyBuilder Post(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure)
+        public IExceptionPolicyBuilder Post(Action<IExceptionHandlerBuilder> configure, Func<Exception, bool> predicate)
         {
             Guard.ArgumentNotNull(predicate, nameof(predicate));
             Guard.ArgumentNotNull(configure, nameof(configure));
@@ -93,7 +93,7 @@ namespace Dora.ExceptionHandling
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
         /// <exception cref="ArgumentNullException">The <paramref name="predicate"/> is null.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="configure"/> is null.</exception>
-        public IExceptionPolicyBuilder Pre(Func<Exception, bool> predicate, Action<IExceptionHandlerBuilder> configure)
+        public IExceptionPolicyBuilder Pre(Action<IExceptionHandlerBuilder> configure, Func<Exception, bool> predicate)
         {
             Guard.ArgumentNotNull(predicate, nameof(predicate));
             Guard.ArgumentNotNull(configure, nameof(configure));
