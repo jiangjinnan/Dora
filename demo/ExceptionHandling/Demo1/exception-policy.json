@@ -1,0 +1,23 @@
+﻿{
+  "alias": {
+    "InvalidOperationException": "System.InvalidOperationException, System.Runtime",
+    "Exception": "System.Exception, System.Runtime",
+    "ReplaceHandler": "Dora.ExceptionHandling.ReplaceHandler, Dora.ExceptionHandling",
+    "WrapHandler": "Dora.ExceptionHandling.WrapHandler, Dora.ExceptionHandling"
+  },
+  "InvalidOperationException": [
+    {
+      "handler": "ReplaceHandler",
+      "arguments": [
+        {
+          "name": "replaceExcecptionType",
+          "value": "Exception"
+        },
+        {
+          "name": "message",
+          "value": "abc"
+        }
+      ]
+    }
+  ]
+}
