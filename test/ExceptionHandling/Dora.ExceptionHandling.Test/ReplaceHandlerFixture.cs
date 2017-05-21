@@ -37,14 +37,14 @@ namespace Dora.ExceptionHandling.Test
         [Fact]
         public async void HandleExceptionAsync_Arguments_Not_Allow_Null()
         {
-            await Assert.ThrowsAsync<ArgumentNullException>(() => new ReplaceHandler(typeof(Exception), "foobar").HanleExceptionAsync(null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new ReplaceHandler(typeof(Exception), "foobar").HandleExceptionAsync(null));
         }
 
         [Fact]
         public async void HandleExceptionAsync_Normal()
         {
             var context = new ExceptionContext(new InvalidOperationException());
-            await new ReplaceHandler(typeof(BarException), "foobar").HanleExceptionAsync(context);
+            await new ReplaceHandler(typeof(BarException), "foobar").HandleExceptionAsync(context);
             Assert.IsType<BarException>(context.Exception);
             Assert.Equal("foobar", context.Exception.Message);
         }

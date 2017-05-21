@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Dora.ExceptionHandling.Abstractions.Properties {
+namespace Dora.ExceptionHandling.Interception.Properties {
     using System;
     using System.Reflection;
     
@@ -40,7 +40,7 @@ namespace Dora.ExceptionHandling.Abstractions.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Dora.ExceptionHandling.Abstractions.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Dora.ExceptionHandling.Interception.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -58,33 +58,6 @@ namespace Dora.ExceptionHandling.Abstractions.Properties {
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The default exception policy is not set..
-        /// </summary>
-        internal static string ExceptionDefaultPolicyNotExists {
-            get {
-                return ResourceManager.GetString("ExceptionDefaultPolicyNotExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Exception is thrown during performing exception handling. For detailed information, please check the inner exception..
-        /// </summary>
-        internal static string ExceptionHandlingError {
-            get {
-                return ResourceManager.GetString("ExceptionHandlingError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specified exception policy &quot;{0}&quot; does not exist..
-        /// </summary>
-        internal static string ExceptionPolicyNotFound {
-            get {
-                return ResourceManager.GetString("ExceptionPolicyNotFound", resourceCulture);
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using Dora.ExceptionHandling.Properties;
+﻿using Dora.ExceptionHandling.Abstractions.Properties;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

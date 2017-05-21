@@ -57,7 +57,7 @@ namespace Dora
             return argumentValue;
         }
 
-        public static Type ArgumentNotAssignableTo<T>(Type argumentValue, string argumentName)
+        public static Type ArgumentAssignableTo<T>(Type argumentValue, string argumentName)
         {
             Guard.ArgumentNotNull(argumentValue, argumentName);
             if (!typeof(T).GetTypeInfo().IsAssignableFrom(argumentValue))

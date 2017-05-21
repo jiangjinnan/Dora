@@ -83,7 +83,7 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentNullException">The <paramref name="exceptionType"/> is null.</exception>
         internal protected ExceptionPolicyEntry GetPolicyEntry(Type exceptionType)
         {
-            Guard.ArgumentNotAssignableTo<Exception>(exceptionType, nameof(exceptionType));
+            Guard.ArgumentAssignableTo<Exception>(exceptionType, nameof(exceptionType));
             var entry = this.PolicyEntries.FirstOrDefault(it => it.ExceptionType == exceptionType);
             return entry ?? GetPolicyEntry(exceptionType.GetTypeInfo().BaseType);
         }

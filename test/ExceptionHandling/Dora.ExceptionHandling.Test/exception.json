@@ -1,0 +1,126 @@
+﻿{
+  "alias": {
+    "FooException": "Dora.ExceptionHandling.Test.FooException, Dora.ExceptionHandling.Test",
+    "BarException": "Dora.ExceptionHandling.Test.BarException, Dora.ExceptionHandling.Test",
+    "PreHandler1": "Dora.ExceptionHandling.Test.PreHandler1, Dora.ExceptionHandling.Test",
+    "PreHandler2": "Dora.ExceptionHandling.Test.PreHandler1, Dora.ExceptionHandling.Test",
+    "PostHandler1": "Dora.ExceptionHandling.Test.PreHandler2, Dora.ExceptionHandling.Test",
+    "PostHandler2": "Dora.ExceptionHandling.Test.PostHandler1, Dora.ExceptionHandling.Test",
+    "Handler1": "Dora.ExceptionHandling.Test.Handler1, Dora.ExceptionHandling.Test",
+    "Handler2": "Dora.ExceptionHandling.Test.Handler2, Dora.ExceptionHandling.Test",
+    "Handler3": "Dora.ExceptionHandling.Test.Handler3, Dora.ExceptionHandling.Test",
+    "Handler4": "Dora.ExceptionHandling.Test.Handler4, Dora.ExceptionHandling.Test"
+  },
+  "policy1": {
+    "pre": [
+      {
+        "type": "PreHandler1",
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      {
+        "type": "PreHandler2",
+        "arg1": "value1",
+        "arg2": "value2"
+      }
+    ],
+    "post": [
+      {
+        "type": "PostHandler1",
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      {
+        "type": "PostHandler2",
+        "arg1": "value1",
+        "arg2": "value2"
+      }
+    ],
+    "FooException": {
+      "postHandlingAction": "None",
+      "handlers": [
+        {
+          "type": "Handler1",
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        {
+          "type": "Handler2",
+          "arg1": "value1",
+          "arg2": "value2"
+        }
+      ]
+    },
+    "BarException": {
+      "postHandlingAction": "None",
+      "handlers": [
+        {
+          "type": "Handler3",
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        {
+          "type": "Handler4",
+          "arg1": "value1",
+          "arg2": "value2"
+        }
+      ]
+    }
+  },
+  "policy2": {
+    "pre": [
+      {
+        "type": "PreHandler1",
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      {
+        "type": "PreHandler2",
+        "arg1": "value1",
+        "arg2": "value2"
+      }
+    ],
+    "post": [
+      {
+        "type": "PostHandler1",
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      {
+        "type": "PostHandler2",
+        "arg1": "value1",
+        "arg2": "value2"
+      }
+    ],
+    "FooException": {
+      "postHandlingAction": "None",
+      "handlers": [
+        {
+          "type": "Handler1",
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        {
+          "type": "Handler2",
+          "arg1": "value1",
+          "arg2": "value2"
+        }
+      ]
+    },
+    "BarException": {
+      "postHandlingAction": "None",
+      "handlers": [
+        {
+          "type": "Handler3",
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        {
+          "type": "Handler4",
+          "arg1": "value1",
+          "arg2": "value2"
+        }
+      ]
+    }
+  }
+}

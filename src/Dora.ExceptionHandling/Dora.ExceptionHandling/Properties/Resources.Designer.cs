@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Dora.ExceptionHandling.Abstractions.Properties {
+namespace Dora.ExceptionHandling.Properties {
     using System;
     using System.Reflection;
     
@@ -40,7 +40,7 @@ namespace Dora.ExceptionHandling.Abstractions.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Dora.ExceptionHandling.Abstractions.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Dora.ExceptionHandling.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -62,29 +62,38 @@ namespace Dora.ExceptionHandling.Abstractions.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The default exception policy is not set..
+        ///   Looks up a localized string similar to The specified configuration property &quot;{0}&quot; does not exist..
         /// </summary>
-        internal static string ExceptionDefaultPolicyNotExists {
+        internal static string ExceptionConfigurationPropertyNotExists {
             get {
-                return ResourceManager.GetString("ExceptionDefaultPolicyNotExists", resourceCulture);
+                return ResourceManager.GetString("ExceptionConfigurationPropertyNotExists", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Exception is thrown during performing exception handling. For detailed information, please check the inner exception..
+        ///   Looks up a localized string similar to There are multiple exception policies for the exception type &quot;{0}&quot;..
         /// </summary>
-        internal static string ExceptionHandlingError {
+        internal static string ExceptionDuplicateExceptionType {
             get {
-                return ResourceManager.GetString("ExceptionHandlingError", resourceCulture);
+                return ResourceManager.GetString("ExceptionDuplicateExceptionType", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Specified exception policy &quot;{0}&quot; does not exist..
+        ///   Looks up a localized string similar to The excecption type &quot;{0}&quot; is not a valid replace exception type..
         /// </summary>
-        internal static string ExceptionPolicyNotFound {
+        internal static string ExceptionInvalidReplaceExceptionType {
             get {
-                return ResourceManager.GetString("ExceptionPolicyNotFound", resourceCulture);
+                return ResourceManager.GetString("ExceptionInvalidReplaceExceptionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The excecption type &quot;{0}&quot; is not a valid wrap exception type..
+        /// </summary>
+        internal static string ExceptionInvalidWrapExceptionType {
+            get {
+                return ResourceManager.GetString("ExceptionInvalidWrapExceptionType", resourceCulture);
             }
         }
     }

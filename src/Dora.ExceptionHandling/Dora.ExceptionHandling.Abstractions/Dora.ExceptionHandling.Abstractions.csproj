@@ -4,7 +4,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
     <TargetFramework>netcoreapp1.1</TargetFramework>
-    <RootNamespace>Dora.ExceptionHandling</RootNamespace>
+    <RootNamespace>Dora.ExceptionHandling.Abstractions</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

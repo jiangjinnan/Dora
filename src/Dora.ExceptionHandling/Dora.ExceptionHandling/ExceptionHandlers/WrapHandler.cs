@@ -10,6 +10,7 @@ namespace Dora.ExceptionHandling
     /// <summary>
     /// An exception handler to wrap the current exception with specified type of exception.
     /// </summary>
+    [HandlerConfiguration(typeof(WrapHandlerConfiguration))]
     public class WrapHandler
     {
         /// <summary>
@@ -33,7 +34,7 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentException">The <paramref name="message"/> is a white space string.</exception>
         public WrapHandler(Type wrapExcecptionType, string message)
         {
-            this.WrapExcecptionType = Guard.ArgumentNotAssignableTo<Exception>(wrapExcecptionType, nameof(wrapExcecptionType));
+            this.WrapExcecptionType = Guard.ArgumentAssignableTo<Exception>(wrapExcecptionType, nameof(wrapExcecptionType));
             if (wrapExcecptionType.GetTypeInfo().GetConstructor(new Type[] { typeof(string), typeof(Exception) }) == null)
             {
                 throw new ArgumentException(Resources.ExceptionInvalidWrapExceptionType.Fill(wrapExcecptionType.FullName), nameof(wrapExcecptionType));

@@ -34,7 +34,7 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentNullException">The <paramref name="exceptionHandler"/> is null.</exception>
         public ExceptionPolicyEntry(Type exceptionType, PostHandlingAction postHandlingAction, Func<ExceptionContext, Task> exceptionHandler)
         {
-            this.ExceptionType = Guard.ArgumentNotAssignableTo<Exception>(exceptionType, nameof(exceptionType));
+            this.ExceptionType = Guard.ArgumentAssignableTo<Exception>(exceptionType, nameof(exceptionType));
             this.ExceptionHandler =Guard.ArgumentNotNull(exceptionHandler, nameof(exceptionHandler));
             this.PostHandlingAction = postHandlingAction;
         }

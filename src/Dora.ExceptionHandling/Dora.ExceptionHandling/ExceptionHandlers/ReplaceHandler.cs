@@ -10,6 +10,7 @@ namespace Dora.ExceptionHandling
     /// <summary>
     /// An exception handler to replace the current exception with specified type of exception.
     /// </summary>
+    [HandlerConfiguration(typeof(ReplaceHandlerConfiguration))]
     public class ReplaceHandler
     {
         /// <summary>
@@ -33,7 +34,7 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentException">The <paramref name="message"/> is a white space string.</exception>
         public ReplaceHandler(Type replaceExcecptionType, string message)
         {
-            this.ReplaceExcecptionType = Guard.ArgumentNotAssignableTo<Exception>(replaceExcecptionType, nameof(replaceExcecptionType));
+            this.ReplaceExcecptionType = Guard.ArgumentAssignableTo<Exception>(replaceExcecptionType, nameof(replaceExcecptionType));
             if (replaceExcecptionType.GetTypeInfo().GetConstructor(new Type[] { typeof(string) }) == null)
             {
                 throw new ArgumentException(Resources.ExceptionInvalidReplaceExceptionType.Fill(replaceExcecptionType.FullName), nameof(replaceExcecptionType));

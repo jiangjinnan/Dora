@@ -1,0 +1,158 @@
+﻿{
+  "alias": {
+      "ArgumentNullException": "System.ArgumentNullException",
+      "InvalidOptionException": "System.ArgumentNullException"
+    },
+  "policy1": {
+    "pre": [
+      {
+        "type": "HandlerA",
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      {
+        "type": "HandlerB",
+        "arg3": "value3",
+        "arg4": "value4"
+      },
+      {
+        "type": "HandlerC",
+        "arg5": "value3",
+        "arg6": "value4"
+      }
+    ],
+    "post": [
+      {
+        "type": "HandlerX",
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      {
+        "type": "HandlerY",
+        "arg3": "value3",
+        "arg4": "value4"
+      },
+      {
+        "type": "HandlerZ",
+        "arg5": "value5",
+        "arg6": "value6"
+      }
+    ],
+    "ArgumentNullException": {
+      "postHandlingAction": "None",
+      "handlers": [
+        {
+          "type": "HandlerH",
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        {
+          "type": "HandlerJ",
+          "arg3": "value3",
+          "arg4": "value4"
+        },
+        {
+          "type": "HandlerK",
+          "arg5": "value5",
+          "arg6": "value6"
+        }
+      ]
+    },
+    "InvalidOptionException": {
+      "postHandlingAction": "ThrowNewException",
+      "handlers": [
+        {
+          "type": "HandlerE",
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        {
+          "type": "HandlerR",
+          "arg3": "value3",
+          "arg4": "value4"
+        },
+        {
+          "type": "HandlerT",
+          "arg5": "value5",
+          "arg6": "value6"
+        }
+      ]
+    }
+  },
+  "policy2": {
+    "pre": [
+      {
+        "type": "HandlerA",
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      {
+        "type": "HandlerB",
+        "arg3": "value3",
+        "arg4": "value4"
+      },
+      {
+        "type": "HandlerC",
+        "arg5": "value3",
+        "arg6": "value4"
+      }
+    ],
+    "post": [
+      {
+        "type": "HandlerX",
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      {
+        "type": "HandlerY",
+        "arg3": "value3",
+        "arg4": "value4"
+      },
+      {
+        "type": "HandlerZ",
+        "arg5": "value5",
+        "arg6": "value6"
+      }
+    ],
+    "ArgumentNullException": {
+      "postHandlingAction": "None",
+      "handlers": [
+        {
+          "type": "HandlerH",
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        {
+          "type": "HandlerJ",
+          "arg3": "value3",
+          "arg4": "value4"
+        },
+        {
+          "type": "HandlerK",
+          "arg5": "value5",
+          "arg6": "value6"
+        }
+      ]
+    },
+    "InvalidOptionException": {
+      "postHandlingAction": "ThrowNewException",
+      "handlers": [
+        {
+          "type": "HandlerE",
+          "arg1": "value1",
+          "arg2": "value2"
+        },
+        {
+          "type": "HandlerR",
+          "arg3": "value3",
+          "arg4": "value4"
+        },
+        {
+          "type": "HandlerT",
+          "arg5": "value5",
+          "arg6": "value6"
+        }
+      ]
+    }
+  }
+}
