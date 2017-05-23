@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dora.ExceptionHandling.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,9 +8,9 @@ namespace Dora.ExceptionHandling
     /// <summary>
     /// 
     /// </summary>
-    public class WrapHandlerConfiguration : ExceptionHandlerConfiguration
+    public class ReplaceHandlerConfiguration : ExceptionHandlerConfiguration
     {
-        private const string ConfigurationNameOfWrapException = "wrapException";
+        private const string ConfigurationNameOfReplaceException = "replaceException";
         private const string ConfigurationNameOfMessage = "message";
 
         /// <summary>
@@ -21,9 +22,10 @@ namespace Dora.ExceptionHandling
         {
             Guard.ArgumentNotNull(builder, nameof(builder));
             Guard.ArgumentNotNull(configuration, nameof(configuration));
-            Type wrapExcecptionType = Type.GetType(configuration.GetValue(ConfigurationNameOfWrapException));
+
+            Type replaceExcecptionType = Type.GetType(configuration.GetValue(ConfigurationNameOfReplaceException));
             string message = configuration.GetValue(ConfigurationNameOfMessage);
-            builder.Use<WrapHandler>(wrapExcecptionType, message);
+            builder.Use<ReplaceHandler>(replaceExcecptionType, message);
         }
     }
 }

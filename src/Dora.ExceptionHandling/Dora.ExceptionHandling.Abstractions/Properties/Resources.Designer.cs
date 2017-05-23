@@ -71,11 +71,38 @@ namespace Dora.ExceptionHandling.Abstractions.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There are multiple exception policies for the exception type &quot;{0}&quot;..
+        /// </summary>
+        internal static string ExceptionDuplicateExceptionType {
+            get {
+                return ResourceManager.GetString("ExceptionDuplicateExceptionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exception is thrown during performing exception handling. For detailed information, please check the inner exception..
         /// </summary>
         internal static string ExceptionHandlingError {
             get {
                 return ResourceManager.GetString("ExceptionHandlingError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The excecption type &quot;{0}&quot; is not a valid replace exception type..
+        /// </summary>
+        internal static string ExceptionInvalidReplaceExceptionType {
+            get {
+                return ResourceManager.GetString("ExceptionInvalidReplaceExceptionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The excecption type &quot;{0}&quot; is not a valid wrap exception type..
+        /// </summary>
+        internal static string ExceptionInvalidWrapExceptionType {
+            get {
+                return ResourceManager.GetString("ExceptionInvalidWrapExceptionType", resourceCulture);
             }
         }
         

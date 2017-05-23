@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.ExceptionHandling", "Dora.ExceptionHandling\Dora.ExceptionHandling.csproj", "{E626FD9D-1B64-43C0-9140-D1A895E4BC9E}"
 EndProject
@@ -24,6 +24,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.ExceptionHandling.Interception", "Dora.ExceptionHandling.Interception\Dora.ExceptionHandling.Interception.csproj", "{F3D2619A-4F7E-40CF-A1D7-835D383CECB6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.ExceptionHandling.Configuration", "Dora.ExceptionHandling.Configuration\Dora.ExceptionHandling.Configuration.csproj", "{E586CAED-BE83-4A6D-A2E1-664B4C51CC70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.ExceptionHandling.ExceptionHandlers", "Dora.ExceptionHandling.ExceptionHandlers\Dora.ExceptionHandling.ExceptionHandlers.csproj", "{CF4A427B-19D5-4C84-A980-B9C93E1A90EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{E586CAED-BE83-4A6D-A2E1-664B4C51CC70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E586CAED-BE83-4A6D-A2E1-664B4C51CC70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E586CAED-BE83-4A6D-A2E1-664B4C51CC70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF4A427B-19D5-4C84-A980-B9C93E1A90EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF4A427B-19D5-4C84-A980-B9C93E1A90EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF4A427B-19D5-4C84-A980-B9C93E1A90EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF4A427B-19D5-4C84-A980-B9C93E1A90EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,5 +82,6 @@ Global
 		{4108CC45-6A3B-4D11-8F80-E944F1F04E0E} = {95484558-037F-41B7-9FEC-D9AA667F382D}
 		{F3D2619A-4F7E-40CF-A1D7-835D383CECB6} = {95484558-037F-41B7-9FEC-D9AA667F382D}
 		{E586CAED-BE83-4A6D-A2E1-664B4C51CC70} = {95484558-037F-41B7-9FEC-D9AA667F382D}
+		{CF4A427B-19D5-4C84-A980-B9C93E1A90EB} = {95484558-037F-41B7-9FEC-D9AA667F382D}
 	EndGlobalSection
 EndGlobal

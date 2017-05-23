@@ -69,5 +69,16 @@ namespace Dora.ExceptionHandling.Configuration.Properties {
                 return ResourceManager.GetString("ExceptionHandlerConfigurationTypeNotSet", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The handler configuration type is not specified by applying the HandlerConfigurationAttribute to the class &quot;{0}&quot;..
+        /// </summary>
+        internal static string ExceptionConfigurationPropertyNotExists
+        {
+            get
+            {
+                return ResourceManager.GetString("ExceptionConfigurationPropertyNotExists", resourceCulture);
+            }
+        }
     }
 }

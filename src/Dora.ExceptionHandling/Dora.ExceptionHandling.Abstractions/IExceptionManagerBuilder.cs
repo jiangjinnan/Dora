@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Dora.ExceptionHandling
 {
@@ -11,6 +12,11 @@ namespace Dora.ExceptionHandling
         /// A <see cref="IServiceProvider"/> to provide neccessary dependent services.
         /// </summary>
         IServiceProvider ServiceProvider { get; }
+
+        /// <summary>
+        /// A property dictionary.
+        /// </summary>
+        IDictionary<string, object> Properties { get; }
 
         /// <summary>
         /// Register a new exception policy.

@@ -120,8 +120,17 @@
   <data name="ExceptionDefaultPolicyNotExists" xml:space="preserve">
     <value>The default exception policy is not set.</value>
   </data>
+  <data name="ExceptionDuplicateExceptionType" xml:space="preserve">
+    <value>There are multiple exception policies for the exception type "{0}".</value>
+  </data>
   <data name="ExceptionHandlingError" xml:space="preserve">
     <value>Exception is thrown during performing exception handling. For detailed information, please check the inner exception.</value>
+  </data>
+  <data name="ExceptionInvalidReplaceExceptionType" xml:space="preserve">
+    <value>The excecption type "{0}" is not a valid replace exception type.</value>
+  </data>
+  <data name="ExceptionInvalidWrapExceptionType" xml:space="preserve">
+    <value>The excecption type "{0}" is not a valid wrap exception type.</value>
   </data>
   <data name="ExceptionPolicyNotFound" xml:space="preserve">
     <value>Specified exception policy "{0}" does not exist.</value>

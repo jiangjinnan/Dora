@@ -23,8 +23,9 @@ namespace Dora.ExceptionHandling.Configuration
             _alias = new Dictionary<string, string>();
         }
 
-        public IDictionary<string, ExceptionPolicyElement> Build()
+        public IDictionary<string, PolicyConfiguration> Build(out IDictionary<string, FilterConfiguration> exceptionFilters)
         {
+            exceptionFilters = new Dictionary<string, FilterConfiguration>();
             JObject settings;
             using (var reader = new StreamReader(_fileProvider.GetFileInfo(_filePath).CreateReadStream()))
             {
@@ -39,24 +40,49 @@ namespace Dora.ExceptionHandling.Configuration
                 }
             }
 
-            Dictionary<string, ExceptionPolicyElement> policies = new Dictionary<string, ExceptionPolicyElement>();
-            foreach (JProperty it in settings.Properties().Where(it=>it.Name != "alias"))
+            var filters = settings["filters"];
+            if (filters != null)
+            {
+                foreach (JProperty it in alias)
+                {
+                    exceptionFilters.Add(it.Name, BuildeExceptionFilter((JObject)it.Value));
+                }
+            }
+
+            Dictionary<string, PolicyConfiguration> policies = new Dictionary<string, PolicyConfiguration>();
+            foreach (JProperty it in settings.Properties().Where(it=>it.Name != "alias" && it.Name != "filters"))
             {
                 policies.Add(it.Name, BuildPolicy((JObject)it.Value));
             }
             return policies;
         }
-        private ExceptionPolicyElement BuildPolicy(JObject policy)
+        private FilterConfiguration BuildeExceptionFilter(JObject filter)
         {
-            var policyElement = new ExceptionPolicyElement();
+            string filterTypeName = filter["type"].ToString();
+            filterTypeName = _alias.TryGetValue(filterTypeName, out string realType)
+                ? realType
+                : filterTypeName;
+            FilterConfiguration filterConfig = new FilterConfiguration(Type.GetType(filterTypeName, true));
+            foreach (var it in filter)
+            {
+                if (it.Key != "type")
+                {
+                    filterConfig.Arguments.Add(new ArgumentConfiguration(it.Key, it.Value.ToString()));
+                }
+            }
+            return filterConfig;
+        }
+        private PolicyConfiguration BuildPolicy(JObject policy)
+        {
+            var policyElement = new PolicyConfiguration();
             policyElement.PreHandlers.AddRange(this.BuildExceptionHandlers((policy["pre"] as JArray) ?? new JArray()));
             policyElement.PostHandlers.AddRange(this.BuildExceptionHandlers((policy["post"] as JArray) ?? new JArray()));
             policyElement.PolicyEntries.AddRange(this.BuildPolicyEntries(policy));
             return policyElement;
         }
-        private IEnumerable<PolicyEntryElement> BuildPolicyEntries(JObject policy)
+        private IEnumerable<PolicyEntryConfiguration> BuildPolicyEntries(JObject policy)
         {
-            List<PolicyEntryElement> list = new List<PolicyEntryElement>();
+            List<PolicyEntryConfiguration> list = new List<PolicyEntryConfiguration>();
             foreach (var it in policy)
             {
                 if (it.Key != "pre" && it.Key != "post")
@@ -66,31 +92,40 @@ namespace Dora.ExceptionHandling.Configuration
                         : it.Key;
                     JObject policyEntry = (JObject)it.Value;
                     PostHandlingAction postHandlingAction = (PostHandlingAction)(Enum.Parse(typeof(PostHandlingAction), policyEntry["postHandlingAction"].ToString()));
-                    PolicyEntryElement policyEntryElement = new PolicyEntryElement(Type.GetType(exceptionTypeName, true), postHandlingAction);
+                    PolicyEntryConfiguration policyEntryElement = new PolicyEntryConfiguration(Type.GetType(exceptionTypeName, true), postHandlingAction);
                     policyEntryElement.Handlers.AddRange(this.BuildExceptionHandlers((JArray)policyEntry["handlers"]));
                     list.Add(policyEntryElement);
                 }
             }
             return list;
         }
-        private IEnumerable<ExceptionHandlerElement> BuildExceptionHandlers(JArray handlers)
+        private IEnumerable<HandlerConfiguration> BuildExceptionHandlers(JArray handlers)
         {
-            List<ExceptionHandlerElement> list = new List<ExceptionHandlerElement>();
+            List<HandlerConfiguration> list = new List<HandlerConfiguration>();
             foreach (JObject handler in handlers)
             {
                 string handlerTypeName = handler["type"].ToString();
                 handlerTypeName = _alias.TryGetValue(handlerTypeName, out string realType)
                     ? realType
                     : handlerTypeName;
-                ExceptionHandlerElement handlerElement = new ExceptionHandlerElement(Type.GetType(handlerTypeName, true));
+                HandlerConfiguration handlerConfig;
+                string filter = handler["filter"].ToString();
+                if (string.IsNullOrEmpty(filter))
+                {
+                    handlerConfig = new HandlerConfiguration(Type.GetType(handlerTypeName, true));
+                }
+                else
+                {
+                    handlerConfig = new FilterableHandlerConfiguration(Type.GetType(handlerTypeName, true), filter);
+                }                
                 foreach (var it in handler)
                 {
                     if (it.Key != "type")
                     {
-                        handlerElement.Arguments.Add(new ArgumentElement(it.Key, it.Value.ToString()));
+                        handlerConfig.Arguments.Add(new ArgumentConfiguration(it.Key, it.Value.ToString()));
                     }
                 }
-                list.Add(handlerElement);
+                list.Add(handlerConfig);
             }
             return list;
         }

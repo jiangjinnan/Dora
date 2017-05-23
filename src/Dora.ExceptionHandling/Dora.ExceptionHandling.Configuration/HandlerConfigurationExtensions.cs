@@ -1,9 +1,8 @@
-﻿using Dora.ExceptionHandling.Properties;
+﻿using Dora.ExceptionHandling.Configuration.Properties;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Dora.ExceptionHandling
+namespace Dora.ExceptionHandling.Configuration
 {
     /// <summary>
     /// 
@@ -20,6 +19,7 @@ namespace Dora.ExceptionHandling
         {
             Guard.ArgumentNotNullOrEmpty(configuration, nameof(configuration));
             Guard.ArgumentNotNullOrWhiteSpace(name, nameof(name));
+
             if (configuration.TryGetValue(name, out string value))
             {
                 return value;

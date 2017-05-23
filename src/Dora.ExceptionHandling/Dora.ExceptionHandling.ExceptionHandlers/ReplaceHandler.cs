@@ -1,8 +1,7 @@
-﻿using Dora.ExceptionHandling.Properties;
+﻿using Dora.ExceptionHandling.Abstractions.Properties;
+using Dora.ExceptionHandling.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dora.ExceptionHandling

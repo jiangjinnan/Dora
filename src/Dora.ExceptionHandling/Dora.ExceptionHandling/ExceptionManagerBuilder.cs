@@ -18,6 +18,11 @@ namespace Dora.ExceptionHandling
         public IServiceProvider ServiceProvider { get; }
 
         /// <summary>
+        /// A property dictionary.
+        /// </summary>
+        public IDictionary<string, object> Properties { get; }
+
+        /// <summary>
         /// Create a new <see cref="ExceptionManagerBuilder"/>.
         /// </summary>
         /// <param name="serviceProvider">A <see cref="IServiceProvider"/> to provide neccessary dependent services.</param>
@@ -26,6 +31,7 @@ namespace Dora.ExceptionHandling
         {
             this.ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
             _policies = new Dictionary<string, IExceptionPolicy>(StringComparer.OrdinalIgnoreCase);
+            this.Properties = new Dictionary<string, object>();
         }
 
         /// <summary>

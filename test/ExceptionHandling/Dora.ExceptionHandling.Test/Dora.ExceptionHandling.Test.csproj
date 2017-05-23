@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Abstractions\Dora.ExceptionHandling.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Configuration\Dora.ExceptionHandling.Configuration.csproj" />
+    <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.ExceptionHandlers\Dora.ExceptionHandling.ExceptionHandlers.csproj" />
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling\Dora.ExceptionHandling.csproj" />
   </ItemGroup>
 

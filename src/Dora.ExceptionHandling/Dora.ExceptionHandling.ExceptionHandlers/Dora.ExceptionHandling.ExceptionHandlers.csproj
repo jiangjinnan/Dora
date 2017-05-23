@@ -6,14 +6,10 @@
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <TreatSpecificWarningsAsErrors />
-    <DocumentationFile>bin\Debug\netcoreapp1.1\.xml</DocumentationFile>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Dora.ExceptionHandling.Abstractions\Dora.ExceptionHandling.Abstractions.csproj" />
+    <ProjectReference Include="..\Dora.ExceptionHandling.Configuration\Dora.ExceptionHandling.Configuration.csproj" />
+    <ProjectReference Include="..\Dora.ExceptionHandling\Dora.ExceptionHandling.csproj" />
   </ItemGroup>
 
 </Project>
