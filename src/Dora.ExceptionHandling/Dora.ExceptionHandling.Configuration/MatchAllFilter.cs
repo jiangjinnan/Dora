@@ -6,7 +6,7 @@ namespace Dora.ExceptionHandling.Configuration
 {
     public class MatchAllFilter : IExceptionFilter
     {
-        public bool Match(Exception exception)
+        public bool Match(ExceptionContext context)
         {
             return true;
         }

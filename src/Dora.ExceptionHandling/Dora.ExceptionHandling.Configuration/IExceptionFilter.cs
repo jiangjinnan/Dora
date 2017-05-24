@@ -6,6 +6,6 @@ namespace Dora.ExceptionHandling.Configuration
 {
     public interface IExceptionFilter
     {
-        bool Match(Exception exception);
+        bool Match(ExceptionContext exception);
     }
 }

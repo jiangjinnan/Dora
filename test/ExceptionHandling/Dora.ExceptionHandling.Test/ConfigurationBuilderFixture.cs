@@ -13,8 +13,8 @@ namespace Dora.ExceptionHandling.Test
         [Fact]
         public void Build()
         {
-            var builder = new ConfigurationBuilder(new PhysicalFileProvider(Directory.GetCurrentDirectory()), "exception.json");
-            var policies = builder.Build();
+            //var builder = new ConfigurationBuilder(new PhysicalFileProvider(Directory.GetCurrentDirectory()), "exception.json");
+            //var policies = builder.Build();
         }
     }
 }

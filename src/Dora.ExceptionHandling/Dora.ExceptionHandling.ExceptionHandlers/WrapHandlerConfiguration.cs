@@ -17,14 +17,15 @@ namespace Dora.ExceptionHandling
         /// 
         /// </summary>
         /// <param name="builder"></param>
+        /// <param name="predicate">A predicate to indicate whether to invoke the registered handler.</param>
         /// <param name="configuration"></param>
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder,Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
             Guard.ArgumentNotNull(builder, nameof(builder));
             Guard.ArgumentNotNull(configuration, nameof(configuration));
             Type wrapExcecptionType = Type.GetType(configuration.GetValue(ConfigurationNameOfWrapException));
             string message = configuration.GetValue(ConfigurationNameOfMessage);
-            builder.Use<WrapHandler>(wrapExcecptionType, message);
+            builder.Use<WrapHandler>(wrapExcecptionType, predicate, message);
         }
     }
 }

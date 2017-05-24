@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,7 +13,7 @@ namespace Dora.ExceptionHandling.Test
         public async void HandleException()
         {
             var manager = new ServiceCollection()
-                .AddExceptionHandling(builder => builder.LoadSettings("exception.json"))
+                .AddExceptionHandling(builder => builder.LoadSettings(@"exception.json", new PhysicalFileProvider(@"D:\projects\My\dora\test\ExceptionHandling\Dora.ExceptionHandling.Test")))
                 .BuildServiceProvider()
                 .GetRequiredService<ExceptionManager>();
             HandlerBase.HandlerChain.Clear();

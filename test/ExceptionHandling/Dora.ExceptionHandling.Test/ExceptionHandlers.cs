@@ -94,7 +94,7 @@ namespace Dora.ExceptionHandling.Test
 
     public abstract class HandlerConfigurationBase : ExceptionHandlerConfiguration
     {
-        protected void Use<THandler>(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        protected void Use<THandler>(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
             where THandler : HandlerBase
         {
             builder.Use<THandler>(configuration.GetValue("arg1"), configuration.GetValue("arg2"));
@@ -102,65 +102,65 @@ namespace Dora.ExceptionHandling.Test
     }
     public class PreHandler1Configuration : HandlerConfigurationBase
     {
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
-            this.Use<PreHandler1>(builder, configuration);
+            this.Use<PreHandler1>(builder, predicate, configuration);
         }
     }
 
     public class PreHandler2Configuration : HandlerConfigurationBase
     {
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
-            this.Use<PreHandler2>(builder, configuration);
+            this.Use<PreHandler2>(builder, predicate, configuration);
         }
     }
 
     public class PostHandler1Configuration : HandlerConfigurationBase
     {
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
-            this.Use<PostHandler1>(builder, configuration);
+            this.Use<PostHandler1>(builder, predicate, configuration);
         }
     }
 
     public class PostHandler2Configuration : HandlerConfigurationBase
     {
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
-            this.Use<PostHandler2>(builder, configuration);
+            this.Use<PostHandler2>(builder, predicate, configuration);
         }
     }
 
     public class Handler1Configuration : HandlerConfigurationBase
     {
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
-            this.Use<Handler1>(builder, configuration);
+            this.Use<Handler1>(builder, predicate, configuration);
         }
     }
 
     public class Handler2Configuration : HandlerConfigurationBase
     {
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
-            this.Use<Handler2>(builder, configuration);
+            this.Use<Handler2>(builder, predicate, configuration);
         }
     }
 
     public class Handler3Configuration : HandlerConfigurationBase
     {
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
-            this.Use<Handler3>(builder, configuration);
+            this.Use<Handler3>(builder, predicate, configuration);
         }
     }
 
     public class Handler4Configuration : HandlerConfigurationBase
     {
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
-            this.Use<Handler4>(builder, configuration);
+            this.Use<Handler4>(builder, predicate, configuration);
         }
     }
 

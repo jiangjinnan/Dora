@@ -13,9 +13,9 @@ namespace Dora.ExceptionHandling.Configuration
         {
             this.ExceptionType = Guard.ArgumentAssignableTo<Exception>(exceptionType, nameof(exceptionType));
         }
-        public bool Match(Exception exception)
+        public bool Match(ExceptionContext context)
         {
-            return this.ExceptionType.GetTypeInfo().IsAssignableFrom(Guard.ArgumentNotNull(exception, nameof(exception)).GetType());
+            return this.ExceptionType.GetTypeInfo().IsAssignableFrom(Guard.ArgumentNotNull(context, nameof(context)).Exception.GetType());
         }
     }
 }

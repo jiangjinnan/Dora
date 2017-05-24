@@ -18,14 +18,14 @@ namespace Dora.ExceptionHandling
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="configuration"></param>
-        public override void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration)
+        public override void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, IDictionary<string, string> configuration)
         {
             Guard.ArgumentNotNull(builder, nameof(builder));
             Guard.ArgumentNotNull(configuration, nameof(configuration));
 
             Type replaceExcecptionType = Type.GetType(configuration.GetValue(ConfigurationNameOfReplaceException));
             string message = configuration.GetValue(ConfigurationNameOfMessage);
-            builder.Use<ReplaceHandler>(replaceExcecptionType, message);
+            builder.Use<ReplaceHandler>(replaceExcecptionType, predicate, message);
         }
     }
 }

@@ -35,6 +35,20 @@ namespace Dora.ExceptionHandling
         /// <summary>
         /// Register specified type of exception handler to <see cref="IExceptionHandlerBuilder"/>.
         /// </summary>
+        /// <typeparam name="THandler">The type of exception handler to register.</typeparam>
+        /// <param name="builder">The <see cref="IExceptionHandlerBuilder"/> to which the exception handler is registered.</param>
+        /// <param name="predicate">A predicate to indicate whether to invoke the registered handler.</param>
+        /// <param name="arguments">The arguments passed to constrcutors.</param>
+        /// <returns>The current <see cref="IExceptionHandlerBuilder"/>.</returns>
+        /// <exception cref="ArgumentNullException">The <paramref name="builder"/> is null.</exception>
+        public static IExceptionHandlerBuilder Use<THandler>(this IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, params object[] arguments)
+        {
+            return builder.Use(typeof(THandler), predicate, arguments);
+        }
+
+        /// <summary>
+        /// Register specified type of exception handler to <see cref="IExceptionHandlerBuilder"/>.
+        /// </summary>
         /// <param name="handlerType">The type of exception handler to register.</param>
         /// <param name="builder">The <see cref="IExceptionHandlerBuilder"/> to which the exception handler is registered.</param>
         /// <param name="arguments">The arguments passed to constrcutors.</param>
@@ -43,7 +57,23 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentNullException">The <paramref name="handlerType"/> is null.</exception>
         public static IExceptionHandlerBuilder Use(this IExceptionHandlerBuilder builder, Type handlerType, params object[] arguments)
         {
+            return builder.Use(_ => true, handlerType, arguments);
+        }
+
+        /// <summary>
+        /// Register specified type of exception handler to <see cref="IExceptionHandlerBuilder"/>.
+        /// </summary>
+        /// <param name="handlerType">The type of exception handler to register.</param>
+        /// <param name="builder">The <see cref="IExceptionHandlerBuilder"/> to which the exception handler is registered.</param>
+        /// <param name="arguments">The arguments passed to constrcutors.</param>
+        /// <param name="predicate">A predicate to indicate whether to invoke the registered handler.</param>
+        /// <returns>The current <see cref="IExceptionHandlerBuilder"/>.</returns>
+        /// <exception cref="ArgumentNullException">The <paramref name="builder"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">The <paramref name="handlerType"/> is null.</exception>
+        public static IExceptionHandlerBuilder Use(this IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate,  Type handlerType, params object[] arguments)
+        {
             Guard.ArgumentNotNull(builder, nameof(builder));
+            Guard.ArgumentNotNull(predicate, nameof(predicate));
             Guard.ArgumentNotNull(handlerType, nameof(handlerType));
 
             if (!TryGetInvoke(handlerType, out HandleExceptionDelegate handlerDelegate))
@@ -53,10 +83,13 @@ namespace Dora.ExceptionHandling
 
             Func<ExceptionContext, Task> handler = async context =>
             {
-                object[] newArguments = new object[arguments.Length];
-                arguments.CopyTo(newArguments, 0);
-                object instance = ActivatorUtilities.CreateInstance(builder.ServiceProvider, handlerType, newArguments);
-                await handlerDelegate(instance, context, builder.ServiceProvider);
+                if (predicate(context))
+                {
+                    object[] newArguments = new object[arguments.Length];
+                    arguments.CopyTo(newArguments, 0);
+                    object instance = ActivatorUtilities.CreateInstance(builder.ServiceProvider, handlerType, newArguments);
+                    await handlerDelegate(instance, context, builder.ServiceProvider);
+                }
             };
             return builder.Use(handler);
         }

@@ -61,24 +61,18 @@ namespace Dora.ExceptionHandling
         /// <summary>
         /// Register common exception handler chain which is invoked after the ones registered to exception type.
         /// </summary>
-        /// <param name="predicate">A filter used to determine whether the registered exception handler should be invoked.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">The <paramref name="predicate"/> is null.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="configure"/> is null.</exception>
-        public IExceptionPolicyBuilder Post(Action<IExceptionHandlerBuilder> configure, Func<Exception, bool> predicate)
+        public IExceptionPolicyBuilder Post(Action<IExceptionHandlerBuilder> configure)
         {
-            Guard.ArgumentNotNull(predicate, nameof(predicate));
             Guard.ArgumentNotNull(configure, nameof(configure));
 
             ExceptionHandlerBuilder builder = new ExceptionHandlerBuilder(this.ServiceProvider);
             configure(builder);
             _postHanlderBuilder.Use(async context =>
             {
-                if (predicate(context.Exception))
-                {
-                   await builder.Build()(context);
-                }
+                await builder.Build()(context);
             });
             return this;
         }
@@ -86,23 +80,17 @@ namespace Dora.ExceptionHandling
         /// <summary>
         /// Register common exception handler chain which is invoked before the ones registered to exception type.
         /// </summary>
-        /// <param name="predicate">A filter used to determine whether the registered exception handler should be invoked.</param>
         /// <param name="configure">An <see cref="Action{IExceptionHandlerBuilder}"/> to build the exception handler chain.</param>
         /// <returns>The current <see cref="IExceptionPolicyBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">The <paramref name="predicate"/> is null.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="configure"/> is null.</exception>
-        public IExceptionPolicyBuilder Pre(Action<IExceptionHandlerBuilder> configure, Func<Exception, bool> predicate)
+        public IExceptionPolicyBuilder Pre(Action<IExceptionHandlerBuilder> configure)
         {
-            Guard.ArgumentNotNull(predicate, nameof(predicate));
             Guard.ArgumentNotNull(configure, nameof(configure));
             ExceptionHandlerBuilder builder = new ExceptionHandlerBuilder(this.ServiceProvider);
             configure(builder);
             _preHanlderBuilder.Use(async context =>
             {
-                if (predicate(context.Exception))
-                {
-                    await builder.Build()(context);
-                }
+                await builder.Build()(context);
             });
             return this;
         }

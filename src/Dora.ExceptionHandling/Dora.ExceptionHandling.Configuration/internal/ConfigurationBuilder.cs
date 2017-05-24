@@ -109,7 +109,7 @@ namespace Dora.ExceptionHandling.Configuration
                     ? realType
                     : handlerTypeName;
                 HandlerConfiguration handlerConfig;
-                string filter = handler["filter"].ToString();
+                string filter = handler["filter"]?.ToString();
                 if (string.IsNullOrEmpty(filter))
                 {
                     handlerConfig = new HandlerConfiguration(Type.GetType(handlerTypeName, true));

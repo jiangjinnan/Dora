@@ -45,69 +45,26 @@ namespace Dora.ExceptionHandling.Test
         }
 
         [Theory]
-        [InlineData(null, "1")]
-        [InlineData("1", null)]
-        public void Pre_Arguments_Not_Allow_Null(string predicateIndicator, string configureIndicator)
+        [InlineData(null)]
+        public void Pre_Arguments_Not_Allow_Null( string configureIndicator)
         {
-            Func<Exception, bool> predicate = predicateIndicator == null
-                ? null as Func<Exception, bool>
-                : _ => true;
             Action<IExceptionHandlerBuilder> configure = configureIndicator == null
                 ? null as Action<IExceptionHandlerBuilder>
                 : _ => { };
             var builder = new ExceptionPolicyBuilder(new ServiceCollection().BuildServiceProvider());
-            Assert.Throws<ArgumentNullException>(() => builder.Pre(configure, predicate));
+            Assert.Throws<ArgumentNullException>(() => builder.Pre(configure));
         }
 
         [Theory]
-        [InlineData(null, "1")]
-        [InlineData("1", null)]
-        public void Post_Arguments_Not_Allow_Null(string predicateIndicator, string configureIndicator)
+        [InlineData(null)]
+        public void Post_Arguments_Not_Allow_Null(string configureIndicator)
         {
-            Func<Exception, bool> predicate = predicateIndicator == null
-                ? null as Func<Exception, bool>
-                : _ => true;
             Action<IExceptionHandlerBuilder> configure = configureIndicator == null
                 ? null as Action<IExceptionHandlerBuilder>
                 : _ => { };
             var builder = new ExceptionPolicyBuilder(new ServiceCollection().BuildServiceProvider());
-            Assert.Throws<ArgumentNullException>(() => builder.Post(configure, predicate));
-        }
-
-        [Fact]
-        public async void Build()
-        {
-            var builder = new ExceptionPolicyBuilder(new ServiceCollection().BuildServiceProvider());
-            builder.For<FoobarException>(PostHandlingAction.ThrowNew, _ => _.Use(context=> { _flag += "Foobar:"; return Task.CompletedTask; }));
-            builder.For<FooException>(PostHandlingAction.ThrowNew, _ => _.Use(context => { _flag += "Foo:"; return Task.CompletedTask; }));
-            builder.For<BarException>(PostHandlingAction.ThrowNew, _ => _.Use(context => { _flag += "Bar:"; return Task.CompletedTask; }));
-            builder.For<BazException>(PostHandlingAction.ThrowNew, _ => _.Use(context => { _flag += "Baz:"; return Task.CompletedTask; }));
-
-            builder.Pre( _ => _.Use(context => { _flag += "Foobar:"; return Task.CompletedTask; }), ex => ex is FoobarException);
-            builder.Pre( _ => _.Use(context => { _flag += "Baz:"; return Task.CompletedTask; }), ex => ex is BazException);
-            builder.Post(_ => _.Use(context => { _flag += "Foobar:"; return Task.CompletedTask; }), ex => ex is FoobarException);
-            builder.Post( _ => _.Use(context => { _flag += "Baz:"; return Task.CompletedTask; }),ex => ex is BazException);
-
-
-            var policy = builder.Build();
-            PostHandlingAction action;
-            _flag = "";
-            await policy.CreateExceptionHandler(new FoobarException(), out action)(new ExceptionContext(new FoobarException()));
-            Assert.Equal("Foobar:Foobar:Foobar:", _flag);
-
-
-            _flag = "";
-            await policy.CreateExceptionHandler(new FooException(), out action)(new ExceptionContext(new FooException()));
-            Assert.Equal("Foobar:Foo:Foobar:", _flag);
-
-            _flag = "";
-            await policy.CreateExceptionHandler(new BarException(), out action)(new ExceptionContext(new BarException()));
-            Assert.Equal("Foobar:Bar:Foobar:", _flag);
-
-            _flag = "";
-            await policy.CreateExceptionHandler(new BazException(), out action)(new ExceptionContext(new BazException()));
-            Assert.Equal("Baz:Baz:Baz:", _flag);
-        }
+            Assert.Throws<ArgumentNullException>(() => builder.Post(configure));
+        }       
 
         private static string _flag;
         private class FoobarException : Exception { }

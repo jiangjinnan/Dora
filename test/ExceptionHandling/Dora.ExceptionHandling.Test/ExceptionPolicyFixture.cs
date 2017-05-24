@@ -26,13 +26,7 @@ namespace Dora.ExceptionHandling.Test
                : _ => Task.CompletedTask;
 
             Assert.Throws<ArgumentNullException>(() => new ExceptionPolicy(entries, preHandler, postHandler));
-        }
-
-        [Fact]
-        public void New_Arguments_Entries_Not_Empty()
-        {
-            Assert.Throws<ArgumentException>(() => new ExceptionPolicy(new ExceptionPolicyEntry[0], _ => Task.CompletedTask, _=>Task.CompletedTask));
-        }
+        }        
 
         [Fact]
         public void New_Normal()

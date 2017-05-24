@@ -11,13 +11,9 @@ namespace Dora.ExceptionHandling.Configuration
         /// <summary>
         /// Register the specific exception handler based on configuration.
         /// </summary>
+        /// <param name="predicate">A predicate to indicate whether to invoke the registered handler.</param>
         /// <param name="builder">The <see cref="IExceptionHandlerBuilder"/> used to register the specific exception handler.</param>
         /// <param name="configuration">A <see cref="IDictionary{string, string}"/> storing configuration for the exception handler to register.</param>
-        public abstract void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration);
-
-        public void Use(IExceptionHandlerBuilder builder, IDictionary<string, string> configuration, Func<IExceptionFilter> filterAccessor)
-        {
-
-        }
+        public abstract void Use(IExceptionHandlerBuilder builder, Func<ExceptionContext,bool> predicate, IDictionary<string, string> configuration);
     }
 }
