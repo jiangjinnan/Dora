@@ -5,7 +5,7 @@ using System;
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
-    /// 
+    /// Defines exension method to register <see cref="ExceptionManagerBuilder"/> and dependent services.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
@@ -28,7 +28,5 @@ namespace Microsoft.Extensions.DependencyInjection
                 return builder.Build();
             });
         }
-
-
     }
 }

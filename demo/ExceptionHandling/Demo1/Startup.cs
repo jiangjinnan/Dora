@@ -9,8 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Dora.ExceptionHandling;
-using Dora.ExceptionHandling.Interception;
+//using Dora.ExceptionHandling.Interception;
 using Dora.ExceptionHandling.Logging;
+using Dora.ExceptionHandling.Mvc;
 
 namespace Demo1
 {
@@ -21,7 +22,7 @@ namespace Demo1
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services
-                .AddScoped<IFoobar, Foobar>()
+                //.AddScoped<IFoobar, Foobar>()
                 .AddExceptionHandling(managerBuilder=>managerBuilder
                     .SetDefaultPolicy("default")
                     .AddPolicy("default", policyBuilder=>policyBuilder
@@ -45,34 +46,36 @@ namespace Demo1
             return context.Exception.Message;
         }
     }
-
+    [HandleException]
     public class HomeController : Controller
     {
-        private IFoobar _foobar;
-        public HomeController(IFoobar foobar)
-        {
-            _foobar = foobar;
-        }
+        //private IFoobar _foobar;
+       
 
         [HttpGet("/")]
-        public async Task<string> Index()
-        {
-            await _foobar.InvokeAsync();
-            return "Hello world";
-        }
-    }
-
-    public interface IFoobar
-    {
-        Task InvokeAsync();
-    }
-
-    [HandleException("default")]
-    public class Foobar : IFoobar
-    {
-        public Task InvokeAsync()
+        public  Task Index()
         {
             return Task.FromException(new InvalidOperationException("Manually thrown exception."));
         }
+
+        
+        public  Task<string> OnIndexError(ExceptionInfo exceptionInfo)
+        {
+            return Task.FromResult(exceptionInfo.Message);
+        }
     }
+
+    //public interface IFoobar
+    //{
+    //    Task InvokeAsync();
+    //}
+
+    //[HandleException("default")]
+    //public class Foobar : IFoobar
+    //{
+    //    public Task InvokeAsync()
+    //    {
+    //        return Task.FromException(new InvalidOperationException("Manually thrown exception."));
+    //    }
+    //}
 }

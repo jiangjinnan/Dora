@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Dora.ExceptionHandling
 {
@@ -39,7 +38,7 @@ namespace Dora.ExceptionHandling
         /// </summary>
         /// <param name="policyName">The name of exception policy to register.</param>
         /// <param name="configure">A <see cref="Action{IExceptionPolicyBuilder}"/> to build the registered exception policy.</param>
-        /// <returns></returns>
+        /// <returns>The current <see cref="IExceptionManagerBuilder"/>.</returns>
         /// <exception cref="ArgumentNullException">The <paramref name="policyName"/> is null.</exception>
         /// <exception cref="ArgumentException">The <paramref name="policyName"/> is a white space string.</exception>
         /// <exception cref="ArgumentNullException">The <paramref name="configure"/> is null.</exception>
@@ -69,10 +68,10 @@ namespace Dora.ExceptionHandling
         }
 
         /// <summary>
-        /// 
+        /// Set default exception policy name.
         /// </summary>
-        /// <param name="policyName"></param>
-        /// <returns></returns>
+        /// <param name="policyName">The name of default exception policy to set.</param>
+        /// <returns>The current <see cref="IExceptionManagerBuilder"/>.</returns>
         public IExceptionManagerBuilder SetDefaultPolicy(string policyName)
         {
             _defaultPolicy = Guard.ArgumentNotNullOrWhiteSpace(policyName, nameof(policyName));
