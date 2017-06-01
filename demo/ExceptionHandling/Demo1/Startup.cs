@@ -26,7 +26,7 @@ namespace Demo1
                 .AddExceptionHandling(managerBuilder=>managerBuilder
                     .SetDefaultPolicy("default")
                     .AddPolicy("default", policyBuilder=>policyBuilder
-                        .Configure(handlerBuilder=>handlerBuilder.Use<LoggingHandler>("Exception Handling", new Func<ExceptionContext, string>(Format))
+                        .Configure(handlerBuilder=>handlerBuilder.Use<LogHandler>("Exception Handling", new Func<ExceptionContext, string>(Format))
                             .Use<ReplaceHandler>(typeof(Exception), "xxx"))))
                 .AddMvc();
             return services.BuilderInterceptableServiceProvider(builder=>builder.SetDynamicProxyFactory());

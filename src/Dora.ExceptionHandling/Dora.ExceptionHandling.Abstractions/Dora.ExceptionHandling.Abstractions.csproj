@@ -5,6 +5,7 @@
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
     <TargetFramework>netcoreapp1.1</TargetFramework>
     <RootNamespace>Dora.ExceptionHandling.Abstractions</RootNamespace>
+    <Version>1.0.0-beta1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
