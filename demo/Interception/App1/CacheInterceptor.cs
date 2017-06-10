@@ -23,11 +23,6 @@ namespace App
 
         public async Task InvokeAsync(InvocationContext context)
         {
-            if (!context.Method.GetParameters().All(it => it.IsIn))
-            {
-                await _next(context);
-            }
-
             var key = new Cachekey(context.Method, context.Arguments);
             if (_cache.TryGetValue(key, out object value))
             {

@@ -9,8 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Dora.ExceptionHandling;
-//using Dora.ExceptionHandling.Interception;
-using Dora.ExceptionHandling.Logging;
 using Dora.ExceptionHandling.Mvc;
 
 namespace Demo1

@@ -1,17 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
     <Description>Provides a proxy factory by leveraging Castle based interception mechanism.</Description>
     <Authors>Jiang Jin Nan</Authors>
     <Company>Artech</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Product>Dora</Product>
-    <Version>1.1.0</Version>
+    <Version>2.0.0-beta1</Version>
     <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy, Castle, Dynamic Proxy</PackageTags>
+    <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
+    <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.doranet.org/nuget-license</PackageLicenseUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

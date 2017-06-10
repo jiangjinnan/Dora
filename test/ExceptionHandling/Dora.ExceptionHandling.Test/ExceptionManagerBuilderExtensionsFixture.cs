@@ -13,7 +13,7 @@ namespace Dora.ExceptionHandling.Test
         public async void HandleException()
         {
             var manager = new ServiceCollection()
-                .AddExceptionHandling(builder => builder.LoadSettings(@"exception.json", new PhysicalFileProvider(@"D:\projects\My\dora\test\ExceptionHandling\Dora.ExceptionHandling.Test")))
+                .AddExceptionHandling(builder => builder.LoadSettings(@"exception.json"))
                 .BuildServiceProvider()
                 .GetRequiredService<ExceptionManager>();
             HandlerBase.HandlerChain.Clear();

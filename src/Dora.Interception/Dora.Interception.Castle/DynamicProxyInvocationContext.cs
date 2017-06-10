@@ -67,7 +67,7 @@ namespace Dora.Interception.Castle
 
         public async Task ProceedAsync()
         {
-            _invocation.Proceed();
+            await Task.Run(()=>_invocation.Proceed());
             await ((this.ReturnValue as Task) ?? Task.CompletedTask);
         }
     }

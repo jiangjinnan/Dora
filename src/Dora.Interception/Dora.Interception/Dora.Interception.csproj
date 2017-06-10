@@ -1,17 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>A .NET Core based interception framework for AOP programming.</Description>
     <Authors>Jiang Jin Nan</Authors>
     <Company>Artech</Company>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Product>Dora</Product>
-    <Version>1.1.0</Version>
+    <Version>2.0.0-beta1</Version>
     <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy</PackageTags>
+    <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
+    <PackageLicenseUrl>http://www.doranet.org/nuget-license</PackageLicenseUrl>
+    <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

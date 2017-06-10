@@ -18,12 +18,12 @@ namespace Dora
             {
                 return _attributes.TryGetValue(memberInfo, out attributes)
                  ? attributes
-                 : _attributes[memberInfo] = memberInfo.GetCustomAttributes(true).ToArray();
+                 : _attributes[memberInfo] = memberInfo.GetCustomAttributes(true).OfType<Attribute>().ToArray();
             }
 
             return _ownAttributes.TryGetValue(memberInfo, out attributes)
               ? attributes
-              : _attributes[memberInfo] = memberInfo.GetCustomAttributes(false).ToArray();
+              : _attributes[memberInfo] = memberInfo.GetCustomAttributes(false).OfType<Attribute>().ToArray();
         }
         public static IEnumerable<Attribute> GetCustomAttributes(Type type, bool inherit = true)
         {
@@ -33,12 +33,12 @@ namespace Dora
             {
                 return _attributes.TryGetValue(typeInfo, out attributes)
                  ? attributes
-                 : _attributes[type] = typeInfo.GetCustomAttributes(true).ToArray();
+                 : _attributes[type] = typeInfo.GetCustomAttributes(true).OfType<Attribute>().ToArray();
             }
 
             return _ownAttributes.TryGetValue(typeInfo, out attributes)
               ? attributes
-              : _attributes[type] = typeInfo.GetCustomAttributes(false).ToArray();
+              : _attributes[type] = typeInfo.GetCustomAttributes(false).OfType<Attribute>().ToArray();
         }
         public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(MemberInfo memberInfo, bool inherit = true)
         {

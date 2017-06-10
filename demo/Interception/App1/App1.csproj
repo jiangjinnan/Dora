@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dora.Interception.Castle" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="1.1.1" />
+    <PackageReference Include="Dora.Interception.Castle" Version="2.0.0-beta1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0-preview1-final" />
   </ItemGroup>
 
 </Project>
