@@ -21,7 +21,7 @@ namespace Dora.ExceptionHandling
         /// <summary>
         /// A <see cref="Func{ExceptionContext, Task}"/> representing the exception handler chain.
         /// </summary>
-        public Func<ExceptionContext, Task> ExceptionHandler { get; }
+        public Func<ExceptionContext, Task> Handler { get; }
 
         /// <summary>
         /// Create a new <see cref="ExceptionPolicyEntry"/>.
@@ -35,7 +35,7 @@ namespace Dora.ExceptionHandling
         public ExceptionPolicyEntry(Type exceptionType, PostHandlingAction postHandlingAction, Func<ExceptionContext, Task> exceptionHandler)
         {
             this.ExceptionType = Guard.ArgumentAssignableTo<Exception>(exceptionType, nameof(exceptionType));
-            this.ExceptionHandler =Guard.ArgumentNotNull(exceptionHandler, nameof(exceptionHandler));
+            this.Handler =Guard.ArgumentNotNull(exceptionHandler, nameof(exceptionHandler));
             this.PostHandlingAction = postHandlingAction;
         }
     }

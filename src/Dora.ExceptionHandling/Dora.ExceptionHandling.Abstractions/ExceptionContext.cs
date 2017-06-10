@@ -16,6 +16,7 @@ namespace Dora.ExceptionHandling
         /// <summary>
         /// The new exception used to wrap or replace the <seealso cref="OriginalException"/>.
         /// </summary>
+        /// <remarks>It is the <seealso cref="OriginalException"/> if not exolicitly specified.</remarks>
         public Exception Exception { get; set; }
 
         /// <summary>
@@ -26,6 +27,7 @@ namespace Dora.ExceptionHandling
         /// <summary>
         /// A dictionary to store any properties which may be used by a particular exception handler.
         /// </summary>
+        /// <remarks>The key of the dictionary is case sensitive.</remarks>
         public IDictionary<string, object> Properties { get; } 
 
         /// <summary>

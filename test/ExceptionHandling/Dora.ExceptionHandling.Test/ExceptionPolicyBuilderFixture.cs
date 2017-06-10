@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -71,5 +69,46 @@ namespace Dora.ExceptionHandling.Test
         private class FooException : FoobarException { }
         private class BarException : FoobarException { }
         private class BazException : Exception { }
+
+        [Fact]
+        public async void Build()
+        {
+            var builder = new ExceptionPolicyBuilder(new ServiceCollection().BuildServiceProvider());
+            builder.For<FoobarException>(PostHandlingAction.None, handlers => handlers.Use(_ => { _flag += "FoobarException"; return Task.CompletedTask; }));
+            builder.For<FooException>(PostHandlingAction.None, handlers => handlers.Use(_ => { _flag += "FooException"; return Task.CompletedTask; }));
+            builder.For<Exception>(PostHandlingAction.None, handlers => handlers.Use(_ => { _flag += "Exception"; return Task.CompletedTask; }));
+            builder.Pre(handers => handers.Use(_ => { _flag += "Pre"; return Task.CompletedTask; }));
+            builder.Post(handers => handers.Use(_ => { _flag += "Post"; return Task.CompletedTask; }));
+            var policy =  builder.Build();
+
+            _flag = "";
+            await HandleException<FoobarException>(policy);
+            Assert.Equal("PreFoobarExceptionPost", _flag);
+
+            _flag = "";
+            await HandleException<FooException>(policy);
+            Assert.Equal("PreFooExceptionPost", _flag);
+
+            _flag = "";
+            await HandleException<BarException>(policy);
+            Assert.Equal("PreFoobarExceptionPost", _flag);
+
+
+            _flag = "";
+            await HandleException<BazException>(policy);
+            Assert.Equal("PreExceptionPost", _flag);
+        }
+
+        private async Task HandleException<TException>(IExceptionPolicy policy) where TException:Exception, new()
+        {
+            Exception ex = new TException();
+            var handler = policy.CreateHandler(ex, out PostHandlingAction action);
+            try
+            {
+                await handler(new ExceptionContext(ex));
+            }
+            catch
+            { }
+        }
     }
 }

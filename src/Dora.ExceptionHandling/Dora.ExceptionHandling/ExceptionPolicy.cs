@@ -15,7 +15,7 @@ namespace Dora.ExceptionHandling
         /// <summary>
         /// Exception policy entries each of which is specific to an exception type.
         /// </summary>
-        public IEnumerable<ExceptionPolicyEntry> PolicyEntries { get; }
+        public IEnumerable<ExceptionPolicyEntry> Entries { get; }
 
         /// <summary>
         /// The common exception handler chain invoked before all type specific handler chain.
@@ -44,13 +44,13 @@ namespace Dora.ExceptionHandling
             var group = list.GroupBy(it => it.ExceptionType).FirstOrDefault(it => it.Count() > 1);
             if(null != group)
             {
-                throw new InvalidOperationException(Resources.ExceptionDuplicateExceptionType.Fill(group.First().ExceptionType.FullName));
+                throw new ArgumentException(Resources.ExceptionDuplicateExceptionType.Fill(group.First().ExceptionType.FullName), nameof(policyEntries));
             }
             if (!list.Any(it => it.ExceptionType == typeof(Exception)))
             {
                 list.Add(new ExceptionPolicyEntry(typeof(Exception), PostHandlingAction.ThrowNew, _ => Task.CompletedTask));
             }
-            this.PolicyEntries = list;
+            this.Entries = list;
             this.PreHandler = Guard.ArgumentNotNull(preHandler, nameof(preHandler));
             this.PostHandler = Guard.ArgumentNotNull(postHandler, nameof(postHandler));
         }        
@@ -61,7 +61,7 @@ namespace Dora.ExceptionHandling
         /// <param name="exception">The exception to handle.</param>
         /// <param name="postHandlingAction">A <see cref="PostHandlingAction"/> determining what action should occur after an exception is handled by the configured exception handling chain. </param>
         /// <returns>A <see cref="Func{TExceptionContext, Task}"/> representing the exception handler.</returns>
-        public Func<ExceptionContext, Task> CreateExceptionHandler(Exception exception, out PostHandlingAction postHandlingAction)
+        public Func<ExceptionContext, Task> CreateHandler(Exception exception, out PostHandlingAction postHandlingAction)
         {
             Guard.ArgumentNotNull(exception, nameof(exception));
             ExceptionPolicyEntry policyEntry = this.GetPolicyEntry(exception.GetType());
@@ -69,7 +69,7 @@ namespace Dora.ExceptionHandling
             return async context =>
             {
                 await this.PreHandler(context);
-                await policyEntry.ExceptionHandler(context);
+                await policyEntry.Handler(context);
                 await this.PostHandler(context);
             };
         }
@@ -83,7 +83,7 @@ namespace Dora.ExceptionHandling
         internal protected ExceptionPolicyEntry GetPolicyEntry(Type exceptionType)
         {
             Guard.ArgumentAssignableTo<Exception>(exceptionType, nameof(exceptionType));
-            var entry = this.PolicyEntries.FirstOrDefault(it => it.ExceptionType == exceptionType);
+            var entry = this.Entries.FirstOrDefault(it => it.ExceptionType == exceptionType);
             return entry ?? GetPolicyEntry(exceptionType.GetTypeInfo().BaseType);
         }
     }

@@ -29,10 +29,10 @@ namespace Dora.ExceptionHandling.Mvc
         public string ExceptionPolicy { get; set; }
 
         /// <summary>
-        /// 
+        /// Handle exception.
         /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
+        /// <param name="context">The cu<see cref="Filters.ExceptionContext"/>.</param>
+        /// <returns>The task to handle exception.</returns>
         public override async Task OnExceptionAsync(Filters.ExceptionContext context)
         {
             Guard.ArgumentNotNull(context, nameof(context));

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>    
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
      <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Abstractions\Dora.ExceptionHandling.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Configuration\Dora.ExceptionHandling.Configuration.csproj" />
+    <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.Interception\Dora.ExceptionHandling.Interception.csproj" />
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling.ExceptionHandlers\Dora.ExceptionHandling.ExceptionHandlers.csproj" />
     <ProjectReference Include="..\..\..\src\Dora.ExceptionHandling\Dora.ExceptionHandling\Dora.ExceptionHandling.csproj" />
   </ItemGroup>

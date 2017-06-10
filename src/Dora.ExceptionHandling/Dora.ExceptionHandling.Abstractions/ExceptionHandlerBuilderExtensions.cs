@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Dora.ExceptionHandling.Abstractions.Properties;
 
 namespace Dora.ExceptionHandling
 {
@@ -43,7 +44,7 @@ namespace Dora.ExceptionHandling
         /// <exception cref="ArgumentNullException">The <paramref name="builder"/> is null.</exception>
         public static IExceptionHandlerBuilder Use<THandler>(this IExceptionHandlerBuilder builder, Func<ExceptionContext, bool> predicate, params object[] arguments)
         {
-            return builder.Use(typeof(THandler), predicate, arguments);
+            return builder.Use(predicate,typeof(THandler) , arguments);
         }
 
         /// <summary>
@@ -78,7 +79,7 @@ namespace Dora.ExceptionHandling
 
             if (!TryGetInvoke(handlerType, out HandleExceptionDelegate handlerDelegate))
             {
-                throw new ArgumentException("Invalid exception handler type", nameof(handlerType));
+                throw new ArgumentException(Resources.ExceptionInvalidExceptionHandlerType.Fill(handlerType.FullName, nameof(handlerType)));
             }
 
             Func<ExceptionContext, Task> handler = async context =>

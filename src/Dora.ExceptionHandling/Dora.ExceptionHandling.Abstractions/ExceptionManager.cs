@@ -92,9 +92,21 @@ namespace Dora.ExceptionHandling
             }
         }
 
-        private async Task HandleExceptionAsync(Exception exception, IExceptionPolicy policy, Action<ExceptionContext> contextInitializer = null)
+        /// <summary>
+        /// Handle the exception using specified exception policy.
+        /// </summary>
+        /// <param name="exception">The <see cref="Exception"/> to handle.</param>
+        /// <param name="policy">The exception policy to handle the specified exception.</param>
+        /// <param name="contextInitializer">A <see cref="Action{ExceptionContext}"/> to initialize <see cref="ExceptionContext"/> before performing exception handling.</param>
+        /// <returns>The task to handle the specified exception.</returns>
+        /// <exception cref="ArgumentNullException">The specified <paramref name="exception"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">The specified <paramref name="policy"/> is null.</exception>
+        protected virtual async Task HandleExceptionAsync(Exception exception, IExceptionPolicy policy, Action<ExceptionContext> contextInitializer = null)
         {
-            Func<ExceptionContext, Task> handler = policy.CreateExceptionHandler(exception, out PostHandlingAction postHandlingAction);
+            Guard.ArgumentNotNull(exception, nameof(exception));
+            Guard.ArgumentNotNull(policy, nameof(policy));
+
+            Func<ExceptionContext, Task> handler = policy.CreateHandler(exception, out PostHandlingAction postHandlingAction);
             ExceptionContext context = new ExceptionContext(exception);
             contextInitializer?.Invoke(context);
             await handler(context);

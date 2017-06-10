@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using System.Linq;
 
 namespace Dora.ExceptionHandling.Test
 {
@@ -26,7 +25,24 @@ namespace Dora.ExceptionHandling.Test
                : _ => Task.CompletedTask;
 
             Assert.Throws<ArgumentNullException>(() => new ExceptionPolicy(entries, preHandler, postHandler));
-        }        
+        }
+
+        [Fact]
+        public void New_Add_Global_Entry()
+        {
+            var policy = new ExceptionPolicy(new ExceptionPolicyEntry[0], _ => Task.CompletedTask, _ => Task.CompletedTask);
+            Assert.True(policy.Entries.Any(it => it.ExceptionType == typeof(Exception)));
+        }
+
+        [Fact]
+        public void New_Not_Allow_Duplicate_Exception_Type()
+        {
+            var entries = new ExceptionPolicyEntry[] {
+                new ExceptionPolicyEntry(typeof(InvalidCastException), PostHandlingAction.None, _=>Task.CompletedTask),
+                new ExceptionPolicyEntry(typeof(InvalidCastException), PostHandlingAction.None, _=>Task.CompletedTask),
+            };
+            Assert.Throws<ArgumentException>(() => new ExceptionPolicy(entries, _ => Task.CompletedTask, _ => Task.CompletedTask));
+        }
 
         [Fact]
         public void New_Normal()
@@ -35,7 +51,7 @@ namespace Dora.ExceptionHandling.Test
             Func<ExceptionContext, Task> preHandler = _ => Task.CompletedTask;
             Func<ExceptionContext, Task> postHanlder = _ => Task.CompletedTask;
             var policy = new ExceptionPolicy(entries, preHandler, postHanlder);
-            Assert.Same(entries.Single(), policy.PolicyEntries.Single());
+            Assert.Same(entries.Single(), policy.Entries.Single());
             Assert.Same(preHandler, policy.PreHandler);
             Assert.Same(postHanlder, policy.PostHandler);
         }
@@ -73,7 +89,7 @@ namespace Dora.ExceptionHandling.Test
         {
             var entry = new ExceptionPolicyEntry(typeof(Exception), PostHandlingAction.None, _ => Task.CompletedTask);
             var policy = new ExceptionPolicy(new ExceptionPolicyEntry[] { entry }, _ => Task.CompletedTask, _ => Task.CompletedTask);
-            Assert.Throws<ArgumentNullException>(() => policy.CreateExceptionHandler(null, out PostHandlingAction action));
+            Assert.Throws<ArgumentNullException>(() => policy.CreateHandler(null, out PostHandlingAction action));
         }
 
         [Fact]
@@ -82,7 +98,7 @@ namespace Dora.ExceptionHandling.Test
             _flag = "";
             var entry = new ExceptionPolicyEntry(typeof(Exception), PostHandlingAction.ThrowOriginal, _ => { _flag += "1"; return Task.CompletedTask; });
             var policy = new ExceptionPolicy(new ExceptionPolicyEntry[] { entry }, _ => { _flag += "2"; return Task.CompletedTask; }, _ => { _flag += "3"; return Task.CompletedTask; });
-            var handler = policy.CreateExceptionHandler(new Exception(), out PostHandlingAction action);
+            var handler = policy.CreateHandler(new Exception(), out PostHandlingAction action);
             await handler(new ExceptionContext(new Exception()));
             Assert.Equal("213", _flag);
             Assert.Equal(PostHandlingAction.ThrowOriginal, action);

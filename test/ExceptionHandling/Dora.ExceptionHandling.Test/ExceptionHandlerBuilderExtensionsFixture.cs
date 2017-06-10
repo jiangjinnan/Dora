@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -44,7 +42,6 @@ namespace Dora.ExceptionHandling.Test
                 .Build();
             await handler(new ExceptionContext(new Exception()));
             Assert.NotNull(_foo);
-            Assert.NotNull(_bar);
             Assert.NotNull(_baz);
 
             _foo = null;
@@ -58,6 +55,18 @@ namespace Dora.ExceptionHandling.Test
             Assert.NotNull(_foo);
             Assert.NotNull(_bar);
             Assert.NotNull(_baz);
+
+            _foo = null;
+            _bar = null;
+            _baz = null;
+
+            handler = new ExceptionHandlerBuilder(serviceProvider)
+                .Use<ValidHandler>(_=>false, new Bar())
+                .Build();
+            await handler(new ExceptionContext(new Exception()));
+            Assert.Null(_foo);
+            Assert.Null(_bar);
+            Assert.Null(_baz);
         }
 
         public class InvalidHandler

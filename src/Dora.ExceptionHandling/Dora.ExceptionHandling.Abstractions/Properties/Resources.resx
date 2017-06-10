@@ -126,6 +126,9 @@
   <data name="ExceptionHandlingError" xml:space="preserve">
     <value>Exception is thrown during performing exception handling. For detailed information, please check the inner exception.</value>
   </data>
+  <data name="ExceptionInvalidExceptionHandlerType" xml:space="preserve">
+    <value />
+  </data>
   <data name="ExceptionInvalidReplaceExceptionType" xml:space="preserve">
     <value>The excecption type "{0}" is not a valid replace exception type.</value>
   </data>

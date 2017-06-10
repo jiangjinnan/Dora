@@ -26,10 +26,10 @@ namespace Dora.ExceptionHandling
         IExceptionManagerBuilder AddPolicy(string policyName, Action<IExceptionPolicyBuilder> configure);
 
         /// <summary>
-        /// 
+        /// Set the default exception policy.
         /// </summary>
-        /// <param name="policyName"></param>
-        /// <returns></returns>
+        /// <param name="policyName">The name of defualt exception policy.</param>
+        /// <returns>The current <see cref="ExceptionManager"/>.</returns>
         IExceptionManagerBuilder SetDefaultPolicy(string policyName);
 
         /// <summary>

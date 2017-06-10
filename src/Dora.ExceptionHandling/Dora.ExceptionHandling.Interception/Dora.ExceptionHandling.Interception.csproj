@@ -1,10 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
-    <Version>1.0.0-beta1</Version>
+    <Version>2.0.0-beta1</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Authors>Jiang Jin Nan</Authors>
+    <Company>Artech</Company>
+    <Product>Dora</Product>
+    <Description>Dora.ExceptionHandling is a policy driven automatic exception handling framework. This package provides a specific interceptor, which enable us of handling exception in an AOP manner.</Description>
+    <PackageLicenseUrl>http://www.doranet.org/nuget-license</PackageLicenseUrl>
+    <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
+    <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
+    <PackageTags>Dora, Excpetion Handling</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -14,7 +25,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dora.Interception" Version="1.1.0" />
+    <PackageReference Include="Dora.Interception" Version="2.0.0-beta1" />
   </ItemGroup>
 
   <ItemGroup>
