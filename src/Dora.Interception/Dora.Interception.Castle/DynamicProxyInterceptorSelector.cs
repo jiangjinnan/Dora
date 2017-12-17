@@ -13,9 +13,8 @@ namespace Dora.Interception.Castle
 
         public DynamicProxyInterceptorSelector(IDictionary<MethodInfo, IInterceptor> interceptors)
         {
-            _interceptors = interceptors;
-        }
-
+            _interceptors = interceptors; 
+        }  
         public IInterceptor[] SelectInterceptors(Type type, MethodInfo method, IInterceptor[] interceptors)
         {
             IInterceptor interceptor;

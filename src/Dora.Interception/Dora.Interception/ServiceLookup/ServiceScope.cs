@@ -7,9 +7,9 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 {
     internal class ServiceScope : IServiceScope
     {
-        private readonly ServiceProvider _scopedProvider;
+        private readonly ServiceProvider2 _scopedProvider;
 
-        public ServiceScope(ServiceProvider scopedProvider)
+        public ServiceScope(ServiceProvider2 scopedProvider)
         {
             _scopedProvider = scopedProvider;
         }

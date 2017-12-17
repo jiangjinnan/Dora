@@ -4,12 +4,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection.ServiceLookup;
-using Dora.Interception.Properties;
 using Dora.Interception;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -17,42 +15,51 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// The default IServiceProvider.
     /// </summary>
-    internal class ServiceProvider : IServiceProvider, IDisposable
+    public sealed class ServiceProvider2 : IServiceProvider, IDisposable
     {
-        private readonly CallSiteValidator _callSiteValidator;
-        private readonly ServiceTable _table;
-        private bool _disposeCalled;
-        private List<IDisposable> _transientDisposables;
-
-        internal ServiceProvider Root { get; }
-        internal Dictionary<object, object> ResolvedServices { get; } = new Dictionary<object, object>();
-
-        private static readonly Func<Type, ServiceProvider, Func<ServiceProvider, object>> _createServiceAccessor = CreateServiceAccessor;
-
         // CallSiteRuntimeResolver is stateless so can be shared between all instances
         private static readonly CallSiteRuntimeResolver _callSiteRuntimeResolver = new CallSiteRuntimeResolver();
+        private static readonly Func<Type, ServiceProvider2, Func<ServiceProvider2, object>> _createServiceAccessor = CreateServiceAccessor;
 
-        public ServiceProvider(IEnumerable<ServiceDescriptor> serviceDescriptors, bool validateScopes, IProxyFactory proxyFactroy)
+        private readonly CallSiteValidator _callSiteValidator;
+        private bool _disposeCalled;
+        private List<IDisposable> _disposables;
+
+        // For testing only
+        internal Action<object> _captureDisposableCallback;
+
+        internal ServiceProvider2 Root { get; }
+        internal CallSiteFactory CallSiteFactory { get; }
+        internal Dictionary<object, object> ResolvedServices { get; }
+        internal ConcurrentDictionary<Type, Func<ServiceProvider2, object>> RealizedServices { get; } = new ConcurrentDictionary<Type, Func<ServiceProvider2, object>>();
+
+        //Added by Jiang Jin Nan:
+        internal IProxyFactory  ProxyFactory { get; }
+        internal ServiceProvider2(IEnumerable<ServiceDescriptor> serviceDescriptors, ServiceProviderOptions options, IProxyFactory proxyFactory)
         {
             Root = this;
 
-            if (validateScopes)
+            if (options.ValidateScopes)
             {
                 _callSiteValidator = new CallSiteValidator();
             }
 
-            _table = new ServiceTable(serviceDescriptors, proxyFactroy);
+            CallSiteFactory = new CallSiteFactory(serviceDescriptors, proxyFactory);
+            ResolvedServices = new Dictionary<object, object>();
 
-            _table.Add(typeof(IServiceProvider), new ServiceProviderService());
-            _table.Add(typeof(IServiceScopeFactory), new ServiceScopeService());
-            _table.Add(typeof(IEnumerable<>), new OpenIEnumerableService(_table));
+            CallSiteFactory.Add(typeof(IServiceProvider), new ServiceProviderCallSite());
+            CallSiteFactory.Add(typeof(IServiceScopeFactory), new ServiceScopeFactoryCallSite());
+
+            ProxyFactory = proxyFactory;
         }
 
         // This constructor is called exclusively to create a child scope from the parent
-        internal ServiceProvider(ServiceProvider parent)
+        internal ServiceProvider2(ServiceProvider2 parent)
         {
             Root = parent.Root;
-            _table = parent._table;
+            ResolvedServices = new Dictionary<object, object>();
+            CallSiteFactory = parent.CallSiteFactory;
+            RealizedServices = parent.RealizedServices;
             _callSiteValidator = parent._callSiteValidator;
         }
 
@@ -63,26 +70,26 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public object GetService(Type serviceType)
         {
-            var realizedService = _table.RealizedServices.GetOrAdd(serviceType, _createServiceAccessor, this);
+            var realizedService = RealizedServices.GetOrAdd(serviceType, _createServiceAccessor, this);
 
             _callSiteValidator?.ValidateResolution(serviceType, this);
 
             return realizedService.Invoke(this);
         }
 
-        private static Func<ServiceProvider, object> CreateServiceAccessor(Type serviceType, ServiceProvider serviceProvider)
+        private static Func<ServiceProvider2, object> CreateServiceAccessor(Type serviceType, ServiceProvider2 serviceProvider)
         {
-            var callSite = serviceProvider.GetServiceCallSite(serviceType, new HashSet<Type>());
+            var callSite = serviceProvider.CallSiteFactory.CreateCallSite(serviceType, new HashSet<Type>());
             if (callSite != null)
             {
                 serviceProvider._callSiteValidator?.ValidateCallSite(serviceType, callSite);
-                return RealizeService(serviceProvider._table, serviceType, callSite);
+                return RealizeService(serviceType, callSite);
             }
 
             return _ => null;
         }
 
-        internal static Func<ServiceProvider, object> RealizeService(ServiceTable table, Type serviceType, IServiceCallSite callSite)
+        internal static Func<ServiceProvider2, object> RealizeService(Type serviceType, IServiceCallSite callSite)
         {
             var callCount = 0;
             return provider =>
@@ -93,67 +100,12 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         var realizedService = new CallSiteExpressionBuilder(_callSiteRuntimeResolver)
                             .Build(callSite);
-                        table.RealizedServices[serviceType] = realizedService;
+                        provider.RealizedServices[serviceType] = realizedService;
                     });
                 }
 
                 return _callSiteRuntimeResolver.Resolve(callSite, provider);
             };
-        }
-
-        internal IServiceCallSite GetServiceCallSite(Type serviceType, ISet<Type> callSiteChain)
-        {
-            try
-            {
-                if (callSiteChain.Contains(serviceType))
-                {
-                    throw new InvalidOperationException(Resources.CircularDependencyException.Fill(serviceType));
-                }
-
-                callSiteChain.Add(serviceType);
-
-                ServiceEntry entry;
-                if (_table.TryGetEntry(serviceType, out entry))
-                {
-                    return GetResolveCallSite(entry.Last, callSiteChain);
-                }
-
-                object emptyIEnumerableOrNull = GetEmptyIEnumerableOrNull(serviceType);
-                if (emptyIEnumerableOrNull != null)
-                {
-                    return new EmptyIEnumerableCallSite(serviceType, emptyIEnumerableOrNull);
-                }
-
-                return null;
-            }
-            finally
-            {
-                callSiteChain.Remove(serviceType);
-            }
-        }
-
-        internal IServiceCallSite GetResolveCallSite(IService service, ISet<Type> callSiteChain)
-        {
-            IServiceCallSite serviceCallSite = service.CreateCallSite(this, callSiteChain);
-
-            // Instance services do not need caching/disposing
-            if (serviceCallSite is InstanceService)
-            {
-                return serviceCallSite;
-            }
-
-            if (service.Lifetime == ServiceLifetime.Transient)
-            {
-                return new TransientCallSite(serviceCallSite);
-            }
-            else if (service.Lifetime == ServiceLifetime.Scoped)
-            {
-                return new ScopedCallSite(service, serviceCallSite);
-            }
-            else
-            {
-                return new SingletonCallSite(service, serviceCallSite);
-            }
         }
 
         public void Dispose()
@@ -164,23 +116,17 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     return;
                 }
+
                 _disposeCalled = true;
-                if (_transientDisposables != null)
+                if (_disposables != null)
                 {
-                    foreach (var disposable in _transientDisposables)
+                    for (int i = _disposables.Count - 1; i >= 0; i--)
                     {
+                        var disposable = _disposables[i];
                         disposable.Dispose();
                     }
 
-                    _transientDisposables.Clear();
-                }
-
-                // PERF: We've enumerating the dictionary so that we don't allocate to enumerate.
-                // .Values allocates a ValueCollection on the heap, enumerating the dictionary allocates
-                // a struct enumerator
-                foreach (var entry in ResolvedServices)
-                {
-                    (entry.Value as IDisposable)?.Dispose();
+                    _disposables.Clear();
                 }
 
                 ResolvedServices.Clear();
@@ -189,6 +135,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         internal object CaptureDisposable(object service)
         {
+            _captureDisposableCallback?.Invoke(service);
+
             if (!object.ReferenceEquals(this, service))
             {
                 var disposable = service as IDisposable;
@@ -196,30 +144,16 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     lock (ResolvedServices)
                     {
-                        if (_transientDisposables == null)
+                        if (_disposables == null)
                         {
-                            _transientDisposables = new List<IDisposable>();
+                            _disposables = new List<IDisposable>();
                         }
 
-                        _transientDisposables.Add(disposable);
+                        _disposables.Add(disposable);
                     }
                 }
             }
             return service;
-        }
-
-        private object GetEmptyIEnumerableOrNull(Type serviceType)
-        {
-            var typeInfo = serviceType.GetTypeInfo();
-
-            if (typeInfo.IsGenericType &&
-                serviceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
-                var itemType = typeInfo.GenericTypeArguments[0];
-                return Array.CreateInstance(itemType, 0);
-            }
-
-            return null;
         }
     }
 }

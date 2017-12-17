@@ -37,8 +37,22 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure"></param>
         /// <returns></returns>
         public static IServiceProvider BuilderInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
-        {           
-            return new ServiceProvider(services.AddInterception(configure), false, services.BuildServiceProvider().GetRequiredService<IProxyFactory>());
+        {
+            return BuilderInterceptableServiceProvider(services, false, configure);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configure"></param>
+        /// <returns></returns>
+        public static IServiceProvider BuilderInterceptableServiceProvider(this IServiceCollection services, bool validateScopes, Action<InterceptionBuilder> configure = null)
+        {
+            var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
+            services.AddInterception(configure);
+            var proxyFactory = services.BuildServiceProvider().GetRequiredService<IProxyFactory>();
+            return new ServiceProvider2(services, options , proxyFactory);
         }
     }
 }
