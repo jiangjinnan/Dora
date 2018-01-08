@@ -31,6 +31,14 @@ namespace Dora.DynamicProxy
                 this.DefineInterceptableMethod(typeBuilder, item.Key, targetField, interceptorsField);
             }
 
+            foreach (var method in @interface.GetMethods())
+            {
+                if (!interceptorDecoration.Contains(method))
+                {
+                    this.DefineNonInterceptableMethod(typeBuilder, method, targetField);
+                }
+            }
+
             return typeBuilder.CreateTypeInfo();
         }
 
@@ -173,8 +181,17 @@ namespace Dora.DynamicProxy
         {
             var parameters = method.GetParameters();
             var invokeTargetMethod = this.DefineInvokeTargetMethod(typeBuilder, method, targetField);
-            var mb = typeBuilder.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.ReturnType, parameters.Select(it => it.ParameterType).ToArray());
-            var il = mb.GetILGenerator();
+            var methodBuilder = typeBuilder.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.ReturnType, parameters.Select(it => it.ParameterType).ToArray());
+            methodBuilder.SetParameters(parameters.Select(it => it.ParameterType).ToArray());
+            //for (int index = 0; index < parameters.Length; index++)
+            //{
+            //    var parameter = parameters[index];
+            //    methodBuilder.DefineParameter(index+1, parameter.Attributes, parameter.Name);
+            //}
+            
+            //methodBuilder.SetReturnType(method.ReturnType);
+
+            var il = methodBuilder.GetILGenerator();
 
             var handler = il.DeclareLocal(typeof(InterceptDelegate));
             var interceptor = il.DeclareLocal(typeof(InterceptorDelegate));
@@ -182,7 +199,7 @@ namespace Dora.DynamicProxy
             var methodBase = il.DeclareLocal(typeof(MethodBase));
             var invocationContext = il.DeclareLocal(typeof(InvocationContext));
             var task = il.DeclareLocal(typeof(Task));
-            var returnType = method.ReturnType.GetGenericArguments()[0];
+            var returnType = method.ReturnTaskOfResult()? method.ReturnType.GetGenericArguments()[0]: method.ReturnType;
             var returnValueAccessor = il.DeclareLocal(typeof(ReturnValueAccessor<>).MakeGenericType(returnType));
             var func = il.DeclareLocal(typeof(Func<,>).MakeGenericType(typeof(Task), returnType));
 
@@ -197,6 +214,13 @@ namespace Dora.DynamicProxy
                 il.Emit(OpCodes.Dup);
                 il.EmitLoadConstantInt32(index);
                 il.EmitLoadArgument(index);
+
+                //TODO
+                if (parameter.ParameterType.IsByRef)
+                {
+                    il.Emit(OpCodes.Ldobj, parameter.ParameterType);
+                }
+
                 il.EmitBox(parameter.ParameterType);
                 il.Emit(OpCodes.Stelem_Ref);
             }
@@ -281,7 +305,36 @@ namespace Dora.DynamicProxy
             }
             il.Emit(OpCodes.Ldloc, invocationContext);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.ReturnValueOfInvocationContext.GetMethod);
-            il.EmitBox(method.ReturnType);
+            il.EmitUnboxOrCast(method.ReturnType);
+            il.Emit(OpCodes.Ret);
+        }
+
+        private void DefineNonInterceptableMethod(
+              TypeBuilder typeBuilder,
+              MethodInfo method,
+              FieldBuilder targetField
+            )
+        {
+            var parameters = method.GetParameters();
+            var invokeTargetMethod = this.DefineInvokeTargetMethod(typeBuilder, method, targetField);
+            var methodBuilder = typeBuilder.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual);
+            for (int index = 0; index < parameters.Length; index++)
+            {
+                var parameter = parameters[index];
+                methodBuilder.DefineParameter(index, parameter.Attributes, parameter.Name);
+            }
+
+            methodBuilder.SetReturnType(method.ReturnType);
+            var il = methodBuilder.GetILGenerator();
+
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, targetField);
+            for (int index = 0; index < parameters.Length; index++)
+            {
+                var parameter = parameters[index];
+                il.EmitLoadArgument(index); 
+            }
+            il.Emit(OpCodes.Callvirt, method);
             il.Emit(OpCodes.Ret);
         }
 

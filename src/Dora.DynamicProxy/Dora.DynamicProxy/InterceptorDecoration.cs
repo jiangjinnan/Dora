@@ -16,7 +16,7 @@ namespace Dora.DynamicProxy
         public IDictionary<MethodInfo, MethodBasedInterceptorDecoration> MethodBasedInterceptors { get; }
         public IDictionary<PropertyInfo, PropertyBasedInterceptorDecoration>  PropertyBasedInterceptors { get; } 
         public InterceptorDecoration(
-            IEnumerable< MethodBasedInterceptorDecoration> methodBasedInterceptors,
+            IEnumerable<MethodBasedInterceptorDecoration> methodBasedInterceptors,
             IEnumerable<PropertyBasedInterceptorDecoration> propertyBasedInterceptors)
         {
             this.MethodBasedInterceptors = new Dictionary<MethodInfo, MethodBasedInterceptorDecoration>();
