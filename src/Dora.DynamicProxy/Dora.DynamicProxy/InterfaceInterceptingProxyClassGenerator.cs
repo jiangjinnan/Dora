@@ -128,7 +128,10 @@ namespace Dora.DynamicProxy
             {
                 il.DeclareLocal(methodInfo.ReturnType);
             }
-            var arguments = parameters.Select(it => il.DeclareLocal(it.ParameterType)).ToArray();
+            var arguments = parameters.Select(it => il.DeclareLocal(
+                it.ParameterType.IsByRef 
+                ? it.ParameterType.GetNonByRefType()
+                : it.ParameterType)).ToArray(); 
 
             //Load and store InvocationContext.Arguments. 
             il.Emit(OpCodes.Ldarg_1);
@@ -152,8 +155,16 @@ namespace Dora.DynamicProxy
             for (int index = 0; index < parameters.Length; index++)
             {
                 //TODO: Consider ref/out parameter
-                //var parameter = parameters[index];   
-                il.Emit(OpCodes.Ldloc, arguments[index]);
+                var parameter = parameters[index];
+                if (parameter.ParameterType.IsByRef)
+                {
+
+                    il.Emit(OpCodes.Ldloca, arguments[index]);
+                }
+                else
+                {  
+                    il.Emit(OpCodes.Ldloc, arguments[index]);
+                }                  
             }
             il.Emit(OpCodes.Callvirt, methodInfo);
 
@@ -167,8 +178,26 @@ namespace Dora.DynamicProxy
                 il.Emit(OpCodes.Callvirt, ReflectionUtility.ReturnValueOfInvocationContext.SetMethod);
             }
 
+            //Set ref arguments InvocationContext.Arguments
+            if (parameters.Any(it => it.ParameterType.IsByRef))
+            {
+                for (int index = 0; index < parameters.Length; index++)
+                {
+                    var parameter = parameters[index];
+                    if (parameter.ParameterType.IsByRef)
+                    {
+                        il.Emit(OpCodes.Ldloc_0);
+                        il.EmitLoadConstantInt32(index);
+                        il.Emit(OpCodes.Ldloc, arguments[index]);
+                        il.EmitBox(parameter.ParameterType);
+                        il.Emit(OpCodes.Stelem_Ref);
+                    }
+                }
+            }
+
             //return Task.CompletedTask
-            il.Emit(OpCodes.Call, ReflectionUtility.CompletedTaskOfTask.GetMethod);
+            il.Emit(OpCodes.Call, ReflectionUtility.CompletedTaskOfTask.GetMethod);   
+          
             il.Emit(OpCodes.Ret);
             return mb;
         }
@@ -181,15 +210,14 @@ namespace Dora.DynamicProxy
         {
             var parameters = method.GetParameters();
             var invokeTargetMethod = this.DefineInvokeTargetMethod(typeBuilder, method, targetField);
-            var methodBuilder = typeBuilder.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.ReturnType, parameters.Select(it => it.ParameterType).ToArray());
+            var parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
+            var methodBuilder = typeBuilder.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.ReturnType, parameterTypes);
             methodBuilder.SetParameters(parameters.Select(it => it.ParameterType).ToArray());
-            //for (int index = 0; index < parameters.Length; index++)
-            //{
-            //    var parameter = parameters[index];
-            //    methodBuilder.DefineParameter(index+1, parameter.Attributes, parameter.Name);
-            //}
-            
-            //methodBuilder.SetReturnType(method.ReturnType);
+            for (int index = 0; index < parameters.Length; index++)
+            {
+                var parameter = parameters[index];
+                methodBuilder.DefineParameter(index + 1, parameter.Attributes, parameter.Name);
+            } 
 
             var il = methodBuilder.GetILGenerator();
 
@@ -207,23 +235,22 @@ namespace Dora.DynamicProxy
             il.EmitLoadConstantInt32(parameters.Length);
             il.Emit(OpCodes.Newarr, typeof(object));
 
+         
+
             //Load arguments and store them to object[]
             for (int index = 0; index < parameters.Length; index++)
             {
                 var parameter = parameters[index];
                 il.Emit(OpCodes.Dup);
                 il.EmitLoadConstantInt32(index);
-                il.EmitLoadArgument(index);
-
-                //TODO
+                il.EmitLoadArgument(index);    
                 if (parameter.ParameterType.IsByRef)
                 {
-                    il.Emit(OpCodes.Ldobj, parameter.ParameterType);
+                    il.EmitLdInd(parameter.ParameterType);
                 }
-
                 il.EmitBox(parameter.ParameterType);
                 il.Emit(OpCodes.Stelem_Ref);
-            }
+            }                   
             il.Emit(OpCodes.Stloc, arguments);
 
             //Load and store current method
@@ -263,7 +290,7 @@ namespace Dora.DynamicProxy
             il.Emit(OpCodes.Ldloc, handler);
             il.Emit(OpCodes.Ldloc, invocationContext);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.InvokeMethodOfInterceptDelegate);
-            il.Emit(OpCodes.Stloc, task);
+            il.Emit(OpCodes.Stloc, task); 
 
             //When return Task<TResult>
             if (method.ReturnTaskOfResult())
@@ -293,16 +320,34 @@ namespace Dora.DynamicProxy
                 il.Emit(OpCodes.Ldloc, task);
                 il.Emit(OpCodes.Ret);
                 return;
-            }
-
+            }  
+            
             il.Emit(OpCodes.Ldloc, task);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.WaitMethodOfTask);
+
+            if (parameters.Any(it => it.ParameterType.IsByRef))
+            {
+                for (int index = 0; index < parameters.Length; index++)
+                {
+                    var parameter = parameters[index];
+                    if (parameter.ParameterType.IsByRef)
+                    {
+                        il.EmitLoadArgument(index);
+                        il.Emit(OpCodes.Ldloc, arguments);
+                        il.EmitLoadConstantInt32(index);
+                        il.Emit(OpCodes.Ldelem_Ref);
+                        il.EmitUnboxOrCast(parameter.ParameterType);
+                        il.EmitStInd(parameter.ParameterType);   
+                    }
+                }
+            }
 
             // When return void
             if (method.ReturnVoid())
             {
                 il.Emit(OpCodes.Ret);
-            }
+            }  
+            
             il.Emit(OpCodes.Ldloc, invocationContext);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.ReturnValueOfInvocationContext.GetMethod);
             il.EmitUnboxOrCast(method.ReturnType);
@@ -317,14 +362,13 @@ namespace Dora.DynamicProxy
         {
             var parameters = method.GetParameters();
             var invokeTargetMethod = this.DefineInvokeTargetMethod(typeBuilder, method, targetField);
-            var methodBuilder = typeBuilder.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual);
+            var parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
+            var methodBuilder = typeBuilder.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.ReturnType, parameterTypes);
             for (int index = 0; index < parameters.Length; index++)
             {
                 var parameter = parameters[index];
                 methodBuilder.DefineParameter(index, parameter.Attributes, parameter.Name);
-            }
-
-            methodBuilder.SetReturnType(method.ReturnType);
+            } 
             var il = methodBuilder.GetILGenerator();
 
             il.Emit(OpCodes.Ldarg_0);

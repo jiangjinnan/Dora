@@ -57,6 +57,14 @@ namespace Dora.DynamicProxy
             if (typeOnStack.IsValueType || typeOnStack.IsGenericParameter)
             {
                 il.Emit(OpCodes.Box, typeOnStack);
+            } 
+            if (typeOnStack.IsByRef)
+            {
+                var nonByRefType = typeOnStack.GetNonByRefType();
+                if (nonByRefType.IsValueType)
+                {
+                    il.Emit(OpCodes.Box, nonByRefType);
+                }
             }
         }
 
@@ -67,10 +75,94 @@ namespace Dora.DynamicProxy
             {
                 il.Emit(OpCodes.Unbox_Any, targetType);
             }
+            else if (targetType.IsByRef && (targetType.GetNonByRefType().IsValueType)) 
+            {
+                il.Emit(OpCodes.Unbox_Any, targetType.GetNonByRefType());
+            }
             else
             {
                 il.Emit(OpCodes.Castclass, targetType);
             }
+        }
+
+        public static void EmitLdInd(this ILGenerator il, Type targetType)
+        {
+            var nonByRefType = targetType.GetNonByRefType();
+
+            if (nonByRefType == typeof(Int16))
+            {
+                il.Emit(OpCodes.Ldind_I2);
+            }
+
+            else if (nonByRefType == typeof(Int32))
+            {
+                il.Emit(OpCodes.Ldind_I4);
+            }
+
+            else if (nonByRefType == typeof(Int64))
+            {
+                il.Emit(OpCodes.Ldind_I8);
+            }
+
+            else if (nonByRefType == typeof(float))
+            {
+                il.Emit(OpCodes.Ldind_R4);
+            }
+
+            else if (nonByRefType == typeof(double))
+            {
+                il.Emit(OpCodes.Ldind_R4);
+            }
+
+            else if (nonByRefType == typeof(UInt16))
+            {
+                il.Emit(OpCodes.Ldind_U2);
+            }
+
+            else if (nonByRefType == typeof(UInt32))
+            {
+                il.Emit(OpCodes.Ldind_U4);
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldind_Ref);
+            }
+
+        }
+
+        public static void EmitStInd(this ILGenerator il, Type targetType)
+        {
+            var nonByRefType = targetType.GetNonByRefType();
+
+            if (nonByRefType == typeof(Int16))
+            {
+                il.Emit(OpCodes.Stind_I2);
+            }
+
+            else if (nonByRefType == typeof(Int32))
+            {
+                il.Emit(OpCodes.Stind_I4);
+            }
+            else if (nonByRefType == typeof(Int64))
+            {
+                il.Emit(OpCodes.Stind_I8);
+            }
+
+            else if (nonByRefType == typeof(float))
+            {
+                il.Emit(OpCodes.Stind_R4);
+            }
+
+            else if (nonByRefType == typeof(double))
+            {
+                il.Emit(OpCodes.Stind_R4);
+            }
+
+            else
+            {
+                il.Emit(OpCodes.Stind_Ref);
+            }
+
         }
     }
 }
