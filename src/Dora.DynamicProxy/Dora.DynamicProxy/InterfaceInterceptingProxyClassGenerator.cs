@@ -233,7 +233,7 @@ namespace Dora.DynamicProxy
             LocalBuilder func = null;
             if (method.ReturnType != typeof(void))
             {
-                il.DeclareLocal(typeof(ReturnValueAccessor<>).MakeGenericType(returnType));
+                returnValueAccessor = il.DeclareLocal(typeof(ReturnValueAccessor<>).MakeGenericType(returnType));
                 func = il.DeclareLocal(typeof(Func<,>).MakeGenericType(typeof(Task), returnType));
             } 
 
