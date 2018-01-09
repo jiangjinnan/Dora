@@ -228,14 +228,18 @@ namespace Dora.DynamicProxy
             var invocationContext = il.DeclareLocal(typeof(InvocationContext));
             var task = il.DeclareLocal(typeof(Task));
             var returnType = method.ReturnTaskOfResult()? method.ReturnType.GetGenericArguments()[0]: method.ReturnType;
-            var returnValueAccessor = il.DeclareLocal(typeof(ReturnValueAccessor<>).MakeGenericType(returnType));
-            var func = il.DeclareLocal(typeof(Func<,>).MakeGenericType(typeof(Task), returnType));
+
+            LocalBuilder returnValueAccessor = null;
+            LocalBuilder func = null;
+            if (method.ReturnType != typeof(void))
+            {
+                il.DeclareLocal(typeof(ReturnValueAccessor<>).MakeGenericType(returnType));
+                func = il.DeclareLocal(typeof(Func<,>).MakeGenericType(typeof(Task), returnType));
+            } 
 
             //New object[] for InvocationContext.Arguments
             il.EmitLoadConstantInt32(parameters.Length);
-            il.Emit(OpCodes.Newarr, typeof(object));
-
-         
+            il.Emit(OpCodes.Newarr, typeof(object));            
 
             //Load arguments and store them to object[]
             for (int index = 0; index < parameters.Length; index++)

@@ -26,7 +26,7 @@ namespace Dora.DynamicProxy.Test
         }
 
         [Fact]
-        public void RefParameter()
+        public void RefOutParameter()
         {
             InterceptorDelegate interceptor = next => (async context =>
             {
@@ -34,21 +34,23 @@ namespace Dora.DynamicProxy.Test
                 await next(context);
             });
             int x = 1;
-            int y = 2;
-            var method = ReflectionUtility.GetMethod<ICalculator>(_ => _.Substract(ref x, ref y));
+            double y = 2;
+            double result ;
+            var method = ReflectionUtility.GetMethod<ICalculator>(_ => _.Substract(ref x, ref y, out result));
             var methodBasedInterceptor = new MethodBasedInterceptorDecoration(method, interceptor);
             var decoration = new InterceptorDecoration(new MethodBasedInterceptorDecoration[] { methodBasedInterceptor }, null);
             var generator = new InterfaceInterceptingProxyClassGenerator();
             var proxyType = generator.GenerateProxyClass(typeof(ICalculator), decoration);
             var proxy = (ICalculator)Activator.CreateInstance(proxyType, new Calculator(), decoration);
-            Assert.Equal(0, proxy.Substract(ref x, ref y));
+            proxy.Substract(ref x, ref y, out result);
+            Assert.Equal(0, result);
             Assert.Equal(3, y);
         }
 
         public interface ICalculator
         {
             int Add(int  x, int y);
-            int Substract(ref int x, ref int y);
+            void Substract(ref int x, ref double y,out double result);
         }
 
         public class Calculator : ICalculator
@@ -58,11 +60,10 @@ namespace Dora.DynamicProxy.Test
                 return x + y;
             }
 
-            public int Substract(ref int x, ref int y)
+            public  void Substract(ref int x, ref double y, out double result)
             {
-                var result =  x - y;
-                y++;
-                return result;
+                result =  x - y;
+                y++;           
             }
         }
     }

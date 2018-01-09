@@ -17,7 +17,7 @@ namespace Demo1
                 await next(context);
             });
             int x = 1;
-            int y = 2;
+            double y = 2;
             var method = ReflectionUtility.GetMethod<ICalculator>(_ => _.Substract(ref x, ref y));
             var methodBasedInterceptor = new MethodBasedInterceptorDecoration(method, interceptor);
             var decoration = new InterceptorDecoration(new MethodBasedInterceptorDecoration[] { methodBasedInterceptor }, null);
@@ -174,7 +174,7 @@ namespace Demo1
     public interface ICalculator
     {
         int Add(int x, int y);
-        int Substract(ref int x, ref int y);
+        double Substract(ref int x, ref double y);
     }
 
     public class CalculatorProxy : ICalculator
@@ -192,7 +192,7 @@ namespace Demo1
             throw new NotImplementedException();
         }
 
-        public int Substract(ref int x, ref int y)
+        public double Substract(ref int x, ref double y)
         {
             var arguments = new object[2];
             arguments[0] = x;
@@ -203,7 +203,7 @@ namespace Demo1
             interceptor(this.InvokeTarget4Substract)(context).Wait();
 
             x = (int)arguments[0];
-            y = (int)arguments[1];
+            y = (double)arguments[1];
 
             return (int)context.ReturnValue;
         }
@@ -212,7 +212,7 @@ namespace Demo1
         {
             var arguments = context.Arguments;
             var x = (int)arguments[0];
-            var y = (int)arguments[1];
+            var y = (double)arguments[1];
             context.ReturnValue = _target.Substract(ref x, ref y);  
             return Task.CompletedTask;
         }
@@ -226,7 +226,7 @@ namespace Demo1
             return x + y;
         }
 
-        public int Substract(ref int x, ref int y)
+        public double Substract(ref int x, ref double y)
         {
             return x - y;
         }

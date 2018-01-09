@@ -111,7 +111,7 @@ namespace Dora.DynamicProxy
 
             else if (nonByRefType == typeof(double))
             {
-                il.Emit(OpCodes.Ldind_R4);
+                il.Emit(OpCodes.Ldind_R8);
             }
 
             else if (nonByRefType == typeof(UInt16))
@@ -155,7 +155,7 @@ namespace Dora.DynamicProxy
 
             else if (nonByRefType == typeof(double))
             {
-                il.Emit(OpCodes.Stind_R4);
+                il.Emit(OpCodes.Stind_R8);
             }
 
             else
