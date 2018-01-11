@@ -10,8 +10,7 @@ namespace Dora.DynamicProxy
     public class InterceptorDecoration
     {
         private static MethodInfo _methodOfGetInterceptor;
-        private static MethodInfo _methodOfGetInterceptorForGetMethod;
-        private static MethodInfo _methodOfGetInterceptorForSetMethod;
+        private Dictionary<MethodInfo, InterceptorDelegate> _interceptors;
 
         public IDictionary<MethodInfo, MethodBasedInterceptorDecoration> MethodBasedInterceptors { get; }
         public IDictionary<PropertyInfo, PropertyBasedInterceptorDecoration>  PropertyBasedInterceptors { get; } 
@@ -19,6 +18,7 @@ namespace Dora.DynamicProxy
             IEnumerable<MethodBasedInterceptorDecoration> methodBasedInterceptors,
             IEnumerable<PropertyBasedInterceptorDecoration> propertyBasedInterceptors)
         {
+            _interceptors = new Dictionary<MethodInfo, InterceptorDelegate>();
             this.MethodBasedInterceptors = new Dictionary<MethodInfo, MethodBasedInterceptorDecoration>();
             this.PropertyBasedInterceptors = new Dictionary<PropertyInfo, PropertyBasedInterceptorDecoration>();
 
@@ -26,7 +26,7 @@ namespace Dora.DynamicProxy
             {
                 foreach (var it in methodBasedInterceptors)
                 {
-                    this.MethodBasedInterceptors[it.Method] = it;
+                    this.MethodBasedInterceptors[it.Method] = it; 
                 }
             }
 
@@ -35,17 +35,30 @@ namespace Dora.DynamicProxy
                 foreach (var it in propertyBasedInterceptors)
                 {
                     this.PropertyBasedInterceptors[it.Property] = it;
+                    var methodBasedInterceptor = it.GetMethodBasedInterceptor;
                 }
             }
+
+            _interceptors = (propertyBasedInterceptors?? new PropertyBasedInterceptorDecoration[0])
+                .SelectMany(it => new MethodBasedInterceptorDecoration[] { it?.GetMethodBasedInterceptor, it?.SetMethodBasedInterceptor })
+                .Union(methodBasedInterceptors?? new MethodBasedInterceptorDecoration[0])
+                .Where(it => it != null)
+                .ToDictionary(it => it.Method, it => it.Interceptor);
         }
 
         public InterceptorDelegate GetInterceptor(MethodInfo methodInfo)
         {
             Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
-            return this.MethodBasedInterceptors.TryGetValue(methodInfo, out var decoration)
-                ? decoration.Interceptor
-                : null;
-        }    
+            return this._interceptors.TryGetValue(methodInfo, out var interceptor)
+                ? interceptor
+                : null;    
+        }
+
+        public bool IsInterceptable(MethodInfo methodInfo)
+        {
+            return _interceptors.ContainsKey(methodInfo);
+        }
+
         public InterceptorDelegate GetInterceptorForGetMethod(PropertyInfo  propertyInfo)
         {
             Guard.ArgumentNotNull(propertyInfo, nameof(propertyInfo));
@@ -67,23 +80,6 @@ namespace Dora.DynamicProxy
             {
                 return _methodOfGetInterceptor
                      ?? (_methodOfGetInterceptor = ReflectionUtility.GetMethod<InterceptorDecoration>(_ => _.GetInterceptor(null)));
-            }
-        }
-        public static MethodInfo MethodOfGetInterceptorForGetMethod
-        {
-            get
-            {
-                return _methodOfGetInterceptorForGetMethod
-                     ?? (_methodOfGetInterceptorForGetMethod = ReflectionUtility.GetMethod<InterceptorDecoration>(_ => _.GetInterceptorForGetMethod(null)));
-            }
-        }
-
-        public static MethodInfo MethodOfSetInterceptorForGetMethod
-        {
-            get
-            {
-                return _methodOfGetInterceptorForSetMethod
-                     ?? (_methodOfGetInterceptorForSetMethod = ReflectionUtility.GetMethod<InterceptorDecoration>(_ => _.GetInterceptorForSetMethod(null)));
             }
         }
     }
@@ -118,21 +114,19 @@ namespace Dora.DynamicProxy
             if (getMethodBasedInterceptor != null)
             {
                 var getMethod = property.GetMethod;
-                if (null == getMethod)
+                if (null != getMethod)
                 {
-                    throw new ArgumentException(Resources.ExceptionGetMethodNotExists.Fill(property.Name, property.DeclaringType.Name), nameof(property));
+                    this.GetMethodBasedInterceptor = new MethodBasedInterceptorDecoration(getMethod, getMethodBasedInterceptor);
                 }
-                this.GetMethodBasedInterceptor = new MethodBasedInterceptorDecoration(getMethod, getMethodBasedInterceptor);
             }
 
             if (setMethodBasedInterceptor != null)
             {
                 var setMethod = property.SetMethod;
-                if (null == setMethod)
+                if (null != setMethod)
                 {
-                    throw new ArgumentException(Resources.ExceptionSetMethodNotExists.Fill(property.Name, property.DeclaringType.Name), nameof(property));
+                    this.SetMethodBasedInterceptor = new MethodBasedInterceptorDecoration(setMethod, setMethodBasedInterceptor);
                 }
-                this.SetMethodBasedInterceptor = new MethodBasedInterceptorDecoration(setMethod, getMethodBasedInterceptor);
             }
         }
     }

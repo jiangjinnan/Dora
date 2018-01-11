@@ -19,7 +19,8 @@ namespace Dora.DynamicProxy
         private static PropertyInfo _completedTaskOfTask;
         private static PropertyInfo _returnValueOfInvocationContext;
 
-        private static MethodInfo _getMethodFromHandleMethodOfMethodBase;
+        private static MethodInfo _getMethodFromHandleMethodOfMethodBase1;
+        private static MethodInfo _getMethodFromHandleMethodOfMethodBase2;
         private static MethodInfo _invokeMethodOfInterceptorDelegate;
         private static MethodInfo _invokeMethodOfInterceptDelegate;
         private static MethodInfo _definitionOfContiueWithMethodOfTask;
@@ -98,14 +99,24 @@ namespace Dora.DynamicProxy
                      ?? (_returnValueOfInvocationContext = GetProperty<InvocationContext, object>(_=>_.ReturnValue));
             }
         } 
-        public static MethodInfo GetMethodFromHandleMethodOfMethodBase
+        public static MethodInfo GetMethodFromHandleMethodOfMethodBase1
         {
             get
             {
-                    return _getMethodFromHandleMethodOfMethodBase 
-                    ?? (_getMethodFromHandleMethodOfMethodBase = GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle))));
+                    return _getMethodFromHandleMethodOfMethodBase1 
+                    ?? (_getMethodFromHandleMethodOfMethodBase1 = GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle))));
             }
-        } 
+        }
+
+        public static MethodInfo GetMethodFromHandleMethodOfMethodBase2
+        {
+            get
+            {
+                return _getMethodFromHandleMethodOfMethodBase2
+                ?? (_getMethodFromHandleMethodOfMethodBase2 = GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle),default(RuntimeTypeHandle))));
+            }
+        }
+
         public static MethodInfo InvokeMethodOfInterceptorDelegate
         {
             get
