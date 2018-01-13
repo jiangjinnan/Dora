@@ -61,6 +61,15 @@ namespace Dora.DynamicProxy.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The type to intercept must be an interface..
+        /// </summary>
+        internal static string ExceptionArgumentNotInterface {
+            get {
+                return ResourceManager.GetString("ExceptionArgumentNotInterface", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The interceptor for get and set method cannot be both null..
         /// </summary>
         internal static string ExceptionGetAndSetMethodBasedInterceptorCannotBeNull {
@@ -75,6 +84,24 @@ namespace Dora.DynamicProxy.Properties {
         internal static string ExceptionGetMethodNotExists {
             get {
                 return ResourceManager.GetString("ExceptionGetMethodNotExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The proxy class for sealed type cannot be generated..
+        /// </summary>
+        internal static string ExceptionNotAllowSealedType {
+            get {
+                return ResourceManager.GetString("ExceptionNotAllowSealedType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type to intercept must not be a sealed type..
+        /// </summary>
+        internal static string ExceptionSealedTypeNotAllowed {
+            get {
+                return ResourceManager.GetString("ExceptionSealedTypeNotAllowed", resourceCulture);
             }
         }
         

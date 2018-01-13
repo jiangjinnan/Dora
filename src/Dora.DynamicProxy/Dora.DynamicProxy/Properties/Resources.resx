@@ -117,11 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ExceptionArgumentNotInterface" xml:space="preserve">
+    <value>The type to intercept must be an interface.</value>
+  </data>
   <data name="ExceptionGetAndSetMethodBasedInterceptorCannotBeNull" xml:space="preserve">
     <value>The interceptor for get and set method cannot be both null.</value>
   </data>
   <data name="ExceptionGetMethodNotExists" xml:space="preserve">
     <value>The get method of the property "{0}" of the type "{1}" does not exist.</value>
+  </data>
+  <data name="ExceptionNotAllowSealedType" xml:space="preserve">
+    <value>The proxy class for sealed type cannot be generated.</value>
+  </data>
+  <data name="ExceptionSealedTypeNotAllowed" xml:space="preserve">
+    <value>The type to intercept must not be a sealed type.</value>
   </data>
   <data name="ExceptionSetMethodNotExists" xml:space="preserve">
     <value>The set method of the property "{0}" of the type "{1}" does not exist.</value>

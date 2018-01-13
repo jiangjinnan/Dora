@@ -9,15 +9,15 @@ using Xunit;
 
 namespace Dora.DynamicProxy.Test
 {
-    public class InterfaceInterceptingProxyClassGeneratorFixture
+    public class InterfaceDynamicProxyClassGeneratorFixture
     {
         private T CreateProxy<T>(T target, InterceptorDelegate interceptor, Expression<Action<T>> methodCall)
         {
             var method = ((MethodCallExpression)methodCall.Body).Method;
             var methodBasedInterceptor = new MethodBasedInterceptorDecoration(method, interceptor);
             var decoration = new InterceptorDecoration(new MethodBasedInterceptorDecoration[] { methodBasedInterceptor }, null);
-            var generator = new InterfaceInterceptingProxyClassGenerator();
-            var proxyType = generator.GenerateProxyClass(typeof(T), decoration);
+            var generator =  DynamicProxyClassGenerator.CreateInterfaceGenerator(typeof(T), decoration);
+            var proxyType = generator.GenerateProxyType();
             return (T)Activator.CreateInstance(proxyType, target, decoration);
         }
 
@@ -26,8 +26,8 @@ namespace Dora.DynamicProxy.Test
             var property = (PropertyInfo)((MemberExpression)propertyAccessor.Body).Member;
             var propertyBasedInterceptor = new PropertyBasedInterceptorDecoration(property, interceptor, interceptor);
             var decoration = new InterceptorDecoration(null, new PropertyBasedInterceptorDecoration[] { propertyBasedInterceptor });
-            var generator = new InterfaceInterceptingProxyClassGenerator();
-            var proxyType = generator.GenerateProxyClass(typeof(T1), decoration);
+            var generator = DynamicProxyClassGenerator.CreateInterfaceGenerator(typeof(T1), decoration);
+            var proxyType = generator.GenerateProxyType();
             return (T1)Activator.CreateInstance(proxyType, target, decoration);
         }
 
@@ -35,8 +35,8 @@ namespace Dora.DynamicProxy.Test
         {
             var methodBasedInterceptor = new MethodBasedInterceptorDecoration(method, interceptor);
             var decoration = new InterceptorDecoration(new MethodBasedInterceptorDecoration[] { methodBasedInterceptor }, null);
-            var generator = new InterfaceInterceptingProxyClassGenerator();
-            var proxyType = generator.GenerateProxyClass(typeof(T), decoration);
+            var generator = DynamicProxyClassGenerator.CreateInterfaceGenerator(typeof(T), decoration);
+            var proxyType = generator.GenerateProxyType();
             return (T)Activator.CreateInstance(proxyType, target, decoration);
         }
 
@@ -143,12 +143,7 @@ namespace Dora.DynamicProxy.Test
             proxy[0] = "abc";
             Assert.Equal("Foobar", flag);
         }
-
-        [Fact]
-        public void TestIndex()
-        {
-            
-        }
+         
         public interface IFoobar
         {
             void Invoke1();
