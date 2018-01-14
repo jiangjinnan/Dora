@@ -1,6 +1,7 @@
 ﻿using Dora.DynamicProxy;
 using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;  
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace App
         public static void Main(string[] args)
         {
             var clock1 = new ServiceCollection()
+              .AddLogging(factory=> factory.AddConsole())
               .AddMemoryCache()
               .AddSingleton<ISystomClock, SystomClock>()
               .AddInterception()

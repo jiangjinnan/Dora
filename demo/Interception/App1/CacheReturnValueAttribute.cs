@@ -1,5 +1,6 @@
 ﻿using Dora.Interception;
 using System;
+using System.Threading.Tasks;
 
 namespace App
 {
@@ -10,5 +11,6 @@ namespace App
         {
             builder.Use<CacheInterceptor>(this.Order);
         }
+              
     }
 }

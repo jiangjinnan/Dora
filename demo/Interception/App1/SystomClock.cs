@@ -5,7 +5,8 @@ namespace App
     public class SystomClock : ISystomClock
     { 
 
-        [CacheReturnValue]
+        [TraceInterceptor("Test", Order = 1)]
+        [CacheReturnValue(Order = 2)]
         public DateTime GetCurrentTime(DateTimeKind dateTimeKind)
         {
             switch (dateTimeKind)
