@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}"
 EndProject
@@ -16,15 +16,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception", "Dora.Interception\Dora.Interception.csproj", "{165F610E-00F6-47E4-B7A5-A330EB3ED019}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception.Castle", "Dora.Interception.Castle\Dora.Interception.Castle.csproj", "{140E72CA-293C-4C89-AFA3-9DFEA4EC1C3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception.Test", "..\..\test\Interception\Dora.Interception.Test\Dora.Interception.Test.csproj", "{377DB8CD-52F6-4F2F-81F5-4C38E5092180}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.Interception.Test", "..\..\test\Interception\Dora.Interception.Test\Dora.Interception.Test.csproj", "{377DB8CD-52F6-4F2F-81F5-4C38E5092180}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App1", "..\..\demo\Interception\App1\App1.csproj", "{FBCD9E93-9616-4239-B4EE-5E04AA9E6DCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App1", "..\..\demo\Interception\App1\App1.csproj", "{FBCD9E93-9616-4239-B4EE-5E04AA9E6DCE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App2", "..\..\demo\Interception\App2\App2.csproj", "{EFAE160D-2D84-4A1C-869F-F29FC563B02E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App2", "..\..\demo\Interception\App2\App2.csproj", "{EFAE160D-2D84-4A1C-869F-F29FC563B02E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App3", "..\..\demo\Interception\App3\App3.csproj", "{AD672A99-CD27-4D18-BB98-CBB1CB454C03}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.DynamicProxy", "..\Dora.DynamicProxy\Dora.DynamicProxy\Dora.DynamicProxy.csproj", "{0EF1B87B-7121-4F1D-A43D-979A3B426C1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,10 +36,6 @@ Global
 		{165F610E-00F6-47E4-B7A5-A330EB3ED019}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{165F610E-00F6-47E4-B7A5-A330EB3ED019}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{165F610E-00F6-47E4-B7A5-A330EB3ED019}.Release|Any CPU.Build.0 = Release|Any CPU
-		{140E72CA-293C-4C89-AFA3-9DFEA4EC1C3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{140E72CA-293C-4C89-AFA3-9DFEA4EC1C3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{140E72CA-293C-4C89-AFA3-9DFEA4EC1C3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{140E72CA-293C-4C89-AFA3-9DFEA4EC1C3D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{377DB8CD-52F6-4F2F-81F5-4C38E5092180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{377DB8CD-52F6-4F2F-81F5-4C38E5092180}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{377DB8CD-52F6-4F2F-81F5-4C38E5092180}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -56,16 +52,23 @@ Global
 		{AD672A99-CD27-4D18-BB98-CBB1CB454C03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD672A99-CD27-4D18-BB98-CBB1CB454C03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD672A99-CD27-4D18-BB98-CBB1CB454C03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EF1B87B-7121-4F1D-A43D-979A3B426C1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EF1B87B-7121-4F1D-A43D-979A3B426C1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EF1B87B-7121-4F1D-A43D-979A3B426C1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EF1B87B-7121-4F1D-A43D-979A3B426C1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{165F610E-00F6-47E4-B7A5-A330EB3ED019} = {8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}
-		{140E72CA-293C-4C89-AFA3-9DFEA4EC1C3D} = {8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}
 		{377DB8CD-52F6-4F2F-81F5-4C38E5092180} = {A403508B-E8F0-4B7E-BB30-3FE1554BC485}
 		{FBCD9E93-9616-4239-B4EE-5E04AA9E6DCE} = {61BD3B4B-C901-426A-85F0-DDB515977B2A}
 		{EFAE160D-2D84-4A1C-869F-F29FC563B02E} = {61BD3B4B-C901-426A-85F0-DDB515977B2A}
 		{AD672A99-CD27-4D18-BB98-CBB1CB454C03} = {61BD3B4B-C901-426A-85F0-DDB515977B2A}
+		{0EF1B87B-7121-4F1D-A43D-979A3B426C1C} = {8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {76B22988-7C84-4465-AF31-7F8F57551F61}
 	EndGlobalSection
 EndGlobal

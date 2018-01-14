@@ -14,12 +14,12 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 {
     internal class CallSiteFactory
     {
-        private readonly IProxyFactory _proxyFactory;
+        private readonly IInterceptingProxyFactory _proxyFactory;
         private readonly List<ServiceDescriptor> _descriptors;
         private readonly Dictionary<Type, IServiceCallSite> _callSiteCache = new Dictionary<Type, IServiceCallSite>();
         private readonly Dictionary<Type, ServiceDescriptorCacheItem> _descriptorLookup = new Dictionary<Type, ServiceDescriptorCacheItem>();
 
-        public CallSiteFactory(IEnumerable<ServiceDescriptor> descriptors, IProxyFactory proxyFactory)
+        public CallSiteFactory(IEnumerable<ServiceDescriptor> descriptors, IInterceptingProxyFactory proxyFactory)
         {
             _descriptors = descriptors.ToList();
             _proxyFactory = proxyFactory;

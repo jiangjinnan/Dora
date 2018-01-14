@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dora.DynamicProxy;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace Dora.Interception.Test
         {
             _flag = null;
             var serviceProvider = new ServiceCollection().AddScoped<IService, Service>()
-                .BuilderInterceptableServiceProvider(builder => builder.SetDynamicProxyFactory());
+                .BuilderInterceptableServiceProvider();
             var service = serviceProvider.GetRequiredService<IService>();
             service.Invoke();
             Assert.Equal("123", _flag);
@@ -24,7 +25,7 @@ namespace Dora.Interception.Test
         {
             _flag = null;
             var serviceProvider = new ServiceCollection().AddScoped<BaseService, SubService>()
-                .BuilderInterceptableServiceProvider(builder => builder.SetDynamicProxyFactory());
+                .BuilderInterceptableServiceProvider();
             var service = serviceProvider.GetRequiredService<BaseService>();
             service.Invoke();
             Assert.Equal("123", _flag);

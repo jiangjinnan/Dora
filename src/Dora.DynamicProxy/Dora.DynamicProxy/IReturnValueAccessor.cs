@@ -17,4 +17,4 @@ namespace Dora.DynamicProxy
             return ((Task<TResult>)_context.ReturnValue).Result;
         }
     }  
-}
+}  

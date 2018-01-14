@@ -26,7 +26,11 @@ namespace Dora.DynamicProxy.Test
             var decoration = new InterceptorDecoration(new MethodBasedInterceptorDecoration[] { methodBasedInterceptor }, null);
             var generator =  DynamicProxyClassGenerator.CreateVirtualMethodGenerator(typeof(T), decoration);
             var proxyType = generator.GenerateProxyType();
-            return (T)Activator.CreateInstance(proxyType, decoration);
+            var instance =  (T)Activator.CreateInstance(proxyType);
+
+            var initializer = ((IInterceptorsInitializer)instance);
+            initializer.SetInterceptors(decoration);
+            return instance;
         }
 
 

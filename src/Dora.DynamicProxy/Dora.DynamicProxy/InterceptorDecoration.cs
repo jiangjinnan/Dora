@@ -9,42 +9,30 @@ namespace Dora.DynamicProxy
 {
     public class InterceptorDecoration
     {
+        private static readonly InterceptorDecoration _empty = new InterceptorDecoration(new MethodBasedInterceptorDecoration[0], new PropertyBasedInterceptorDecoration[0]);
         private static MethodInfo _methodOfGetInterceptor;
-        private Dictionary<MethodInfo, InterceptorDelegate> _interceptors;
+        private Dictionary<MethodInfo, InterceptorDelegate> _interceptors; 
+        public IReadOnlyDictionary<MethodInfo, MethodBasedInterceptorDecoration> MethodBasedInterceptors { get; }
+        public IReadOnlyDictionary<PropertyInfo, PropertyBasedInterceptorDecoration>  PropertyBasedInterceptors { get; } 
 
-        public IDictionary<MethodInfo, MethodBasedInterceptorDecoration> MethodBasedInterceptors { get; }
-        public IDictionary<PropertyInfo, PropertyBasedInterceptorDecoration>  PropertyBasedInterceptors { get; } 
+        public static InterceptorDecoration Empty { get => _empty; }
         public InterceptorDecoration(
             IEnumerable<MethodBasedInterceptorDecoration> methodBasedInterceptors,
             IEnumerable<PropertyBasedInterceptorDecoration> propertyBasedInterceptors)
         {
+            Guard.ArgumentNotNull(methodBasedInterceptors, nameof(methodBasedInterceptors));
+            Guard.ArgumentNotNull(propertyBasedInterceptors, nameof(propertyBasedInterceptors));
+
             _interceptors = new Dictionary<MethodInfo, InterceptorDelegate>();
-            this.MethodBasedInterceptors = new Dictionary<MethodInfo, MethodBasedInterceptorDecoration>();
-            this.PropertyBasedInterceptors = new Dictionary<PropertyInfo, PropertyBasedInterceptorDecoration>();
-
-            if (methodBasedInterceptors != null)
-            {
-                foreach (var it in methodBasedInterceptors)
-                {
-                    this.MethodBasedInterceptors[it.Method] = it; 
-                }
-            }
-
-            if (propertyBasedInterceptors != null)
-            {
-                foreach (var it in propertyBasedInterceptors)
-                {
-                    this.PropertyBasedInterceptors[it.Property] = it;
-                    var methodBasedInterceptor = it.GetMethodBasedInterceptor;
-                }
-            }
+            this.MethodBasedInterceptors = methodBasedInterceptors.ToDictionary(it => it.Method, it => it);
+            this.PropertyBasedInterceptors = propertyBasedInterceptors.ToDictionary(it => it.Property, it => it);  
 
             _interceptors = (propertyBasedInterceptors?? new PropertyBasedInterceptorDecoration[0])
                 .SelectMany(it => new MethodBasedInterceptorDecoration[] { it?.GetMethodBasedInterceptor, it?.SetMethodBasedInterceptor })
                 .Union(methodBasedInterceptors?? new MethodBasedInterceptorDecoration[0])
                 .Where(it => it != null)
                 .ToDictionary(it => it.Method, it => it.Interceptor);
-        }
+        }    
 
         public InterceptorDelegate GetInterceptor(MethodInfo methodInfo)
         {
@@ -74,7 +62,7 @@ namespace Dora.DynamicProxy
                 : null;
         }
 
-        public static MethodInfo MethodOfgetInterceptor
+        public static MethodInfo MethodOfGetInterceptor
         {
             get
             {

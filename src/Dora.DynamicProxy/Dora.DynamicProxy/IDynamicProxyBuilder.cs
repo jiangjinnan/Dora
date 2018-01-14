@@ -6,7 +6,7 @@ namespace Dora.DynamicProxy
 {
     public interface DynamicProxyBuilder
     {
-        object Create(Type type, InterceptorDecoration interceptors);   
-        object Wrap(Type type, object target, InterceptorDecoration interceptors);
+        object Create(Type type);   
+        object Wrap(Type type, object target);
     }
 }

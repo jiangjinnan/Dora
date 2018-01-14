@@ -7,12 +7,12 @@ namespace Dora.Interception.ServiceLookup
 {
     internal class InterceptionCallSite : IServiceCallSite
     {
-        public IProxyFactory ProxyFactory { get; }
+        public IInterceptingProxyFactory ProxyFactory { get; }
         public IServiceCallSite TargetCallSite { get; }
         public Type ServiceType { get; }
         public Type ImplementationType { get; }
 
-        public InterceptionCallSite(IProxyFactory proxyFactory, IServiceCallSite targetCallSite)
+        public InterceptionCallSite(IInterceptingProxyFactory proxyFactory, IServiceCallSite targetCallSite)
         {
             this.ProxyFactory = proxyFactory;
             this.TargetCallSite = targetCallSite;

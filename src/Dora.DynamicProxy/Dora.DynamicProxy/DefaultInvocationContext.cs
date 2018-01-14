@@ -24,7 +24,7 @@ namespace Dora.DynamicProxy
              object[] arguments)
         {
             this.Method = Guard.ArgumentNotNull(method, nameof(method));             
-            this.Proxy = Guard.ArgumentNotNull(method, nameof(method));
+            this.Proxy = Guard.ArgumentNotNull(proxy, nameof(proxy));
             this.Target = Guard.ArgumentNotNull(target, nameof(target));
             this.Arguments = Guard.ArgumentNotNull(arguments, nameof(arguments));
             this.ExtendedProperties = new Dictionary<string, object>();

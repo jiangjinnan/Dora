@@ -41,6 +41,9 @@
     <Folder Include="shared\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Dora.DynamicProxy\Dora.DynamicProxy\Dora.DynamicProxy.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

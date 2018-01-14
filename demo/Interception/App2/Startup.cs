@@ -16,7 +16,7 @@ namespace App
         {
             services
                 .AddSingleton<ISystomClock, SystomClock>()
-                .AddInterception(builder=>builder.SetDynamicProxyFactory())
+                .AddInterception()
                 .AddMvc();
         }
 

@@ -5,7 +5,7 @@ namespace Dora.Interception
     /// <summary>
     /// Represents a factory to create a proxy wrapping specified target instance.
     /// </summary>
-    public interface IProxyFactory
+    public interface IInterceptingProxyFactory
     {
         /// <summary>
         /// Get a service provider to get dependency services.

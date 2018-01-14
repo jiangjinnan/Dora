@@ -34,8 +34,8 @@ namespace Microsoft.Extensions.DependencyInjection
         internal ConcurrentDictionary<Type, Func<ServiceProvider2, object>> RealizedServices { get; } = new ConcurrentDictionary<Type, Func<ServiceProvider2, object>>();
 
         //Added by Jiang Jin Nan:
-        internal IProxyFactory  ProxyFactory { get; }
-        internal ServiceProvider2(IEnumerable<ServiceDescriptor> serviceDescriptors, ServiceProviderOptions options, IProxyFactory proxyFactory)
+        internal IInterceptingProxyFactory  ProxyFactory { get; }
+        internal ServiceProvider2(IEnumerable<ServiceDescriptor> serviceDescriptors, ServiceProviderOptions options, IInterceptingProxyFactory proxyFactory)
         {
             Root = this;
 

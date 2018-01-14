@@ -1,4 +1,5 @@
-﻿using Dora.Interception;
+﻿using Dora.DynamicProxy;
+using Dora.Interception;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System;
@@ -37,10 +38,10 @@ namespace App
 
         private class Cachekey
         {
-            public MethodInfo Method { get; }
+            public MethodBase Method { get; }
             public object[] InputArguments { get; }
 
-            public Cachekey(MethodInfo method, object[] arguments)
+            public Cachekey(MethodBase method, object[] arguments)
             {
                 this.Method = method;
                 this.InputArguments = arguments;

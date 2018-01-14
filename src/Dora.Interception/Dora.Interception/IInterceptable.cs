@@ -32,7 +32,7 @@ namespace Dora.Interception
     public class Interceptable<T> : IInterceptable<T> where T : class
     {
         private T _proxy;
-        private readonly IProxyFactory _proxyFactory;
+        private readonly IInterceptingProxyFactory _proxyFactory;
         private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Dora.Interception
         /// </summary>
         /// <param name="proxyFactory">The service factory to create the proxy to wrapping the target service instance.</param>
         /// <param name="serviceProvider">The service provider to provide target service instances.</param>
-        public Interceptable(IProxyFactory proxyFactory, IServiceProvider serviceProvider)
+        public Interceptable(IInterceptingProxyFactory proxyFactory, IServiceProvider serviceProvider)
         {
             Guard.ArgumentNotNull(proxyFactory, nameof(proxyFactory));
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));

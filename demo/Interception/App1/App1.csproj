@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Dora.Interception\Dora.Interception.Castle\Dora.Interception.Castle.csproj" />
+    <ProjectReference Include="..\..\..\src\Dora.Interception\Dora.Interception\Dora.Interception.csproj" />
   </ItemGroup>
 
 </Project>

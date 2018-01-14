@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dora.DynamicProxy;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Dora.Interception
 {
-  /// <summary>
-  /// Define some extension methods specific to <see cref="IInterceptorChainBuilder"/>.
-  /// </summary>
-  public static class InterceptorChainBuilderExtensions
+    /// <summary>
+    /// Define some extension methods specific to <see cref="IInterceptorChainBuilder"/>.
+    /// </summary>
+    public static class InterceptorChainBuilderExtensions
     {
         private delegate Task InvokeDelegate(object interceptor, InvocationContext context, IServiceProvider serviceProvider);
-        private static MethodInfo _getServiceMethod = typeof(InterceptorChainBuilderExtensions).GetTypeInfo().GetMethod("GetService", BindingFlags.Static| BindingFlags.NonPublic);
+        private static MethodInfo _getServiceMethod = typeof(InterceptorChainBuilderExtensions).GetTypeInfo().GetMethod("GetService", BindingFlags.Static | BindingFlags.NonPublic);
         private static Dictionary<Type, InvokeDelegate> _invokers = new Dictionary<Type, InvokeDelegate>();
         private static object _syncHelper = new object();
 
@@ -48,7 +49,8 @@ namespace Dora.Interception
             Guard.ArgumentNotNull(builder, nameof(builder));
             Guard.ArgumentNotNull(interceptorType, nameof(interceptorType));
 
-            InterceptorDelegate interceptor = next => (async context=>{
+            InterceptorDelegate interceptor = next => (async context =>
+            {
                 object[] newArguments = new object[arguments.Length + 1];
                 newArguments[0] = next;
                 arguments.CopyTo(newArguments, 1);
@@ -94,7 +96,7 @@ namespace Dora.Interception
                 ParameterExpression invocationContext = Expression.Parameter(typeof(InvocationContext), "invocationContext");
                 ParameterExpression serviceProvider = Expression.Parameter(typeof(IServiceProvider), "serviceProvider");
 
-                var arguments = invokeAsyncMethod.GetParameters().Select(it =>GetArgument(invocationContext, serviceProvider, it.ParameterType));
+                var arguments = invokeAsyncMethod.GetParameters().Select(it => GetArgument(invocationContext, serviceProvider, it.ParameterType));
                 Expression instance = Expression.Convert(interceptor, interceptorType);
                 var invoke = Expression.Call(instance, invokeAsyncMethod, arguments);
                 invoker = Expression.Lambda<InvokeDelegate>(invoke, interceptor, invocationContext, serviceProvider).Compile();
@@ -110,11 +112,11 @@ namespace Dora.Interception
                 return invocationContext;
             }
             Expression serviceType = Expression.Constant(parameterType, typeof(Type));
-            Expression callGetService = Expression.Call(_getServiceMethod, serviceProvider,serviceType);
+            Expression callGetService = Expression.Call(_getServiceMethod, serviceProvider, serviceType);
             return Expression.Convert(callGetService, parameterType);
         }
 
-        private static object GetService(IServiceProvider serviceProvider,Type type)
+        private static object GetService(IServiceProvider serviceProvider, Type type)
         {
             return serviceProvider.GetService(type);
         }

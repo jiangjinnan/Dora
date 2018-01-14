@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Dora.DynamicProxy;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -26,7 +27,10 @@ namespace Microsoft.Extensions.DependencyInjection
             configure?.Invoke(new InterceptionBuilder(services));
              services
                .AddScoped(typeof(IInterceptable<>), typeof(Interceptable<>))
-               .TryAddScoped<IInterceptorChainBuilder, InterceptorChainBuilder>();
+               .AddScoped<IInterceptorChainBuilder, InterceptorChainBuilder>() 
+               .AddScoped<IInterceptorCollector, InterceptorCollector>()
+               .AddScoped<IInterceptingProxyFactory, InterceptingProxyFactory>()
+               .AddScoped< IInstanceDynamicProxyGenerator, InterfaceDynamicProxyGenerator>();
             return services;
         }
 
@@ -51,7 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
             services.AddInterception(configure);
-            var proxyFactory = services.BuildServiceProvider().GetRequiredService<IProxyFactory>();
+            var proxyFactory = services.BuildServiceProvider().GetRequiredService<IInterceptingProxyFactory>();
             return new ServiceProvider2(services, options , proxyFactory);
         }
     }

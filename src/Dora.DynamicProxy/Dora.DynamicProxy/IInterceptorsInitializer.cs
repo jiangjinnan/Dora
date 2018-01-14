@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Dora.DynamicProxy
 {
-    public static class FastRelections
+    public interface IInterceptorsInitializer
     {
-
+        void SetInterceptors(InterceptorDecoration interceptors);
     }
 }

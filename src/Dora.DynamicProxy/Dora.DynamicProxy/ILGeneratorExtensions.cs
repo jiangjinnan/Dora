@@ -161,8 +161,7 @@ namespace Dora.DynamicProxy
             else
             {
                 il.Emit(OpCodes.Stind_Ref);
-            }
-
+            }  
         }
     }
 }
