@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Dora.Interception
 {
     /// <summary>
-    /// Define some extension methods specific to <see cref="IProxyFactory"/>.
+    /// Define some extension methods specific to <see cref="IInterceptingProxyFactory"/>.
     /// </summary>
     public static class ProxyFactoryExtensions
     {
@@ -17,7 +17,7 @@ namespace Dora.Interception
         /// <param name="proxyFactory">The proxy factory.</param>
         /// <param name="target">The target object wrapped by the created proxy.</param>
         /// <returns>The proxy wrapping the specified target.</returns>
-        public static T CreateProxy<T>(this IProxyFactory proxyFactory, T target) 
+        public static T CreateProxy<T>(this IInterceptingProxyFactory proxyFactory, T target) 
         {
             Guard.ArgumentNotNull(proxyFactory, nameof(proxyFactory));
             return (T)proxyFactory.CreateProxy(typeof(T), target);

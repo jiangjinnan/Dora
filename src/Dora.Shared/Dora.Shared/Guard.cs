@@ -66,5 +66,16 @@ namespace Dora
             }
             return argumentValue;
         }
+
+        public static Type ArgumentAssignableTo(Type targetType, Type argumentValue, string argumentName)
+        {
+            Guard.ArgumentNotNull(targetType, nameof(targetType));
+            Guard.ArgumentNotNull(argumentValue, argumentName);
+            if (!targetType.GetTypeInfo().IsAssignableFrom(argumentValue))
+            {
+                throw new ArgumentException(argumentName, "The specified type \"{0}\"  cannot be assigned to the type \"{1}\".".Fill(argumentValue.FullName, targetType.FullName));
+            }
+            return argumentValue;
+        }
     }
 }

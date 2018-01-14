@@ -15,8 +15,8 @@ namespace App
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddScoped<ISystomClock, SystomClock>()
-                .AddInterception(builder=>builder.SetDynamicProxyFactory())
+                .AddSingleton<ISystomClock, SystomClock>()
+                .AddInterception()
                 .AddMvc();
         }
 

@@ -6,8 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dora.Interception.Castle" Version="2.0.0-beta1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0-preview1-final" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Dora.Interception\Dora.Interception\Dora.Interception.csproj" />
   </ItemGroup>
 
 </Project>

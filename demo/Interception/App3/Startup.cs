@@ -17,7 +17,7 @@ namespace App
             services
                 .AddScoped<ISystomClock, SystomClock>()
                 .AddMvc();
-            return services.BuilderInterceptableServiceProvider(builder => builder.SetDynamicProxyFactory());
+            return services.BuilderInterceptableServiceProvider();
         }
 
         public void Configure(IApplicationBuilder app)

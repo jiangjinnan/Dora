@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Dora.DynamicProxy;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -26,7 +27,10 @@ namespace Microsoft.Extensions.DependencyInjection
             configure?.Invoke(new InterceptionBuilder(services));
              services
                .AddScoped(typeof(IInterceptable<>), typeof(Interceptable<>))
-               .TryAddScoped<IInterceptorChainBuilder, InterceptorChainBuilder>();
+               .AddScoped<IInterceptorChainBuilder, InterceptorChainBuilder>() 
+               .AddScoped<IInterceptorCollector, InterceptorCollector>()
+               .AddScoped<IInterceptingProxyFactory, InterceptingProxyFactory>()
+               .AddScoped< IInstanceDynamicProxyGenerator, InterfaceDynamicProxyGenerator>();
             return services;
         }
 
@@ -37,8 +41,22 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure"></param>
         /// <returns></returns>
         public static IServiceProvider BuilderInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
-        {           
-            return new ServiceProvider(services.AddInterception(configure), false, services.BuildServiceProvider().GetRequiredService<IProxyFactory>());
+        {
+            return BuilderInterceptableServiceProvider(services, false, configure);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configure"></param>
+        /// <returns></returns>
+        public static IServiceProvider BuilderInterceptableServiceProvider(this IServiceCollection services, bool validateScopes, Action<InterceptionBuilder> configure = null)
+        {
+            var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
+            services.AddInterception(configure);
+            var proxyFactory = services.BuildServiceProvider().GetRequiredService<IInterceptingProxyFactory>();
+            return new ServiceProvider2(services, options , proxyFactory);
         }
     }
 }
