@@ -20,7 +20,7 @@ namespace Dora.Interception
         public static T CreateProxy<T>(this IInterceptingProxyFactory proxyFactory, T target) 
         {
             Guard.ArgumentNotNull(proxyFactory, nameof(proxyFactory));
-            return (T)proxyFactory.CreateProxy(typeof(T), target);
+            return (T)proxyFactory.Wrap(typeof(T), target);
         }
     }
 }

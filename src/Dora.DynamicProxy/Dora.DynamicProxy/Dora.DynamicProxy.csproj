@@ -5,6 +5,30 @@
       <TargetFramework>netstandard2.0</TargetFramework>
       <SignAssembly>True</SignAssembly>
       <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
+      <Description>Provide underlying intercepting dynamic proxy generating mechanism for Dora.Interception.</Description>
+      <Authors>Jiang Jin Nan</Authors>
+      <Company>Artech</Company>
+      <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+      <Product>Dora</Product>
+      <Version>2.0.0</Version>
+      <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy</PackageTags>
+      <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
+      <PackageLicenseUrl>http://www.doranet.org/nuget-license</PackageLicenseUrl>
+      <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
+      <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <DocumentationFile>bin\Debug\netstandard2.0\Dora.DynamicProxy.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\Dora.DynamicProxy.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
   </ItemGroup>

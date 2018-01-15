@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection.Emit;
-using System.Text;
 
 namespace Dora.DynamicProxy
 {
-    public static class ILGeneratorExtensions
+    internal static class ILGeneratorExtensions
     {
+        #region Fields
         private static readonly OpCode[] _loadArgsOpcodes =
         {
             OpCodes.Ldarg_1,
@@ -26,6 +25,9 @@ namespace Dora.DynamicProxy
             OpCodes.Ldc_I4_8,
         };
 
+        #endregion
+
+        #region Public Methods
         public static void EmitLoadArgument(this ILGenerator il, int index)
         {
             Guard.ArgumentNotNull(il, nameof(il));
@@ -49,8 +51,7 @@ namespace Dora.DynamicProxy
             {
                 il.Emit(OpCodes.Ldc_I4, number);
             }
-        }  
-
+        }   
         public static void EmitBox(this ILGenerator il, Type typeOnStack)
         {
             Guard.ArgumentNotNull(il, nameof(il));
@@ -66,8 +67,7 @@ namespace Dora.DynamicProxy
                     il.Emit(OpCodes.Box, nonByRefType);
                 }
             }
-        }
-
+        }  
         public static void EmitUnboxOrCast(this ILGenerator il, Type targetType)
         {
             Guard.ArgumentNotNull(il, nameof(il));
@@ -83,8 +83,7 @@ namespace Dora.DynamicProxy
             {
                 il.Emit(OpCodes.Castclass, targetType);
             }
-        }
-
+        } 
         public static void EmitLdInd(this ILGenerator il, Type targetType)
         {
             var nonByRefType = targetType.GetNonByRefType();
@@ -128,8 +127,7 @@ namespace Dora.DynamicProxy
                 il.Emit(OpCodes.Ldind_Ref);
             }
 
-        }
-
+        }     
         public static void EmitStInd(this ILGenerator il, Type targetType)
         {
             var nonByRefType = targetType.GetNonByRefType();
@@ -163,5 +161,6 @@ namespace Dora.DynamicProxy
                 il.Emit(OpCodes.Stind_Ref);
             }  
         }
+        #endregion
     }
 }

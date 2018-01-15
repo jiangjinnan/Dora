@@ -108,6 +108,9 @@ namespace Microsoft.Extensions.DependencyInjection
             };
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             lock (ResolvedServices)

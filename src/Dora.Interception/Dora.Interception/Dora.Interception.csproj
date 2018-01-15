@@ -10,7 +10,7 @@
     <Company>Artech</Company>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Product>Dora</Product>
-    <Version>2.0.0-beta1</Version>
+    <Version>2.0.0</Version>
     <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy</PackageTags>
     <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
     <PackageLicenseUrl>http://www.doranet.org/nuget-license</PackageLicenseUrl>
@@ -19,13 +19,16 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>bin\Debug\netstandard2.0\Dora.Interception.xml</DocumentationFile>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard1.6\Dora.Interception.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <ItemGroup>

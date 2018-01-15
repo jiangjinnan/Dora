@@ -8,15 +8,38 @@ using System.Text;
 
 namespace Dora.Interception
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="Dora.DynamicProxy.IInterceptorCollector" />
     public class InterceptorCollector : IInterceptorCollector
     {
         private static HashSet<Type> _nonInterceptableTypes = new HashSet<Type>();
+
+        /// <summary>
+        /// Gets the builder.
+        /// </summary>
+        /// <value>
+        /// The builder.
+        /// </value>
         public IInterceptorChainBuilder Builder { get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InterceptorCollector"/> class.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
         public InterceptorCollector(IInterceptorChainBuilder builder)
         {
             this.Builder = Guard.ArgumentNotNull(builder, nameof(builder));
         }
+        /// <summary>
+        /// Gets the interceptors decorated with the type of target instance.
+        /// </summary>
+        /// <param name="typeToIntercept">The type to intercept.</param>
+        /// <param name="targetType">Type of the target instance.</param>
+        /// <returns>
+        /// The <see cref="T:Dora.DynamicProxy.InterceptorDecoration" /> representing the type members decorated with interceptors.
+        /// </returns>
         public InterceptorDecoration GetInterceptors(Type typeToIntercept, Type targetType)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
@@ -77,8 +100,15 @@ namespace Dora.Interception
                 }
             }
             return interceptors;
-        } 
+        }
 
+        /// <summary>
+        /// Gets the interceptors decorated with the specified type.
+        /// </summary>
+        /// <param name="typeToIntercept">The type to intercept.</param>
+        /// <returns>
+        /// The <see cref="T:Dora.DynamicProxy.InterceptorDecoration" /> representing the type members decorated with interceptors.
+        /// </returns>
         public InterceptorDecoration GetInterceptors(Type typeToIntercept)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
