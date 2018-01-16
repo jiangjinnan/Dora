@@ -9,7 +9,7 @@ namespace Dora.DynamicProxy
     public abstract class InvocationContext
     {
         /// <summary>
-        ///  Gets the <see cref="MethodInfo"/> representing the method being invoked on the proxy.
+        ///  Gets the <see cref="MethodInfo"/> representing the method of type to intercept.
         /// </summary>
         public abstract MethodBase Method { get; }       
 
@@ -26,6 +26,7 @@ namespace Dora.DynamicProxy
         /// <summary>
         /// Gets the arguments that target method has been invoked with.
         /// </summary>
+        /// <remarks>Each argument is writable.</remarks>
         public abstract object[] Arguments { get; }  
 
         /// <summary>

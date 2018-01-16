@@ -14,7 +14,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 {
     internal class CallSiteExpressionBuilder : CallSiteVisitor<ParameterExpression, Expression>
     {
-        private static readonly MethodInfo CreateProxyMethodInfo = typeof(IInterceptingProxyFactory).GetTypeInfo().GetMethod("CreateProxy");
+        private static readonly MethodInfo WrapMethodInfo = typeof(IInterceptingProxyFactory).GetTypeInfo().GetMethod("Wrap");
+        private static readonly MethodInfo CreateMethodInfo = typeof(IInterceptingProxyFactory).GetTypeInfo().GetMethod("Create");
         private static readonly MethodInfo CaptureDisposableMethodInfo = GetMethodInfo<Func<ServiceProvider2, object, object>>((a, b) => a.CaptureDisposable(b));
         private static readonly MethodInfo TryGetValueMethodInfo = GetMethodInfo<Func<IDictionary<object, object>, object, object, bool>>((a, b, c) => a.TryGetValue(b, out c));
         private static readonly MethodInfo AddMethodInfo = GetMethodInfo<Action<IDictionary<object, object>, object, object>>((a, b, c) => a.Add(b, c));
@@ -262,12 +263,21 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                 Expression.TryFinally(tryBody, finallyBody));
         }
 
-        protected override Expression VisitInterception(Dora.Interception.ServiceLookup.InterceptionCallSite interceptionCallSite, ParameterExpression provider)
+        protected override Expression VisitInterception(InterceptionCallSite interceptionCallSite, ParameterExpression provider)
         {
-            var instance = Expression.Constant(interceptionCallSite.ProxyFactory, typeof(IInterceptingProxyFactory));
-            var parameterOfServiceType = Expression.Constant(interceptionCallSite.ServiceType);
-            var parameterOfTarget = this.VisitCallSite(interceptionCallSite.TargetCallSite, provider);
-            return Expression.Call(instance, CreateProxyMethodInfo, parameterOfServiceType, parameterOfTarget);
+            if (interceptionCallSite.ServiceType.IsInterface)
+            {
+                var instance = Expression.Constant(interceptionCallSite.ProxyFactory, typeof(IInterceptingProxyFactory));
+                var parameterOfServiceType = Expression.Constant(interceptionCallSite.ServiceType);
+                var parameterOfTarget = this.VisitCallSite(interceptionCallSite.TargetCallSite, provider);
+                return Expression.Call(instance, WrapMethodInfo, parameterOfServiceType, parameterOfTarget);
+            }
+            else
+            {
+                var instance = Expression.Constant(interceptionCallSite.ProxyFactory, typeof(IInterceptingProxyFactory));
+                var parameterOfServiceType = Expression.Constant(interceptionCallSite.ServiceType);
+                return Expression.Call(instance, CreateMethodInfo, parameterOfServiceType, provider);
+            }
         }
     }
 }

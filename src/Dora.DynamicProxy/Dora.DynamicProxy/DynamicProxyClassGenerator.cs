@@ -8,18 +8,72 @@ using System.Threading.Tasks;
 
 namespace Dora.DynamicProxy
 {
+    /// <summary>
+    /// Generator to generator interceptable dynamic proxy class.
+    /// </summary>
     public class DynamicProxyClassGenerator
     {
         #region Properties
+        /// <summary>
+        /// Gets the type to intercept.
+        /// </summary>
+        /// <value>
+        /// The type to intercept.
+        /// </value>
         public Type TypeToIntercept { get; }
-        public InterceptorDecoration Interceptors { get; } 
+
+        /// <summary>
+        /// Gets the <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.
+        /// </summary>
+        /// <value>
+        /// The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.
+        /// </value>
+        public InterceptorDecoration Interceptors { get; }
+
+
+        /// <summary>
+        /// Gets the <see cref="ModuleBuilder"/>  in which the dynamic proxy classes are defined.
+        /// </summary>
+        /// <value>
+        /// The <see cref="ModuleBuilder"/>  in which the dynamic proxy classes are defined.
+        /// </value>
         public ModuleBuilder ModuleBuilder { get; }
+
+
+        /// <summary>
+        /// Gets the <see cref="TypeBuilder"/> representing the dynamic proxy class.
+        /// </summary>
+        /// <value>
+        /// The <see cref="TypeBuilder"/> representing the dynamic proxy class.
+        /// </value>
         public TypeBuilder TypeBuilder { get; }
+
+
+        /// <summary>
+        /// Gets the <see cref="FieldBuilder"/> representing the "_target" field.
+        /// </summary>
+        /// <value>
+        /// The <see cref="FieldBuilder"/> representing the "_target" field.
+        /// </value>
         public FieldBuilder TargetFiled { get; }
+
+        /// <summary>
+        /// Gets the <see cref="FieldBuilder"/> representing the "_interceptors" field.
+        /// </summary>
+        /// <value>
+        /// The <see cref="FieldBuilder"/> representing the "_interceptors" field.
+        /// </value>
         public FieldBuilder InterceptorsField { get; }
         #endregion
 
         #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynamicProxyClassGenerator"/> class.
+        /// </summary>
+        /// <param name="typeToIntercept">The type to intercept.</param>
+        /// <param name="interceptors">The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</param>
+        /// <exception cref="ArgumentNullException">Specified <paramref name="typeToIntercept"/> is null.</exception>    
+        /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors"/> is null.</exception>
         private DynamicProxyClassGenerator(Type typeToIntercept, InterceptorDecoration interceptors)
         {
             this.TypeToIntercept = Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
@@ -44,6 +98,15 @@ namespace Dora.DynamicProxy
         #endregion
 
         #region Public Methods
+        /// <summary>
+        /// Creates a <see cref="DynamicProxyClassGenerator"/> to generate dynamic proxy class based on interface based interception.
+        /// </summary>
+        /// <param name="interface">The interface type to intercept.</param>
+        /// <param name="interceptors">The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</param>
+        /// <returns>The created <see cref="DynamicProxyClassGenerator"/>.</returns>      
+        /// <exception cref="ArgumentNullException">Specified <paramref name="interface"/> is null.</exception>   
+        /// <exception cref="ArgumentException">Specified <paramref name="interface"/> is not an interface type.</exception>     
+        /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors"/> is null.</exception>
         public static DynamicProxyClassGenerator CreateInterfaceGenerator(Type @interface, InterceptorDecoration interceptors)
         {
             Guard.ArgumentNotNull(@interface, nameof(@interface));
@@ -54,16 +117,29 @@ namespace Dora.DynamicProxy
             return new DynamicProxyClassGenerator(@interface, interceptors);
         }
 
-        public static DynamicProxyClassGenerator CreateVirtualMethodGenerator(Type nonSealedType, InterceptorDecoration interceptors)
+        /// <summary>
+        /// Creates a <see cref="DynamicProxyClassGenerator"/> to generate dynamic proxy class based on interface based interception.
+        /// </summary>
+        /// <param name="type">The interface type to intercept.</param>
+        /// <param name="interceptors">The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</param>
+        /// <returns>The created <see cref="DynamicProxyClassGenerator"/>.</returns>      
+        /// <exception cref="ArgumentNullException">Specified <paramref name="type"/> is null.</exception>   
+        /// <exception cref="ArgumentException">Specified <paramref name="type"/> is  a sealed type.</exception>     
+        /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors"/> is null.</exception>
+        public static DynamicProxyClassGenerator CreateVirtualMethodGenerator(Type type, InterceptorDecoration interceptors)
         {
-            Guard.ArgumentNotNull(nonSealedType, nameof(nonSealedType));
-            if (nonSealedType.IsSealed)
+            Guard.ArgumentNotNull(type, nameof(type));
+            if (type.IsSealed)
             {
-                throw new ArgumentException(Resources.ExceptionSealedTypeNotAllowed, nameof(nonSealedType));
+                throw new ArgumentException(Resources.ExceptionSealedTypeNotAllowed, nameof(type));
             }
-            return new DynamicProxyClassGenerator(nonSealedType, interceptors);
+            return new DynamicProxyClassGenerator(type, interceptors);
         }
 
+        /// <summary>
+        /// Generates the type of the proxy.
+        /// </summary>
+        /// <returns>The type representing the generated dynamic proxy class.</returns>
         public Type GenerateProxyType()
         {
             if (this.TypeToIntercept.IsInterface)
@@ -80,8 +156,12 @@ namespace Dora.DynamicProxy
         #endregion
 
         #region Protected Methods
-       
-        protected virtual void DefineConstructorForImplementationClass()
+
+        /// <summary>
+        /// Defines the constructor for class implementing the specified interface.
+        /// </summary>
+        /// <returns>The <see cref="ConstructorBuilder"/> representing the generated constructor.</returns>
+        protected virtual ConstructorBuilder DefineConstructorForImplementationClass()
         {
             var parameterTypes = new Type[] { this.TypeToIntercept, typeof(InterceptorDecoration) };
             var constructor = this.TypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, parameterTypes);
@@ -103,8 +183,13 @@ namespace Dora.DynamicProxy
 
             //Return
             il.Emit(OpCodes.Ret);
+            return constructor;
         }
 
+        /// <summary>
+        /// Defines the constructors for class inheriting the specified type.
+        /// </summary>          
+        /// <returns>The <see cref="ConstructorBuilder"/> array representing the generated constructors.</returns>
         protected virtual ConstructorBuilder[] DefineConstructorsForSubClass()
         {
             var constructors = this.TypeToIntercept.GetConstructors(BindingFlags.Instance| BindingFlags.Public);
@@ -127,6 +212,13 @@ namespace Dora.DynamicProxy
             return constructorBuilders;
         }
 
+        /// <summary>
+        /// Defines the interceptable method.
+        /// </summary>
+        /// <param name="methodInfo">The <see cref="MethodInfo"/> of the type to intercept.</param>
+        /// <param name="attributes">The attributes applied to the generated method.</param>
+        /// <returns>The <see cref="MethodBuilder"/> representing the generated method.</returns>   
+        /// <exception cref="ArgumentNullException">Specified <paramref name="methodInfo"/> is null.</exception>
         protected virtual MethodBuilder DefineInterceptableMethod(MethodInfo methodInfo, MethodAttributes attributes)
         {
             Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
@@ -248,9 +340,7 @@ namespace Dora.DynamicProxy
             il.Emit(OpCodes.Ldloc, interceptor);
             il.Emit(OpCodes.Ldloc, handler);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.InvokeMethodOfInterceptorDelegate);
-            il.Emit(OpCodes.Stloc, handler);
-
-         
+            il.Emit(OpCodes.Stloc, handler);                
 
             //Invoke the the final handler and store the returned Task
             il.Emit(OpCodes.Ldloc, handler);
@@ -321,8 +411,16 @@ namespace Dora.DynamicProxy
             return methodBuilder;
         }
 
+        /// <summary>
+        /// Defines the non interceptable method.
+        /// </summary>
+        /// <param name="methodInfo">The <see cref="MethodInfo"/> of the type to intercept.</param>
+        /// <param name="attributes">The attributes applied to the generated method.</param>
+        /// <returns>The <see cref="MethodBuilder"/> representing the generated method.</returns> 
+        /// <exception cref="ArgumentNullException">Specified <paramref name="methodInfo"/> is null.</exception>  
         protected virtual MethodBuilder DefineNonInterceptableMethod(MethodInfo methodInfo, MethodAttributes attributes)
         {
+            Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
             var parameters = methodInfo.GetParameters();
             //var targetInvoker = this.DefineTargetInvoker(typeBuilder, method);
             var parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
@@ -350,8 +448,14 @@ namespace Dora.DynamicProxy
             return methodBuilder;
         }
 
+        /// <summary>
+        /// Gets the method attributes applied to generated method.
+        /// </summary>                                                 
+        /// <param name="methodInfo">The <see cref="MethodInfo"/> of the type to intercept.</param>
+        /// <returns></returns>
         protected virtual MethodAttributes? GetMethodAttributes(MethodInfo methodInfo)
         {
+            Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
             if (this.TypeToIntercept.IsInterface)
             {
                 return MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final;
@@ -377,6 +481,11 @@ namespace Dora.DynamicProxy
             return null;
         }
 
+        /// <summary>
+        /// Defines the "SetInterceptors" method to set the interceptors of type <see cref="InterceptorDecoration"/>.
+        /// </summary>
+        /// <param name="attributes">The attributes applied to the generated method.</param>
+        /// <returns>The <see cref="MethodBuilder"/> representing the generated method.</returns>
         protected virtual MethodBuilder DefineSetInterceptorsMethod(MethodAttributes attributes)
         {
             var methodBuilder = this.TypeBuilder.DefineMethod("SetInterceptors", attributes, typeof(void), new Type[] { typeof(InterceptorDecoration) });

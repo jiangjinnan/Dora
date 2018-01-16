@@ -106,8 +106,12 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
         protected override object VisitInterception(InterceptionCallSite interceptionCallSite, ServiceProvider2 provider)
         {
-            var target = VisitCallSite(interceptionCallSite.TargetCallSite, provider);
-            return interceptionCallSite.ProxyFactory.CreateProxy(interceptionCallSite.ServiceType, target);
+            if (interceptionCallSite.ServiceType.IsInterface)
+            {
+                var target = VisitCallSite(interceptionCallSite.TargetCallSite, provider);
+                return interceptionCallSite.ProxyFactory.Wrap(interceptionCallSite.ServiceType, target);
+            }  
+            return interceptionCallSite.ProxyFactory.Create(interceptionCallSite.ServiceType, provider);
         }
     }
 }

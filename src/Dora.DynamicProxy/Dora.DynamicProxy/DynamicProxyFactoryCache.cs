@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -6,12 +7,15 @@ namespace Dora.DynamicProxy
 {
     internal class DynamicProxyFactoryCache
     {
+        #region Fields
         private static readonly DynamicProxyFactoryCache _instance = new DynamicProxyFactoryCache();
         private Dictionary<Type, Type> _generatedClasses;  
         private Dictionary<Type, Func<object, InterceptorDecoration, object>> _instanceFactories;
         private Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;
         private object _sync;
+        #endregion
 
+        #region Constructors
         private DynamicProxyFactoryCache()
         {
             _generatedClasses = new Dictionary<Type, Type>();
@@ -19,7 +23,9 @@ namespace Dora.DynamicProxy
             _typeFactories = new Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>>();
             _sync = new object();
         }
+        #endregion
 
+        #region Public Methods
         public static DynamicProxyFactoryCache Instance { get => _instance; }
 
         public Func<object, InterceptorDecoration, object> GetInstanceFactory(Type type, InterceptorDecoration interceptors)
@@ -67,7 +73,9 @@ namespace Dora.DynamicProxy
                 return _typeFactories[type] = this.CreateTypeFactory(proxyType);
             }
         }
+        #endregion
 
+        #region Private Methods
         private Func<object, InterceptorDecoration, object> CreateInstanceFactory(Type proxyType)
         {
             var target = Expression.Parameter(typeof(object));
@@ -86,10 +94,11 @@ namespace Dora.DynamicProxy
         {
             return (interceptors, serviceProvider) =>
             {
-                var proxy = serviceProvider.GetService(proxyType);
+                var proxy = ActivatorUtilities.CreateInstance(serviceProvider, proxyType);
                 ((IInterceptorsInitializer)proxy).SetInterceptors(interceptors);
                 return proxy;
             };
         }
+        #endregion
     }
 }

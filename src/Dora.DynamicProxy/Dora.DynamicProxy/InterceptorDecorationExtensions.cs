@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 
 namespace Dora.DynamicProxy
 {
-    public static class InterceptorDecorationExtensions
+    internal static class InterceptorDecorationExtensions
     {
         public static bool Contains(this InterceptorDecoration interceptorDecoration ,MethodInfo method)
         {

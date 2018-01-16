@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Dora.DynamicProxy
 {
-    public class ReturnValueAccessor<TResult>
+    internal class ReturnValueAccessor<TResult>
     {
         private readonly InvocationContext _context;
         public ReturnValueAccessor(InvocationContext context)
