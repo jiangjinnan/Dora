@@ -15,18 +15,6 @@ namespace Dora.Interception.Test
       Assert.False(new BarAttribute().AllowMultiple);
     }
 
-    [Fact]
-    public void CaptureAttributes()
-    {
-      var attribute = new FooAttribute();
-      ((IAttributeCollection)attribute).Add(new Attribute1());
-      ((IAttributeCollection)attribute).AddRange(new Attribute[] { new Attribute2(), new Attribute3()});
-
-      Assert.True(((IAttributeCollection)attribute).OfType<Attribute1>().Any());
-      Assert.True(((IAttributeCollection)attribute).OfType<Attribute2>().Any());
-      Assert.True(((IAttributeCollection)attribute).OfType<Attribute3>().Any());
-    }
-
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     private class FooAttribute : InterceptorAttribute
     {

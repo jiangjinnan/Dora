@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Dora.Interception
-{
-    /// <summary>
-    /// A marker interface representing the service which can be intercepted.
-    /// </summary>
-    public interface IInterceptable
-    {
-    }
-
+{ 
     /// <summary>
     /// Represents the service with a proxy against which the method invocation can be intercepted.
     /// </summary>
@@ -54,7 +44,21 @@ namespace Dora.Interception
         /// </summary>
         public T Proxy
         {
-            get { return _proxy ?? (_proxy = _proxyFactory.CreateProxy<T>(_serviceProvider.GetService<T>())); }
+            get
+            {
+                if (null != _proxy)
+                {
+                    return _proxy;
+                }
+
+                if (typeof(T).IsInterface)
+                {
+                    var target = _serviceProvider.GetService<T>();
+                    return _proxy = _proxyFactory.Wrap<T>(target);
+                }
+
+                return _proxy = _proxyFactory.Create<T>(_serviceProvider); 
+            }  
         }
     }
 }

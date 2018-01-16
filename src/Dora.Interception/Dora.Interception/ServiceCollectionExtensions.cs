@@ -10,13 +10,14 @@ namespace Microsoft.Extensions.DependencyInjection
     /// Define some extension methods to register interception based services.
     /// </summary>
     public static class ServiceCollectionExtensions
-    { 
+    {
         /// <summary>
-        /// Adds the interception.
+        /// Adds the interception based service registrations.
         /// </summary>
-        /// <param name="services">The services.</param>
-        /// <param name="configure">The configure.</param>
-        /// <returns></returns>
+        /// <param name="services">The <see cref="IServiceCollection"/> in which the service registrations are added.</param>
+        /// <param name="configure">A <see cref="Action{InterceptionBuilder}"/> to perform other configuration.</param>
+        /// <returns>The <see cref="IServiceCollection"/> with added service registration.</returns>
+        /// <exception cref="ArgumentNullException">Specified <paramref name="services"/> is null.</exception>
         public static IServiceCollection AddInterception(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {
             Guard.ArgumentNotNull(services, nameof(services));
@@ -34,9 +35,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Builders the interceptable service provider.
         /// </summary>
-        /// <param name="services">The services.</param>
-        /// <param name="configure">The configure.</param>
-        /// <returns>The interceptable service provider.</returns>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the service provider is built based on.</param>
+        /// <param name="configure">A <see cref="Action{InterceptionBuilder}"/> to perform other configuration.</param>
+        /// <returns>The interceptable service provider.</returns>  
+        /// <exception cref="ArgumentNullException">Specified <paramref name="services"/> is null.</exception>
         public static IServiceProvider BuilderInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {
             return BuilderInterceptableServiceProvider(services, false, configure);
@@ -46,12 +48,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Builders the interceptable service provider.
         /// </summary>
-        /// <param name="services">The services.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the service provider is built based on.</param>
         /// <param name="validateScopes">if set to <c>true</c> [validate scopes].</param>
         /// <param name="configure">The configure.</param>
-        /// <returns>The interceptable service provider.</returns>
+        /// <returns>The interceptable service provider.</returns>    
+        /// <exception cref="ArgumentNullException">Specified <paramref name="services"/> is null.</exception>
         public static IServiceProvider BuilderInterceptableServiceProvider(this IServiceCollection services, bool validateScopes, Action<InterceptionBuilder> configure = null)
         {
+            Guard.ArgumentNotNull(services, nameof(services));
             var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
             services.AddInterception(configure);
             var proxyFactory = services.BuildServiceProvider().GetRequiredService<IInterceptingProxyFactory>();
