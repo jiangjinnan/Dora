@@ -17,6 +17,9 @@
       <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
       <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <PackageReleaseNotes>This is a lightweight intercepting dynamic proxy generation framework, which provides the following two kinds of class generation mechanism:
+1. Instance based  intercepting dynamic proxy class generation: Generate a proxy class wrapping the target instance whose class must implement an interface, and such an interface is also implemented by the generated proxy class. All of the methods, including the get or set method of properties, can be intercepted.
+2. Instance based  intercepting dynamic proxy class generation: Generate a proxy class which inherits the given non-sealed type. Only virutal methods can be intercepted.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

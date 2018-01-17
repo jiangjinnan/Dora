@@ -272,12 +272,17 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                 var parameterOfTarget = this.VisitCallSite(interceptionCallSite.TargetCallSite, provider);
                 return Expression.Call(instance, WrapMethodInfo, parameterOfServiceType, parameterOfTarget);
             }
-            else
+            else if (interceptionCallSite.TargetCallSite is ConstructorCallSite || interceptionCallSite.TargetCallSite is CreateInstanceCallSite)
             {
                 var instance = Expression.Constant(interceptionCallSite.ProxyFactory, typeof(IInterceptingProxyFactory));
                 var parameterOfServiceType = Expression.Constant(interceptionCallSite.ServiceType);
-                return Expression.Call(instance, CreateMethodInfo, parameterOfServiceType, provider);
+                var targetAccessor = Expression.Lambda<Func<object>>(this.VisitCallSite(interceptionCallSite.TargetCallSite, provider));
+                return Expression.Call(instance, CreateMethodInfo, parameterOfServiceType, provider, targetAccessor);
             }
+            else
+            {
+               return this.VisitCallSite(interceptionCallSite.TargetCallSite, provider);
+            } 
         }
     }
 }

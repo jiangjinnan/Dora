@@ -108,10 +108,16 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
         {
             if (interceptionCallSite.ServiceType.IsInterface)
             {
-                var target = VisitCallSite(interceptionCallSite.TargetCallSite, provider);
+                var target = this.VisitCallSite(interceptionCallSite.TargetCallSite, provider);
                 return interceptionCallSite.ProxyFactory.Wrap(interceptionCallSite.ServiceType, target);
-            }  
-            return interceptionCallSite.ProxyFactory.Create(interceptionCallSite.ServiceType, provider);
+            }
+
+            if (interceptionCallSite.TargetCallSite is ConstructorCallSite || interceptionCallSite.TargetCallSite is CreateInstanceCallSite)
+            {
+                return interceptionCallSite.ProxyFactory.Create(interceptionCallSite.ServiceType, provider, () => VisitCallSite(interceptionCallSite.TargetCallSite, provider));
+            }
+
+            return this.VisitCallSite(interceptionCallSite.TargetCallSite, provider);
         }
     }
 }

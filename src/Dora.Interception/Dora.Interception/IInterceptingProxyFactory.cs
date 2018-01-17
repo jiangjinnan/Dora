@@ -25,9 +25,10 @@ namespace Dora.Interception
         /// </summary>
         /// <param name="typeToIntercept">The type to proxy.</param>
         /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="targetAccessor">The target instance accessor.</param>
         /// <returns>
         /// The proxy wrapping the specified target instance.
         /// </returns>
-        object Create(Type typeToIntercept, IServiceProvider serviceProvider);
+        object Create(Type typeToIntercept, IServiceProvider serviceProvider, Func<object> targetAccessor = null);
     }
 }

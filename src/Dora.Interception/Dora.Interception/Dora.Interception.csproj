@@ -16,6 +16,14 @@
     <PackageLicenseUrl>http://www.doranet.org/nuget-license</PackageLicenseUrl>
     <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
+    <PackageReleaseNotes>This version of Dora.Interception provides the following new features and enhancements:
+1. Leveraging a built-in intercepting dynamic proxy class generation framework, Dora.DynamicProxy, to provide the underlying interception mechanism. Task parallel programming is greatly supported.
+2. Provide the following kinds of interception mechanisms: 
+    1). Instance based interception: The generated proxy wraps the target instance.
+    2). Type based interception: The generated proxy class inherits the non-sealed type.
+3. Not only can interceptors be applied to methods, but they can be applied to properties, event their get or set methods.
+
+</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

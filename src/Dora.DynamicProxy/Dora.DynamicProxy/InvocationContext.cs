@@ -8,10 +8,41 @@ namespace Dora.DynamicProxy
     /// </summary>
     public abstract class InvocationContext
     {
+        private MethodBase _targetMethod;
+        private Type _targetType;
+
         /// <summary>
         ///  Gets the <see cref="MethodInfo"/> representing the method of type to intercept.
         /// </summary>
-        public abstract MethodBase Method { get; }       
+        public abstract MethodBase Method { get; }
+
+        /// <summary>
+        /// Gets the method of target type.
+        /// </summary>
+        /// <value>
+        /// The method of target type.
+        /// </value>
+        public MethodBase TargetMethod
+        {
+            get
+            {
+                if (null != _targetMethod)
+                {
+                    return _targetMethod;
+                }  
+                if (this.Method.DeclaringType.IsInterface)
+                {
+                    _targetType = _targetType ?? this.Target.GetType();
+                    var map = _targetType.GetTypeInfo().GetRuntimeInterfaceMap(this.Method.DeclaringType);
+                    var index = Array.IndexOf(map.InterfaceMethods, this.Method);
+                    if (index > -1)
+                    {
+                        return _targetMethod = map.TargetMethods[index];
+                    }
+                }
+                return _targetMethod = this.Method;
+            }
+        }
 
         /// <summary>
         /// Gets the proxy object on which the intercepted method is invoked.

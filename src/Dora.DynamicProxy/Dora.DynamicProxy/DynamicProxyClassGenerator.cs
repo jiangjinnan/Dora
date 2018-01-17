@@ -332,9 +332,7 @@ namespace Dora.DynamicProxy
                 il.Emit(OpCodes.Ldftn, invokeMethod);
             }
             il.Emit(OpCodes.Newobj, ReflectionUtility.ConstructorOfInterceptDelegate);
-            il.Emit(OpCodes.Stloc, handler);
-
-            il.EmitWriteLine(this.InterceptorsField);
+            il.Emit(OpCodes.Stloc, handler);           
 
             //Invoke the interceptor and store the result (an InterceptDelegate object) as handler. 
             il.Emit(OpCodes.Ldloc, interceptor);

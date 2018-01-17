@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Dora.Interception
 {
@@ -29,15 +30,19 @@ namespace Dora.Interception
         /// <typeparam name="T">The type of proxy.</typeparam>
         /// <param name="proxyFactory">The proxy factory.</param>
         /// <param name="serviceProvider">The service provider.</param>
-        /// <returns>
-        /// The interceptable proxy.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">Specified <paramref name="proxyFactory"/> is null.</exception>   
-        /// <exception cref="ArgumentNullException">Specified <paramref name="serviceProvider"/> is null.</exception>
+        /// <returns>The interceptable proxy.</returns>
+        /// <exception cref="ArgumentException">Invalid ServiceProvider - serviceProvider</exception>
+        /// <exception cref="ArgumentNullException">Specified <paramref name="proxyFactory" /> is null.</exception>
+        /// <exception cref="ArgumentNullException">Specified <paramref name="proxyFactory" /> is null.</exception>
         public static T Create<T>(this IInterceptingProxyFactory proxyFactory, IServiceProvider serviceProvider)
         {
             Guard.ArgumentNotNull(proxyFactory, nameof(proxyFactory));
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
+
+            if (serviceProvider is ServiceProvider2)
+            {
+                throw new ArgumentException("Invalid ServiceProvider", nameof(serviceProvider));
+            }
 
             return (T)proxyFactory.Create(typeof(T), serviceProvider);
         }

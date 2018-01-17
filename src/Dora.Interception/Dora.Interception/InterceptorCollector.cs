@@ -194,6 +194,11 @@ namespace Dora.Interception
 
             foreach (var methodInfo in type.GetTypeInfo().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
+                if (methodInfo.DeclaringType != type)
+                {
+                    continue;
+                }
+
                 nonInterceptableAttribute = CustomAttributeAccessor.GetCustomAttribute<NonInterceptableAttribute>(methodInfo, true);
                 if (null != nonInterceptableAttribute && nonInterceptableAttribute.InterceptorProviderTypes.Length == 0)
                 {
@@ -224,6 +229,10 @@ namespace Dora.Interception
 
             foreach (var property in type.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
+                if (property.DeclaringType != type)
+                {
+                    continue;
+                }
                 nonInterceptableAttribute = CustomAttributeAccessor.GetCustomAttribute<NonInterceptableAttribute>(property, true);
                 if (null != nonInterceptableAttribute && nonInterceptableAttribute.InterceptorProviderTypes.Length == 0)
                 {
