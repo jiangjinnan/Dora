@@ -127,7 +127,7 @@ namespace Dora.Interception
             var propertyBasedDecorations = new List<PropertyBasedInterceptorDecoration>();
             foreach (var methodInfo in typeToIntercept.GetTypeInfo().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                if (methodInfo.DeclaringType != typeToIntercept)
+                if (methodInfo.IsSpecialName || methodInfo.DeclaringType == typeof(object))
                 {
                     continue;
                 }
@@ -141,11 +141,7 @@ namespace Dora.Interception
             }
 
             foreach (var property in typeToIntercept.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-            {
-                if (property.DeclaringType != typeToIntercept)
-                {
-                    continue;
-                }
+            {  
                 InterceptorDelegate interceptorOfGetMethod = null;
                 InterceptorDelegate interceptorOfSetMethod = null;
                 var getMethod = property.GetMethod;
@@ -155,7 +151,7 @@ namespace Dora.Interception
                     interceptorOfGetMethod = this.BuildInterceptor(getMethodProviders);
                 }
 
-                if (null != setMethod && providers.TryGetValue(getMethod, out var setMethodProviders))
+                if (null != setMethod && providers.TryGetValue(setMethod, out var setMethodProviders))
                 {
                     interceptorOfSetMethod = this.BuildInterceptor(setMethodProviders);
                 }
@@ -194,7 +190,12 @@ namespace Dora.Interception
 
             foreach (var methodInfo in type.GetTypeInfo().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                if (methodInfo.DeclaringType != type)
+                if (methodInfo.DeclaringType == typeof(object))
+                {
+                    continue;
+                }
+
+                if (methodInfo.IsSpecialName)
                 {
                     continue;
                 }
@@ -229,10 +230,7 @@ namespace Dora.Interception
 
             foreach (var property in type.GetTypeInfo().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                if (property.DeclaringType != type)
-                {
-                    continue;
-                }
+               
                 nonInterceptableAttribute = CustomAttributeAccessor.GetCustomAttribute<NonInterceptableAttribute>(property, true);
                 if (null != nonInterceptableAttribute && nonInterceptableAttribute.InterceptorProviderTypes.Length == 0)
                 {
@@ -284,7 +282,7 @@ namespace Dora.Interception
                             continue;
                         }
 
-                        if (!provider.AllowMultiple && propertyProviders.Any(it => it.GetType() == provider.GetType()))
+                        if (!provider.AllowMultiple && methodProviders.Any(it => it.GetType() == provider.GetType()))
                         {
                             continue;
                         }

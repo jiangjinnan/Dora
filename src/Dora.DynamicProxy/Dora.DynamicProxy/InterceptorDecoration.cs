@@ -16,6 +16,7 @@ namespace Dora.DynamicProxy
         private static readonly InterceptorDecoration _empty = new InterceptorDecoration(new MethodBasedInterceptorDecoration[0], new PropertyBasedInterceptorDecoration[0]);
         private static MethodInfo _methodOfGetInterceptor;
         private Dictionary<MethodInfo, InterceptorDelegate> _interceptors;
+        private Dictionary<int, InterceptorDelegate> _tokenBasedInterceptors;
         #endregion
 
         #region Properties
@@ -61,6 +62,18 @@ namespace Dora.DynamicProxy
                      ?? (_methodOfGetInterceptor = ReflectionUtility.GetMethod<InterceptorDecoration>(_ => _.GetInterceptor(null)));
             }
         }
+
+        /// <summary>
+        /// Determines whether [contains] [the specified method information].
+        /// </summary>
+        /// <param name="methodInfo">The method information.</param>
+        /// <returns>
+        ///   <c>true</c> if [contains] [the specified method information]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Contains(MethodInfo  methodInfo)
+        {
+            return _interceptors.ContainsKey(Guard.ArgumentNotNull(methodInfo, nameof(methodInfo)));
+        }
         #endregion
 
         #region Constructors
@@ -87,6 +100,7 @@ namespace Dora.DynamicProxy
                 .Union(methodBasedInterceptors?? new MethodBasedInterceptorDecoration[0])
                 .Where(it => it != null)
                 .ToDictionary(it => it.Method, it => it.Interceptor);
+            _tokenBasedInterceptors = _interceptors.ToDictionary(it => it.Key.MetadataToken, it => it.Value);
         }
         #endregion
 
@@ -101,9 +115,16 @@ namespace Dora.DynamicProxy
         public InterceptorDelegate GetInterceptor(MethodInfo methodInfo)
         {
             Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
-            return this._interceptors.TryGetValue(methodInfo, out var interceptor)
-                ? interceptor
-                : null;    
+            if (_interceptors.TryGetValue(methodInfo, out var interceptor))
+            {
+                return interceptor;
+            }
+
+            if (_tokenBasedInterceptors.TryGetValue(methodInfo.MetadataToken, out  interceptor))
+            {
+                return interceptor;
+            }
+            return null;  
         }
 
         /// <summary>

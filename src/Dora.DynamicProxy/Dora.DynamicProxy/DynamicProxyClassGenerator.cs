@@ -237,8 +237,7 @@ namespace Dora.DynamicProxy
                 methodBuilder.DefineParameter(index + 1, parameter.Attributes, parameter.Name);
             } 
 
-            var il = methodBuilder.GetILGenerator();
-            
+            var il = methodBuilder.GetILGenerator();      
 
             var handler = il.DeclareLocal(typeof(InterceptDelegate));
             var interceptor = il.DeclareLocal(typeof(InterceptorDelegate));
@@ -274,7 +273,7 @@ namespace Dora.DynamicProxy
                 il.EmitBox(parameter.ParameterType);
                 il.Emit(OpCodes.Stelem_Ref);
             }                   
-            il.Emit(OpCodes.Stloc, arguments);
+            il.Emit(OpCodes.Stloc, arguments);   
 
 
             //Load and store current method
@@ -288,9 +287,8 @@ namespace Dora.DynamicProxy
             {
                 il.Emit(OpCodes.Call, ReflectionUtility.GetMethodFromHandleMethodOfMethodBase1);
             }
-            il.Emit(OpCodes.Stloc, methodBase);
+            il.Emit(OpCodes.Stloc, methodBase); 
 
-      
             //Create and store DefaultInvocationContext
             il.Emit(OpCodes.Ldloc, methodBase);
             il.Emit(OpCodes.Ldarg_0);
@@ -308,14 +306,15 @@ namespace Dora.DynamicProxy
             il.Emit(OpCodes.Ldfld, this.InterceptorsField);
             il.Emit(OpCodes.Ldloc, methodBase);
             il.Emit(OpCodes.Callvirt, InterceptorDecoration.MethodOfGetInterceptor);
-            il.Emit(OpCodes.Stloc, interceptor);  
+            il.Emit(OpCodes.Stloc, interceptor);                  
 
             //Create and store handler to invoke target method
             il.Emit(OpCodes.Ldarg_0);
             if (this.TypeToIntercept.IsInterface)
             {
                 il.Emit(OpCodes.Ldfld, this.TargetFiled);
-            }
+            }  
+      
             if (methodInfo.IsGenericMethod)
             {
                 var genericTargetInvokerType = targetInvokerType.MakeGenericType(methodInfo.GetGenericArguments());
@@ -332,19 +331,20 @@ namespace Dora.DynamicProxy
                 il.Emit(OpCodes.Ldftn, invokeMethod);
             }
             il.Emit(OpCodes.Newobj, ReflectionUtility.ConstructorOfInterceptDelegate);
-            il.Emit(OpCodes.Stloc, handler);           
+            il.Emit(OpCodes.Stloc, handler); 
 
             //Invoke the interceptor and store the result (an InterceptDelegate object) as handler. 
             il.Emit(OpCodes.Ldloc, interceptor);
             il.Emit(OpCodes.Ldloc, handler);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.InvokeMethodOfInterceptorDelegate);
-            il.Emit(OpCodes.Stloc, handler);                
+            il.Emit(OpCodes.Stloc, handler);   
 
             //Invoke the the final handler and store the returned Task
             il.Emit(OpCodes.Ldloc, handler);
             il.Emit(OpCodes.Ldloc, invocationContext);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.InvokeMethodOfInterceptDelegate);
-            il.Emit(OpCodes.Stloc, task);
+            il.Emit(OpCodes.Stloc, task); 
+           
 
             //When return Task<TResult>
             if (methodInfo.ReturnTaskOfResult())
@@ -548,8 +548,8 @@ namespace Dora.DynamicProxy
             this.DefineConstructorsForSubClass();
             this.DefineSetInterceptorsMethod( MethodAttributes.Public| MethodAttributes.HideBySig| MethodAttributes.Virtual| MethodAttributes.Final);
             foreach (var methodInfo in this.TypeToIntercept.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-            {
-                if (methodInfo.IsVirtual && this.Interceptors.Contains(methodInfo))
+            { 
+                if (!methodInfo.IsSpecialName && methodInfo.IsVirtual && this.Interceptors.Contains(methodInfo))
                 {
                     var attributes = this.GetMethodAttributes(methodInfo);
                     if (null != attributes)
@@ -713,6 +713,7 @@ namespace Dora.DynamicProxy
                 }
                 else
                 {
+                    //TODO
                     il.Emit(OpCodes.Call, methodInfo);
                 }
             }
