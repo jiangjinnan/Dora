@@ -12,7 +12,7 @@ namespace DemoX
         {
             var demo = new ServiceCollection()
                      .AddSingleton<Demo, Demo1>()
-                     .BuildeInterceptableServiceProvider()
+                     .BuildInterceptableServiceProvider()
                      .GetRequiredService<Demo>();
 
             demo.GetValueAsync();

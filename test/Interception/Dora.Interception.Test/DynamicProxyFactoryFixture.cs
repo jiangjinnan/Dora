@@ -14,7 +14,7 @@ namespace Dora.Interception.Test
         {
             _flag = null;
             var serviceProvider = new ServiceCollection().AddScoped<IService, Service>()
-                .BuildeInterceptableServiceProvider();
+                .BuildInterceptableServiceProvider();
             var service = serviceProvider.GetRequiredService<IService>();
             service.Invoke();
             Assert.Equal("123", _flag);
@@ -25,7 +25,7 @@ namespace Dora.Interception.Test
         {
             _flag = null;
             var serviceProvider = new ServiceCollection().AddScoped<BaseService, SubService>()
-                .BuildeInterceptableServiceProvider();
+                .BuildInterceptableServiceProvider();
             var service = serviceProvider.GetRequiredService<BaseService>();
             service.Invoke();
             Assert.Equal("123", _flag);

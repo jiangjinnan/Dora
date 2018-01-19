@@ -25,7 +25,7 @@ namespace Dora.Interception.Test
                 .AddSingleton<IFoo, Foo>()
                 .AddSingleton<IBar, Bar>()
                 .AddSingleton<IBaz, Baz>()
-                .BuildeInterceptableServiceProvider()
+                .BuildInterceptableServiceProvider()
                 .GetRequiredService<IBaz>();
             await baz.InvokeAsync();
             Assert.Equal("Foobar", flag1);
@@ -44,7 +44,7 @@ namespace Dora.Interception.Test
                 .AddSingleton<IFoo, Foo>()
                 .AddSingleton<IBar, Bar>()
                 .AddSingleton<Gux, Gux>()
-                .BuildeInterceptableServiceProvider()
+                .BuildInterceptableServiceProvider()
                 .GetRequiredService<Gux>();
             await gux.InvokeAsync();
             Assert.Equal("Foobar", flag1);

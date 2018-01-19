@@ -39,9 +39,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">A <see cref="Action{InterceptionBuilder}"/> to perform other configuration.</param>
         /// <returns>The interceptable service provider.</returns>  
         /// <exception cref="ArgumentNullException">Specified <paramref name="services"/> is null.</exception>
-        public static IServiceProvider BuildeInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
+        public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {
-            return BuildeInterceptableServiceProvider(services, false, configure);
+            return BuildInterceptableServiceProvider(services, false, configure);
         }
 
 
@@ -53,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure">The configure.</param>
         /// <returns>The interceptable service provider.</returns>    
         /// <exception cref="ArgumentNullException">Specified <paramref name="services"/> is null.</exception>
-        public static IServiceProvider BuildeInterceptableServiceProvider(this IServiceCollection services, bool validateScopes, Action<InterceptionBuilder> configure = null)
+        public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, bool validateScopes, Action<InterceptionBuilder> configure = null)
         {
             Guard.ArgumentNotNull(services, nameof(services));
             var options = new ServiceProviderOptions { ValidateScopes = validateScopes };

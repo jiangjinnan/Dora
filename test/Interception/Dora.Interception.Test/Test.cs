@@ -15,7 +15,7 @@ namespace Dora.Interception.Test
         {
             var demo = new ServiceCollection()
                     .AddSingleton<Demo, Demo>()
-                    .BuildeInterceptableServiceProvider()
+                    .BuildInterceptableServiceProvider()
                     .GetRequiredService<Demo>();
             Console.WriteLine("Set...");
             demo.Value = new object();      
