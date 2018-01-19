@@ -348,19 +348,11 @@ namespace Dora.DynamicProxy
            
             //When return Task<TResult>
             if (methodInfo.ReturnTaskOfResult())
-            {
-                il.EmitWriteLine("begin");
-
-                var c = ReflectionUtility.GetConstructorOfRetureValueAccessor(returnType);
-                il.EmitWriteLine(invocationContext);
-
+            {  
                 //Create and store ReturnValueAccessor<Return>
                 il.Emit(OpCodes.Ldloc, invocationContext);
                 il.Emit(OpCodes.Newobj, ReflectionUtility.GetConstructorOfRetureValueAccessor(returnType));
-                il.Emit(OpCodes.Stloc, returnValueAccessor);
-
-                il.EmitWriteLine("end");
-
+                il.Emit(OpCodes.Stloc, returnValueAccessor); 
 
                 //Create a Func<Task, TReturn> to represent the ReturnValueAccessor<Return>.GetReturnValue
                 il.Emit(OpCodes.Ldloc, returnValueAccessor);
