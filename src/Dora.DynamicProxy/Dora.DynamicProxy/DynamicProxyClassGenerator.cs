@@ -343,22 +343,32 @@ namespace Dora.DynamicProxy
             il.Emit(OpCodes.Ldloc, handler);
             il.Emit(OpCodes.Ldloc, invocationContext);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.InvokeMethodOfInterceptDelegate);
-            il.Emit(OpCodes.Stloc, task); 
-           
+            il.Emit(OpCodes.Stloc, task);
 
+           
             //When return Task<TResult>
             if (methodInfo.ReturnTaskOfResult())
             {
+                il.EmitWriteLine("begin");
+
+                var c = ReflectionUtility.GetConstructorOfRetureValueAccessor(returnType);
+                il.EmitWriteLine(invocationContext);
+
                 //Create and store ReturnValueAccessor<Return>
                 il.Emit(OpCodes.Ldloc, invocationContext);
                 il.Emit(OpCodes.Newobj, ReflectionUtility.GetConstructorOfRetureValueAccessor(returnType));
                 il.Emit(OpCodes.Stloc, returnValueAccessor);
+
+                il.EmitWriteLine("end");
+
 
                 //Create a Func<Task, TReturn> to represent the ReturnValueAccessor<Return>.GetReturnValue
                 il.Emit(OpCodes.Ldloc, returnValueAccessor);
                 il.Emit(OpCodes.Ldftn, ReflectionUtility.GetMethodsOfGetReturnValue(returnType));
                 il.Emit(OpCodes.Newobj, ReflectionUtility.GetConstructorOfFuncOfTaskAndReturnValue(returnType));
                 il.Emit(OpCodes.Stloc, func);
+
+                
 
                 //Invoke handler's ContinueWith 
                 il.Emit(OpCodes.Ldloc, task);

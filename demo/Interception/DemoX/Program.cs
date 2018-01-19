@@ -11,13 +11,15 @@ namespace DemoX
         static void Main(string[] args)
         {
             var demo = new ServiceCollection()
-                     .AddSingleton<Demo>(new Demo1())
+                     .AddSingleton<Demo, Demo1>()
                      .BuildeInterceptableServiceProvider()
                      .GetRequiredService<Demo>();
-            Console.WriteLine("Set...");
-            demo.Value = new object();
-            Console.WriteLine("Get...");
-            var value = demo.Value;
+
+            demo.GetValueAsync();
+            //Console.WriteLine("Set...");
+            //demo.Value = new object();
+            //Console.WriteLine("Get...");
+            //var value = demo.Value;
             Console.Read();
         }
     }
@@ -29,18 +31,20 @@ namespace DemoX
         {
             Console.WriteLine("Target method is invoked.");
             return Task.CompletedTask;
-        }
+        } 
+      
+        public virtual object Value { [Foobar]get; set; }
+
 
         [Foobar]
-        public virtual object Value { get; set; }
+        public virtual Task<string> GetValueAsync()
+        {
+            return Task.FromResult("Foobar");
+        }
     }
 
     public class Demo1 : Demo
-    {
-        public Demo1()
-        {
-            base.Value = new object();
-        }
+    {  
     }
 
     public class FoobarInterceptor
@@ -58,6 +62,7 @@ namespace DemoX
             Console.WriteLine("Interception task completes.");
             await _next(context);
         }
+
     }
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property)]
     public class FoobarAttribute : InterceptorAttribute

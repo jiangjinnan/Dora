@@ -88,8 +88,8 @@ namespace Dora.DynamicProxy
             IEnumerable<MethodBasedInterceptorDecoration> methodBasedInterceptors,
             IEnumerable<PropertyBasedInterceptorDecoration> propertyBasedInterceptors)
         {
-            Guard.ArgumentNotNull(methodBasedInterceptors, nameof(methodBasedInterceptors));
-            Guard.ArgumentNotNull(propertyBasedInterceptors, nameof(propertyBasedInterceptors));
+            methodBasedInterceptors = methodBasedInterceptors ?? new MethodBasedInterceptorDecoration[0];
+            propertyBasedInterceptors = propertyBasedInterceptors ?? new PropertyBasedInterceptorDecoration[0];
 
             _interceptors = new Dictionary<MethodInfo, InterceptorDelegate>();
             this.MethodBasedInterceptors = methodBasedInterceptors.ToDictionary(it => it.Method, it => it);

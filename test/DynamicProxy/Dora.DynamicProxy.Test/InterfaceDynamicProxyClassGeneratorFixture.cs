@@ -43,6 +43,7 @@ namespace Dora.DynamicProxy.Test
         [Fact]
         public async void TestReturnType()
         {
+            //Void
             string flag1 = "";
             string flag2 = "";
             InterceptorDelegate interceptor = next => (context => { flag1 = "Foobar"; return next(context); });
@@ -51,6 +52,7 @@ namespace Dora.DynamicProxy.Test
             Assert.Equal("Foobar", flag1);
             Assert.Equal("Foobar", flag2);
 
+            //String
             flag1 = "";
             flag2 = "";
             proxy = this.CreateProxy<IFoobar>(new Foobar(() => flag2 = "Foobar"), interceptor, _ => _.Invoke2());
@@ -58,6 +60,7 @@ namespace Dora.DynamicProxy.Test
             Assert.Equal("Foobar", flag1);
             Assert.Equal("Foobar", flag2);
 
+            //Task
             flag1 = "";
             flag2 = "";
             proxy = this.CreateProxy<IFoobar>(new Foobar(() => flag2 = "Foobar"), interceptor, _ => _.Invoke3());
@@ -65,6 +68,7 @@ namespace Dora.DynamicProxy.Test
             Assert.Equal("Foobar", flag1);
             Assert.Equal("Foobar", flag2);
 
+            //Task<T>
             flag1 = "";
             flag2 = "";
             proxy = this.CreateProxy<IFoobar>(new Foobar(() => flag2 = "Foobar"), interceptor, _ => _.Invoke4());
@@ -76,12 +80,14 @@ namespace Dora.DynamicProxy.Test
         [Fact]
         public void TestParameterType()
         {
+            //General
             string flag = "";
             InterceptorDelegate interceptor = next => (context => { flag = "Foobar"; return next(context); });
             var proxy = this.CreateProxy<ICalculator>(new Calculator(), interceptor, _ => _.Add(0, 0));
             Assert.Equal(3, proxy.Add(1, 2));
             Assert.Equal("Foobar", flag);
 
+            //ref, out
             double x = 1;
             double y = 2;
             double result;
@@ -94,6 +100,7 @@ namespace Dora.DynamicProxy.Test
         [Fact]
         public void TestGenericType()
         {
+            //Foobar<T>()
             string flag = "";
             InterceptorDelegate interceptor = next => (context => { flag = "Foobar"; return next(context); });
             var proxy = this.CreateProxy<ICalculator<int>>(new IntCalculator(), interceptor, _ => _.Add(0, 0));
