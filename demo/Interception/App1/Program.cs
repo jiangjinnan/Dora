@@ -42,7 +42,7 @@ namespace App
             var clock2 = new ServiceCollection()
               .AddMemoryCache()
               .AddSingleton<ISystomClock, SystomClock>()
-              .BuilderInterceptableServiceProvider()
+              .BuildInterceptableServiceProvider()
               .GetRequiredService<ISystomClock>();
 
             for (int i = 0; i < 5; i++)

@@ -205,8 +205,8 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
                 var closedType = descriptor.ImplementationType.MakeGenericType(serviceType.GenericTypeArguments);
                 var constructorCallSite = CreateConstructorCallSite(serviceType, closedType, callSiteChain);
-
-                return ApplyLifetime(constructorCallSite, Tuple.Create(descriptor, serviceType), descriptor.Lifetime);
+                var intercepCallsite = new InterceptionCallSite(_proxyFactory, constructorCallSite);
+                return ApplyLifetime(intercepCallsite, Tuple.Create(descriptor, serviceType), descriptor.Lifetime);
             }
 
             return null;

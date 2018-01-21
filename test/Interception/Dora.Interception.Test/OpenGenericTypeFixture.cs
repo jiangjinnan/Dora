@@ -1,44 +1,45 @@
 ﻿using Dora.DynamicProxy;
-using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
-namespace DemoX
+namespace Dora.Interception.Test
 {
-    public class Program
+    public class OpenGenericTypeFixture
     {
-        private static Action _action = () => { };
-        static void Main(string[] args)
+        private static Action _action = ()=> { };
+
+        [Fact]
+        public void GetService()
         {
             var foobar = new ServiceCollection()
-                 .AddSingleton<IFoo, Foo>()
-                 .AddSingleton<IBar, Bar>()
-                 .AddSingleton(typeof(IFoobar<,>), typeof(Foobar<,>))
-                 .BuildInterceptableServiceProvider()
-                 .GetRequiredService<IFoobar<IFoo, IBar>>();
+               .AddSingleton<IFoo, Foo>()
+               .AddSingleton<IBar, Bar>()
+               .AddSingleton(typeof(IFoobar<,>), typeof(Foobar<,>))
+               .BuildInterceptableServiceProvider()
+               .GetRequiredService<IFoobar<IFoo, IBar>>();
             var flag = "";
             _action = () => flag = "Foobar";
             var foo = foobar.Foo;
-            Debug.Assert("Foobar" == flag);
+            Assert.Equal("Foobar", flag);
+            
         }
 
-
         public interface IFoo { }
-        public interface IBar { }
+        public interface IBar { }    
         public interface IFoobar<TFoo, TBar>
             where TFoo : IFoo
             where TBar : IBar
         {
             TFoo Foo { get; }
             TBar Bar { get; }
-        }
+        }  
         public class Foo : IFoo { }
         public class Bar : IBar { }
-
-        [Foobar]
-        public class Foobar<TFoo, TBar> : IFoobar<TFoo, TBar>
+        public class Foobar<TFoo, TBar>: IFoobar<TFoo, TBar>
             where TFoo : IFoo
             where TBar : IBar
         {
@@ -47,10 +48,11 @@ namespace DemoX
                 this.Foo = foo;
                 this.Bar = bar;
             }
-            public TFoo Foo { get; }
-            public TBar Bar { get; }
-        }   
-      
+           public TFoo Foo { get; }
+           public TBar Bar { get; }
+        }
+
+        [Foobar]
         public class FoobarInterceptor
         {
             private InterceptDelegate _next;

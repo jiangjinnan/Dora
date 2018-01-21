@@ -17,7 +17,7 @@ namespace App
             services
                 .AddScoped<ISystomClock, SystomClock>()
                 .AddMvc();
-            return services.BuilderInterceptableServiceProvider();
+            return services.BuildInterceptableServiceProvider();
         }
 
         public void Configure(IApplicationBuilder app)
