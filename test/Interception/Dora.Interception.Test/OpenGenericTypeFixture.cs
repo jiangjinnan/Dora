@@ -39,6 +39,7 @@ namespace Dora.Interception.Test
         }  
         public class Foo : IFoo { }
         public class Bar : IBar { }
+        [Foobar]
         public class Foobar<TFoo, TBar>: IFoobar<TFoo, TBar>
             where TFoo : IFoo
             where TBar : IBar
@@ -52,21 +53,21 @@ namespace Dora.Interception.Test
            public TBar Bar { get; }
         }
 
-        [Foobar]
-        public class FoobarInterceptor
-        {
-            private InterceptDelegate _next;
-            public FoobarInterceptor(InterceptDelegate next)
-            {
-                _next = next;
-            }
+      
+public class FoobarInterceptor
+{
+    private InterceptDelegate _next;
+    public FoobarInterceptor(InterceptDelegate next)
+    {
+        _next = next;
+    }
 
-            public Task InvokeAsync(InvocationContext context)
-            {
-                _action();
-                return _next(context);
-            }
-        }
+    public Task InvokeAsync(InvocationContext context)
+    {
+        _action();
+        return _next(context);
+    }
+}
 
         public class FoobarAttribute : InterceptorAttribute
         {

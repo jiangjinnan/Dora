@@ -7,8 +7,8 @@ namespace Dora.Interception
     /// <summary>
     /// An attribute based interceptor provider.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-    public abstract class InterceptorAttribute : Attribute, IInterceptorProvider 
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false)]
+    public abstract class InterceptorAttribute : Attribute, IInterceptorProvider
     {
         private readonly ConcurrentBag<Attribute> _attributes = new ConcurrentBag<Attribute>();
         private bool? _allowMultiple;
@@ -26,15 +26,15 @@ namespace Dora.Interception
             get
             {
                 return _allowMultiple.HasValue
-                   ? _allowMultiple.Value
-                   : (_allowMultiple = this.GetType().GetTypeInfo().GetCustomAttribute<AttributeUsageAttribute>().AllowMultiple).Value;
+                    ? _allowMultiple.Value
+                    : (_allowMultiple = this.GetType().GetTypeInfo().GetCustomAttribute<AttributeUsageAttribute>().AllowMultiple).Value;
             }
-        } 
+        }
 
         /// <summary>
         /// Register the provided interceptor to the specified interceptor chain builder.
         /// </summary>
         /// <param name="builder">The interceptor chain builder to which the provided interceptor is registered.</param>
-        public abstract void Use(IInterceptorChainBuilder builder);  
+        public abstract void Use(IInterceptorChainBuilder builder);
     }
 }

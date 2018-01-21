@@ -8,7 +8,7 @@ namespace Dora.Interception
     /// <summary>
     /// An attribute indicating the target method is not allowed to be intercepted.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property)]
     public class NonInterceptableAttribute : Attribute
     {
         /// <summary>
