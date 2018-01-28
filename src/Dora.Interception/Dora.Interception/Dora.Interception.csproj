@@ -40,16 +40,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Dora.Shared\Dora.Shared\CustomAttributeAccessor.cs" Link="shared\CustomAttributeAccessor.cs" />
-    <Compile Include="..\..\Dora.Shared\Dora.Shared\Guard.cs" Link="shared\Guard.cs" />
-    <Compile Include="..\..\Dora.Shared\Dora.Shared\StringExtensions.cs" Link="shared\StringExtensions.cs" />
+    <Compile Remove="shared\**" />
+    <EmbeddedResource Remove="shared\**" />
+    <None Remove="shared\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="shared\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Dora.DynamicProxy\Dora.DynamicProxy\Dora.DynamicProxy.csproj" />

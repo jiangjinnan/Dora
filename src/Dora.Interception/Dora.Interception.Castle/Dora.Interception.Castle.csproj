@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <SignAssembly>True</SignAssembly>
+    <!--<SignAssembly>True</SignAssembly>-->
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
     <Description>Provides a proxy factory by leveraging Castle based interception mechanism.</Description>
     <Authors>Jiang Jin Nan</Authors>
@@ -19,13 +19,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
-    <DocumentationFile>bin\Debug\netstandard1.6\Dora.Interception.Castle.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netstandard2.0\Dora.Interception.Castle.xml</DocumentationFile>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.6\.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netstandard2.0\Dora.Interception.Castle.xml</DocumentationFile>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <TreatSpecificWarningsAsErrors />
   </PropertyGroup>
@@ -35,11 +36,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="4.2.1" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\CustomAttributeAccessor.cs" Link="shared\CustomAttributeAccessor.cs" />
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\Guard.cs" Link="shared\Guard.cs" />
+    <Compile Include="..\..\Dora.Shared\Dora.Shared\StringExtensions.cs" Link="shared\StringExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <PackageReference Include="Castle.Core.AsyncInterceptor" Version="1.5.0" />
   </ItemGroup>
 
 </Project>

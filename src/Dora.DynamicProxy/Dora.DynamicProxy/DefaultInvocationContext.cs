@@ -7,7 +7,7 @@ namespace Dora.DynamicProxy
     /// <summary>
     /// The default implementation of <see cref="InvocationContext"/>
     /// </summary>   
-    public class DefaultInvocationContext : InvocationContext
+    public sealed class DefaultInvocationContext : InvocationContext
     {
         #region Properties
         /// <summary>
@@ -46,7 +46,7 @@ namespace Dora.DynamicProxy
         /// <value>
         /// The extended properties.
         /// </value>
-        public IDictionary<string, object> ExtendedProperties { get; }
+        public override IDictionary<string, object> ExtendedProperties { get; }
         #endregion
 
         #region Constructors
@@ -67,11 +67,11 @@ namespace Dora.DynamicProxy
              object target,
              object[] arguments)
         {
-            this.Method = Guard.ArgumentNotNull(method, nameof(method));             
+            this.Method = Guard.ArgumentNotNull(method, nameof(method));
             this.Proxy = Guard.ArgumentNotNull(proxy, nameof(proxy));
             this.Target = Guard.ArgumentNotNull(target, nameof(target));
             this.Arguments = Guard.ArgumentNotNull(arguments, nameof(arguments));
-            this.ExtendedProperties = new Dictionary<string, object>();
+            this.ExtendedProperties = new Dictionary<string, object>();  
         }
         #endregion
     }

@@ -19,6 +19,7 @@ namespace Dora.Interception
         private static Dictionary<Type, InvokeDelegate> _invokers = new Dictionary<Type, InvokeDelegate>();
         private static object _syncHelper = new object();
 
+
         /// <summary>
         /// Register the interceptor of <typeparamref name="TInterceptor"/> type to specified interceptor chain builder.
         /// </summary>
@@ -48,23 +49,24 @@ namespace Dora.Interception
         {
             Guard.ArgumentNotNull(builder, nameof(builder));
             Guard.ArgumentNotNull(interceptorType, nameof(interceptorType));
+            object instance = ActivatorUtilities.CreateInstance(builder.ServiceProvider, interceptorType, arguments);
 
-            InterceptorDelegate interceptor = next => (async context =>
-            {
-                object[] newArguments = new object[arguments.Length + 1];
-                newArguments[0] = next;
-                arguments.CopyTo(newArguments, 1);
-                object instance = ActivatorUtilities.CreateInstance(builder.ServiceProvider, interceptorType, newArguments);
-                InvokeDelegate invoker;
-                if (TryGetInvoke(interceptorType, out invoker))
+            InterceptorDelegate interceptor = next => 
+            {                   
+                return async context =>
                 {
-                    await invoker(instance, context, builder.ServiceProvider);
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid interceptor type", "interceptorType");
-                }
-            });
+                    context.Next = next;
+                    InvokeDelegate invoker;
+                    if (TryGetInvoke(interceptorType, out invoker))
+                    {
+                        await invoker(instance, context, builder.ServiceProvider);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Invalid interceptor type", "interceptorType");
+                    }
+                };
+            };
             return builder.Use(interceptor, order);
         }
 

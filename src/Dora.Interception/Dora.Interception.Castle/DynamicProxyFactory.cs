@@ -1,73 +1,94 @@
 ﻿using Castle.DynamicProxy;
+using Dora.DynamicProxy;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Dora.Interception.Castle
 {
     /// <summary>
     /// A custom proxy factory leveraging <see cref="ProxyGenerator"/> to create proxy.
     /// </summary>
-    public class DynamicProxyFactory : ProxyFactory
+    public class DynamicProxyFactory : IInterceptingProxyFactory
     {
         private readonly ProxyGenerator _proxyGenerator;
+        private readonly IInterceptorCollector  _interceptorCollector;
 
         /// <summary>
         /// Create a new <see cref="DynamicProxyFactory"/>.
-        /// </summary>
-        /// <param name="serviceProvider">The service provider to get dependent services.</param>
-        /// <param name="builder">The interceptor chain builder.</param>
-        public DynamicProxyFactory(IServiceProvider serviceProvider, IInterceptorChainBuilder builder) : base(serviceProvider, builder)
+        /// </summary>   
+        public DynamicProxyFactory(
+            IInterceptorCollector interceptorCollector, IServiceProvider serviceProvider)
         {
+            _interceptorCollector = Guard.ArgumentNotNull(interceptorCollector, nameof(interceptorCollector));
+            this.ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
             _proxyGenerator = new ProxyGenerator();
         }
 
         /// <summary>
-        /// Create a proxy wrapping specified target instance. 
+        /// Gets the service provider.
         /// </summary>
-        /// <param name="typeToProxy">The declaration type of proxy to create.</param>
-        /// <param name="target">The target instance wrapped by the created proxy.</param>
+        /// <value>
+        /// The service provider.
+        /// </value>
+        public IServiceProvider ServiceProvider { get; }
+
+        /// <summary>
+        /// Creates the specified type to intercept.
+        /// </summary>
+        /// <param name="typeToIntercept">The type to intercept.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="targetAccessor">The target accessor.</param>   
         /// <returns>The proxy wrapping the specified target instance.</returns>
-        public override object CreateProxy(Type typeToProxy, object target)
+        public object Create(Type typeToIntercept, IServiceProvider serviceProvider, Func<object> targetAccessor = null)
         {
-            if (target == null || target.GetType().Namespace.StartsWith("Castle."))
+            var interceptorDecoration = _interceptorCollector.GetInterceptors(typeToIntercept);
+            if (interceptorDecoration.IsEmpty)
             {
-                return target;
+                return targetAccessor == null
+                    ? serviceProvider.GetService(typeToIntercept)
+                    : targetAccessor();
             }
-            return base.CreateProxy(typeToProxy, target);
+
+            var interceptors = interceptorDecoration.Interceptors
+                .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
+            var selector = new DynamicProxyInterceptorSelector(interceptors.ToDictionary(it => it.Key, it => it.Value));
+            var options = new ProxyGenerationOptions { Selector = selector};
+            return _proxyGenerator.CreateClassProxy(typeToIntercept, options, interceptors.Values.ToArray());
         }
 
         /// <summary>
-        /// Create a proxy wrapping specified target instance and interceptors. 
+        /// Create a proxy wrapping specified target instance.
         /// </summary>
-        /// <param name="typeToProxy">The declaration type of proxy to create.</param>
+        /// <param name="typeToIntercept">The declaration type of proxy to create.</param>
         /// <param name="target">The target instance wrapped by the created proxy.</param>
-        /// <param name="initerceptors">The interceptors specific to each methods.</param>
-        /// <returns>The proxy wrapping the specified target instance.</returns>
-        /// <exception cref="ArgumentNullException">The argument <paramref name="typeToProxy"/> is null.</exception>
-        /// <exception cref="ArgumentNullException">The argument <paramref name="target"/> is null.</exception>
-        /// <exception cref="ArgumentNullException">The argument <paramref name="initerceptors"/> is null.</exception>
-        protected override object CreateProxyCore(Type typeToProxy, object target, IDictionary<MethodInfo, InterceptorDelegate> initerceptors)
+        /// <returns>
+        /// The proxy wrapping the specified target instance.
+        /// </returns>
+        public object Wrap(Type typeToIntercept, object target)
         {
-            Guard.ArgumentNotNull(typeToProxy, nameof(typeToProxy));
+            Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             Guard.ArgumentNotNull(target, nameof(target));
-            Guard.ArgumentNotNull(initerceptors, nameof(initerceptors));
-
-            if (!initerceptors.Any())
-            {
-                return target;
-            }
-            IDictionary<MethodInfo, IInterceptor> dic = initerceptors.ToDictionary(it => it.Key, it => (IInterceptor)new DynamicProxyInterceptor(it.Value));
-            var selector = new DynamicProxyInterceptorSelector(dic);
+            var interceptorDecoration = _interceptorCollector.GetInterceptors(typeToIntercept, target.GetType());
+            var interceptors = interceptorDecoration.Interceptors
+               .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
+            var selector = new DynamicProxyInterceptorSelector(interceptors.ToDictionary(it => it.Key, it => it.Value));
             var options = new ProxyGenerationOptions { Selector = selector };
-            if (typeToProxy.GetTypeInfo().IsInterface)
+
+            return _proxyGenerator.CreateInterfaceProxyWithTarget(typeToIntercept,target, interceptors.Values.ToArray());
+        }
+
+        internal class FoobarAsyncInterceptor : AsyncInterceptorBase
+        {
+            protected override Task InterceptAsync(IInvocation invocation, Func<IInvocation, Task> proceed)
             {
-                return _proxyGenerator.CreateInterfaceProxyWithTarget(typeToProxy, target, options, dic.Values.ToArray());
+                return proceed(invocation);
             }
-            else
+
+            protected override async Task<TResult> InterceptAsync<TResult>(IInvocation invocation, Func<IInvocation, Task<TResult>> proceed)
             {
-                return _proxyGenerator.CreateClassProxyWithTarget(typeToProxy, target, options, dic.Values.ToArray());
+                await proceed(invocation);
+                return await (Task<TResult>)invocation.ReturnValue;
             }
         }
     }

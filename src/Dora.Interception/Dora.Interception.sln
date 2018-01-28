@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}"
 EndProject
@@ -26,7 +26,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App3", "..\..\demo\Intercep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.DynamicProxy", "..\Dora.DynamicProxy\Dora.DynamicProxy\Dora.DynamicProxy.csproj", "{0EF1B87B-7121-4F1D-A43D-979A3B426C1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoX", "..\..\demo\Interception\DemoX\DemoX.csproj", "{23930935-272A-481D-BCDC-692459677EF1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoX", "..\..\demo\Interception\DemoX\DemoX.csproj", "{23930935-272A-481D-BCDC-692459677EF1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception.Castle", "Dora.Interception.Castle\Dora.Interception.Castle.csproj", "{3DDBC555-1F5E-4AA6-933E-06021E9285F2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,10 @@ Global
 		{23930935-272A-481D-BCDC-692459677EF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23930935-272A-481D-BCDC-692459677EF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23930935-272A-481D-BCDC-692459677EF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DDBC555-1F5E-4AA6-933E-06021E9285F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DDBC555-1F5E-4AA6-933E-06021E9285F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DDBC555-1F5E-4AA6-933E-06021E9285F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DDBC555-1F5E-4AA6-933E-06021E9285F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{AD672A99-CD27-4D18-BB98-CBB1CB454C03} = {61BD3B4B-C901-426A-85F0-DDB515977B2A}
 		{0EF1B87B-7121-4F1D-A43D-979A3B426C1C} = {8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}
 		{23930935-272A-481D-BCDC-692459677EF1} = {61BD3B4B-C901-426A-85F0-DDB515977B2A}
+		{3DDBC555-1F5E-4AA6-933E-06021E9285F2} = {8A9A8F6A-4852-49B0-A4CF-468D5CDB0ABD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76B22988-7C84-4465-AF31-7F8F57551F61}

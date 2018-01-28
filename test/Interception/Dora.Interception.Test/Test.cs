@@ -2,61 +2,117 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Dora.Interception.Test
 {
-    public class Test
-    {
+    public class PerformanceTest
+    { 
         [Fact]
-        public  void Invoke()
+        public void ResolveInterceptors()
         {
-            var demo = new ServiceCollection()
-                    .AddSingleton<Demo, Demo>()
-                    .BuildInterceptableServiceProvider()
-                    .GetRequiredService<Demo>();
-            Console.WriteLine("Set...");
-            demo.Value = new object();      
+            var fileName = @"..\..\..\ResolveInterceptors.txt";
+            File.WriteAllText(fileName, "");
+            var serviceProvider = new ServiceCollection().BuildServiceProvider();
+            var collector = new InterceptorCollector(new InterceptorChainBuilder(serviceProvider));
+            var sw = Stopwatch.StartNew();
+            collector.GetInterceptors(typeof(Demo));
+            File.AppendAllLines(fileName,new string[] { sw.Elapsed.ToString() });
+
+            sw.Restart();
+            collector.GetInterceptors(typeof(Demo));
+            File.AppendAllLines(fileName,new string[] { sw.Elapsed.ToString() });
+
+            sw.Restart();
+            collector.GetInterceptors(typeof(Demo));
+            File.AppendAllLines(fileName, new string[] { sw.Elapsed.ToString() });
+
+            Console.WriteLine(sw.Elapsed);
         }
 
-        public class Demo
+        [Fact]
+        public  void CreateProxy()
         {
-            [Foobar]
-            public virtual Task InvokeAsync()
+            var serviceProvider1 = new ServiceCollection()
+                    .AddSingleton<IDemo, Demo>()
+                    .BuildServiceProvider();
+            var serviceProvider2 = new ServiceCollection()
+                   .AddSingleton<IDemo, Demo>()
+                   .BuildInterceptableServiceProvider();
+
+            var fileName = @"..\..\..\performancetest.txt";
+            File.WriteAllText(fileName, "");
+
+            var sw = new Stopwatch();
+            for (int index = 0; index < 100; index++)
             {
-                Console.WriteLine("Target method is invoked.");
-                return Task.CompletedTask;
+                sw.Restart();
+                var demo = serviceProvider1.GetRequiredService<IDemo>();
+                var time1 = sw.Elapsed;
+
+                sw.Restart();
+                demo = serviceProvider2.GetRequiredService<IDemo>();
+                var time2 = sw.Elapsed;
+
+                File.AppendAllLines(fileName, new string[] { time1.ToString(), time2.ToString(), "" });
             }
 
-            [Foobar]
-            public virtual object Value { get; set; }
+            var demo1 = serviceProvider1.GetRequiredService<IDemo>();
+            var demo2 = serviceProvider2.GetRequiredService<IDemo>();
+
+            for (int index = 0; index < 100; index++)
+            {
+                sw.Restart();
+                demo1.Invoke();
+                var time1 = sw.Elapsed;
+
+                sw.Restart();
+                demo2.Invoke();
+                var time2 = sw.Elapsed;
+
+                File.AppendAllLines(fileName, new string[] { time1.ToString(), time2.ToString(), "" });
+            }
         }
 
-        public class FoobarInterceptor
+        public interface IDemo
         {
-            private InterceptDelegate _next;
+            void Invoke();
+        }
 
-            public FoobarInterceptor(InterceptDelegate next)
+        public class Demo : IDemo
+        {
+            [FoobarInterceptor]
+            public void Invoke()
+            {
+                
+            }
+        }
+
+        public class FoobarInterceptorAttribute: InterceptorAttribute
+        {
+            private readonly InterceptDelegate _next;
+
+            public FoobarInterceptorAttribute()
+            { }
+
+            public FoobarInterceptorAttribute(InterceptDelegate next)
             {
                 _next = next;
             }
-            public async Task InvokeAsync(InvocationContext context)
+
+            public Task InvokeAsync(InvocationContext context)
             {
-                Console.WriteLine("Interception task starts.");
-                await Task.Delay(1000);
-                Console.WriteLine("Interception task completes.");
-                await _next(context);
+                return _next(context);
             }
-        }
-        [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property)]
-        public class FoobarAttribute : InterceptorAttribute
-        {
+
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptor>(this.Order);
+                builder.Use<FoobarInterceptorAttribute>(this.Order);
             }
-        }
+        } 
     }
 }

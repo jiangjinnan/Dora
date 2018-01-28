@@ -12,12 +12,8 @@ namespace Dora.DynamicProxy
         private static ConstructorInfo _constructorOfObject;
         private static ConstructorInfo _constructorOfDefaultInvocationContext;
         private static ConstructorInfo _constructorOfInterceptDelegate;
-        private static Dictionary<Type, ConstructorInfo> _construcorOfReturnValueAccessors;
-        private static Dictionary<Type, ConstructorInfo> _construcorOfFuncOfTasksAndReturnValue;
-
-        private static PropertyInfo _argumentsPropertyOfInvocationContext;
-        private static PropertyInfo _completedTaskOfTask;
-        private static PropertyInfo _returnValueOfInvocationContext;
+        //private static Dictionary<Type, ConstructorInfo> _construcorOfReturnValueAccessors;
+        //private static Dictionary<Type, ConstructorInfo> _construcorOfFuncOfTasksAndReturnValue;   
 
         private static MethodInfo _getMethodFromHandleMethodOfMethodBase1;
         private static MethodInfo _getMethodFromHandleMethodOfMethodBase2;
@@ -25,8 +21,12 @@ namespace Dora.DynamicProxy
         private static MethodInfo _invokeMethodOfInterceptDelegate;
         private static MethodInfo _definitionOfContiueWithMethodOfTask;
         private static MethodInfo _waitMethodOfTask;
-        private static Dictionary<Type, MethodInfo> _methodsOfGetReturnValues;
+        //private static Dictionary<Type, MethodInfo> _methodsOfGetReturnValues;
         private static Dictionary<Type, MethodInfo> _methodOfContiueWithMethodOfTasks;
+        private static MethodInfo _getMethodOfArgumentsOfInvocationContext;  
+        private static MethodInfo _getMethodOfCompletedTaskOfTask;
+        private static MethodInfo _getMethodOfReturnValueOfInvocationContext;
+        private static MethodInfo _setMethodOfReturnValueOfInvocationContext;    
 
         public static ConstructorInfo ConstructorOfObject
         {
@@ -36,8 +36,8 @@ namespace Dora.DynamicProxy
         {
             get
             {
-                    return _constructorOfDefaultInvocationContext 
-                    ?? (_constructorOfDefaultInvocationContext = GetConstructor(() => new  DefaultInvocationContext(null,null,null,null)));
+                return _constructorOfDefaultInvocationContext
+                ?? (_constructorOfDefaultInvocationContext = GetConstructor(() => new DefaultInvocationContext(null, null, null, null)));
             }
         }
         public static ConstructorInfo ConstructorOfInterceptDelegate
@@ -49,62 +49,72 @@ namespace Dora.DynamicProxy
             }
         } 
 
-        public static ConstructorInfo GetConstructorOfRetureValueAccessor<TResult>()
-        {
-            return GetConstructor(() => new ReturnValueAccessor<TResult>(null)); 
-        }
+        //public static ConstructorInfo GetConstructorOfRetureValueAccessor<TResult>()
+        //{
+        //    return GetConstructor(() => new ReturnValueAccessor<TResult>(null)); 
+        //}
 
-        public static ConstructorInfo GetConstructorOfRetureValueAccessor(Type returnType)
-        {
-            _construcorOfReturnValueAccessors = _construcorOfReturnValueAccessors ?? new Dictionary<Type, ConstructorInfo>();
-            if (_construcorOfReturnValueAccessors.TryGetValue(returnType, out var constructor))
-            {
-                return constructor;
-            }
+        //public static ConstructorInfo GetConstructorOfRetureValueAccessor(Type returnType)
+        //{
+        //    _construcorOfReturnValueAccessors = _construcorOfReturnValueAccessors ?? new Dictionary<Type, ConstructorInfo>();
+        //    if (_construcorOfReturnValueAccessors.TryGetValue(returnType, out var constructor))
+        //    {
+        //        return constructor;
+        //    }
 
-            return _construcorOfReturnValueAccessors[returnType] = typeof(ReturnValueAccessor<>).MakeGenericType(returnType).GetConstructor(new Type[] { typeof(InvocationContext) });
-        }
+        //    return _construcorOfReturnValueAccessors[returnType] = typeof(ReturnValueAccessor<>).MakeGenericType(returnType).GetConstructor(new Type[] { typeof(InvocationContext) });
+        //}
 
-        public static ConstructorInfo GetConstructorOfFuncOfTaskAndReturnValue(Type returnType)
-        {
-            _construcorOfFuncOfTasksAndReturnValue = _construcorOfFuncOfTasksAndReturnValue ?? new Dictionary<Type, ConstructorInfo>();
-            if (_construcorOfFuncOfTasksAndReturnValue.TryGetValue(returnType, out var constructor))
-            {
-                return constructor;
-            }
-
-            return _construcorOfFuncOfTasksAndReturnValue[returnType] = typeof(Func<,>).MakeGenericType(typeof(Task),returnType).GetConstructor(new Type[] { typeof(object), typeof(IntPtr)});
-        }
-        public static PropertyInfo ArgumentsPropertyOfInvocationContext
+        //public static ConstructorInfo GetConstructorOfFuncOfTaskAndReturnValue(Type returnType)
+        //{
+        //    _construcorOfFuncOfTasksAndReturnValue = _construcorOfFuncOfTasksAndReturnValue ?? new Dictionary<Type, ConstructorInfo>();
+        //    if (_construcorOfFuncOfTasksAndReturnValue.TryGetValue(returnType, out var constructor))
+        //    {
+        //        return constructor;
+        //    } 
+        //    return _construcorOfFuncOfTasksAndReturnValue[returnType] = typeof(Func<,>).MakeGenericType(typeof(Task),returnType).GetConstructor(new Type[] { typeof(object), typeof(IntPtr)});
+        //}
+        public static MethodInfo GetMethodOfArgumentsPropertyOfInvocationContext
         {
             get
             {
-                return _argumentsPropertyOfInvocationContext
-                     ?? (_argumentsPropertyOfInvocationContext = GetProperty<InvocationContext, object[]>(_ => _.Arguments));
-            }
-        }
-        public static PropertyInfo CompletedTaskOfTask
-        {
-            get
-            {
-                return _completedTaskOfTask
-                     ?? (_completedTaskOfTask = GetProperty<Task, Task>(_ => Task.CompletedTask));
-            }
-        }     
-        public static PropertyInfo ReturnValueOfInvocationContext
-        {
-            get
-            {
-                return _returnValueOfInvocationContext
-                     ?? (_returnValueOfInvocationContext = GetProperty<InvocationContext, object>(_=>_.ReturnValue));
+                return _getMethodOfArgumentsOfInvocationContext
+                     ?? (_getMethodOfArgumentsOfInvocationContext = GetProperty<InvocationContext, object[]>(_ => _.Arguments).GetMethod);
             }
         } 
+
+        public static MethodInfo GetMethodOfCompletedTaskOfTask
+        {
+            get
+            {
+                return _getMethodOfCompletedTaskOfTask
+                     ?? (_getMethodOfCompletedTaskOfTask = GetProperty<Task, Task>(_ => Task.CompletedTask).GetMethod);
+            }
+        } 
+        
+        public static MethodInfo GetMethodOfReturnValueOfInvocationContext
+        {
+            get
+            {
+                return _getMethodOfReturnValueOfInvocationContext
+                     ?? (_getMethodOfReturnValueOfInvocationContext = GetProperty<InvocationContext, object>(_=>_.ReturnValue).GetMethod);
+            }
+        }
+
+        public static MethodInfo SetMethodOfReturnValueOfInvocationContext
+        {
+            get
+            {
+                return _setMethodOfReturnValueOfInvocationContext
+                     ?? (_setMethodOfReturnValueOfInvocationContext = GetProperty<InvocationContext, object>(_ => _.ReturnValue).SetMethod);
+            }
+        }
         public static MethodInfo GetMethodFromHandleMethodOfMethodBase1
         {
             get
             {
-                    return _getMethodFromHandleMethodOfMethodBase1 
-                    ?? (_getMethodFromHandleMethodOfMethodBase1 = GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle))));
+                return _getMethodFromHandleMethodOfMethodBase1
+                ?? (_getMethodFromHandleMethodOfMethodBase1 = GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle))));
             }
         }
 
@@ -155,16 +165,16 @@ namespace Dora.DynamicProxy
             return _methodOfContiueWithMethodOfTasks[returnType] = _definitionOfContiueWithMethodOfTask.MakeGenericMethod(returnType);
 
         }
-        public static MethodInfo GetMethodsOfGetReturnValue(Type returnType)
-        {
-            _methodsOfGetReturnValues = _methodsOfGetReturnValues ?? new Dictionary<Type, MethodInfo>();
-            if (_methodsOfGetReturnValues.TryGetValue(returnType, out var methodInfo))
-            {
-                return methodInfo;
-            }
+        //public static MethodInfo GetMethodsOfGetReturnValue(Type returnType)
+        //{
+        //    _methodsOfGetReturnValues = _methodsOfGetReturnValues ?? new Dictionary<Type, MethodInfo>();
+        //    if (_methodsOfGetReturnValues.TryGetValue(returnType, out var methodInfo))
+        //    {
+        //        return methodInfo;
+        //    }
 
-            return _methodsOfGetReturnValues[returnType] = typeof(ReturnValueAccessor<>).MakeGenericType(returnType).GetMethod("GetReturnValue", new Type[] { typeof(Task) });
-        }
+        //    return _methodsOfGetReturnValues[returnType] = typeof(ReturnValueAccessor<>).MakeGenericType(returnType).GetMethod("GetReturnValue", new Type[] { typeof(Task) });
+        //}  
 
         public static ConstructorInfo GetConstructor<T>(Expression<Func<T>> newExpression)
         {   

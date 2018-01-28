@@ -1,6 +1,7 @@
 ﻿using Dora.DynamicProxy.Properties;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,16 +11,20 @@ namespace Dora.DynamicProxy
     /// <summary>
     /// Representing which interceptors are applied to which members of a type to intercept.
     /// </summary>
-    public class InterceptorDecoration
+    public sealed class InterceptorDecoration
     {
         #region Fields
         private static readonly InterceptorDecoration _empty = new InterceptorDecoration(new MethodBasedInterceptorDecoration[0], new PropertyBasedInterceptorDecoration[0]);
-        private static MethodInfo _methodOfGetInterceptor;
-        private Dictionary<MethodInfo, InterceptorDelegate> _interceptors;
-        private Dictionary<int, InterceptorDelegate> _tokenBasedInterceptors;
+        private static MethodInfo _methodOfGetInterceptor;     
+
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// The interceptors
+        /// </summary>
+        public IReadOnlyDictionary<int, InterceptorDelegate> Interceptors { get; }
 
         /// <summary>
         /// Gets the method based interceptors.
@@ -44,7 +49,7 @@ namespace Dora.DynamicProxy
         /// <value>
         ///   <c>true</c> if no interceptor is applied.; otherwise, <c>false</c>.
         /// </value>
-        public bool IsEmpty { get => _interceptors.Count == 0; }
+        public bool IsEmpty { get => Interceptors.Count == 0; }
 
         /// <summary>
         /// Gets an empty <see cref="InterceptorDecoration"/>.
@@ -72,7 +77,7 @@ namespace Dora.DynamicProxy
         /// </returns>
         public bool Contains(MethodInfo  methodInfo)
         {
-            return _interceptors.ContainsKey(Guard.ArgumentNotNull(methodInfo, nameof(methodInfo)));
+            return Interceptors.ContainsKey(Guard.ArgumentNotNull(methodInfo, nameof(methodInfo)).MetadataToken);
         }
         #endregion
 
@@ -91,16 +96,15 @@ namespace Dora.DynamicProxy
             methodBasedInterceptors = methodBasedInterceptors ?? new MethodBasedInterceptorDecoration[0];
             propertyBasedInterceptors = propertyBasedInterceptors ?? new PropertyBasedInterceptorDecoration[0];
 
-            _interceptors = new Dictionary<MethodInfo, InterceptorDelegate>();
+            Interceptors = new Dictionary<int, InterceptorDelegate>();
             this.MethodBasedInterceptors = methodBasedInterceptors.ToDictionary(it => it.Method, it => it);
             this.PropertyBasedInterceptors = propertyBasedInterceptors.ToDictionary(it => it.Property, it => it);  
 
-            _interceptors = (propertyBasedInterceptors?? new PropertyBasedInterceptorDecoration[0])
-                .SelectMany(it => new MethodBasedInterceptorDecoration[] { it?.GetMethodBasedInterceptor, it?.SetMethodBasedInterceptor })
-                .Union(methodBasedInterceptors?? new MethodBasedInterceptorDecoration[0])
+            Interceptors = propertyBasedInterceptors
+                .SelectMany(it => new MethodBasedInterceptorDecoration[] { it.GetMethodBasedInterceptor, it.SetMethodBasedInterceptor })
+                .Union(methodBasedInterceptors)
                 .Where(it => it != null)
-                .ToDictionary(it => it.Method, it => it.Interceptor);
-            _tokenBasedInterceptors = _interceptors.ToDictionary(it => it.Key.MetadataToken, it => it.Value);
+                .ToDictionary(it => it.Method.MetadataToken, it => it.Interceptor);                 
         }
         #endregion
 
@@ -114,17 +118,9 @@ namespace Dora.DynamicProxy
         /// <exception cref="ArgumentNullException"> Specified <paramref name="methodInfo"/> is null.</exception>
         public InterceptorDelegate GetInterceptor(MethodInfo methodInfo)
         {
-            Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
-            if (_interceptors.TryGetValue(methodInfo, out var interceptor))
-            {
-                return interceptor;
-            }
-
-            if (_tokenBasedInterceptors.TryGetValue(methodInfo.MetadataToken, out  interceptor))
-            {
-                return interceptor;
-            }
-            return null;  
+            return Interceptors.TryGetValue(methodInfo.MetadataToken, out var interceptor)
+                ? interceptor
+                : null;    
         }
 
         /// <summary>
@@ -138,36 +134,8 @@ namespace Dora.DynamicProxy
         public bool IsInterceptable(MethodInfo methodInfo)
         {
             Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
-            return _interceptors.ContainsKey(methodInfo);
-        }
-
-        /// <summary>
-        /// Gets the interceptor decorated with the get method of specified proeprty.
-        /// </summary>
-        /// <param name="propertyInfo">The <see cref="PropertyInfo"/> representing the property whose get method is decorated with interceptor.</param>
-        /// <returns>The interceptor decorated with the get method of specified proeprty.</returns> 
-        /// <exception cref="ArgumentNullException"> Specified <paramref name="propertyInfo"/> is null.</exception>
-        public InterceptorDelegate GetInterceptorForGetMethod(PropertyInfo  propertyInfo)
-        {
-            Guard.ArgumentNotNull(propertyInfo, nameof(propertyInfo));
-            return this.PropertyBasedInterceptors.TryGetValue(propertyInfo, out var decoration)
-                ? decoration?.GetMethodBasedInterceptor.Interceptor
-                : null;
-        }
-
-        /// <summary>
-        /// Gets the interceptor decorated with the set method of specified proeprty.
-        /// </summary>
-        /// <param name="propertyInfo">The <see cref="PropertyInfo"/> representing the property whose set method is decorated with interceptor.</param>
-        /// <returns>The interceptor decorated with the set method of specified proeprty.</returns> 
-        /// <exception cref="ArgumentNullException"> Specified <paramref name="propertyInfo"/> is null.</exception>
-        public InterceptorDelegate GetInterceptorForSetMethod(PropertyInfo propertyInfo)
-        {
-            Guard.ArgumentNotNull(propertyInfo, nameof(propertyInfo));
-            return this.PropertyBasedInterceptors.TryGetValue(propertyInfo, out var decoration)
-                ? decoration?.SetMethodBasedInterceptor.Interceptor
-                : null;
-        }
+            return Interceptors.ContainsKey(methodInfo.MetadataToken);
+        }        
         #endregion 
     }
 
