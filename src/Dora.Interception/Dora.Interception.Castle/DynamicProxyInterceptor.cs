@@ -24,11 +24,12 @@ namespace Dora.Interception.Castle
             return _interceptor(next)(invocationContext);
         }
 
-        protected override Task<TResult> InterceptAsync<TResult>(IInvocation invocation, Func<IInvocation, Task<TResult>> proceed)
+        protected override async Task<TResult> InterceptAsync<TResult>(IInvocation invocation, Func<IInvocation, Task<TResult>> proceed)
         {
             var invocationContext = new DynamicProxyInvocationContext(invocation);
             InterceptDelegate next = context => proceed(invocation);
-            return _interceptor(next)(invocationContext).ContinueWith(_ => ((Task<TResult>)invocationContext.ReturnValue).Result);
+            await _interceptor(next)(invocationContext);
+            return ((Task<TResult>)invocationContext.ReturnValue).Result;
         }  
     }
 }
