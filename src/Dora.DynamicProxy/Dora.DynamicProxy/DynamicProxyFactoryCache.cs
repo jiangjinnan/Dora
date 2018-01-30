@@ -5,10 +5,9 @@ using System.Linq.Expressions;
 
 namespace Dora.DynamicProxy
 {
-    internal class DynamicProxyFactoryCache
+    internal class DynamicProxyFactoryCache: IDynamicProxyFactoryCache
     {
-        #region Fields
-        private static readonly DynamicProxyFactoryCache _instance = new DynamicProxyFactoryCache();
+        #region Fields  
         private Dictionary<Type, Type> _generatedClasses;  
         private Dictionary<Type, Func<object, InterceptorDecoration, object>> _instanceFactories;
         private Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;
@@ -16,7 +15,7 @@ namespace Dora.DynamicProxy
         #endregion
 
         #region Constructors
-        private DynamicProxyFactoryCache()
+        internal DynamicProxyFactoryCache()
         {
             _generatedClasses = new Dictionary<Type, Type>();
             _instanceFactories = new Dictionary<Type, Func<object, InterceptorDecoration, object>>();
@@ -25,8 +24,7 @@ namespace Dora.DynamicProxy
         }
         #endregion
 
-        #region Public Methods
-        public static DynamicProxyFactoryCache Instance { get => _instance; }
+        #region Public Methods           
 
         public Func<object, InterceptorDecoration, object> GetInstanceFactory(Type type, InterceptorDecoration interceptors)
         {

@@ -237,12 +237,13 @@ namespace Dora.DynamicProxy
 
             var il = methodBuilder.GetILGenerator();      
 
-            var handler = il.DeclareLocal(typeof(InterceptDelegate));
-            var interceptor = il.DeclareLocal(typeof(InterceptorDelegate));
-            var arguments = il.DeclareLocal(typeof(object[]));
-            var methodBase = il.DeclareLocal(typeof(MethodBase));
-            var invocationContext = il.DeclareLocal(typeof(InvocationContext));
-            var task = il.DeclareLocal(typeof(Task));
+            il.DeclareLocal(typeof(InterceptDelegate));         //Loc_0: handler 
+            il.DeclareLocal(typeof(InterceptorDelegate));       //Loc_1: interceptor
+            il.DeclareLocal(typeof(object[]));                  //Loc_2: arguments   
+            il.DeclareLocal(typeof(InvocationContext));         //Loc_3: invocationContext
+            il.DeclareLocal(typeof(MethodBase));                //Loc_4: methodBase
+            il.DeclareLocal(typeof(Task));                      //Loc_5: task
+
             var returnType = methodInfo.ReturnTaskOfResult()
                 ? methodInfo.ReturnType.GetGenericArguments()[0]
                 : methodInfo.ReturnType;
@@ -268,7 +269,7 @@ namespace Dora.DynamicProxy
                 il.EmitBox(parameter.ParameterType);
                 il.Emit(OpCodes.Stelem_Ref);
             }                   
-            il.Emit(OpCodes.Stloc, arguments); 
+            il.Emit(OpCodes.Stloc_2); 
 
             //Load and store current method
             il.Emit(OpCodes.Ldtoken, methodInfo);
@@ -281,26 +282,26 @@ namespace Dora.DynamicProxy
             {
                 il.Emit(OpCodes.Call, ReflectionUtility.GetMethodFromHandleMethodOfMethodBase1);
             }
-            il.Emit(OpCodes.Stloc, methodBase); 
+            il.Emit(OpCodes.Stloc_S, 4); 
 
             //Create and store DefaultInvocationContext
-            il.Emit(OpCodes.Ldloc, methodBase);
+            il.Emit(OpCodes.Ldloc_S, 4);
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_0);
             if (this.TargetField != null)
             {
                 il.Emit(OpCodes.Ldfld, this.TargetField);
             }
-            il.Emit(OpCodes.Ldloc, arguments);
+            il.Emit(OpCodes.Ldloc_2);
             il.Emit(OpCodes.Newobj, ReflectionUtility.ConstructorOfDefaultInvocationContext);
-            il.Emit(OpCodes.Stloc, invocationContext);    
+            il.Emit(OpCodes.Stloc_3);    
 
             //Get and store current method specific interceptor
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldfld, this.InterceptorsField);
-            il.Emit(OpCodes.Ldloc, methodBase);
+            il.Emit(OpCodes.Ldloc_S, 4);
             il.Emit(OpCodes.Call, InterceptorDecoration.MethodOfGetInterceptor);
-            il.Emit(OpCodes.Stloc, interceptor);                  
+            il.Emit(OpCodes.Stloc_1);                  
 
             //Create and store handler to invoke target method
             il.Emit(OpCodes.Ldarg_0);   
@@ -311,18 +312,18 @@ namespace Dora.DynamicProxy
             }  
             il.Emit(OpCodes.Ldftn, invokeTargetMethod);
             il.Emit(OpCodes.Newobj, ReflectionUtility.ConstructorOfInterceptDelegate);
-            il.Emit(OpCodes.Stloc, handler);
+            il.Emit(OpCodes.Stloc_0);
 
-            il.Emit(OpCodes.Ldloc, interceptor);
-            il.Emit(OpCodes.Ldloc, handler);
-            il.Emit(OpCodes.Ldloc, invocationContext);
+            il.Emit(OpCodes.Ldloc_1);
+            il.Emit(OpCodes.Ldloc_0);
+            il.Emit(OpCodes.Ldloc_3);
             il.Emit(OpCodes.Call, ReflectionUtility.InvokeHandlerMethod);        
-            il.Emit(OpCodes.Stloc, task); 
+            il.Emit(OpCodes.Stloc_S, 5); 
            
             //When return Task<TResult>
             if (methodInfo.ReturnTaskOfResult())
             {    
-                il.Emit(OpCodes.Ldloc, invocationContext);
+                il.Emit(OpCodes.Ldloc_3);
                 il.Emit(OpCodes.Call, ReturnValueAccessor.GetTaskOfResultMethodDefinition.MakeGenericMethod(returnType));
                 il.Emit(OpCodes.Ret);
                 return methodBuilder;
@@ -331,7 +332,7 @@ namespace Dora.DynamicProxy
             //When return Task
             if (methodInfo.ReturnTask())
             {
-                il.Emit(OpCodes.Ldloc, task);
+                il.Emit(OpCodes.Ldloc_S, 5);
                 il.Emit(OpCodes.Ret);
                 return methodBuilder;
             }
@@ -346,7 +347,7 @@ namespace Dora.DynamicProxy
                         if (parameter.ParameterType.IsByRef)
                         {
                             il.EmitLoadArgument(index);
-                            il.Emit(OpCodes.Ldloc, arguments);
+                            il.Emit(OpCodes.Ldloc_2);
                             il.EmitLoadConstantInt32(index);
                             il.Emit(OpCodes.Ldelem_Ref);
                             il.EmitUnboxOrCast(parameter.ParameterType);
@@ -360,7 +361,7 @@ namespace Dora.DynamicProxy
             if (!methodInfo.ReturnVoid())
             {
                 var returnValue = il.DeclareLocal(returnType);
-                il.Emit(OpCodes.Ldloc, invocationContext);
+                il.Emit(OpCodes.Ldloc_3);
                 il.Emit(OpCodes.Call, ReturnValueAccessor.GetResultMethodDefinition.MakeGenericMethod(returnType));
                 il.Emit(OpCodes.Stloc, returnValue);
                 storeRefArguments();
@@ -370,7 +371,7 @@ namespace Dora.DynamicProxy
             }
 
             //Return void
-            il.Emit(OpCodes.Ldloc, task);
+            il.Emit(OpCodes.Ldloc_S, 5);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.WaitMethodOfTask);
             storeRefArguments();
             il.Emit(OpCodes.Ret);
@@ -387,8 +388,8 @@ namespace Dora.DynamicProxy
         protected virtual MethodBuilder DefineNonInterceptableMethod(MethodInfo methodInfo, MethodAttributes attributes)
         {
             Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
-            var parameters = methodInfo.GetParameters();
-            //var targetInvoker = this.DefineTargetInvoker(typeBuilder, method);
+            methodInfo = this.Interceptors.GetTargetMethod(methodInfo);
+            var parameters = methodInfo.GetParameters();                         
             var parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
             var methodBuilder = this.TypeBuilder.DefineMethod(methodInfo.Name, attributes, methodInfo.ReturnType, parameterTypes);
             if (methodInfo.IsGenericMethod)
@@ -409,7 +410,7 @@ namespace Dora.DynamicProxy
                 var parameter = parameters[index];
                 il.EmitLoadArgument(index); 
             }
-            il.Emit(OpCodes.Callvirt, methodInfo);
+            il.Emit(OpCodes.Call, methodInfo);
             il.Emit(OpCodes.Ret);
             return methodBuilder;
         }
@@ -613,14 +614,14 @@ namespace Dora.DynamicProxy
             var il = methodBuilder.GetILGenerator();
 
             //InvocationContext.Arguments
-            il.DeclareLocal(typeof(object[]));
+            il.DeclareLocal(typeof(object[]));          //Loc_0: arguments
             var returnType = methodInfo.ReturnType;
             if (methodInfo.ReturnType != typeof(void))
             {
                 returnType = genericParameterTypeMap.TryGetValue(methodInfo.ReturnType, out var type)
                     ? type
                     : methodInfo.ReturnType;
-                il.DeclareLocal(returnType);
+                il.DeclareLocal(returnType);          //Loc_1
             }
 
             var arguments = parameterTypes.Select(it => il.DeclareLocal(it)).ToArray();

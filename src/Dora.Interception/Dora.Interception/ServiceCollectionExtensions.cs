@@ -22,12 +22,13 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.ArgumentNotNull(services, nameof(services));
             configure?.Invoke(new InterceptionBuilder(services));
-            services.TryAddScoped(typeof(IInterceptable<>), typeof(Interceptable<>));
-            services.TryAddScoped<IInterceptorChainBuilder, InterceptorChainBuilder>();
-            services.TryAddScoped<IInterceptorCollector, InterceptorCollector>();
-            services.TryAddScoped<IInterceptingProxyFactory, InterceptingProxyFactory>();
-            services.TryAddScoped<IInstanceDynamicProxyGenerator, InterfaceDynamicProxyGenerator>();
-            services.TryAddScoped<ITypeDynamicProxyGenerator, VirtualMethodDynamicProxyGenerator>();
+            services.TryAddSingleton(typeof(IInterceptable<>), typeof(Interceptable<>));
+            services.TryAddSingleton<IInterceptorChainBuilder, InterceptorChainBuilder>();
+            services.TryAddSingleton<IInterceptorCollector, InterceptorCollector>();
+            services.TryAddSingleton<IInterceptingProxyFactory, InterceptingProxyFactory>();
+            services.TryAddSingleton<IInstanceDynamicProxyGenerator, InterfaceDynamicProxyGenerator>();
+            services.TryAddSingleton<ITypeDynamicProxyGenerator, VirtualMethodDynamicProxyGenerator>();
+            services.TryAddSingleton<IDynamicProxyFactoryCache>(new DynamicProxyFactoryCache());
             return services;
         }
 

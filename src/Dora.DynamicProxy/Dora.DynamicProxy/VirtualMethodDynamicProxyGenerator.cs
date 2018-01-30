@@ -7,6 +7,17 @@ namespace Dora.DynamicProxy
     /// </summary>                                                          
     public class VirtualMethodDynamicProxyGenerator : ITypeDynamicProxyGenerator
     {
+        private IDynamicProxyFactoryCache _dynamicProxyFactoryCache;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dynamicProxyFactoryCache"></param>
+        public VirtualMethodDynamicProxyGenerator(IDynamicProxyFactoryCache dynamicProxyFactoryCache)
+        {
+            _dynamicProxyFactoryCache = Guard.ArgumentNotNull(dynamicProxyFactoryCache, nameof(dynamicProxyFactoryCache));
+        }
+
         /// <summary>
         /// Determines whether this specified type can be intercepted.
         /// </summary>
@@ -35,7 +46,7 @@ namespace Dora.DynamicProxy
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
             if (this.CanIntercept(type) && !interceptors.IsEmpty)
             {
-                var factory = DynamicProxyFactoryCache.Instance.GetTypeFactory(type, interceptors);
+                var factory = _dynamicProxyFactoryCache.GetTypeFactory(type, interceptors);
                 return factory(interceptors, serviceProvider);
             }
             return serviceProvider.GetService(type);
