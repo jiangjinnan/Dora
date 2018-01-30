@@ -37,11 +37,9 @@ namespace Dora.Interception.Test
         }
 
         private class FoobarInterceptor
-        {
-            private InterceptDelegate _next;
-            public FoobarInterceptor(InterceptDelegate next, IService service, string argument)
-            {
-                _next = next;
+        {                                     
+            public FoobarInterceptor(IService service, string argument)
+            {                 
                 if (null == service || null == argument)
                 {
                     throw new InvalidOperationException();
@@ -51,7 +49,7 @@ namespace Dora.Interception.Test
             public async Task InvokeAsync(InvocationContext context)
             {
                 _intercept();
-                await _next(context);
+                await context.ProceedAsync();
             }
         }
         private interface IService { }

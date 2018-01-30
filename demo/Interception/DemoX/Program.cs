@@ -53,16 +53,12 @@ namespace DemoX
       
         public class FoobarInterceptor
         {
-            private InterceptDelegate _next;
-            public FoobarInterceptor(InterceptDelegate next)
-            {
-                _next = next;
-            }
+          
 
             public Task InvokeAsync(InvocationContext context)
             {
                 _action();
-                return _next(context);
+                return context.ProceedAsync();
             }
         }
 

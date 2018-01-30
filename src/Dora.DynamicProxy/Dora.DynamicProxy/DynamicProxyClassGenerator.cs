@@ -248,15 +248,7 @@ namespace Dora.DynamicProxy
                 : methodInfo.ReturnType;
             returnType = genericParameterTypeMap.TryGetValue(returnType, out var type)
                 ? type
-                : returnType;
-
-            //LocalBuilder returnValueAccessor = null;
-            //LocalBuilder func = null;
-            //if (methodInfo.ReturnType != typeof(void))
-            //{
-            //    returnValueAccessor = il.DeclareLocal(typeof(ReturnValueAccessor<>).MakeGenericType(returnType));
-            //    func = il.DeclareLocal(typeof(Func<,>).MakeGenericType(typeof(Task), returnType));
-            //} 
+                : returnType;  
 
             //New object[] for InvocationContext.Arguments
             il.EmitLoadConstantInt32(parameters.Length);
@@ -319,18 +311,12 @@ namespace Dora.DynamicProxy
             }  
             il.Emit(OpCodes.Ldftn, invokeTargetMethod);
             il.Emit(OpCodes.Newobj, ReflectionUtility.ConstructorOfInterceptDelegate);
-            il.Emit(OpCodes.Stloc, handler); 
+            il.Emit(OpCodes.Stloc, handler);
 
-            //Invoke the interceptor and store the result (an InterceptDelegate object) as handler. 
             il.Emit(OpCodes.Ldloc, interceptor);
             il.Emit(OpCodes.Ldloc, handler);
-            il.Emit(OpCodes.Callvirt, ReflectionUtility.InvokeMethodOfInterceptorDelegate);
-            il.Emit(OpCodes.Stloc, handler);   
-
-            //Invoke the the final handler and store the returned Task
-            il.Emit(OpCodes.Ldloc, handler);
             il.Emit(OpCodes.Ldloc, invocationContext);
-            il.Emit(OpCodes.Callvirt, ReflectionUtility.InvokeMethodOfInterceptDelegate);
+            il.Emit(OpCodes.Call, ReflectionUtility.InvokeHandlerMethod);        
             il.Emit(OpCodes.Stloc, task); 
            
             //When return Task<TResult>
@@ -616,7 +602,8 @@ namespace Dora.DynamicProxy
         }
 
         private MethodBuilder DefineTargetInvokerMethod(MethodInfo methodInfo)
-        { 
+        {
+            methodInfo = this.Interceptors.GetTargetMethod(methodInfo);
             var methodBuilder = this.TypeBuilder.DefineMethod("Invoke", MethodAttributes.Private| MethodAttributes.HideBySig, typeof(Task), new Type[] { typeof(InvocationContext) });    
             var genericParameterTypeMap = methodInfo.IsGenericMethod
               ? this.DefineMethodGenericParameters(methodBuilder, methodInfo)
@@ -676,25 +663,11 @@ namespace Dora.DynamicProxy
             if (methodInfo.IsGenericMethod)
             {
                 var genericMethod = methodInfo.MakeGenericMethod(genericParameterTypeMap.Values.ToArray());
-                if (this.TypeToIntercept.IsInterface)
-                {
-                    il.Emit(OpCodes.Callvirt, genericMethod);
-                }
-                else
-                {
-                    il.Emit(OpCodes.Call, genericMethod);
-                }
+                il.Emit(OpCodes.Call, genericMethod);
             }
             else
             {
-                if (this.TypeToIntercept.IsInterface)
-                {
-                    il.Emit(OpCodes.Callvirt, methodInfo);
-                }
-                else
-                {               
-                    il.Emit(OpCodes.Call, methodInfo);
-                }
+                il.Emit(OpCodes.Call, methodInfo);
             }
 
             //Save return value to InvocationContext.ReturnValue

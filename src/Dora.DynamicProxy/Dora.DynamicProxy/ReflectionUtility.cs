@@ -18,15 +18,21 @@ namespace Dora.DynamicProxy
         private static MethodInfo _getMethodFromHandleMethodOfMethodBase1;
         private static MethodInfo _getMethodFromHandleMethodOfMethodBase2;
         private static MethodInfo _invokeMethodOfInterceptorDelegate;
-        private static MethodInfo _invokeMethodOfInterceptDelegate;
-        private static MethodInfo _definitionOfContiueWithMethodOfTask;
+        private static MethodInfo _invokeMethodOfInterceptDelegate;     
         private static MethodInfo _waitMethodOfTask;
-        //private static Dictionary<Type, MethodInfo> _methodsOfGetReturnValues;
-        private static Dictionary<Type, MethodInfo> _methodOfContiueWithMethodOfTasks;
+        private static MethodInfo _invokeHandlerMethod;
         private static MethodInfo _getMethodOfArgumentsOfInvocationContext;  
         private static MethodInfo _getMethodOfCompletedTaskOfTask;
         private static MethodInfo _getMethodOfReturnValueOfInvocationContext;
-        private static MethodInfo _setMethodOfReturnValueOfInvocationContext;    
+        private static MethodInfo _setMethodOfReturnValueOfInvocationContext;  
+        
+        public static MethodInfo InvokeHandlerMethod
+        {
+            get
+            {
+                return _invokeHandlerMethod ?? (_invokeHandlerMethod = GetMethod(() => TargetInvoker.InvokeHandler(null, null, null)));
+            }
+        }
 
         public static ConstructorInfo ConstructorOfObject
         {
@@ -150,21 +156,7 @@ namespace Dora.DynamicProxy
                 return _waitMethodOfTask
                     ?? (_waitMethodOfTask = GetMethod<Task>(_ => _.Wait()));
             }
-        }
-        public static MethodInfo GetMethodOfContiueWithMethodOfTask(Type returnType)
-        {
-            _methodOfContiueWithMethodOfTasks = _methodOfContiueWithMethodOfTasks ?? new Dictionary<Type, MethodInfo>();
-            if (_methodOfContiueWithMethodOfTasks.TryGetValue(returnType, out var methodInfo))
-            {
-                return methodInfo;
-            }
-
-            _definitionOfContiueWithMethodOfTask = _definitionOfContiueWithMethodOfTask
-                ?? GetMethod<Task>(_ => _.ContinueWith(task => 1)).GetGenericMethodDefinition();
-
-            return _methodOfContiueWithMethodOfTasks[returnType] = _definitionOfContiueWithMethodOfTask.MakeGenericMethod(returnType);
-
-        }
+        }  
         //public static MethodInfo GetMethodsOfGetReturnValue(Type returnType)
         //{
         //    _methodsOfGetReturnValues = _methodsOfGetReturnValues ?? new Dictionary<Type, MethodInfo>();
@@ -183,11 +175,37 @@ namespace Dora.DynamicProxy
         public static MethodInfo GetMethod<T>(Expression<Action<T>> methodCall)
         {
             return ((MethodCallExpression)methodCall.Body).Method;
-        }  
+        }
+
+        public static MethodInfo GetMethod(Expression<Action> methodCall)
+        {
+            return ((MethodCallExpression)methodCall.Body).Method;
+        }
 
         public static PropertyInfo GetProperty<TTarget, TProperty>(Expression<Func<TTarget, TProperty>> propertyAccessExpression)
         {
             return (PropertyInfo)((MemberExpression)propertyAccessExpression.Body).Member;
+        }
+
+        
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class TargetInvoker
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="interceptor"></param>
+        /// <param name="handler"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static Task InvokeHandler(InterceptorDelegate interceptor, InterceptDelegate handler, InvocationContext context)
+        {
+            handler = interceptor(handler);
+            return handler(context);
         }
     }
 }

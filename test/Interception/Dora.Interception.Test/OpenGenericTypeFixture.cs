@@ -10,7 +10,7 @@ namespace Dora.Interception.Test
 {
     public class OpenGenericTypeFixture
     {
-        private static Action _action = ()=> { };
+        private static Action _action = () => { };
 
         [Fact]
         public void GetService()
@@ -25,22 +25,22 @@ namespace Dora.Interception.Test
             _action = () => flag = "Foobar";
             var foo = foobar.Foo;
             Assert.Equal("Foobar", flag);
-            
+
         }
 
         public interface IFoo { }
-        public interface IBar { }    
+        public interface IBar { }
         public interface IFoobar<TFoo, TBar>
             where TFoo : IFoo
             where TBar : IBar
         {
             TFoo Foo { get; }
             TBar Bar { get; }
-        }  
+        }
         public class Foo : IFoo { }
         public class Bar : IBar { }
         [Foobar]
-        public class Foobar<TFoo, TBar>: IFoobar<TFoo, TBar>
+        public class Foobar<TFoo, TBar> : IFoobar<TFoo, TBar>
             where TFoo : IFoo
             where TBar : IBar
         {
@@ -49,25 +49,20 @@ namespace Dora.Interception.Test
                 this.Foo = foo;
                 this.Bar = bar;
             }
-           public TFoo Foo { get; }
-           public TBar Bar { get; }
+            public TFoo Foo { get; }
+            public TBar Bar { get; }
         }
 
-      
-public class FoobarInterceptor
-{
-    private InterceptDelegate _next;
-    public FoobarInterceptor(InterceptDelegate next)
-    {
-        _next = next;
-    }
 
-    public Task InvokeAsync(InvocationContext context)
-    {
-        _action();
-        return _next(context);
-    }
-}
+        public class FoobarInterceptor
+        {
+
+            public Task InvokeAsync(InvocationContext context)
+            {
+                _action();
+                return context.ProceedAsync();
+            }
+        }
 
         public class FoobarAttribute : InterceptorAttribute
         {

@@ -93,20 +93,13 @@ namespace Dora.Interception.Test
         }
 
         public class FoobarInterceptorAttribute: InterceptorAttribute
-        {
-            private readonly InterceptDelegate _next;
-
+        { 
             public FoobarInterceptorAttribute()
-            { }
-
-            public FoobarInterceptorAttribute(InterceptDelegate next)
-            {
-                _next = next;
-            }
+            { }   
 
             public Task InvokeAsync(InvocationContext context)
             {
-                return _next(context);
+                return context.ProceedAsync();
             }
 
             public override void Use(IInterceptorChainBuilder builder)

@@ -79,14 +79,12 @@ namespace Dora.Interception.Test
 
 
         public class FoobarInterceptor
-        {
-            private readonly InterceptDelegate _next;
+        {                                              
             public IFoo Foo { get; }
             public IBar Bar { get; }
             public string Flag { get; }
-            public FoobarInterceptor(InterceptDelegate next,IFoo foo,IBar bar,string flag)
-            {
-                _next = next;
+            public FoobarInterceptor(IFoo foo,IBar bar,string flag)
+            {                  
                 this.Foo = foo;
                 this.Bar = bar;
                 this.Flag = flag;
@@ -95,7 +93,7 @@ namespace Dora.Interception.Test
             public Task InvokeAsync(InvocationContext context)
             {
                 _intercept(context);
-                return _next(context);
+                return context.ProceedAsync();
             }
         }
 

@@ -15,7 +15,8 @@ namespace Dora.DynamicProxy
     {
         #region Fields
         private static readonly InterceptorDecoration _empty = new InterceptorDecoration(new MethodBasedInterceptorDecoration[0], new PropertyBasedInterceptorDecoration[0]);
-        private static MethodInfo _methodOfGetInterceptor;     
+        private static MethodInfo _methodOfGetInterceptor;
+        private Dictionary<MethodInfo, MethodInfo> _interfaceMapping;
 
         #endregion
 
@@ -24,7 +25,7 @@ namespace Dora.DynamicProxy
         /// <summary>
         /// The interceptors
         /// </summary>
-        public IReadOnlyDictionary<int, InterceptorDelegate> Interceptors { get; }
+        public IReadOnlyDictionary<int, InterceptorDelegate> Interceptors { get; }  
 
         /// <summary>
         /// Gets the method based interceptors.
@@ -86,12 +87,14 @@ namespace Dora.DynamicProxy
         /// Initializes a new instance of the <see cref="InterceptorDecoration"/> class.
         /// </summary>
         /// <param name="methodBasedInterceptors">The method based interceptors.</param>
-        /// <param name="propertyBasedInterceptors">The property based interceptors.</param>
+        /// <param name="propertyBasedInterceptors">The property based interceptors.</param>  
+        /// <param name="interfaceMapping">Interface mapping.</param>
         /// <exception cref="ArgumentNullException"> Specified <paramref name="methodBasedInterceptors"/> is null.</exception>    
         /// <exception cref="ArgumentNullException"> Specified <paramref name="propertyBasedInterceptors"/> is null.</exception>
         public InterceptorDecoration(
             IEnumerable<MethodBasedInterceptorDecoration> methodBasedInterceptors,
-            IEnumerable<PropertyBasedInterceptorDecoration> propertyBasedInterceptors)
+            IEnumerable<PropertyBasedInterceptorDecoration> propertyBasedInterceptors,
+            InterfaceMapping? interfaceMapping = null)
         {
             methodBasedInterceptors = methodBasedInterceptors ?? new MethodBasedInterceptorDecoration[0];
             propertyBasedInterceptors = propertyBasedInterceptors ?? new PropertyBasedInterceptorDecoration[0];
@@ -104,7 +107,18 @@ namespace Dora.DynamicProxy
                 .SelectMany(it => new MethodBasedInterceptorDecoration[] { it.GetMethodBasedInterceptor, it.SetMethodBasedInterceptor })
                 .Union(methodBasedInterceptors)
                 .Where(it => it != null)
-                .ToDictionary(it => it.Method.MetadataToken, it => it.Interceptor);                 
+                .ToDictionary(it => it.Method.MetadataToken, it => it.Interceptor);
+
+            if (null != interfaceMapping)
+            {
+                _interfaceMapping = new Dictionary<MethodInfo, MethodInfo>();
+                var interfaceMethods = interfaceMapping.Value.InterfaceMethods;
+                var targetMethods = interfaceMapping.Value.TargetMethods;
+                for (int index = 0; index < interfaceMethods.Length; index++)
+                {
+                    _interfaceMapping.Add(interfaceMethods[index], targetMethods[index]);
+                }
+            }                                     
         }
         #endregion
 
@@ -135,7 +149,24 @@ namespace Dora.DynamicProxy
         {
             Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
             return Interceptors.ContainsKey(methodInfo.MetadataToken);
-        }        
+        }
+
+        /// <summary>
+        /// Get target method.
+        /// </summary>
+        /// <param name="methodInfo">The method to intercept.</param>
+        /// <returns>The target method.</returns>
+        public MethodInfo GetTargetMethod(MethodInfo methodInfo)
+        {
+            Guard.ArgumentNotNull(methodInfo, nameof(methodInfo));
+            if (_interfaceMapping == null)
+            {
+                return methodInfo;
+            }
+            return _interfaceMapping.TryGetValue(methodInfo, out var targetMethod)
+                ? targetMethod
+                : methodInfo;
+        }
         #endregion 
     }
 

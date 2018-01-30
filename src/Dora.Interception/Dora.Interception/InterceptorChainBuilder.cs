@@ -52,15 +52,28 @@ namespace Dora.Interception
         /// <returns>A composite interceptor representing the interceptor chain.</returns>
         public InterceptorDelegate Build()
         {
-            var result = from it in _interceptors
-                         orderby it.Item1
-                         select it.Item2;
+            if (_interceptors.Count == 0)
+            {
+                return next => (_ => Task.CompletedTask);
+            }
+
+            if (_interceptors.Count == 1)
+            {
+                return _interceptors.Single().Item2;
+            }
+
+            var interceptors = _interceptors
+                 .OrderBy(it => it.Item1)
+                 .Select(it=>it.Item2)
+                 .Reverse()
+                 .ToArray(); 
+
             return next => {
                 var current = next;
-                foreach (var it in result.Reverse())
+                for (int index = 0; index < interceptors.Length; index++)
                 {
-                    current = it(current);
-                }
+                    current = interceptors[index](current);
+                }  
                 return current;
             };
         }
@@ -72,6 +85,6 @@ namespace Dora.Interception
         public IInterceptorChainBuilder New()
         {
             return new InterceptorChainBuilder(this.ServiceProvider);
-        }
+        }  
     }
 }

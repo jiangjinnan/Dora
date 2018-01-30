@@ -90,7 +90,7 @@ namespace Dora.Interception
                 }
             }
             var classProviders = CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(targetType, true).ToArray();
-            interceptors =  this.GetInterceptors(typeToIntercept, providers);
+            interceptors =  this.GetInterceptors(typeToIntercept, providers, mapping);
             if (interceptors.MethodBasedInterceptors.Count == 0 && interceptors.PropertyBasedInterceptors.Count == 0)
             {
                 lock (_nonInterceptableTypes)
@@ -118,10 +118,10 @@ namespace Dora.Interception
 
             var classProviders = CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(typeToIntercept, true).ToArray();
             var methodProviders = this.ResolveInterceptorProviders(typeToIntercept);
-            return this.GetInterceptors(typeToIntercept, methodProviders);
+            return this.GetInterceptors(typeToIntercept, methodProviders, null);
         }
 
-        private InterceptorDecoration GetInterceptors(Type typeToIntercept, Dictionary<MethodInfo, IInterceptorProvider[]> providers)
+        private InterceptorDecoration GetInterceptors(Type typeToIntercept, Dictionary<MethodInfo, IInterceptorProvider[]> providers, InterfaceMapping? interfaceMapping)
         {                                              
             var methodBasedDecorations = new List<MethodBasedInterceptorDecoration>();
             var propertyBasedDecorations = new List<PropertyBasedInterceptorDecoration>();
@@ -161,7 +161,7 @@ namespace Dora.Interception
                     propertyBasedDecorations.Add( new PropertyBasedInterceptorDecoration(property, interceptorOfGetMethod, interceptorOfSetMethod));
                 }
             }
-            return new InterceptorDecoration(methodBasedDecorations, propertyBasedDecorations);
+            return new InterceptorDecoration(methodBasedDecorations, propertyBasedDecorations, interfaceMapping);
         }
         private InterceptorDelegate BuildInterceptor(IInterceptorProvider[] providers)
         {
