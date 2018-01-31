@@ -600,12 +600,12 @@ namespace Dora.DynamicProxy
             }
 
             return map;
-        }
+        }                                               
 
         private MethodBuilder DefineTargetInvokerMethod(MethodInfo methodInfo)
         {
             methodInfo = this.Interceptors.GetTargetMethod(methodInfo);
-            var methodBuilder = this.TypeBuilder.DefineMethod("Invoke", MethodAttributes.Private| MethodAttributes.HideBySig, typeof(Task), new Type[] { typeof(InvocationContext) });    
+            var methodBuilder = this.TypeBuilder.DefineMethod($"Invoke{GenerateSurfix()}", MethodAttributes.Private| MethodAttributes.HideBySig, typeof(Task), new Type[] { typeof(InvocationContext) });    
             var genericParameterTypeMap = methodInfo.IsGenericMethod
               ? this.DefineMethodGenericParameters(methodBuilder, methodInfo)
               : new Dictionary<Type, Type>(); var parameters = methodInfo.GetParameters();
@@ -613,23 +613,23 @@ namespace Dora.DynamicProxy
 
             var il = methodBuilder.GetILGenerator();
 
+         
             //InvocationContext.Arguments
-            il.DeclareLocal(typeof(object[]));          //Loc_0: arguments
+            il.DeclareLocal(typeof(object[]));
+            Array.ForEach(parameterTypes, it => il.DeclareLocal(it));
             var returnType = methodInfo.ReturnType;
             if (methodInfo.ReturnType != typeof(void))
             {
                 returnType = genericParameterTypeMap.TryGetValue(methodInfo.ReturnType, out var type)
                     ? type
                     : methodInfo.ReturnType;
-                il.DeclareLocal(returnType);          //Loc_1
-            }
-
-            var arguments = parameterTypes.Select(it => il.DeclareLocal(it)).ToArray();
+                il.DeclareLocal(returnType);          
+            } 
 
             //Load and store InvocationContext.Arguments. 
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.GetMethodOfArgumentsPropertyOfInvocationContext);
-            il.Emit(OpCodes.Stloc_0);
+            il.EmitStLocal4Arguments(); 
 
             //Load and store all arguments
             for (int index = 0; index < parameters.Length; index++)
@@ -639,7 +639,7 @@ namespace Dora.DynamicProxy
                 il.EmitLoadConstantInt32(index);
                 il.Emit(OpCodes.Ldelem_Ref);
                 il.EmitUnboxOrCast(parameterTypes[index]);
-                il.Emit(OpCodes.Stloc, arguments[index]);
+                il.EmitStLocal4Argument(index);            
             }
 
             //Invoke target method.
@@ -653,11 +653,11 @@ namespace Dora.DynamicProxy
                 var parameter = parameters[index];
                 if (parameter.ParameterType.IsByRef)
                 {
-                    il.Emit(OpCodes.Ldloca, arguments[index]);
+                    il.EmitLdLocala4Argument(index);           
                 }
                 else
                 {
-                    il.Emit(OpCodes.Ldloc, arguments[index]);
+                    il.EmitLdLocal4Argument(index);
                 }
             }
 
@@ -674,9 +674,9 @@ namespace Dora.DynamicProxy
             //Save return value to InvocationContext.ReturnValue
             if (returnType != typeof(void))
             {
-                il.Emit(OpCodes.Stloc_1);
+                il.EmitStLocal4ReturnValue(parameters.Length); 
                 il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Ldloc_1);
+                il.EmitLdLocal4ReturnValue(parameters.Length);
                 il.EmitBox(returnType);
                 il.Emit(OpCodes.Callvirt, ReflectionUtility.SetMethodOfReturnValueOfInvocationContext);
             }
@@ -689,9 +689,9 @@ namespace Dora.DynamicProxy
                     var parameter = parameters[index];
                     if (parameter.ParameterType.IsByRef)
                     {
-                        il.Emit(OpCodes.Ldloc_0);
+                        il.EmitLdLocal4Arguments();  
                         il.EmitLoadConstantInt32(index);
-                        il.Emit(OpCodes.Ldloc, arguments[index]);
+                        il.EmitLdLocal4Argument(index);            
                         il.EmitBox(parameterTypes[index]);
                         il.Emit(OpCodes.Stelem_Ref);
                     }
@@ -703,134 +703,7 @@ namespace Dora.DynamicProxy
             il.Emit(OpCodes.Ret);
 
             return methodBuilder;
-        }
-
-        private Type DefineTargetInvokerType(MethodInfo methodInfo)
-        {
-            var className = $"TargetInvoker_{methodInfo}{GenerateSurfix()}";
-            var typeBuilder = this.ModuleBuilder.DefineType(className, TypeAttributes.Public| TypeAttributes.Sealed);
-            var genericParameterTypeMap = methodInfo.IsGenericMethod
-               ? this.DefineTypeGenericParameters(typeBuilder, methodInfo)
-               : new Dictionary<Type, Type>();                                                       
-            var targetField = typeBuilder.DefineField("_target", methodInfo.DeclaringType, FieldAttributes.Private);
-            var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new Type[] { methodInfo.DeclaringType });
-            var il = constructorBuilder.GetILGenerator();
-
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Call, ReflectionUtility.ConstructorOfObject);
-
-            il.Emit(OpCodes.Ldarg_0);   
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Stfld, targetField);
-            il.Emit(OpCodes.Ret);
-
-            var methodBuilder = typeBuilder.DefineMethod("Invoke", MethodAttributes.Public, typeof(Task), new Type[] { typeof(InvocationContext) });
-            var parameters = methodInfo.GetParameters();
-            var parameterTypes = parameters.Select(it => genericParameterTypeMap.TryGetValue(it.ParameterType, out var type) ? type.GetNonByRefType() : it.ParameterType.GetNonByRefType()).ToArray();
-
-            il = methodBuilder.GetILGenerator();
-
-            //InvocationContext.Arguments
-            il.DeclareLocal(typeof(object[]));
-            var returnType = methodInfo.ReturnType;
-            if (methodInfo.ReturnType != typeof(void))
-            {
-                returnType = genericParameterTypeMap.TryGetValue(methodInfo.ReturnType, out var type)
-                    ? type
-                    : methodInfo.ReturnType;
-                il.DeclareLocal(returnType);
-            }
-
-            var arguments = parameterTypes.Select(it => il.DeclareLocal(it)).ToArray();
-
-            //Load and store InvocationContext.Arguments. 
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Callvirt, ReflectionUtility.GetMethodOfArgumentsPropertyOfInvocationContext);
-            il.Emit(OpCodes.Stloc_0);
-
-            //Load and store all arguments
-            for (int index = 0; index < parameters.Length; index++)
-            {
-                var parameter = parameters[index];
-                il.Emit(OpCodes.Ldloc_0);
-                il.EmitLoadConstantInt32(index);
-                il.Emit(OpCodes.Ldelem_Ref);
-                il.EmitUnboxOrCast(parameterTypes[index]);
-                il.Emit(OpCodes.Stloc, arguments[index]);
-            }  
-
-            //Invoke target method.
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, targetField);
-            for (int index = 0; index < parameters.Length; index++)
-            {
-                var parameter = parameters[index];
-                if (parameter.ParameterType.IsByRef)
-                {
-                    il.Emit(OpCodes.Ldloca, arguments[index]);
-                }
-                else
-                {
-                    il.Emit(OpCodes.Ldloc, arguments[index]);
-                }
-            }
-            if (methodInfo.IsGenericMethod)
-            {
-                var genericMethod = methodInfo.MakeGenericMethod(genericParameterTypeMap.Values.ToArray());
-                if (this.TypeToIntercept.IsInterface)
-                {
-                    il.Emit(OpCodes.Callvirt, genericMethod);
-                }
-                else
-                {
-                    il.Emit(OpCodes.Call, genericMethod);
-                }
-            }
-            else
-            {
-                if (this.TypeToIntercept.IsInterface)
-                {
-                    il.Emit(OpCodes.Callvirt, methodInfo);
-                }
-                else
-                {             
-                    il.Emit(OpCodes.Call, methodInfo);
-                }
-            }
-
-            //Save return value to InvocationContext.ReturnValue
-            if (returnType != typeof(void))
-            {
-                il.Emit(OpCodes.Stloc_1);
-                il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Ldloc_1);
-                il.EmitBox(returnType);
-                il.Emit(OpCodes.Callvirt, ReflectionUtility.SetMethodOfReturnValueOfInvocationContext);
-            }
-
-            //Set ref arguments InvocationContext.Arguments
-            if (parameters.Any(it => it.ParameterType.IsByRef))
-            {
-                for (int index = 0; index < parameters.Length; index++)
-                {
-                    var parameter = parameters[index];
-                    if (parameter.ParameterType.IsByRef)
-                    {
-                        il.Emit(OpCodes.Ldloc_0);
-                        il.EmitLoadConstantInt32(index);
-                        il.Emit(OpCodes.Ldloc, arguments[index]);
-                        il.EmitBox(parameterTypes[index]);
-                        il.Emit(OpCodes.Stelem_Ref);
-                    }
-                }
-            }
-
-            //return Task.CompletedTask
-            il.Emit(OpCodes.Call, ReflectionUtility.GetMethodOfCompletedTaskOfTask);
-            il.Emit(OpCodes.Ret);
-
-            return typeBuilder.CreateTypeInfo();
-        }
+        }                                    
 
         private Dictionary<Type, Type> DefineTypeGenericParameters(TypeBuilder typeBuilder, MethodInfo method)
         {
@@ -879,6 +752,71 @@ namespace Dora.DynamicProxy
         {
             return Guid.NewGuid().ToString().Replace("-", "");
         }
+
+        
         #endregion
+    }
+
+    internal static class TargetInvokerExtensions
+    {
+        public static void EmitLdLocal4Arguments(this ILGenerator il)
+        {
+            il.Emit(OpCodes.Ldloc_0);
+        }
+
+        public static void EmitStLocal4Arguments(this ILGenerator il)
+        {
+            il.Emit(OpCodes.Stloc_0);
+        }
+
+        public static void EmitLdLocal4Argument(this ILGenerator il, int index)
+        {
+            switch (index)
+            {
+                case 0: { il.Emit(OpCodes.Ldloc_1); break; }
+                case 1: { il.Emit(OpCodes.Ldloc_2); break; }
+                case 2: { il.Emit(OpCodes.Ldloc_3); break; }
+                default:  { il.Emit(OpCodes.Ldloc_S, index + 1); break; }
+            }
+        }
+
+        public static void EmitLdLocala4Argument(this ILGenerator il, int index)
+        {
+            il.Emit(OpCodes.Ldloca_S, index + 1); 
+        }
+       
+
+        public static void EmitStLocal4Argument(this ILGenerator il, int index)
+        {
+            switch (index)
+            {
+                case 0: { il.Emit(OpCodes.Stloc_1); break; }
+                case 1: { il.Emit(OpCodes.Stloc_2); break; }
+                case 2: { il.Emit(OpCodes.Stloc_3); break; }
+                default: { il.Emit(OpCodes.Stloc_S, index + 1); break; }
+            }
+        }
+
+        public static void EmitLdLocal4ReturnValue(this ILGenerator il, int argumentCount)
+        {
+            switch (argumentCount)
+            {
+                case 0: { il.Emit(OpCodes.Ldloc_1); break; }
+                case 1: { il.Emit(OpCodes.Ldloc_2); break; }
+                case 2: { il.Emit(OpCodes.Ldloc_3); break; }
+                default: { il.Emit(OpCodes.Ldloc_S, argumentCount + 1); break; }
+            }
+        }
+
+        public static void EmitStLocal4ReturnValue(this ILGenerator il, int argumentCount)
+        {
+            switch (argumentCount)
+            {
+                case 0: { il.Emit(OpCodes.Stloc_1); break; }
+                case 1: { il.Emit(OpCodes.Stloc_2); break; }
+                case 2: { il.Emit(OpCodes.Stloc_3); break; }
+                default: { il.Emit(OpCodes.Stloc_S, argumentCount + 1); break; }
+            }
+        }
     }
 }
