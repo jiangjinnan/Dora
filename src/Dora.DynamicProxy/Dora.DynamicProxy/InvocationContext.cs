@@ -10,9 +10,12 @@ namespace Dora.DynamicProxy
     /// </summary>
     public abstract class InvocationContext
     {
+        #region Fields
         private MethodBase _targetMethod;
-        private Type _targetType;           
+        private Type _targetType;
+        #endregion
 
+        #region Properties
         /// <summary>
         ///  Gets the <see cref="MethodInfo"/> representing the method of type to intercept.
         /// </summary>
@@ -79,7 +82,9 @@ namespace Dora.DynamicProxy
         /// Gets or sets the <see cref="InterceptDelegate"/> to invoke the next interceptor or target method.
         /// </summary>
         public InterceptDelegate Next { get; internal set; }
+        #endregion
 
+        #region Public Methods
         /// <summary>
         /// Invoke the next interceptor or target method.
         /// </summary>
@@ -87,6 +92,7 @@ namespace Dora.DynamicProxy
         public Task ProceedAsync()
         {
             return this.Next(this);
-        }           
+        }
+        #endregion
     }                             
 }

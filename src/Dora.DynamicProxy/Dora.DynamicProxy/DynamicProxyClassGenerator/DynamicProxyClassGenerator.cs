@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Dora.DynamicProxy
 {
     /// <summary>
-    /// Generator to generator interceptable dynamic proxy class.
+    /// Class generator to generate interceptable dynamic proxy class.
     /// </summary>
     public class DynamicProxyClassGenerator
     {
@@ -314,6 +314,7 @@ namespace Dora.DynamicProxy
             il.Emit(OpCodes.Newobj, ReflectionUtility.ConstructorOfInterceptDelegate);
             il.Emit(OpCodes.Stloc_0);
 
+            //Invoke final handler
             il.Emit(OpCodes.Ldloc_1);
             il.Emit(OpCodes.Ldloc_0);
             il.Emit(OpCodes.Ldloc_3);
@@ -611,14 +612,13 @@ namespace Dora.DynamicProxy
               : new Dictionary<Type, Type>(); var parameters = methodInfo.GetParameters();
             var parameterTypes = parameters.Select(it => it.ParameterType.GetNonByRefType()).ToArray();
 
-            var il = methodBuilder.GetILGenerator();
-
+            var il = methodBuilder.GetILGenerator();  
          
             //InvocationContext.Arguments
             il.DeclareLocal(typeof(object[]));
             Array.ForEach(parameterTypes, it => il.DeclareLocal(it));
             var returnType = methodInfo.ReturnType;
-            if (methodInfo.ReturnType != typeof(void))
+            if (methodInfo.ReturnType != typeof(void) && methodInfo.ReturnType != typeof(Task))
             {
                 returnType = genericParameterTypeMap.TryGetValue(methodInfo.ReturnType, out var type)
                     ? type
@@ -672,7 +672,7 @@ namespace Dora.DynamicProxy
             }
 
             //Save return value to InvocationContext.ReturnValue
-            if (returnType != typeof(void))
+            if (methodInfo.ReturnType != typeof(void) && methodInfo.ReturnType != typeof(Task))
             {
                 il.EmitStLocal4ReturnValue(parameters.Length); 
                 il.Emit(OpCodes.Ldarg_1);
@@ -751,8 +751,7 @@ namespace Dora.DynamicProxy
         private static string GenerateSurfix()
         {
             return Guid.NewGuid().ToString().Replace("-", "");
-        }
-
+        } 
         
         #endregion
     }
@@ -783,8 +782,7 @@ namespace Dora.DynamicProxy
         public static void EmitLdLocala4Argument(this ILGenerator il, int index)
         {
             il.Emit(OpCodes.Ldloca_S, index + 1); 
-        }
-       
+        }       
 
         public static void EmitStLocal4Argument(this ILGenerator il, int index)
         {

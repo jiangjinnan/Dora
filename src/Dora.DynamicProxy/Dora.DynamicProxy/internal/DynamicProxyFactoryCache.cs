@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Dora.DynamicProxy
 {
@@ -10,7 +11,7 @@ namespace Dora.DynamicProxy
         #region Fields  
         private Dictionary<Type, Type> _generatedClasses;  
         private Dictionary<Type, Func<object, InterceptorDecoration, object>> _instanceFactories;
-        private Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;
+        private Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;    
         private object _sync;
         #endregion
 
@@ -19,7 +20,7 @@ namespace Dora.DynamicProxy
         {
             _generatedClasses = new Dictionary<Type, Type>();
             _instanceFactories = new Dictionary<Type, Func<object, InterceptorDecoration, object>>();
-            _typeFactories = new Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>>();
+            _typeFactories = new Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>>();      
             _sync = new object();
         }
         #endregion
@@ -85,7 +86,9 @@ namespace Dora.DynamicProxy
 
             var convert = Expression.Convert(target, targetType);
             var create = Expression.New(constructor, convert, interceptors);
-            return Expression.Lambda<Func<object, InterceptorDecoration, object>>(create, target, interceptors).Compile();
+            return Expression
+                .Lambda<Func<object, InterceptorDecoration, object>>(create, target, interceptors)
+                .Compile();
         }
 
         private Func<InterceptorDecoration, IServiceProvider, object> CreateTypeFactory(Type proxyType)
