@@ -301,7 +301,7 @@ namespace Dora.DynamicProxy
             il.Emit(OpCodes.Ldfld, this.InterceptorsField);
             il.Emit(OpCodes.Ldloc_S, 4);
             il.Emit(OpCodes.Call, InterceptorDecoration.MethodOfGetInterceptor);
-            il.Emit(OpCodes.Stloc_1);                  
+            //il.Emit(OpCodes.Stloc_1);                  
 
             //Create and store handler to invoke target method
             il.Emit(OpCodes.Ldarg_0);   
@@ -312,11 +312,11 @@ namespace Dora.DynamicProxy
             }  
             il.Emit(OpCodes.Ldftn, invokeTargetMethod);
             il.Emit(OpCodes.Newobj, ReflectionUtility.ConstructorOfInterceptDelegate);
-            il.Emit(OpCodes.Stloc_0);
+            //il.Emit(OpCodes.Stloc_0);
 
             //Invoke final handler
-            il.Emit(OpCodes.Ldloc_1);
-            il.Emit(OpCodes.Ldloc_0);
+            //il.Emit(OpCodes.Ldloc_1);
+            //il.Emit(OpCodes.Ldloc_0);
             il.Emit(OpCodes.Ldloc_3);
             il.Emit(OpCodes.Call, ReflectionUtility.InvokeHandlerMethod);        
             il.Emit(OpCodes.Stloc_S, 5); 
@@ -618,7 +618,7 @@ namespace Dora.DynamicProxy
             il.DeclareLocal(typeof(object[]));
             Array.ForEach(parameterTypes, it => il.DeclareLocal(it));
             var returnType = methodInfo.ReturnType;
-            if (methodInfo.ReturnType != typeof(void) && methodInfo.ReturnType != typeof(Task))
+            if (methodInfo.ReturnType != typeof(void))
             {
                 returnType = genericParameterTypeMap.TryGetValue(methodInfo.ReturnType, out var type)
                     ? type
@@ -672,7 +672,7 @@ namespace Dora.DynamicProxy
             }
 
             //Save return value to InvocationContext.ReturnValue
-            if (methodInfo.ReturnType != typeof(void) && methodInfo.ReturnType != typeof(Task))
+            if (methodInfo.ReturnType != typeof(void))
             {
                 il.EmitStLocal4ReturnValue(parameters.Length); 
                 il.Emit(OpCodes.Ldarg_1);
