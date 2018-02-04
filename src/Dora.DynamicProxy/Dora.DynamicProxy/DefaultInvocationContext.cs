@@ -26,7 +26,6 @@ namespace Dora.DynamicProxy
         /// <remarks>For virtual method based interception, the <see cref="Proxy"/> and <see cref="Target"/> are the same.</remarks>
         public override object Target { get; }
 
-
         /// <summary>
         /// Gets the arguments that target method has been invoked with.
         /// </summary>

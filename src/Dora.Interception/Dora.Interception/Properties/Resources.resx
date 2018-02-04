@@ -131,12 +131,24 @@
   <data name="DirectScopedResolvedFromRootException" xml:space="preserve">
     <value>Cannot resolve {1} service '{0}' from root provider.</value>
   </data>
+  <data name="DuplicateInterceptorProviderResolverIsAdded" xml:space="preserve">
+    <value>Duplicate InterceptorProviderResolver with the name "{0}" is registered.</value>
+  </data>
+  <data name="InterceptorProviderResolverNotRegistered" xml:space="preserve">
+    <value>The InterceptorProviderResolver with name "{0}" is not registered.</value>
+  </data>
   <data name="NoConstructorMatch" xml:space="preserve">
     <value>A suitable constructor for type '{0}' could not be located. Ensure the type is concrete and services are registered for all parameters of a public constructor.</value>
     <comment>{0} = service type</comment>
   </data>
   <data name="OpenGenericServiceRequiresOpenGenericImplementation" xml:space="preserve">
     <value>Open generic service type '{0}' requires registering an open generic implementation type.</value>
+  </data>
+  <data name="PropertyHasNoGetMethod" xml:space="preserve">
+    <value>The property "{0}" of "{1}" does not have a Get method.</value>
+  </data>
+  <data name="PropertyHasNoSetMethod" xml:space="preserve">
+    <value>The property "{0}" of "{1}" does not have a Set method.</value>
   </data>
   <data name="ScopedInSingletonException" xml:space="preserve">
     <value>Cannot consume {2} service '{0}' from {3} '{1}'.</value>

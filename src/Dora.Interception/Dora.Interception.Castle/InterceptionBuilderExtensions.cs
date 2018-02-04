@@ -19,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static InterceptionBuilder SetDynamicProxyFactory(this InterceptionBuilder builder)
         {
             Guard.ArgumentNotNull(builder, nameof(builder));
-            builder.Services.AddScoped<IInterceptingProxyFactory, DynamicProxyFactory>();
+            builder.Services.AddSingleton<IInterceptingProxyFactory, DynamicProxyFactory>();
             return builder;
         }
     }

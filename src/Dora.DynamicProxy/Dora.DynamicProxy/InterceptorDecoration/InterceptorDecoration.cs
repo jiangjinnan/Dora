@@ -1,6 +1,7 @@
 ﻿using Dora.DynamicProxy.Properties;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -14,35 +15,18 @@ namespace Dora.DynamicProxy
     public sealed class InterceptorDecoration
     {
         #region Fields
-        private static readonly InterceptorDecoration _empty = new InterceptorDecoration(new MethodBasedInterceptorDecoration[0], new PropertyBasedInterceptorDecoration[0]);
+        private static readonly InterceptorDecoration _empty = new InterceptorDecoration(new Dictionary<MethodInfo, InterceptorDelegate>());
         private static MethodInfo _methodOfGetInterceptor;
         private Dictionary<MethodInfo, MethodInfo> _interfaceMapping;
 
         #endregion
 
-        #region Properties
+        #region Properties 
 
         /// <summary>
         /// The interceptors
         /// </summary>
-        public IReadOnlyDictionary<int, InterceptorDelegate> Interceptors { get; }  
-
-        /// <summary>
-        /// Gets the method based interceptors.
-        /// </summary>
-        /// <value>
-        /// The method based interceptors.
-        /// </value>
-        public IReadOnlyDictionary<MethodInfo, MethodBasedInterceptorDecoration> MethodBasedInterceptors { get; }
-
-
-        /// <summary>
-        /// Gets the property based interceptors.
-        /// </summary>
-        /// <value>
-        /// The property based interceptors.
-        /// </value>
-        public IReadOnlyDictionary<PropertyInfo, PropertyBasedInterceptorDecoration>  PropertyBasedInterceptors { get; }
+        public IReadOnlyDictionary<int, InterceptorDelegate> Interceptors { get; }     
 
         /// <summary>
         /// Gets a value indicating whether there is no interceptor.
@@ -84,30 +68,18 @@ namespace Dora.DynamicProxy
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="InterceptorDecoration"/> class.
+        /// Initializes a new instance of the <see cref="InterceptorDecoration" /> class.
         /// </summary>
-        /// <param name="methodBasedInterceptors">The method based interceptors.</param>
-        /// <param name="propertyBasedInterceptors">The property based interceptors.</param>  
+        /// <param name="interceptors">The interceptors.</param>
         /// <param name="interfaceMapping">Interface mapping.</param>
-        /// <exception cref="ArgumentNullException"> Specified <paramref name="methodBasedInterceptors"/> is null.</exception>    
-        /// <exception cref="ArgumentNullException"> Specified <paramref name="propertyBasedInterceptors"/> is null.</exception>
-        public InterceptorDecoration(
-            IEnumerable<MethodBasedInterceptorDecoration> methodBasedInterceptors,
-            IEnumerable<PropertyBasedInterceptorDecoration> propertyBasedInterceptors,
-            InterfaceMapping? interfaceMapping = null)
+        /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors" /> is null.</exception>
+        /// <exception cref="ArgumentException">Specified <paramref name="interceptors" /> is empty.</exception>
+        public InterceptorDecoration(IDictionary<MethodInfo, InterceptorDelegate> interceptors, InterfaceMapping? interfaceMapping = null)
         {
-            methodBasedInterceptors = methodBasedInterceptors ?? new MethodBasedInterceptorDecoration[0];
-            propertyBasedInterceptors = propertyBasedInterceptors ?? new PropertyBasedInterceptorDecoration[0];
 
-            Interceptors = new Dictionary<int, InterceptorDelegate>();
-            this.MethodBasedInterceptors = methodBasedInterceptors.ToDictionary(it => it.Method, it => it);
-            this.PropertyBasedInterceptors = propertyBasedInterceptors.ToDictionary(it => it.Property, it => it);  
-
-            Interceptors = propertyBasedInterceptors
-                .SelectMany(it => new MethodBasedInterceptorDecoration[] { it.GetMethodBasedInterceptor, it.SetMethodBasedInterceptor })
-                .Union(methodBasedInterceptors)
-                .Where(it => it != null)
-                .ToDictionary(it => it.Method.MetadataToken, it => it.Interceptor);
+            Guard.ArgumentNotNull(interceptors, nameof(interceptors));
+            var dictionary = interceptors.ToDictionary(it => it.Key.MetadataToken, it => it.Value);  
+            Interceptors = new ReadOnlyDictionary<int, InterceptorDelegate>(dictionary); 
 
             if (null != interfaceMapping)
             {

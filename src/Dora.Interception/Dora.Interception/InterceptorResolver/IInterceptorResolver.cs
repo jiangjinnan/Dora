@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Dora.DynamicProxy;
+using System;
 
-namespace Dora.DynamicProxy
+namespace Dora.Interception
 {
     /// <summary>
     /// Representing the collector to resolve the interceptors decorated with specified type.
     /// </summary>
-    public interface IInterceptorCollector
+    public interface IInterceptorResolver
     {
         /// <summary>
         /// Gets the interceptors decorated with the type of target instance.
@@ -24,3 +25,4 @@ namespace Dora.DynamicProxy
         InterceptorDecoration GetInterceptors(Type typeToIntercept);
     }
 }
+                                                                                                       

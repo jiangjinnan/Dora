@@ -12,13 +12,13 @@ namespace Dora.Interception.Castle
     public class DynamicProxyFactory : IInterceptingProxyFactory
     {
         private readonly ProxyGenerator _proxyGenerator;
-        private readonly IInterceptorCollector  _interceptorCollector;
+        private readonly IInterceptorResolver  _interceptorCollector;
 
         /// <summary>
         /// Create a new <see cref="DynamicProxyFactory"/>.
         /// </summary>   
         public DynamicProxyFactory(
-            IInterceptorCollector interceptorCollector, IServiceProvider serviceProvider)
+            IInterceptorResolver interceptorCollector, IServiceProvider serviceProvider)
         {
             _interceptorCollector = Guard.ArgumentNotNull(interceptorCollector, nameof(interceptorCollector));
             this.ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));

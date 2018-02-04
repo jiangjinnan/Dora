@@ -1,7 +1,7 @@
 ﻿using Dora.DynamicProxy;
 using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;  
+using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;

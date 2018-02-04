@@ -30,6 +30,8 @@ namespace Dora.Interception
         /// </summary>
         /// <param name="proxyFactory">The service factory to create the proxy to wrapping the target service instance.</param>
         /// <param name="serviceProvider">The service provider to provide target service instances.</param>
+        /// <exception cref="ArgumentNullException">Specified <paramref name="proxyFactory"/> is null.</exception>    
+        /// <exception cref="ArgumentNullException">Specified <paramref name="serviceProvider"/> is null.</exception>
         public Interceptable(IInterceptingProxyFactory proxyFactory, IServiceProvider serviceProvider)
         {
             Guard.ArgumentNotNull(proxyFactory, nameof(proxyFactory));

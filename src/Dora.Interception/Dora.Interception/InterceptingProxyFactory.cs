@@ -31,7 +31,7 @@ namespace Dora.Interception
         /// <value>
         /// The interceptor collector.
         /// </value>
-        public IInterceptorCollector InterceptorCollector { get; }
+        public IInterceptorResolver InterceptorCollector { get; }
 
         /// <summary>
         /// Get a service provider to get dependency services.
@@ -52,7 +52,7 @@ namespace Dora.Interception
         public InterceptingProxyFactory(
             IInstanceDynamicProxyGenerator  instanceDynamicProxyGenerator,
             ITypeDynamicProxyGenerator typeDynamicProxyGenerator,
-            IInterceptorCollector interceptorCollector,
+            IInterceptorResolver interceptorCollector,
             IServiceProvider serviceProvider)
         {
             this.InstanceDynamicProxyGenerator = Guard.ArgumentNotNull(instanceDynamicProxyGenerator, nameof(instanceDynamicProxyGenerator));

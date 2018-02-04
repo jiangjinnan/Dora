@@ -29,8 +29,7 @@ namespace Dora.DynamicProxy.Test
         public class Foobar
         {
             public void Invoke1() { }
-            public static void Invoke2() { }
-
+            public static void Invoke2() { }     
             public object Value1 { get; set; }
             public static  object Value2 { get; set; }
         }

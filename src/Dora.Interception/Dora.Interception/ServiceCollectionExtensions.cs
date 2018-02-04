@@ -21,14 +21,16 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddInterception(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {
             Guard.ArgumentNotNull(services, nameof(services));
-            configure?.Invoke(new InterceptionBuilder(services));
             services.TryAddSingleton(typeof(IInterceptable<>), typeof(Interceptable<>));
-            services.TryAddSingleton<IInterceptorChainBuilder, InterceptorChainBuilder>();
-            services.TryAddSingleton<IInterceptorCollector, InterceptorCollector>();
+            services.TryAddSingleton<IInterceptorChainBuilder, InterceptorChainBuilder>();    
             services.TryAddSingleton<IInterceptingProxyFactory, InterceptingProxyFactory>();
             services.TryAddSingleton<IInstanceDynamicProxyGenerator, InterfaceDynamicProxyGenerator>();
             services.TryAddSingleton<ITypeDynamicProxyGenerator, VirtualMethodDynamicProxyGenerator>();
             services.TryAddSingleton<IDynamicProxyFactoryCache>(new DynamicProxyFactoryCache());
+
+            var builder = new InterceptionBuilder(services);   
+            configure?.Invoke(builder);
+            services.AddSingleton<IInterceptorResolver>(_=>new InterceptorResolver(_.GetRequiredService<IInterceptorChainBuilder>() , builder.InterceptorProviderResolvers));
             return services;
         }
 

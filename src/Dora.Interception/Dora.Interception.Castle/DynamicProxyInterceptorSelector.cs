@@ -19,13 +19,12 @@ namespace Dora.Interception.Castle
         }  
 
         public IInterceptor[] SelectInterceptors(Type type, MethodInfo method, IInterceptor[] interceptors)
-        {
-            return interceptors;
-            //if (_interceptors.TryGetValue(method.MetadataToken, out var interceptor) && interceptors.Contains(interceptor))
-            //{
-            //    return new IInterceptor[] { interceptor };
-            //}
-            //return new IInterceptor[0];
+        {    
+            if (_interceptors.TryGetValue(method.MetadataToken, out var interceptor) && interceptors.Contains(interceptor))
+            {
+                return new IInterceptor[] { interceptor };
+            }
+            return new IInterceptor[0];
         }
     }
 }

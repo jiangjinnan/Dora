@@ -1,4 +1,5 @@
 ﻿using Dora;
+using Dora.Interception;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -8,6 +9,14 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public class InterceptionBuilder
     {
+        /// <summary>
+        /// Gets the interceptor provider resolvers.
+        /// </summary>
+        /// <value>
+        /// The interceptor provider resolvers.
+        /// </value>
+        public InterceptorProviderResolverCollection InterceptorProviderResolvers { get; }
+
         /// <summary>
         /// Gets the service collection in which the interception based services are added.
         /// </summary>
@@ -22,6 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Guard.ArgumentNotNull(services, nameof(services));
             this.Services = services;
+            this.InterceptorProviderResolvers = new InterceptorProviderResolverCollection();
         }
     }
 }
