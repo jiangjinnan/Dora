@@ -78,5 +78,20 @@ namespace Dora.Interception
             return null;
         }
 
+        public bool? WillIntercept(PropertyInfo property)
+        {
+            Guard.ArgumentNotNull(property, nameof(property));
+            for (int index = _providerResolvers.Length - 1; index >= 0; index--)
+            {
+                var result = _providerResolvers[index].WillIntercept(property);
+                if (result == null)
+                {
+                    continue;
+                }
+                return result.Value;
+            }
+
+            return null;
+        }
     }
 }

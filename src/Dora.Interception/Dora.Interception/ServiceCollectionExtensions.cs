@@ -19,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The <see cref="IServiceCollection"/> with added service registration.</returns>
         /// <exception cref="ArgumentNullException">Specified <paramref name="services"/> is null.</exception>
         public static IServiceCollection AddInterception(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
-        {
+        { 
             Guard.ArgumentNotNull(services, nameof(services));
             services.TryAddSingleton(typeof(IInterceptable<>), typeof(Interceptable<>));
             services.TryAddSingleton<IInterceptorChainBuilder, InterceptorChainBuilder>();    
@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var builder = new InterceptionBuilder(services);   
             configure?.Invoke(builder);
             services.AddSingleton<IInterceptorResolver>(_=>new InterceptorResolver(_.GetRequiredService<IInterceptorChainBuilder>() , builder.InterceptorProviderResolvers));
-            return services;
+            return services; 
         }
 
 

@@ -76,7 +76,6 @@ namespace Dora.DynamicProxy
         /// <exception cref="ArgumentException">Specified <paramref name="interceptors" /> is empty.</exception>
         public InterceptorDecoration(IDictionary<MethodInfo, InterceptorDelegate> interceptors, InterfaceMapping? interfaceMapping = null)
         {
-
             Guard.ArgumentNotNull(interceptors, nameof(interceptors));
             var dictionary = interceptors.ToDictionary(it => it.Key.MetadataToken, it => it.Value);  
             Interceptors = new ReadOnlyDictionary<int, InterceptorDelegate>(dictionary); 

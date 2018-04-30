@@ -124,6 +124,24 @@ namespace Dora.Interception.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified is not a method call expression..
+        /// </summary>
+        internal static string NotMethodCallExpression {
+            get {
+                return ResourceManager.GetString("NotMethodCallExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified is not a property access expression..
+        /// </summary>
+        internal static string NotPropertyAccessExpression {
+            get {
+                return ResourceManager.GetString("NotPropertyAccessExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open generic service type &apos;{0}&apos; requires registering an open generic implementation type..
         /// </summary>
         internal static string OpenGenericServiceRequiresOpenGenericImplementation {

@@ -37,7 +37,7 @@ namespace Dora
         }
 
         public static IEnumerable<T> ArgumentNotNullOrEmpty<T>(IEnumerable<T> argumentValue, string argumentName)
-        {
+        {              
             ArgumentNotNull(argumentValue, argumentName);
             if (!argumentValue.Any())
             {

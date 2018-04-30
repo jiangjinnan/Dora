@@ -31,33 +31,33 @@ namespace Dora.Interception
         /// <value>
         /// The interceptor collector.
         /// </value>
-        public IInterceptorResolver InterceptorCollector { get; }
+        public IInterceptorResolver InterceptorResolver { get; }
 
         /// <summary>
         /// Get a service provider to get dependency services.
         /// </summary>
-        public IServiceProvider ServiceProvider { get; } 
+        public IServiceProvider ServiceProvider { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterceptingProxyFactory"/> class.
         /// </summary>
         /// <param name="instanceDynamicProxyGenerator">The instance dynamic proxy generator.</param>
         /// <param name="typeDynamicProxyGenerator">The type dynamic proxy generator.</param>
-        /// <param name="interceptorCollector">The interceptor collector.</param>
+        /// <param name="interceptorResolver">The interceptor collector.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <exception cref="ArgumentNullException">Specified <paramref name="instanceDynamicProxyGenerator"/> is null.</exception> 
         /// <exception cref="ArgumentNullException">Specified <paramref name="typeDynamicProxyGenerator"/> is null.</exception> 
-        /// <exception cref="ArgumentNullException">Specified <paramref name="interceptorCollector"/> is null.</exception> 
+        /// <exception cref="ArgumentNullException">Specified <paramref name="interceptorResolver"/> is null.</exception> 
         /// <exception cref="ArgumentNullException">Specified <paramref name="serviceProvider"/> is null.</exception> 
         public InterceptingProxyFactory(
-            IInstanceDynamicProxyGenerator  instanceDynamicProxyGenerator,
+            IInstanceDynamicProxyGenerator instanceDynamicProxyGenerator,
             ITypeDynamicProxyGenerator typeDynamicProxyGenerator,
-            IInterceptorResolver interceptorCollector,
+            IInterceptorResolver interceptorResolver,
             IServiceProvider serviceProvider)
         {
             this.InstanceDynamicProxyGenerator = Guard.ArgumentNotNull(instanceDynamicProxyGenerator, nameof(instanceDynamicProxyGenerator));
             this.TypeDynamicProxyGenerator = Guard.ArgumentNotNull(typeDynamicProxyGenerator, nameof(typeDynamicProxyGenerator));
-            this.InterceptorCollector = Guard.ArgumentNotNull(interceptorCollector, nameof(interceptorCollector));
+            this.InterceptorResolver = Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
             this.ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
         } 
 
@@ -80,7 +80,7 @@ namespace Dora.Interception
                 return target;
             }
 
-            var interceptors = this.InterceptorCollector.GetInterceptors(typeToIntercept, target.GetType());
+            var interceptors = this.InterceptorResolver.GetInterceptors(typeToIntercept, target.GetType());
             if (interceptors.IsEmpty)
             {
                 return target;
@@ -103,7 +103,7 @@ namespace Dora.Interception
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
-            var interceptors = this.InterceptorCollector.GetInterceptors(typeToIntercept);
+            var interceptors = this.InterceptorResolver.GetInterceptors(typeToIntercept);
             if (interceptors.IsEmpty && targetAccessor != null)
             {
                 return targetAccessor();

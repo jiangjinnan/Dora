@@ -11,9 +11,9 @@ namespace Dora.DynamicProxy
         private IDynamicProxyFactoryCache _dynamicProxyFactoryCache;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="InterfaceDynamicProxyGenerator"/> class.
         /// </summary>
-        /// <param name="dynamicProxyFactoryCache"></param>
+        /// <param name="dynamicProxyFactoryCache">The dynamic proxy factory cache.</param>
         public InterfaceDynamicProxyGenerator(IDynamicProxyFactoryCache dynamicProxyFactoryCache)
         {
             _dynamicProxyFactoryCache = Guard.ArgumentNotNull(dynamicProxyFactoryCache, nameof(dynamicProxyFactoryCache));

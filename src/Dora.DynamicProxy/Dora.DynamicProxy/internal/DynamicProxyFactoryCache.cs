@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 
 namespace Dora.DynamicProxy
@@ -8,19 +8,17 @@ namespace Dora.DynamicProxy
     internal class DynamicProxyFactoryCache: IDynamicProxyFactoryCache
     {
         #region Fields  
-        private Dictionary<Type, Type> _generatedClasses;  
-        private Dictionary<Type, Func<object, InterceptorDecoration, object>> _instanceFactories;
-        private Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;    
-        private object _sync;
+        private ConcurrentDictionary<Type, Type> _generatedClasses;  
+        private ConcurrentDictionary<Type, Func<object, InterceptorDecoration, object>> _instanceFactories;
+        private ConcurrentDictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;    
         #endregion
 
         #region Constructors
         internal DynamicProxyFactoryCache()
         {
-            _generatedClasses = new Dictionary<Type, Type>();
-            _instanceFactories = new Dictionary<Type, Func<object, InterceptorDecoration, object>>();
-            _typeFactories = new Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>>();      
-            _sync = new object();
+            _generatedClasses = new ConcurrentDictionary<Type, Type>();
+            _instanceFactories = new ConcurrentDictionary<Type, Func<object, InterceptorDecoration, object>>();
+            _typeFactories = new ConcurrentDictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>>();      
         }
         #endregion
 
@@ -28,48 +26,20 @@ namespace Dora.DynamicProxy
 
         public Func<object, InterceptorDecoration, object> GetInstanceFactory(Type type, InterceptorDecoration interceptors)
         {
-            if (_instanceFactories.TryGetValue(type, out var factory))
+            return _instanceFactories.GetOrAdd(type, type1 =>
             {
-                return factory;
-            }
-
-            lock (_sync)
-            {
-                if (_instanceFactories.TryGetValue(type, out factory))
-                {
-                    return factory;
-                }
-
-                if (!_generatedClasses.TryGetValue(type, out var proxyType))
-                {
-                    proxyType = _generatedClasses[type] = DynamicProxyClassGenerator.CreateInterfaceGenerator(type, interceptors).GenerateProxyType();
-                }
-
-                return _instanceFactories[type] = this.CreateInstanceFactory(proxyType);   
-            }
+                var proxyType = _generatedClasses.GetOrAdd(type1, type2 => DynamicProxyClassGenerator.CreateInterfaceGenerator(type, interceptors).GenerateProxyType());
+                return this.CreateInstanceFactory(proxyType);
+            });
         }
 
         public Func<InterceptorDecoration, IServiceProvider, object> GetTypeFactory(Type type, InterceptorDecoration interceptors)
         {
-            if (_typeFactories.TryGetValue(type, out var factory))
+            return _typeFactories.GetOrAdd(type, type1 =>
             {
-                return factory;
-            }
-
-            lock (_sync)
-            {
-                if (_typeFactories.TryGetValue(type, out factory))
-                {
-                    return factory;
-                }
-
-                if (!_generatedClasses.TryGetValue(type, out var proxyType))
-                {
-                    proxyType = _generatedClasses[type] = DynamicProxyClassGenerator.CreateVirtualMethodGenerator(type, interceptors).GenerateProxyType();
-                }
-
-                return _typeFactories[type] = this.CreateTypeFactory(proxyType);
-            }
+                var proxyType = _generatedClasses.GetOrAdd(type1, type2 => DynamicProxyClassGenerator.CreateVirtualMethodGenerator(type, interceptors).GenerateProxyType());
+                return this.CreateTypeFactory(proxyType);
+            });      
         }
         #endregion
 

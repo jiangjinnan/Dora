@@ -12,15 +12,14 @@ namespace Dora.Interception.Castle
     public class DynamicProxyFactory : IInterceptingProxyFactory
     {
         private readonly ProxyGenerator _proxyGenerator;
-        private readonly IInterceptorResolver  _interceptorCollector;
+        private readonly IInterceptorResolver   _interceptorResolver;
 
         /// <summary>
         /// Create a new <see cref="DynamicProxyFactory"/>.
         /// </summary>   
-        public DynamicProxyFactory(
-            IInterceptorResolver interceptorCollector, IServiceProvider serviceProvider)
+        public DynamicProxyFactory(IInterceptorResolver  interceptorResolver, IServiceProvider serviceProvider)
         {
-            _interceptorCollector = Guard.ArgumentNotNull(interceptorCollector, nameof(interceptorCollector));
+            _interceptorResolver = Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
             this.ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
             _proxyGenerator = new ProxyGenerator();
         }
@@ -42,7 +41,7 @@ namespace Dora.Interception.Castle
         /// <returns>The proxy wrapping the specified target instance.</returns>
         public object Create(Type typeToIntercept, IServiceProvider serviceProvider, Func<object> targetAccessor = null)
         {
-            var interceptorDecoration = _interceptorCollector.GetInterceptors(typeToIntercept);
+            var interceptorDecoration = _interceptorResolver.GetInterceptors(typeToIntercept);
             if (interceptorDecoration.IsEmpty)
             {
                 return targetAccessor == null
@@ -69,7 +68,7 @@ namespace Dora.Interception.Castle
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             Guard.ArgumentNotNull(target, nameof(target));
-            var interceptorDecoration = _interceptorCollector.GetInterceptors(typeToIntercept, target.GetType());
+            var interceptorDecoration = _interceptorResolver.GetInterceptors(typeToIntercept, target.GetType());
             var interceptors = interceptorDecoration.Interceptors
                .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
             var selector = new DynamicProxyInterceptorSelector(interceptors.ToDictionary(it => it.Key, it => it.Value));

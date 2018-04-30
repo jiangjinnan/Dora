@@ -141,6 +141,12 @@
     <value>A suitable constructor for type '{0}' could not be located. Ensure the type is concrete and services are registered for all parameters of a public constructor.</value>
     <comment>{0} = service type</comment>
   </data>
+  <data name="NotMethodCallExpression" xml:space="preserve">
+    <value>The specified is not a method call expression.</value>
+  </data>
+  <data name="NotPropertyAccessExpression" xml:space="preserve">
+    <value>The specified is not a property access expression.</value>
+  </data>
   <data name="OpenGenericServiceRequiresOpenGenericImplementation" xml:space="preserve">
     <value>Open generic service type '{0}' requires registering an open generic implementation type.</value>
   </data>

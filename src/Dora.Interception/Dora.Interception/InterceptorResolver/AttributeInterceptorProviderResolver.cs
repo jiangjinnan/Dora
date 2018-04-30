@@ -30,7 +30,7 @@ namespace Dora.Interception
             var attributes = CustomAttributeAccessor.GetCustomAttributes<NonInterceptableAttribute>(type);
             if (attributes.Any(it => it.InterceptorProviderTypes.Length == 0))
             {
-                return true;
+                return false;
             }
             return null;
         }
@@ -41,10 +41,21 @@ namespace Dora.Interception
             var attributes = CustomAttributeAccessor.GetCustomAttributes<NonInterceptableAttribute>(method, true);
             if (attributes.Any(it => it.InterceptorProviderTypes.Length == 0))
             {
-                return true;
+                return false;
             }      
             return null;
-        }  
+        }
+
+        public bool? WillIntercept(PropertyInfo property)
+        {
+            Guard.ArgumentNotNull(nameof(property), nameof(property));
+            var attributes = CustomAttributeAccessor.GetCustomAttributes<NonInterceptableAttribute>(property, true);
+            if (attributes.Any(it => it.InterceptorProviderTypes.Length == 0))
+            {
+                return true;
+            }
+            return null;
+        }
 
         public IInterceptorProvider[] GetInterceptorProvidersForProperty(PropertyInfo property, PropertyMethod propertyMethod)
         {
@@ -53,5 +64,7 @@ namespace Dora.Interception
             return CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(property).ToArray()
                 .Concat(CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(method).ToArray());
         }
+
+       
     }
 }
