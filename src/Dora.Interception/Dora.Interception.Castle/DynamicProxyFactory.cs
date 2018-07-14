@@ -20,7 +20,7 @@ namespace Dora.Interception.Castle
         public DynamicProxyFactory(IInterceptorResolver  interceptorResolver, IServiceProvider serviceProvider)
         {
             _interceptorResolver = Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
-            this.ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
+            ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
             _proxyGenerator = new ProxyGenerator();
         }
 

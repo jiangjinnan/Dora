@@ -6,6 +6,6 @@ namespace App
 {
     public interface ISystomClock
     {
-        DateTime GetCurrentTime();
+        DateTime GetCurrentTime(DateTimeKind dateTimeKind);
     }
 }

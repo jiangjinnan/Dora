@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Dora.DynamicProxy
@@ -8,17 +8,15 @@ namespace Dora.DynamicProxy
     internal class DynamicProxyFactoryCache: IDynamicProxyFactoryCache
     {
         #region Fields  
-        private ConcurrentDictionary<Type, Type> _generatedClasses;  
-        private ConcurrentDictionary<Type, Func<object, InterceptorDecoration, object>> _instanceFactories;
-        private ConcurrentDictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;    
+        private Dictionary<Type, Func<object, InterceptorDecoration, object>> _instanceFactories;
+        private Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;    
         #endregion
 
         #region Constructors
         internal DynamicProxyFactoryCache()
         {
-            _generatedClasses = new ConcurrentDictionary<Type, Type>();
-            _instanceFactories = new ConcurrentDictionary<Type, Func<object, InterceptorDecoration, object>>();
-            _typeFactories = new ConcurrentDictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>>();      
+            _instanceFactories = new Dictionary<Type, Func<object, InterceptorDecoration, object>>();
+            _typeFactories = new Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>>();      
         }
         #endregion
 
@@ -26,20 +24,36 @@ namespace Dora.DynamicProxy
 
         public Func<object, InterceptorDecoration, object> GetInstanceFactory(Type type, InterceptorDecoration interceptors)
         {
-            return _instanceFactories.GetOrAdd(type, type1 =>
+            if (_instanceFactories.TryGetValue(type, out var factory))
             {
-                var proxyType = _generatedClasses.GetOrAdd(type1, type2 => DynamicProxyClassGenerator.CreateInterfaceGenerator(type, interceptors).GenerateProxyType());
-                return this.CreateInstanceFactory(proxyType);
-            });
+                return factory;
+            }
+            lock (_instanceFactories)
+            {
+                if (_instanceFactories.TryGetValue(type, out factory))
+                {
+                    return factory;
+                }
+                var proxyType = DynamicProxyClassGenerator.CreateInterfaceGenerator(type, interceptors).GenerateProxyType();
+                return _instanceFactories[type] = CreateInstanceFactory(proxyType);
+            }
         }
 
         public Func<InterceptorDecoration, IServiceProvider, object> GetTypeFactory(Type type, InterceptorDecoration interceptors)
         {
-            return _typeFactories.GetOrAdd(type, type1 =>
+            if (_typeFactories.TryGetValue(type, out var factory))
             {
-                var proxyType = _generatedClasses.GetOrAdd(type1, type2 => DynamicProxyClassGenerator.CreateVirtualMethodGenerator(type, interceptors).GenerateProxyType());
-                return this.CreateTypeFactory(proxyType);
-            });      
+                return factory;
+            }
+            lock (_typeFactories)
+            {
+                if (_typeFactories.TryGetValue(type, out factory))
+                {
+                    return factory;
+                }
+                var proxyType = DynamicProxyClassGenerator.CreateVirtualMethodGenerator(type, interceptors).GenerateProxyType();
+                return _typeFactories[type] = CreateTypeFactory(proxyType);
+            }     
         }
         #endregion
 

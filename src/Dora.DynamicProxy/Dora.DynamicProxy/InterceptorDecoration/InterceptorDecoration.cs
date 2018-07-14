@@ -42,7 +42,7 @@ namespace Dora.DynamicProxy
         /// <value>
         /// The empty <see cref="InterceptorDecoration"/>.
         /// </value>
-        public static InterceptorDecoration Empty { get => _empty; }
+        public static InterceptorDecoration Empty => _empty;
 
         internal static MethodInfo MethodOfGetInterceptor
         {

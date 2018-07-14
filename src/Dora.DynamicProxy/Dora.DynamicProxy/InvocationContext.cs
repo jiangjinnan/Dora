@@ -35,17 +35,17 @@ namespace Dora.DynamicProxy
                 {
                     return _targetMethod;
                 }
-                if (this.Method.DeclaringType.IsInterface)
+                if (Method.DeclaringType.IsInterface)
                 {
-                    _targetType = _targetType ?? this.Target.GetType();
-                    var map = _targetType.GetTypeInfo().GetRuntimeInterfaceMap(this.Method.DeclaringType);
-                    var index = Array.IndexOf(map.InterfaceMethods, this.Method);
+                    _targetType = _targetType ?? Target.GetType();
+                    var map = _targetType.GetTypeInfo().GetRuntimeInterfaceMap(Method.DeclaringType);
+                    var index = Array.IndexOf(map.InterfaceMethods, Method);
                     if (index > -1)
                     {
                         return _targetMethod = map.TargetMethods[index];
                     }
                 }
-                return _targetMethod = this.Method;
+                return _targetMethod = Method;
             }
         }
 
@@ -91,7 +91,7 @@ namespace Dora.DynamicProxy
         /// <returns>The task to invoke the next interceptor or target method.</returns>
         public Task ProceedAsync()
         {
-            return this.Next(this);
+            return Next(this);
         }
         #endregion
     }                             
