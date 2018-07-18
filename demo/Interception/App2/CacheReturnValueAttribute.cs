@@ -1,5 +1,6 @@
 ﻿using Dora.Interception;
 using System;
+using System.Threading.Tasks;
 
 namespace App
 {
@@ -9,6 +10,6 @@ namespace App
         public override void Use(IInterceptorChainBuilder builder)
         {
             builder.Use<CacheInterceptor>(this.Order);
-        }
+        }   
     }
 }

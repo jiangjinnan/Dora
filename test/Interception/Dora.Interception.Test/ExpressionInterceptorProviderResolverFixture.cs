@@ -25,6 +25,7 @@ namespace Dora.Interception.Test
                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
                          .IncludeProperty(it => it.Set, PropertyMethod.Set)))
+
                 .For<BarInterceptorAttribute>(2, providerBuilder => providerBuilder
                      .Target<FoobarService>(targetBuilder => targetBuilder
                          .IncludeMethod(it => it.InterceptableInvokeAsync())
@@ -37,7 +38,7 @@ namespace Dora.Interception.Test
                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
                          .IncludeProperty(it => it.Set, PropertyMethod.Set)))
 
-                 .For<BazInterceptorAttribute>(2, providerBuilder => providerBuilder
+                 .For<BazInterceptorAttribute>(3, providerBuilder => providerBuilder
                      .Target<FoobazService>(targetBuilder => targetBuilder
                          .IncludeAllMembers()
                          .ExecludeMethod(it=>it.NonInterceptableInvokeAsync())
@@ -48,8 +49,8 @@ namespace Dora.Interception.Test
                          .IncludeMethod(it => it.InterceptableInvokeAsync())
                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                         .IncludeProperty(it => it.Set, PropertyMethod.Set))) 
-                         );
+                         .IncludeProperty(it => it.Set, PropertyMethod.Set))));
+
             async Task CheckAsync(IService svc, Type serviceType)
             {                   
                 if (serviceType == typeof(FoobarService))

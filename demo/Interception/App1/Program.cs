@@ -24,11 +24,6 @@ namespace App
               .GetRequiredService<IInterceptable<ISystomClock>>()
               .Proxy;
 
-            //var method = typeof(ISystomClock).GetMethod("GetCurrentTime");
-            //var field = clock1.GetType().GetField("_interceptors", BindingFlags.NonPublic | BindingFlags.Instance);
-            //var decoration = field.GetValue(clock1) as InterceptorDecoration;
-            //var interceptor = decoration.GetInterceptor(method);
-
             for (int i = 0; i < 5; i++)
             {
                 Console.WriteLine($"Current time: {clock1.GetCurrentTime(DateTimeKind.Local)}");
@@ -40,7 +35,6 @@ namespace App
                 Console.WriteLine($"Current time: {clock1.GetCurrentTime(DateTimeKind.Utc)}");
                 Task.Delay(1000).Wait();
             }
-
 
             var clock2 = new ServiceCollection()
               .AddMemoryCache()

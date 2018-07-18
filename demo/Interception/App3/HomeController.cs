@@ -11,21 +11,25 @@ namespace App
     public class HomeController : Controller
     {
         private readonly ISystomClock _clock;
-        public HomeController(ISystomClock clock)
+        public HomeController(IInterceptable<ISystomClock> clockAccessor)
         {
-            _clock = clock;
+            _clock = clockAccessor.Proxy;
         }
 
-        [HttpGet("/")]
-        public async Task Index()
+        [HttpGet("/{kind?}")]
+        public async Task Index(string kind="local")
         {
+            DateTimeKind dateTimeKind = string.Compare(kind, "utc", true) == 0
+                ? DateTimeKind.Utc
+                : DateTimeKind.Local;
+
             this.Response.ContentType = "text/html";
             await this.Response.WriteAsync("<html><body><ul>");
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 2; i++)
             {
-                await this.Response.WriteAsync($"<li>{_clock.GetCurrentTime()}({DateTime.UtcNow})</li>");
+                await this.Response.WriteAsync($"<li>{_clock.GetCurrentTime(dateTimeKind)}</li>");
                 await Task.Delay(1000);
-            }
+            }  
             await this.Response.WriteAsync("</ul><body></html>");
         }
     }
