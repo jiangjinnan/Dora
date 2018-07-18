@@ -8,28 +8,32 @@ using System.Text;
 
 namespace Dora.Interception
 {
-    public  class InterceptorRegistry
+    public class InterceptorRegistry
     {
         public IDictionary<Type, InterceptorProviderRegistry> Registries { get; }
         public IServiceProvider ServiceProvider { get; }
 
         public InterceptorRegistry(IServiceProvider serviceProvider)
         {
-            this.ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
-            this.Registries = new Dictionary<Type, InterceptorProviderRegistry>();
+            ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
+            Registries = new Dictionary<Type, InterceptorProviderRegistry>();
         }
         public InterceptorProviderRegistry<TInterceptorProvider> For<TInterceptorProvider>(int order, params object[] arguments)
             where TInterceptorProvider: IInterceptorProvider
         {
-            var array = new object[arguments.Length + 1];
-            array[0] = order;
-            if (arguments.Length > 0)
+
+            Func<IInterceptorProvider> factory = () =>
             {
-                arguments.CopyTo(array, 1);
-            }
-            Func<IInterceptorProvider> factory = ()=> Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance<TInterceptorProvider>(this.ServiceProvider, array);
+               var provider =  Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance<TInterceptorProvider>(ServiceProvider, arguments);
+                var orderedElement = provider as IOrderedSequenceItem;
+                if (null != orderedElement)
+                {
+                    orderedElement.Order = order;
+                }
+                return provider;
+            };
             var registry = new InterceptorProviderRegistry<TInterceptorProvider>(factory);
-            this.Registries[typeof(TInterceptorProvider)] = registry;
+            Registries[typeof(TInterceptorProvider)] = registry;
             return registry;
         }
     }
@@ -54,12 +58,11 @@ namespace Dora.Interception
 
         public override InterceptorProviderRegistration GetRegistrations()
         {
-            var targetRegistrations = _targetTypeInterceptorRegistries.Values.Select(it => it.ToRegistration());
-
+            var targetRegistrations = _targetTypeInterceptorRegistries.Values.Select(it => it.ToRegistration()); 
             return new InterceptorProviderRegistration(typeof(TInterceptorProvider),this.InterceptorProviderFactory, targetRegistrations);
         }
 
-        public TargetTypeInterceptorRegistry<TTarget> To<TTarget>()
+        public TargetTypeInterceptorRegistry<TTarget> Target<TTarget>()
             where TTarget:class
         {
             var returnValue = _targetTypeInterceptorRegistries.TryGetValue(typeof(TTarget), out var registry)
@@ -99,13 +102,13 @@ namespace Dora.Interception
             return this;
         }
         public TargetTypeInterceptorRegistry<TTarget> IncludeMethod(Expression<Action<TTarget>> expression)
-            => this.RegisterMethod(expression, true);
+            => RegisterMethod(expression, true);
         public TargetTypeInterceptorRegistry<TTarget> ExcludeMethod(Expression<Action<TTarget>> expression)
-            => this.RegisterMethod(expression, false);
+            => RegisterMethod(expression, false);
         public TargetTypeInterceptorRegistry<TTarget> IncludeProperty<TProperty>(Expression<Func<TTarget, TProperty>> expression, PropertyMethod propertyMethod)
-            => this.RegisterProperty(expression, propertyMethod, true);
+            => RegisterProperty(expression, propertyMethod, true);
         public  TargetTypeInterceptorRegistry<TTarget> ExcludeProperty<TProperty>(Expression<Func<TTarget, TProperty>> expression, PropertyMethod propertyMethod)
-            => this.RegisterProperty(expression, propertyMethod, false);
+            => RegisterProperty(expression, propertyMethod, false);
 
         public override TargetRegistration ToRegistration() => _registration;
 
@@ -116,8 +119,7 @@ namespace Dora.Interception
             if (methodCall == null)
             {
                 throw new ArgumentException(Resources.NotMethodCallExpression, nameof(expression));
-            }
-
+            } 
             var method = methodCall.Method;
             if (method.IsGenericMethod)
             {
@@ -125,11 +127,11 @@ namespace Dora.Interception
             }
             if (include)
             {
-                _registration.IncludedMethods.Add(method);
+                _registration.IncludedMethods.Add(method.MetadataToken);
             }
             else
             {
-                _registration.ExludedMethods.Add(method);
+                _registration.ExludedMethods.Add(method.MetadataToken);
             }
             return this;
         }
@@ -145,11 +147,11 @@ namespace Dora.Interception
             }
             if (include)
             {
-                _registration.IncludedProperties.Add(property, propertyMethod);
+                _registration.IncludedProperties.Add(property.MetadataToken, propertyMethod);
             }
             else
             {
-                _registration.ExludedProperties.Add(property, propertyMethod);
+                _registration.ExludedProperties.Add(property.MetadataToken, propertyMethod);
             }
             return this;
         }

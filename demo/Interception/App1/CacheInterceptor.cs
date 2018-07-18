@@ -7,28 +7,18 @@ using System.Threading.Tasks;
 namespace App
 {
     public class CacheInterceptor
-    {
-        private readonly InterceptDelegate _next;
-        private readonly IMemoryCache _cache;
-        private readonly MemoryCacheEntryOptions _options;
-        public CacheInterceptor(InterceptDelegate next, IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
-        {
-            _next = next;
-            _cache = cache;
-            _options = optionsAccessor.Value;
-        }
-
-        public async Task InvokeAsync(InvocationContext context)
+    {            
+        public async Task InvokeAsync(InvocationContext context, IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
         {
             var key = new Cachekey(context.Method, context.Arguments);
-            if (_cache.TryGetValue(key, out object value))
+            if (cache.TryGetValue(key, out object value))
             {
                 context.ReturnValue = value;
             }
             else
             {
-                await _next(context);
-                _cache.Set(key, context.ReturnValue, _options);
+                await context.ProceedAsync();
+                cache.Set(key, context.ReturnValue, optionsAccessor.Value);
             }
         }
 
