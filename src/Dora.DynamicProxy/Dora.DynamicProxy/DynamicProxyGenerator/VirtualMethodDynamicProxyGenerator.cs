@@ -51,7 +51,7 @@ namespace Dora.DynamicProxy
             Guard.ArgumentNotNull(interceptors, nameof(interceptors));
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
 
-            if (this.CanIntercept(type) && !interceptors.IsEmpty)
+            if (CanIntercept(type) && !interceptors.IsEmpty)
             {
                 var factory = _dynamicProxyFactoryCache.GetTypeFactory(type, interceptors);
                 return factory(interceptors, serviceProvider);
