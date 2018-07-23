@@ -23,8 +23,6 @@ namespace DemoX
             var foo = foobar.Foo;
             Debug.Assert("Foobar" == flag);
         }
-
-
         public interface IFoo { }
         public interface IBar { }
         public interface IFoobar<TFoo, TBar>

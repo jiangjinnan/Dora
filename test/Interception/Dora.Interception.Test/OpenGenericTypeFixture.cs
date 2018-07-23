@@ -1,4 +1,5 @@
-﻿using Dora.DynamicProxy;
+﻿using Castle.DynamicProxy;
+using Dora.DynamicProxy;
 using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -71,7 +72,8 @@ namespace Dora.Interception.Test
             {
                 builder.Use<FoobarInterceptor>(this.Order);
             }
-        }
-
+        }  
     }
+
 }
+

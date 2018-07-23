@@ -16,9 +16,9 @@ namespace Dora.Interception
            Func<IInterceptorProvider> interceptorProviderFactory,
            IEnumerable< TargetRegistration> targetRegistrations)
         {
-            this.InterceptorProviderType = Guard.ArgumentNotNull(interceptorProviderType, nameof(interceptorProviderType));
-            this.InterceptorProviderFactory = Guard.ArgumentNotNull(interceptorProviderFactory, nameof(interceptorProviderFactory));
-            this.TargetRegistrations = Guard.ArgumentNotNullOrEmpty(targetRegistrations, nameof(targetRegistrations)).ToArray();
+            InterceptorProviderType = Guard.ArgumentNotNull(interceptorProviderType, nameof(interceptorProviderType));
+            InterceptorProviderFactory = Guard.ArgumentNotNull(interceptorProviderFactory, nameof(interceptorProviderFactory));
+            TargetRegistrations = Guard.ArgumentNotNullOrEmpty(targetRegistrations, nameof(targetRegistrations)).ToArray();
         } 
     }
 
@@ -27,18 +27,18 @@ namespace Dora.Interception
         public Type TargetType { get; }           
         public bool? ExludedAllMembers { get; set; }
         public bool? IncludedAllMembers { get; set; }
-        public ISet<MethodInfo> IncludedMethods { get; }
-        public ISet<MethodInfo> ExludedMethods { get; }
-        public IDictionary<PropertyInfo, PropertyMethod> IncludedProperties { get; }
-        public IDictionary<PropertyInfo, PropertyMethod> ExludedProperties { get; }
+        public ISet<int> IncludedMethods { get; }
+        public ISet<int> ExludedMethods { get; }
+        public IDictionary<int, PropertyMethod> IncludedProperties { get; }
+        public IDictionary<int, PropertyMethod> ExludedProperties { get; }
 
         public TargetRegistration(Type targetType)
         {
             this.TargetType = Guard.ArgumentNotNull(targetType, nameof(targetType));
-            this.IncludedMethods = new HashSet<MethodInfo>();
-            this.ExludedMethods = new HashSet<MethodInfo>();
-            this.IncludedProperties = new Dictionary<PropertyInfo, PropertyMethod>();
-            this.ExludedProperties = new Dictionary<PropertyInfo, PropertyMethod>();
+            this.IncludedMethods = new HashSet<int>();
+            this.ExludedMethods = new HashSet<int>();
+            this.IncludedProperties = new Dictionary<int, PropertyMethod>();
+            this.ExludedProperties = new Dictionary<int, PropertyMethod>();
         }
     }
 }

@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace App
 {
     public class SystomClock : ISystomClock
     {
-        [CacheReturnValue]
+        //[CacheReturnValue]
         public DateTime GetCurrentTime(DateTimeKind dateTimeKind)
         {
             switch (dateTimeKind)

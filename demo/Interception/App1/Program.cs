@@ -16,15 +16,13 @@ namespace App
               .AddLogging(factory => factory.AddConsole())
               .AddMemoryCache()
               .AddSingleton<ISystomClock, SystomClock>()
-              .AddInterception()
+              .AddInterception(builder=>builder.AddPolicy(policyBuilder=> policyBuilder
+                .For<CacheReturnValueAttribute>(1, providerBuilder=> providerBuilder
+                    .Target<SystomClock>(targetBuilder=> targetBuilder
+                        .IncludeMethod(it=>it.GetCurrentTime(default(DateTimeKind)))))))
               .BuildServiceProvider()
               .GetRequiredService<IInterceptable<ISystomClock>>()
               .Proxy;
-
-            var method = typeof(ISystomClock).GetMethod("GetCurrentTime");
-            var field = clock1.GetType().GetField("_interceptors", BindingFlags.NonPublic | BindingFlags.Instance);
-            var decoration = field.GetValue(clock1) as InterceptorDecoration;
-            var interceptor = decoration.GetInterceptor(method);
 
             for (int i = 0; i < 5; i++)
             {
@@ -37,7 +35,6 @@ namespace App
                 Console.WriteLine($"Current time: {clock1.GetCurrentTime(DateTimeKind.Utc)}");
                 Task.Delay(1000).Wait();
             }
-
 
             var clock2 = new ServiceCollection()
               .AddMemoryCache()

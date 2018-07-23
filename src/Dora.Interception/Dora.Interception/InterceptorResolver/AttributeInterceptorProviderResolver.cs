@@ -16,7 +16,7 @@ namespace Dora.Interception
                 .ToArray();
         }
 
-        public IInterceptorProvider[] GetInterceptorProvidersForMethod(MethodInfo method)
+        public IInterceptorProvider[] GetInterceptorProvidersForMethod(Type targetType, MethodInfo method)
         {
             Guard.ArgumentNotNull(nameof(method), nameof(method));
             return CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(method)
@@ -35,7 +35,7 @@ namespace Dora.Interception
             return null;
         }
 
-        public bool? WillIntercept(MethodInfo method)
+        public bool? WillIntercept(Type targetType, MethodInfo method)
         {
             Guard.ArgumentNotNull(nameof(method), nameof(method));
             var attributes = CustomAttributeAccessor.GetCustomAttributes<NonInterceptableAttribute>(method, true);
@@ -46,7 +46,7 @@ namespace Dora.Interception
             return null;
         }
 
-        public bool? WillIntercept(PropertyInfo property)
+        public bool? WillIntercept(Type targetType, PropertyInfo property)
         {
             Guard.ArgumentNotNull(nameof(property), nameof(property));
             var attributes = CustomAttributeAccessor.GetCustomAttributes<NonInterceptableAttribute>(property, true);
@@ -57,14 +57,12 @@ namespace Dora.Interception
             return null;
         }
 
-        public IInterceptorProvider[] GetInterceptorProvidersForProperty(PropertyInfo property, PropertyMethod propertyMethod)
+        public IInterceptorProvider[] GetInterceptorProvidersForProperty(Type targetType, PropertyInfo property, PropertyMethod propertyMethod)
         {
             Guard.ArgumentNotNull(nameof(property), nameof(property));
             var method = propertyMethod == PropertyMethod.Get ? property.GetMethod : property.SetMethod;
             return CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(property).ToArray()
                 .Concat(CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(method).ToArray());
         }
-
-       
     }
 }

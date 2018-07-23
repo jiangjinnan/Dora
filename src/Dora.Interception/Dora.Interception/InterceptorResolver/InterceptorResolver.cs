@@ -74,12 +74,12 @@ namespace Dora.Interception
         public InterceptorDecoration GetInterceptors(Type typeToIntercept)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
-            return this.GetInterceptorsCore(typeToIntercept);
+            return this.GetInterceptorsCore(typeToIntercept, typeToIntercept);
         }
         #endregion
 
         #region Private Methods
-        private InterceptorDecoration GetInterceptorsCore(Type typeToIntercept, Type targetType = null, InterfaceMapping? interfaceMapping = null)
+        private InterceptorDecoration GetInterceptorsCore(Type typeToIntercept, Type targetType, InterfaceMapping? interfaceMapping = null)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             targetType = targetType ?? typeToIntercept;
@@ -89,6 +89,7 @@ namespace Dora.Interception
                 return InterceptorDecoration.Empty;
             }
 
+            //Check if specified type can be intercepted.
             if (_providerResolver.WillIntercept(targetType) == false)
             {
                 _nonInterceptableTypes.Add(typeToIntercept);
@@ -96,40 +97,45 @@ namespace Dora.Interception
             }
 
             var dictionary = new Dictionary<MethodInfo, InterceptorDelegate>();
-            var providersOfType = _providerResolver.GetInterceptorProvidersForType(targetType);
-            providersOfType = this.SelectEffectiveProviders(providersOfType);
+            var providersOfType = _providerResolver.GetInterceptorProvidersForType(targetType);   
+            providersOfType = this.SelectEffectiveProviders(providersOfType);       
 
+            //Resolve method based interceptor providers
             var candidateMethods = this.GetCandidateMethods(typeToIntercept, isInterface);
             if (candidateMethods.Length > 0)
             {
                 for (int index = 0; index < candidateMethods.Length; index++)
                 {
                     var methodToIntercept = candidateMethods[index];
-                    var targetMethod = this.GetTargetMethod(methodToIntercept, interfaceMapping);
-                    var providersOfMethod = _providerResolver.GetInterceptorProvidersForMethod(targetMethod);
-                    var providers = this.SelectEffectiveProviders(providersOfType, providersOfMethod);
+                    var targetMethod = GetTargetMethod(methodToIntercept, interfaceMapping);
+                    var providersOfMethod = _providerResolver.GetInterceptorProvidersForMethod(targetType,targetMethod);
+                    var providers = SelectEffectiveProviders(providersOfType, providersOfMethod);
                     if (providers.Length > 0)
                     {
-                        dictionary[methodToIntercept] = this.BuildInterceptor(providers);
+                        var builder = this.Builder.New();
+                        Array.ForEach(providers, it => it.Use(builder));
+                        dictionary[methodToIntercept] = builder.Build();
                     }
                 }
             }
 
-            var candidateProperties = this.GetCandidateProperties(typeToIntercept, isInterface);
-
+            //Resolve prooerty based interceptor providers
+            var candidateProperties = GetCandidateProperties(typeToIntercept, isInterface);     
             for (int index = 0; index < candidateProperties.Length; index++)
             {
                 var property = candidateProperties[index];
-                var targetProperty = this.GetTargetProperty(property, targetType, interfaceMapping);
+                var targetProperty = GetTargetProperty(property, targetType, interfaceMapping);
                 var getMethod = property.GetMethod;
                 var setMethod = property.SetMethod;
+
+                //GET method
                 if (null != getMethod && (isInterface || getMethod.IsVirtual))
                 {
-                    var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetProperty, PropertyMethod.Get);
-                    var providers = this.SelectEffectiveProviders(providersOfType, providersOfProperty);
+                    var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetType,targetProperty, PropertyMethod.Get);
+                    var providers = SelectEffectiveProviders(providersOfType, providersOfProperty);
                     if (providers.Length > 0)
                     {
-                        var builder = this.Builder.New();
+                        var builder = Builder.New();
                         Array.ForEach(providers, it => it.Use(builder));
                         dictionary[getMethod] = builder.Build();
                     }
@@ -137,8 +143,8 @@ namespace Dora.Interception
 
                 if (null != setMethod && (isInterface || setMethod.IsVirtual))
                 {
-                    var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetProperty, PropertyMethod.Set);
-                    var providers = this.SelectEffectiveProviders(providersOfType, providersOfProperty);
+                    var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetType,targetProperty, PropertyMethod.Set);
+                    var providers = SelectEffectiveProviders(providersOfType, providersOfProperty);
                     if (providers.Length > 0)
                     {
                         var builder = this.Builder.New();
@@ -170,18 +176,10 @@ namespace Dora.Interception
              .Where(it => isInterface || it?.GetMethod?.IsVirtual == true || it?.SetMethod?.IsVirtual == true)
              .ToArray();
         }
-        private InterceptorDelegate BuildInterceptor(IInterceptorProvider[] providers)
-        {
-            var builder = this.Builder.New();
-            foreach (var provider in providers)
-            {
-                provider.Use(builder);
-            }
-            return builder.Build();
-        }
        
         private IInterceptorProvider[] SelectEffectiveProviders(IInterceptorProvider[] typeBasedProviders)
         {
+            //For interceptor providers of the same type, only keep the last one if not AllowMultiple.
             var indicators = typeBasedProviders.ToDictionary(it => it, it => true);
             var dictionary = typeBasedProviders.GroupBy(it => it.GetType()).ToDictionary(it => it.Key, it => it.ToArray());
             foreach (var providerType in dictionary.Keys)
@@ -202,6 +200,7 @@ namespace Dora.Interception
         }
         private IInterceptorProvider[] SelectEffectiveProviders(IInterceptorProvider[] globalProviders, IInterceptorProvider[] specificProviders)
         {
+            //For interceptor providers of the same type, only keep the last one if not AllowMultiple.
             var globalIndicators = globalProviders.ToDictionary(it => it, it => true);
             var specificIndicators = specificProviders.ToDictionary(it => it, it => true);
 

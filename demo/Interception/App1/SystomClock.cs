@@ -4,8 +4,7 @@ namespace App
 {
     public class SystomClock : ISystomClock
     {
-
-        [CacheReturnValue]
+        //[CacheReturnValue]
         public DateTime GetCurrentTime(DateTimeKind dateTimeKind)
         {
             switch (dateTimeKind)
