@@ -62,7 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
             services.AddInterception(configure);
             var proxyFactory = services.BuildServiceProvider().GetRequiredService<IInterceptingProxyFactory>();
-            return new ServiceProvider2(services, options , proxyFactory);
+            return new InterceptableServiceProvider(services, options , proxyFactory);
         }
     }
 }

@@ -11,16 +11,14 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// The default IServiceProvider.
     /// </summary>
-    internal sealed class ServiceProvider2 : IServiceProvider, IDisposable, IServiceProviderEngineCallback
+    internal sealed class InterceptableServiceProvider : IServiceProvider, IDisposable, IServiceProviderEngineCallback
     {
         private readonly IServiceProviderEngine _engine;
         private readonly CallSiteValidator _callSiteValidator;
-        private readonly IInterceptingProxyFactory _interceptingProxyFactory;
 
-        internal ServiceProvider2(IEnumerable<ServiceDescriptor> serviceDescriptors, ServiceProviderOptions options, IInterceptingProxyFactory interceptingProxyFactory)
+        internal InterceptableServiceProvider(IEnumerable<ServiceDescriptor> serviceDescriptors, ServiceProviderOptions options, IInterceptingProxyFactory interceptingProxyFactory)
         {
             IServiceProviderEngineCallback callback = null;
-            _interceptingProxyFactory = interceptingProxyFactory;
             if (options.ValidateScopes)
             {
                 callback = this;
