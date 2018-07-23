@@ -31,6 +31,7 @@
     <TreatSpecificWarningsAsErrors />
     <DocumentationFile>bin\Debug\netstandard2.0\Dora.Interception.xml</DocumentationFile>
     <WarningsAsErrors />
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -40,13 +41,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ServiceLookup\**" />
     <Compile Remove="shared\**" />
+    <EmbeddedResource Remove="ServiceLookup\**" />
     <EmbeddedResource Remove="shared\**" />
+    <None Remove="ServiceLookup\**" />
     <None Remove="shared\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Dora.DynamicProxy\Dora.DynamicProxy\Dora.DynamicProxy.csproj" />
