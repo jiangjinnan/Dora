@@ -39,7 +39,7 @@ namespace Dora.Interception
             Guard.ArgumentNotNull(proxyFactory, nameof(proxyFactory));
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
 
-            if (serviceProvider is ServiceProvider2)
+            if (serviceProvider is InterceptableServiceProvider)
             {
                 throw new ArgumentException("Invalid ServiceProvider", nameof(serviceProvider));
             }
