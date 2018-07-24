@@ -3,6 +3,7 @@ using Dora.DynamicProxy;
 using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -46,6 +47,11 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return BuildInterceptableServiceProvider(services, false, configure);
         }
+
+        public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, string policyFilePath, Assembly[] references, string[] imports)
+        {
+            return services.BuildInterceptableServiceProvider(_ => _.AddPolicy(policyFilePath, references, imports));
+        } 
 
 
         /// <summary>
