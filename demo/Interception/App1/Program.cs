@@ -1,9 +1,7 @@
-﻿using Dora.DynamicProxy;
-using Dora.Interception;
+﻿using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace App
@@ -18,7 +16,7 @@ namespace App
               .AddSingleton<ISystomClock, SystomClock>()
               .AddInterception(builder=>builder.AddPolicy(policyBuilder=> policyBuilder
                 .For<CacheReturnValueAttribute>(1, providerBuilder=> providerBuilder
-                    .Target<SystomClock>(targetBuilder=> targetBuilder
+                    .To<SystomClock>(targetBuilder=> targetBuilder
                         .IncludeMethod(it=>it.GetCurrentTime(default(DateTimeKind)))))))
               .BuildServiceProvider()
               .GetRequiredService<IInterceptable<ISystomClock>>()

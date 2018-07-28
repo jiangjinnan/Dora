@@ -48,10 +48,10 @@ namespace Microsoft.Extensions.DependencyInjection
             return BuildInterceptableServiceProvider(services, false, configure);
         }
 
-        public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, string policyFilePath, Assembly[] references, string[] imports)
-        {
-            return services.BuildInterceptableServiceProvider(_ => _.AddPolicy(policyFilePath, references, imports));
-        } 
+        //public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, string policyFilePath, Assembly[] references, string[] imports)
+        //{
+        //    return services.BuildInterceptableServiceProvider(_ => _.AddPolicy(policyFilePath, references, imports));
+        //} 
 
 
         /// <summary>
