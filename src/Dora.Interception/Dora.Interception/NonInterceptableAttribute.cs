@@ -11,8 +11,7 @@ namespace Dora.Interception
         /// <summary>
         /// The type of interceptor provider to suppress.
         /// </summary>
-        public Type[] InterceptorProviderTypes { get; }
-
+        public Type[] InterceptorProviderTypes { get; }  
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NonInterceptableAttribute"/> class.

@@ -91,7 +91,7 @@ namespace Dora.DynamicProxy
         /// <returns>The task to invoke the next interceptor or target method.</returns>
         public Task ProceedAsync()
         {
-            return Next(this);
+            return Next.Invoke(this);
         }
         #endregion
     }                             

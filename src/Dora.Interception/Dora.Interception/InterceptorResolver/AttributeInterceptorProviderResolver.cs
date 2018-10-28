@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Dora.Interception
 {
     internal class AttributeInterceptorProviderResolver : IInterceptorProviderResolver
-    {  
+    {
+        private static IInterceptorProvider[] _empty = new IInterceptorProvider[0];
         public IInterceptorProvider[] GetInterceptorProvidersForType(Type type)
         {
-            Guard.ArgumentNotNull(nameof(type), nameof(type));
+            Guard.ArgumentNotNull(nameof(type), nameof(type));            
             return CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(type)
                 .Reverse()
                 .ToArray();
@@ -22,6 +21,14 @@ namespace Dora.Interception
             return CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(method)
                 .Reverse()
                 .ToArray();
+        }
+
+        public IInterceptorProvider[] GetInterceptorProvidersForProperty(Type targetType, PropertyInfo property, PropertyMethod propertyMethod)
+        {
+            Guard.ArgumentNotNull(nameof(property), nameof(property));
+            var method = propertyMethod == PropertyMethod.Get ? property.GetMethod : property.SetMethod;
+            return CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(property).ToArray()
+                .Concat(CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(method).ToArray());
         }
 
         public bool? WillIntercept(Type type)
@@ -52,17 +59,9 @@ namespace Dora.Interception
             var attributes = CustomAttributeAccessor.GetCustomAttributes<NonInterceptableAttribute>(property, true);
             if (attributes.Any(it => it.InterceptorProviderTypes.Length == 0))
             {
-                return true;
+                return false;
             }
             return null;
-        }
-
-        public IInterceptorProvider[] GetInterceptorProvidersForProperty(Type targetType, PropertyInfo property, PropertyMethod propertyMethod)
-        {
-            Guard.ArgumentNotNull(nameof(property), nameof(property));
-            var method = propertyMethod == PropertyMethod.Get ? property.GetMethod : property.SetMethod;
-            return CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(property).ToArray()
-                .Concat(CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(method).ToArray());
         }
     }
 }

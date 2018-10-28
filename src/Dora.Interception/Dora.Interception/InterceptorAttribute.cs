@@ -27,7 +27,7 @@ namespace Dora.Interception
             {
                 return _allowMultiple.HasValue
                     ? _allowMultiple.Value
-                    : (_allowMultiple = this.GetType().GetTypeInfo().GetCustomAttribute<AttributeUsageAttribute>().AllowMultiple).Value;
+                    : (_allowMultiple = GetType().GetTypeInfo().GetCustomAttribute<AttributeUsageAttribute>().AllowMultiple).Value;
             }
         }
 

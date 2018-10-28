@@ -28,7 +28,7 @@ namespace Dora.Interception.Policies
             {
                 throw new ArgumentException(Resources.NotPropertyAccessExpression, nameof(propertyAccessor));
             }
-            _policy.ExludedProperties[property.MetadataToken] = propertyMethod;
+            _policy.ExcludedProperties[property.MetadataToken] = propertyMethod;
             return this;
         }  
         public ITargetPolicyBuilder<T> IncludeMethod(Expression<Action<T>> methodInvocation)
@@ -50,7 +50,7 @@ namespace Dora.Interception.Policies
         }    
         public ITargetPolicyBuilder<T> IncludeAllMembers()
         {
-            _policy.IncludedAllMembers = true;
+            _policy.IncludeAllMembers = true;
             return this;
         }
         private static MethodCallExpression GetMetehod(Expression<Action<T>> methodInvocation)

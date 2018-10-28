@@ -66,11 +66,11 @@ namespace Dora.DynamicProxy
              object target,
              object[] arguments)
         {
-            this.Method = Guard.ArgumentNotNull(method, nameof(method));
-            this.Proxy = Guard.ArgumentNotNull(proxy, nameof(proxy));
-            this.Target = Guard.ArgumentNotNull(target, nameof(target));
-            this.Arguments = Guard.ArgumentNotNull(arguments, nameof(arguments));
-            this.ExtendedProperties = new Dictionary<string, object>();  
+            Method = Guard.ArgumentNotNull(method, nameof(method));
+            Proxy = Guard.ArgumentNotNull(proxy, nameof(proxy));
+            Target = Guard.ArgumentNotNull(target, nameof(target));
+            Arguments = Guard.ArgumentNotNull(arguments, nameof(arguments));
+            ExtendedProperties = new Dictionary<string, object>();  
         }
         #endregion
     }

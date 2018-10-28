@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Dora.Interception
 {
@@ -23,13 +22,17 @@ namespace Dora.Interception
             {
                 type = type.GetGenericTypeDefinition();
             }
-            return _providerResolvers.SelectMany(it => it.GetInterceptorProvidersForType(type)).ToArray();
+            return _providerResolvers
+                .SelectMany(it => it.GetInterceptorProvidersForType(type))
+                .ToArray();
         }
 
         public IInterceptorProvider[] GetInterceptorProvidersForMethod(Type targetType, MethodInfo method)
         {
             Guard.ArgumentNotNull(method, nameof(method));
-            return _providerResolvers.SelectMany(it => it.GetInterceptorProvidersForMethod(targetType,method)).ToArray();
+            return _providerResolvers
+                .SelectMany(it => it.GetInterceptorProvidersForMethod(targetType,method))
+                .ToArray();
         } 
        
         public IInterceptorProvider[] GetInterceptorProvidersForProperty(Type targetType, PropertyInfo property, PropertyMethod propertyMethod)
@@ -43,7 +46,9 @@ namespace Dora.Interception
             {
                 throw new ArgumentException(Resources.PropertyHasNoSetMethod.Fill(property.Name, property.DeclaringType.AssemblyQualifiedName), nameof(propertyMethod));
             }
-            return _providerResolvers.SelectMany(it => it.GetInterceptorProvidersForProperty(targetType,property, propertyMethod)).ToArray();
+            return _providerResolvers
+                .SelectMany(it => it.GetInterceptorProvidersForProperty(targetType,property, propertyMethod))
+                .ToArray();
         }
 
         public bool? WillIntercept(Type type)
@@ -57,39 +62,39 @@ namespace Dora.Interception
                     continue;
                 }
                 return result.Value;
-            } 
-            return null;
-        }
-
-        public bool? WillIntercept(Type targetType, MethodInfo method)
-        {
-            Guard.ArgumentNotNull(method, nameof(method));
-            for (int index = _providerResolvers.Length - 1; index >= 0; index--)
-            {
-                var result = _providerResolvers[index].WillIntercept(targetType,method);
-                if (result == null)
-                {
-                    continue;
-                }
-                return result.Value;
-            }   
-            return null;
-        }
-
-        public bool? WillIntercept(Type targetType, PropertyInfo property)
-        {
-            Guard.ArgumentNotNull(property, nameof(property));
-            for (int index = _providerResolvers.Length - 1; index >= 0; index--)
-            {
-                var result = _providerResolvers[index].WillIntercept(targetType, property);
-                if (result == null)
-                {
-                    continue;
-                }
-                return result.Value;
             }
-
             return null;
         }
+
+        //public bool? WillIntercept(Type targetType, MethodInfo method)
+        //{
+        //    Guard.ArgumentNotNull(method, nameof(method));
+        //    for (int index = _providerResolvers.Length - 1; index >= 0; index--)
+        //    {
+        //        var result = _providerResolvers[index].WillIntercept(targetType,method);
+        //        if (result == null)
+        //        {
+        //            continue;
+        //        }
+        //        return result.Value;
+        //    }   
+        //    return null;
+        //}
+
+        //public bool? WillIntercept(Type targetType, PropertyInfo property)
+        //{
+        //    Guard.ArgumentNotNull(property, nameof(property));
+        //    for (int index = _providerResolvers.Length - 1; index >= 0; index--)
+        //    {
+        //        var result = _providerResolvers[index].WillIntercept(targetType, property);
+        //        if (result == null)
+        //        {
+        //            continue;
+        //        }
+        //        return result.Value;
+        //    }
+
+        //    return null;
+        //}
     }
 }

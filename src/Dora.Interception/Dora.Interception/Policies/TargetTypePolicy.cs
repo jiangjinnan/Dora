@@ -22,7 +22,7 @@ namespace Dora.Interception.Policies
         /// <value>
         /// The flag indicating whether to apply specified <see cref="IInterceptorProvider"/> to all interceptable members.
         /// </value>
-        public bool? IncludedAllMembers { get; set; }
+        public bool? IncludeAllMembers { get; set; }
 
         /// <summary>
         /// Gets the explicitly marked methods to which the specified <see cref="IInterceptorProvider"/> is applied.
@@ -54,7 +54,7 @@ namespace Dora.Interception.Policies
         /// <value>
         /// The explicitly excluded properties for the specified <see cref="IInterceptorProvider"/>.
         /// </value>
-        public IDictionary<int, PropertyMethod> ExludedProperties { get; }
+        public IDictionary<int, PropertyMethod> ExcludedProperties { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetTypePolicy"/> class.
@@ -67,7 +67,7 @@ namespace Dora.Interception.Policies
             IncludedMethods = new HashSet<int>();
             ExludedMethods = new HashSet<int>();
             IncludedProperties = new Dictionary<int, PropertyMethod>();
-            ExludedProperties = new Dictionary<int, PropertyMethod>();
+            ExcludedProperties = new Dictionary<int, PropertyMethod>();
         }
     }
 }

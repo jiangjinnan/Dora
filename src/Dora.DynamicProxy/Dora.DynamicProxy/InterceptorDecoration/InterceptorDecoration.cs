@@ -1,11 +1,8 @@
-﻿using Dora.DynamicProxy.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Dora.DynamicProxy
 {
@@ -13,9 +10,8 @@ namespace Dora.DynamicProxy
     /// Representing which interceptors are applied to which members of a type to intercept.
     /// </summary>
     public sealed class InterceptorDecoration
-    {
+    {     
         #region Fields
-        private static readonly InterceptorDecoration _empty = new InterceptorDecoration(new Dictionary<MethodInfo, InterceptorDelegate>());
         private static MethodInfo _methodOfGetInterceptor;
         private Dictionary<MethodInfo, MethodInfo> _interfaceMapping;
 
@@ -24,7 +20,7 @@ namespace Dora.DynamicProxy
         #region Properties 
 
         /// <summary>
-        /// The interceptors
+        /// The <see cref="IReadOnlyDictionary{Int32, InterceptorDelegate}"/> containing all applied interceptors. The key is the MetadataToken of the method to which the interceptor is applied.
         /// </summary>
         public IReadOnlyDictionary<int, InterceptorDelegate> Interceptors { get; }     
 
@@ -42,7 +38,7 @@ namespace Dora.DynamicProxy
         /// <value>
         /// The empty <see cref="InterceptorDecoration"/>.
         /// </value>
-        public static InterceptorDecoration Empty => _empty;
+        public static InterceptorDecoration Empty { get; } = new InterceptorDecoration(new Dictionary<MethodInfo, InterceptorDelegate>());
 
         internal static MethodInfo MethodOfGetInterceptor
         {
@@ -74,7 +70,9 @@ namespace Dora.DynamicProxy
         /// <param name="interfaceMapping">Interface mapping.</param>
         /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors" /> is null.</exception>
         /// <exception cref="ArgumentException">Specified <paramref name="interceptors" /> is empty.</exception>
-        public InterceptorDecoration(IDictionary<MethodInfo, InterceptorDelegate> interceptors, InterfaceMapping? interfaceMapping = null)
+        public InterceptorDecoration(
+            IDictionary<MethodInfo, InterceptorDelegate> interceptors, 
+            InterfaceMapping? interfaceMapping = null)
         {
             Guard.ArgumentNotNull(interceptors, nameof(interceptors));
             var dictionary = interceptors.ToDictionary(it => it.Key.MetadataToken, it => it.Value);  
