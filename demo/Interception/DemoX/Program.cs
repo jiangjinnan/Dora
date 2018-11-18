@@ -51,8 +51,6 @@ namespace DemoX
       
         public class FoobarInterceptor
         {
-          
-
             public Task InvokeAsync(InvocationContext context)
             {
                 _action();

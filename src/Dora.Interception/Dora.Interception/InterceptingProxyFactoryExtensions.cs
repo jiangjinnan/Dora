@@ -33,7 +33,7 @@ namespace Dora.Interception
         /// <returns>The interceptable proxy.</returns>
         /// <exception cref="ArgumentException">Invalid ServiceProvider - serviceProvider</exception>
         /// <exception cref="ArgumentNullException">Specified <paramref name="proxyFactory" /> is null.</exception>
-        /// <exception cref="ArgumentNullException">Specified <paramref name="proxyFactory" /> is null.</exception>
+        /// <exception cref="ArgumentNullException">Specified <paramref name="serviceProvider" /> is null.</exception>
         public static T Create<T>(this IInterceptingProxyFactory proxyFactory, IServiceProvider serviceProvider)
         {
             Guard.ArgumentNotNull(proxyFactory, nameof(proxyFactory));

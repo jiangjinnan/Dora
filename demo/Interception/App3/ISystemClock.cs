@@ -2,7 +2,7 @@
 
 namespace App
 {
-    public interface ISystomClock
+    public interface ISystemClock
     {
         DateTime GetCurrentTime(DateTimeKind dateTimeKind);
     }

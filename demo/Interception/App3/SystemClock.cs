@@ -2,10 +2,16 @@
 
 namespace App
 {
-    public class SystomClock : ISystomClock
+    public class SystemClock 
+        //: ISystemClock
     {
-        //[CacheReturnValue]
-        public DateTime GetCurrentTime(DateTimeKind dateTimeKind)
+        public SystemClock()
+        {
+
+        }
+
+        [CacheReturnValue]
+        public virtual DateTime GetCurrentTime(DateTimeKind dateTimeKind)
         {
             switch (dateTimeKind)
             {

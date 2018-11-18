@@ -4,6 +4,7 @@ using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Reflection;
+using System.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -22,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddInterception(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         { 
             Guard.ArgumentNotNull(services, nameof(services));
-            services.TryAddSingleton(typeof(IInterceptable<>), typeof(Interceptable<>));
+            services.TryAddTransient(typeof(IInterceptable<>), typeof(Interceptable<>));
             services.TryAddSingleton<IInterceptorChainBuilder, InterceptorChainBuilder>();    
             services.TryAddSingleton<IInterceptingProxyFactory, InterceptingProxyFactory>();
             services.TryAddSingleton<IInstanceDynamicProxyGenerator, InterfaceDynamicProxyGenerator>();
@@ -32,9 +33,64 @@ namespace Microsoft.Extensions.DependencyInjection
             var builder = new InterceptionBuilder(services);   
             configure?.Invoke(builder);
             services.AddSingleton<IInterceptorResolver>(_=>new InterceptorResolver(_.GetRequiredService<IInterceptorChainBuilder>() , builder.InterceptorProviderResolvers));
+
+            var resolver = services.BuildServiceProvider().GetRequiredService<IInterceptorResolver>();
+            AddVirtualMethodServices(services, resolver);
             return services; 
         }
 
+        private static void AddVirtualMethodServices(IServiceCollection services, IInterceptorResolver resolver)
+        {
+            var result = (from it in services
+                               let implType = it.ImplementationType
+                               let interceptors = implType == null
+                                ? null
+                                : resolver.GetInterceptors(it.ImplementationType)
+                               where !it.ServiceType.IsInterface &&
+                                it.ImplementationFactory == null &&
+                                it.ImplementationInstance == null &&
+                                it.ImplementationType != null &&
+                                !interceptors.IsEmpty
+                               select new { ServiceDescriptor = it, Interceptors = interceptors } )
+                               .ToArray();
+
+            Array.ForEach(result.Select(it => it.ServiceDescriptor).ToArray(), it => services.Remove(it));
+            foreach (var item in result.ToArray())
+            {
+                var serviceType = item.ServiceDescriptor.ServiceType;
+                var proxyType = DynamicProxyClassGenerator.CreateVirtualMethodGenerator(item.ServiceDescriptor.ImplementationType, item.Interceptors).GenerateProxyType();
+                switch (item.ServiceDescriptor.Lifetime)
+                {
+                    case ServiceLifetime.Scoped:
+                        {
+                            services.AddScoped(serviceType, provider => {
+                                var proxy = ActivatorUtilities.CreateInstance(provider, proxyType);
+                                ((IInterceptorsInitializer)proxy).SetInterceptors(item.Interceptors);
+                                return proxy;
+                            });
+                            break;
+                        }
+                    case ServiceLifetime.Singleton:
+                        {
+                            services.AddSingleton(serviceType, provider => {
+                                var proxy = ActivatorUtilities.CreateInstance(provider, proxyType);
+                                ((IInterceptorsInitializer)proxy).SetInterceptors(item.Interceptors);
+                                return proxy;
+                            });
+                            break;
+                        }
+                    case ServiceLifetime.Transient:
+                        {
+                            services.AddTransient(serviceType, provider => {
+                                var proxy = ActivatorUtilities.CreateInstance(provider, proxyType);
+                                ((IInterceptorsInitializer)proxy).SetInterceptors(item.Interceptors);
+                                return proxy;
+                            });
+                            break;
+                        }
+                }
+            }
+        }
 
         /// <summary>
         /// Builders the interceptable service provider.
@@ -68,7 +124,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
             services.AddInterception(configure);
             var proxyFactory = services.BuildServiceProvider().GetRequiredService<IInterceptingProxyFactory>();
-            return new InterceptableServiceProvider(services, options , proxyFactory);
+            return new InterceptableServiceProvider(services, options, proxyFactory);
         }
     }
 }

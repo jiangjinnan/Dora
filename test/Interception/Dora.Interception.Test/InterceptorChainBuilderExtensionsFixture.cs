@@ -14,15 +14,6 @@ namespace Dora.Interception.Test
     {
         private static Action _intercept;
 
-        [Theory]
-        [InlineData(null, "1")]
-        [InlineData("1;", null)]
-        public void Use_Arguments_Not_Allow_Null(string builderIndicator, string typeIndicator)
-        {
-            IInterceptorChainBuilder builder = builderIndicator == null ? null : new InterceptorChainBuilder(new ServiceCollection().BuildServiceProvider());
-            Type type = typeIndicator == null ? null : typeof(string);
-            Assert.Throws<ArgumentNullException>(() => builder.Use(type, 1));
-        }
 
         [Fact]
         public async void Use()

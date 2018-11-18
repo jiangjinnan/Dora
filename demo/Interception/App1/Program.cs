@@ -1,4 +1,5 @@
-﻿using Dora.Interception;
+﻿using Dora.DynamicProxy;
+using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,13 +14,13 @@ namespace App
             var clock1 = new ServiceCollection()
               .AddLogging(factory => factory.AddConsole())
               .AddMemoryCache()
-              .AddSingleton<ISystomClock, SystomClock>()
+              .AddSingleton<ISystemClock, SystemClock>()
               .AddInterception(builder=>builder.AddPolicy(policyBuilder=> policyBuilder
                 .For<CacheReturnValueAttribute>(1, providerBuilder=> providerBuilder
-                    .To<SystomClock>(targetBuilder=> targetBuilder
+                    .To<SystemClock>(targetBuilder=> targetBuilder
                         .IncludeMethod(it=>it.GetCurrentTime(default(DateTimeKind)))))))
               .BuildServiceProvider()
-              .GetRequiredService<IInterceptable<ISystomClock>>()
+              .GetRequiredService<IInterceptable<ISystemClock>>()
               .Proxy;
 
             for (int i = 0; i < 5; i++)
@@ -36,9 +37,9 @@ namespace App
 
             var clock2 = new ServiceCollection()
               .AddMemoryCache()
-              .AddSingleton<ISystomClock, SystomClock>()
+              .AddSingleton<ISystemClock, SystemClock>()
               .BuildInterceptableServiceProvider()
-              .GetRequiredService<ISystomClock>();
+              .GetRequiredService<ISystemClock>();
 
             for (int i = 0; i < 5; i++)
             {
@@ -53,5 +54,30 @@ namespace App
             }
         }
     }
+}
+
+public class FoobarInterceptor
+{
+    public IFoo Foo { get; }
+    public string Baz { get; }  
+    public FoobarInterceptor(IFoo foo, string baz)
+    {
+        Foo = foo;
+        Baz = baz;
+    }
+
+    public async Task InvokeAsync(InvocationContext context, IBar bar)
+    {
+        await Foo.DoSomethingAsync();
+        await bar.DoSomethingAsync();
+        await context.ProceedAsync();
+    }
+}
+
+public interface IFoo {
+    Task DoSomethingAsync();
+}
+public interface IBar {
+    Task DoSomethingAsync();
 }
 

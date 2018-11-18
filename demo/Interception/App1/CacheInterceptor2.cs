@@ -6,83 +6,83 @@ using System.Threading.Tasks;
 
 namespace App
 {
-public class CacheInterceptor
-{
-    private readonly IMemoryCache _cache;
-    private readonly MemoryCacheEntryOptions _options;
-    public CacheInterceptor(IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
+    public class CacheInterceptor
     {
-        _cache = cache;
-        _options = optionsAccessor.Value;
-    }
-
-    public async Task InvokeAsync(InvocationContext context)
-    {
-        var key = new Cachekey(context.Method, context.Arguments);
-        if (_cache.TryGetValue(key, out object value))
+        private readonly IMemoryCache _cache;
+        private readonly MemoryCacheEntryOptions _options;
+        public CacheInterceptor(IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
         {
-            context.ReturnValue = value;
-        }
-        else
-        {
-            await context.ProceedAsync();
-            _cache.Set(key, context.ReturnValue, _options);
-        }
-    }
-
-    private class Cachekey
-    {
-        public MethodBase Method { get; }
-        public object[] InputArguments { get; }
-
-        public Cachekey(MethodBase method, object[] arguments)
-        {
-            this.Method = method;
-            this.InputArguments = arguments;
+            _cache = cache;
+            _options = optionsAccessor.Value;
         }
 
-        public override bool Equals(object obj)
+        public async Task InvokeAsync(InvocationContext context)
         {
-            Cachekey another = obj as Cachekey;
-            if (null == another)
+            var key = new Cachekey(context.Method, context.Arguments);
+            if (_cache.TryGetValue(key, out object value))
             {
-                return false;
+                context.ReturnValue = value;
             }
-            if (!this.Method.Equals(another.Method))
+            else
             {
-                return false;
+                await context.ProceedAsync();
+                _cache.Set(key, context.ReturnValue, _options);
             }
-            for (int index = 0; index < this.InputArguments.Length; index++)
-            {
-                var argument1 = this.InputArguments[index];
-                var argument2 = another.InputArguments[index];
-                if (argument1 == null && argument2 == null)
-                {
-                    continue;
-                }
+        }
 
-                if (argument1 == null || argument2 == null)
+        private class Cachekey
+        {
+            public MethodBase Method { get; }
+            public object[] InputArguments { get; }
+
+            public Cachekey(MethodBase method, object[] arguments)
+            {
+                this.Method = method;
+                this.InputArguments = arguments;
+            }
+
+            public override bool Equals(object obj)
+            {
+                Cachekey another = obj as Cachekey;
+                if (null == another)
                 {
                     return false;
                 }
-
-                if (!argument2.Equals(argument2))
+                if (!this.Method.Equals(another.Method))
                 {
                     return false;
                 }
-            }
-            return true;
-        }
+                for (int index = 0; index < this.InputArguments.Length; index++)
+                {
+                    var argument1 = this.InputArguments[index];
+                    var argument2 = another.InputArguments[index];
+                    if (argument1 == null && argument2 == null)
+                    {
+                        continue;
+                    }
 
-        public override int GetHashCode()
-        {
-            int hashCode = this.Method.GetHashCode();
-            foreach (var argument in this.InputArguments)
-            {
-                hashCode = hashCode ^ argument.GetHashCode();
+                    if (argument1 == null || argument2 == null)
+                    {
+                        return false;
+                    }
+
+                    if (!argument2.Equals(argument2))
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
-            return hashCode;
+
+            public override int GetHashCode()
+            {
+                int hashCode = this.Method.GetHashCode();
+                foreach (var argument in this.InputArguments)
+                {
+                    hashCode = hashCode ^ argument.GetHashCode();
+                }
+                return hashCode;
+            }
         }
     }
-}
 }

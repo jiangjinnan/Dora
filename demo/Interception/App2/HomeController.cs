@@ -8,8 +8,8 @@ namespace App
 {
     public class HomeController : Controller
     {
-        private readonly ISystomClock _clock;
-        public HomeController(IInterceptable<ISystomClock> clockAccessor)
+        private readonly ISystemClock _clock;
+        public HomeController(IInterceptable<ISystemClock> clockAccessor)
         {
             _clock = clockAccessor.Proxy;
         }

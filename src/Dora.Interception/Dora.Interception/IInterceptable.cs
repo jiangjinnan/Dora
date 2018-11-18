@@ -21,7 +21,6 @@ namespace Dora.Interception
     /// <typeparam name="T">The declaration type of service.</typeparam>
     public class Interceptable<T> : IInterceptable<T> where T : class
     {
-        private T _proxy;
         private readonly IInterceptingProxyFactory _proxyFactory;
         private readonly IServiceProvider _serviceProvider;
 
@@ -48,18 +47,12 @@ namespace Dora.Interception
         {
             get
             {
-                if (null != _proxy)
-                {
-                    return _proxy;
-                }
-
                 if (typeof(T).IsInterface)
                 {
                     var target = _serviceProvider.GetService<T>();
-                    return _proxy = _proxyFactory.Wrap<T>(target);
+                    return _proxyFactory.Wrap<T>(target);
                 }
-
-                return _proxy = _proxyFactory.Create<T>(_serviceProvider); 
+                return _proxyFactory.Create<T>(_serviceProvider); 
             }  
         }
     }
