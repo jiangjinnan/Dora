@@ -10,7 +10,7 @@
     <Company>Artech</Company>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Product>Dora</Product>
-    <Version>2.1.0</Version>
+    <Version>2.1.1-beta1</Version>
     <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy</PackageTags>
     <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
     <PackageLicenseUrl>http://www.doranet.org/nuget-license</PackageLicenseUrl>
@@ -24,6 +24,7 @@
 3. Not only can interceptors be applied to methods, but they can be applied to properties, event their get or set methods.
 
 </PackageReleaseNotes>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
