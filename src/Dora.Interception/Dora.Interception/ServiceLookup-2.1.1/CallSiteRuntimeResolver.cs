@@ -115,7 +115,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
 
             if (interceptionCallSite.CanIntercept && (interceptionCallSite.TargetCallSite is ConstructorCallSite || interceptionCallSite.TargetCallSite is CreateInstanceCallSite))
             {
-                return interceptionCallSite.ProxyFactory.Create(interceptionCallSite.ImplementationType ?? interceptionCallSite.ServiceType);
+                return interceptionCallSite.ProxyFactory.Create(interceptionCallSite.ImplementationType ?? interceptionCallSite.ServiceType, scope, () => VisitCallSite(interceptionCallSite.TargetCallSite, scope));
             }
 
             return VisitCallSite(interceptionCallSite.TargetCallSite, scope);

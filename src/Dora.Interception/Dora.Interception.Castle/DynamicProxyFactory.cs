@@ -9,63 +9,52 @@ namespace Dora.Interception.Castle
     /// <summary>
     /// A custom proxy factory leveraging <see cref="ProxyGenerator"/> to create proxy.
     /// </summary>
-    public class DynamicProxyFactory : IInterceptingProxyFactory
+    public class DynamicProxyFactory : InterceptingProxyFactoryBase
     {
         private readonly ProxyGenerator _proxyGenerator;
-        private readonly IInterceptorResolver   _interceptorResolver;
 
         /// <summary>
         /// Create a new <see cref="DynamicProxyFactory"/>.
         /// </summary>   
-        public DynamicProxyFactory(IInterceptorResolver  interceptorResolver, IServiceProvider serviceProvider)
+        public DynamicProxyFactory(IInterceptorResolver interceptorResolver, IServiceProvider serviceProvider)
+            :base(interceptorResolver, serviceProvider)
         {
-            _interceptorResolver = Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
-            ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
             _proxyGenerator = new ProxyGenerator();
-        }
+        }             
 
         /// <summary>
-        /// Gets the service provider.
-        /// </summary>
-        /// <value>
-        /// The service provider.
-        /// </value>
-        public IServiceProvider ServiceProvider { get; }
-
-        /// <summary>
-        /// Creates the specified type to intercept.
+        /// Create an interceptable proxy instance.
         /// </summary>
         /// <param name="typeToIntercept">The type to intercept.</param>
-        /// <returns>The proxy wrapping the specified target instance.</returns>
-        public object Create(Type typeToIntercept)
+        /// <param name="serviceProvider">The <see cref="T:System.IServiceProvider" /> used to provide dependent service instances.</param>
+        /// <param name="interceptors">The <see cref="T:Dora.DynamicProxy.InterceptorDecoration" /> representing which interceptors are applied to which members of a type to intercept.</param>
+        /// <returns>
+        /// The interceptable proxy instance.
+        /// </returns>
+        protected override object Create(Type typeToIntercept, IServiceProvider serviceProvider, InterceptorDecoration interceptors)
         {
-            var interceptorDecoration = _interceptorResolver.GetInterceptors(typeToIntercept); 
-            var interceptors = interceptorDecoration.Interceptors
-                .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
-            var selector = new DynamicProxyInterceptorSelector(interceptors.ToDictionary(it => it.Key, it => it.Value));
-            var options = new ProxyGenerationOptions { Selector = selector};
-            return _proxyGenerator.CreateClassProxy(typeToIntercept, options, interceptors.Values.ToArray());
+            var dictionary = interceptors.Interceptors
+                 .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
+            var selector = new DynamicProxyInterceptorSelector(dictionary.ToDictionary(it => it.Key, it => it.Value));
+            var options = new ProxyGenerationOptions { Selector = selector };
+            return _proxyGenerator.CreateClassProxy(typeToIntercept, options, dictionary.Values.ToArray());
         }
 
         /// <summary>
         /// Create a proxy wrapping specified target instance.
         /// </summary>
-        /// <param name="typeToIntercept">The declaration type of proxy to create.</param>
-        /// <param name="target">The target instance wrapped by the created proxy.</param>
-        /// <returns>
-        /// The proxy wrapping the specified target instance.
-        /// </returns>
-        public object Wrap(Type typeToIntercept, object target)
+        /// <param name="typeToIntercept">The type to intercept.</param>
+        /// <param name="target">The target.</param>
+        /// <param name="interceptors">The interceptors.</param>
+        /// <returns></returns>
+        protected override object Wrap(Type typeToIntercept, object target, InterceptorDecoration interceptors)
         {
-            Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
-            Guard.ArgumentNotNull(target, nameof(target));
-            var interceptorDecoration = _interceptorResolver.GetInterceptors(typeToIntercept, target.GetType());
-            var interceptors = interceptorDecoration.Interceptors
-               .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
-            var selector = new DynamicProxyInterceptorSelector(interceptors.ToDictionary(it => it.Key, it => it.Value));
+            var dictionary = interceptors.Interceptors
+                .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
+            var selector = new DynamicProxyInterceptorSelector(dictionary.ToDictionary(it => it.Key, it => it.Value));
             var options = new ProxyGenerationOptions { Selector = selector };
 
-            return _proxyGenerator.CreateInterfaceProxyWithTarget(typeToIntercept,target, interceptors.Values.ToArray());
+            return _proxyGenerator.CreateInterfaceProxyWithTarget(typeToIntercept, target, dictionary.Values.ToArray());
         }
 
         internal class FoobarAsyncInterceptor : AsyncInterceptorBase

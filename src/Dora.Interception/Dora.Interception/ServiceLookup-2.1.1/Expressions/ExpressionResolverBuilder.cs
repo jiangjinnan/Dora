@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
         internal static readonly MethodInfo CallSiteRuntimeResolverResolve = GetMethodInfo<Func<CallSiteRuntimeResolver, IServiceCallSite, ServiceProviderEngineScope, object>>((r, c, p) => r.Resolve(c, p));
 
         internal static readonly MethodInfo WrapMethodInfo = GetMethodInfo<Action<IInterceptingProxyFactory>>(it => it.Wrap(typeof(object), null));
-        internal static readonly MethodInfo CreateMethodInfo = GetMethodInfo<Action<IInterceptingProxyFactory>>(it => it.Create(typeof(object)));
+        internal static readonly MethodInfo CreateMethodInfo = GetMethodInfo<Action<IInterceptingProxyFactory>>(it => it.Create(typeof(object), null, null));
 
         internal static readonly MethodInfo ArrayEmptyMethodInfo = typeof(Array).GetMethod(nameof(Array.Empty));
 
@@ -312,7 +312,7 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                 var proxyFactory = Expression.Constant(interceptionCallSite.ProxyFactory, typeof(IInterceptingProxyFactory));
                 var type = Expression.Constant(interceptionCallSite.ImplementationType ?? interceptionCallSite.ServiceType);
                 var targetAccessor = Expression.Lambda<Func<object>>(VisitCallSite(interceptionCallSite.TargetCallSite, argument));
-                return Expression.Call(proxyFactory, CreateMethodInfo, type);
+                return Expression.Call(proxyFactory, CreateMethodInfo, type, argument.ScopeParameter, targetAccessor);
             }
 
             return VisitCallSite(interceptionCallSite.TargetCallSite, argument);

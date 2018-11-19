@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Threading.Tasks;
 
 namespace App
 {
     public class SystemClock : ISystemClock
     {
+        public SystemClock() { }
+
         [CacheReturnValue]
         public Task<DateTime> GetCurrentTime(DateTimeKind dateTimeKind)
         {

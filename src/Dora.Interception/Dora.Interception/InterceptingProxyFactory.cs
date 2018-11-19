@@ -7,7 +7,7 @@ namespace Dora.Interception
     /// The default implementation of <see cref="IInterceptingProxyFactory"/>.
     /// </summary>
     /// <seealso cref="Dora.Interception.IInterceptingProxyFactory" />
-    public class InterceptingProxyFactory : IInterceptingProxyFactory
+    public class InterceptingProxyFactory : InterceptingProxyFactoryBase
     {
         /// <summary>
         /// Gets the instance dynamic proxy generator.
@@ -26,19 +26,6 @@ namespace Dora.Interception
         public ITypeDynamicProxyGenerator TypeDynamicProxyGenerator { get; }
 
         /// <summary>
-        /// Gets the interceptor collector.
-        /// </summary>
-        /// <value>
-        /// The interceptor collector.
-        /// </value>
-        public IInterceptorResolver InterceptorResolver { get; }
-
-        /// <summary>
-        /// Get a service provider to get dependency services.
-        /// </summary>
-        public IServiceProvider ServiceProvider { get; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="InterceptingProxyFactory"/> class.
         /// </summary>
         /// <param name="instanceDynamicProxyGenerator">The instance dynamic proxy generator.</param>
@@ -53,54 +40,36 @@ namespace Dora.Interception
             IInstanceDynamicProxyGenerator instanceDynamicProxyGenerator,
             ITypeDynamicProxyGenerator typeDynamicProxyGenerator,
             IInterceptorResolver interceptorResolver,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider) :base(interceptorResolver, serviceProvider)
         {
             InstanceDynamicProxyGenerator = Guard.ArgumentNotNull(instanceDynamicProxyGenerator, nameof(instanceDynamicProxyGenerator));
             TypeDynamicProxyGenerator = Guard.ArgumentNotNull(typeDynamicProxyGenerator, nameof(typeDynamicProxyGenerator));
-            InterceptorResolver = Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
-            ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
-        } 
+        }          
 
         /// <summary>
         /// Create a proxy wrapping specified target instance.
         /// </summary>
-        /// <param name="typeToIntercept">The declaration type of proxy to create.</param>
-        /// <param name="target">The target instance wrapped by the created proxy.</param>
-        /// <returns>
-        /// The proxy wrapping the specified target instance.
-        /// </returns>
-        public object Wrap(Type typeToIntercept, object target)
+        /// <param name="typeToIntercept">The type to intercept.</param>
+        /// <param name="target">The target.</param>
+        /// <param name="interceptors">The interceptors.</param>
+        /// <returns></returns>
+        protected override object Wrap(Type typeToIntercept, object target, InterceptorDecoration interceptors)
         {
-            Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
-            Guard.ArgumentNotNull(target,nameof(target));
-            Guard.ArgumentAssignableTo(typeToIntercept, target.GetType(), nameof(target));
-
-            if (!InstanceDynamicProxyGenerator.CanIntercept(typeToIntercept))
-            {
-                return target;
-            }
-
-            var interceptors = InterceptorResolver.GetInterceptors(typeToIntercept, target.GetType());
-            if (interceptors.IsEmpty)
-            {
-                return target;
-            }
-
             return InstanceDynamicProxyGenerator.Wrap(typeToIntercept, target, interceptors);
         }
 
         /// <summary>
-        /// Creates the specified type to proxy.
+        /// Create an interceptable proxy instance.
         /// </summary>
-        /// <param name="typeToIntercept">The type to proxy.</param>
+        /// <param name="typeToIntercept">The type to intercept.</param>
+        /// <param name="serviceProvider">The <see cref="IServiceProvider" /> used to provide dependent service instances.</param>
+        /// <param name="interceptors">The <see cref="InterceptorDecoration" /> representing which interceptors are applied to which members of a type to intercept.</param>
         /// <returns>
-        /// The proxy wrapping the specified target instance.
+        /// The interceptable proxy instance.
         /// </returns>
-        public object Create(Type typeToIntercept)
-        {    
-            Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
-            var interceptors = InterceptorResolver.GetInterceptors(typeToIntercept);             
-            return TypeDynamicProxyGenerator.Create(typeToIntercept, interceptors, ServiceProvider);
+        protected override object Create(Type typeToIntercept, IServiceProvider serviceProvider, InterceptorDecoration interceptors)
+        {
+            return TypeDynamicProxyGenerator.Create(typeToIntercept, interceptors, serviceProvider);
         }
     }
 }
