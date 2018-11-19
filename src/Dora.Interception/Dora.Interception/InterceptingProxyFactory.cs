@@ -101,7 +101,7 @@ namespace Dora.Interception
         /// </returns>
         public object Create(Type typeToIntercept, IServiceProvider serviceProvider, Func<object> targetAccessor = null)
         {
-            return serviceProvider.GetService(typeToIntercept);
+            //return serviceProvider.GetService(typeToIntercept);
 
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));

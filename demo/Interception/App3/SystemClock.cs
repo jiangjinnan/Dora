@@ -3,7 +3,7 @@
 namespace App
 {
     public class SystemClock 
-        //: ISystemClock
+        : ISystemClock
     {
         public SystemClock()
         {

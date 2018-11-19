@@ -32,7 +32,13 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="serviceType"></param>
         /// <returns></returns>
-        public object GetService(Type serviceType) => _engine.GetService(serviceType);
+        public object GetService(Type serviceType)
+        {
+            using (new InterceptableServiceProviderContextScope())
+            {
+                return _engine.GetService(serviceType);
+            }
+        }
 
         /// <inheritdoc />
         public void Dispose() => _engine.Dispose();
@@ -46,5 +52,17 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             _callSiteValidator.ValidateResolution(serviceType, scope, _engine.RootScope);
         }
+    }
+
+    internal class InterceptableServiceProviderContext
+    {
+        [ThreadStatic]
+        public static InterceptableServiceProviderContext Current;
+    }
+
+    internal sealed class InterceptableServiceProviderContextScope : IDisposable
+    {
+        public InterceptableServiceProviderContextScope() => InterceptableServiceProviderContext.Current = new InterceptableServiceProviderContext();
+        public void Dispose() => InterceptableServiceProviderContext.Current = null;
     }
 }

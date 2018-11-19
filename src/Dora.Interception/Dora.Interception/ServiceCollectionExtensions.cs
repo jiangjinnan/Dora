@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Reflection;
 using System.Linq;
+using Dora.Interception.Internal;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -21,26 +22,40 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The <see cref="IServiceCollection"/> with added service registration.</returns>
         /// <exception cref="ArgumentNullException">Specified <paramref name="services"/> is null.</exception>
         public static IServiceCollection AddInterception(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
-        { 
+            => services.AddInterceptionCore(configure, true);
+
+        private static IServiceCollection AddInterceptionCore(this IServiceCollection services, Action<InterceptionBuilder> configure, bool overrideExistingRegistrations)
+        {
             Guard.ArgumentNotNull(services, nameof(services));
             services.TryAddTransient(typeof(IInterceptable<>), typeof(Interceptable<>));
-            services.TryAddSingleton<IInterceptorChainBuilder, InterceptorChainBuilder>();    
+            services.TryAddSingleton<IInterceptorChainBuilder, InterceptorChainBuilder>();
             services.TryAddSingleton<IInterceptingProxyFactory, InterceptingProxyFactory>();
             services.TryAddSingleton<IInstanceDynamicProxyGenerator, InterfaceDynamicProxyGenerator>();
             services.TryAddSingleton<ITypeDynamicProxyGenerator, VirtualMethodDynamicProxyGenerator>();
             services.TryAddSingleton<IDynamicProxyFactoryCache>(new DynamicProxyFactoryCache());
 
-            var builder = new InterceptionBuilder(services);   
+            var builder = new InterceptionBuilder(services);
             configure?.Invoke(builder);
-            services.AddSingleton<IInterceptorResolver>(_=>new InterceptorResolver(_.GetRequiredService<IInterceptorChainBuilder>() , builder.InterceptorProviderResolvers));
+            services.AddSingleton<IInterceptorResolver>(_ => new InterceptorResolver(_.GetRequiredService<IInterceptorChainBuilder>(), builder.InterceptorProviderResolvers));
 
-            var resolver = services.BuildServiceProvider().GetRequiredService<IInterceptorResolver>();
-            AddVirtualMethodServices(services, resolver);
-            return services; 
+            var provider = services.BuildServiceProvider();
+            var resolver = provider.GetRequiredService<IInterceptorResolver>();
+            var proxyFactory = provider.GetRequiredService<IInterceptingProxyFactory>();
+            if (overrideExistingRegistrations)
+            {
+                OverrideRegistrations(services, resolver, proxyFactory);
+                services.AddSingleton<IInterceptableServiceProviderIndicator>(new InterceptableServiceProviderIndicator(false));
+            }
+            else
+            {
+                services.AddSingleton<IInterceptableServiceProviderIndicator>(new InterceptableServiceProviderIndicator(true));
+            }
+            return services;
         }
 
-        private static void AddVirtualMethodServices(IServiceCollection services, IInterceptorResolver resolver)
+        private static void OverrideRegistrations(IServiceCollection services, IInterceptorResolver resolver, IInterceptingProxyFactory proxyFactory)
         {
+            services.TryAddSingleton<ServiceOverrideIndicator, ServiceOverrideIndicator>();
             var result = (from it in services
                                let implType = it.ImplementationType
                                let interceptors = implType == null
@@ -58,37 +73,8 @@ namespace Microsoft.Extensions.DependencyInjection
             foreach (var item in result.ToArray())
             {
                 var serviceType = item.ServiceDescriptor.ServiceType;
-                var proxyType = DynamicProxyClassGenerator.CreateVirtualMethodGenerator(item.ServiceDescriptor.ImplementationType, item.Interceptors).GenerateProxyType();
-                switch (item.ServiceDescriptor.Lifetime)
-                {
-                    case ServiceLifetime.Scoped:
-                        {
-                            services.AddScoped(serviceType, provider => {
-                                var proxy = ActivatorUtilities.CreateInstance(provider, proxyType);
-                                ((IInterceptorsInitializer)proxy).SetInterceptors(item.Interceptors);
-                                return proxy;
-                            });
-                            break;
-                        }
-                    case ServiceLifetime.Singleton:
-                        {
-                            services.AddSingleton(serviceType, provider => {
-                                var proxy = ActivatorUtilities.CreateInstance(provider, proxyType);
-                                ((IInterceptorsInitializer)proxy).SetInterceptors(item.Interceptors);
-                                return proxy;
-                            });
-                            break;
-                        }
-                    case ServiceLifetime.Transient:
-                        {
-                            services.AddTransient(serviceType, provider => {
-                                var proxy = ActivatorUtilities.CreateInstance(provider, proxyType);
-                                ((IInterceptorsInitializer)proxy).SetInterceptors(item.Interceptors);
-                                return proxy;
-                            });
-                            break;
-                        }
-                }
+                var newDescriptor = new ServiceDescriptor(serviceType, _ => proxyFactory.Create(item.ServiceDescriptor.ImplementationType, _), item.ServiceDescriptor.Lifetime);
+                services.Add(newDescriptor);               
             }
         }
 
@@ -102,13 +88,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {
             return BuildInterceptableServiceProvider(services, false, configure);
-        }
-
-        //public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, string policyFilePath, Assembly[] references, string[] imports)
-        //{
-        //    return services.BuildInterceptableServiceProvider(_ => _.AddPolicy(policyFilePath, references, imports));
-        //} 
-
+        }      
 
         /// <summary>
         /// Builders the interceptable service provider.
@@ -121,10 +101,16 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, bool validateScopes, Action<InterceptionBuilder> configure = null)
         {
             Guard.ArgumentNotNull(services, nameof(services));
+            if (services.Any(it => it.ServiceType == typeof(ServiceOverrideIndicator)))
+            {
+                throw new InvalidOperationException("AddInterception method cannot be called if BuildInterceptableServiceProvider method is called to create interceptable service provider.");
+            }
             var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
-            services.AddInterception(configure);
+            services.AddInterceptionCore(configure, false);
             var proxyFactory = services.BuildServiceProvider().GetRequiredService<IInterceptingProxyFactory>();
             return new InterceptableServiceProvider(services, options, proxyFactory);
         }
+
+        private class ServiceOverrideIndicator { }
     }
 }

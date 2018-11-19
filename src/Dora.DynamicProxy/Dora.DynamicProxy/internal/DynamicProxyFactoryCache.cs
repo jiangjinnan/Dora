@@ -78,8 +78,8 @@ namespace Dora.DynamicProxy
         {
             return (interceptors, serviceProvider) =>
             {
-                var proxy = serviceProvider.GetRequiredService(proxyType);
-                //ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, proxyType);
+                //var proxy = serviceProvider.GetRequiredService(proxyType);
+                var proxy = ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, proxyType);
                 ((IInterceptorsInitializer)proxy).SetInterceptors(interceptors);
                 return proxy;
             };

@@ -11,8 +11,8 @@ namespace App
 {
     public class HomeController : Controller
     {
-        private readonly SystemClock _clock;
-        public HomeController(IInterceptable<SystemClock> clockAccessor)
+        private readonly ISystemClock _clock;
+        public HomeController(IInterceptable<ISystemClock> clockAccessor)
         {
             _clock = clockAccessor.Proxy;
             Debug.Assert(typeof(SystemClock) != _clock.GetType());

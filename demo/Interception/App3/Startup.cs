@@ -23,7 +23,7 @@ public class Startup
 
 
         services
-            .AddScoped<SystemClock, SystemClock>()
+            .AddScoped<ISystemClock, SystemClock>()
             .AddSingleton<IHostedService, FoobarService>()
             .AddMvc();
         return services.BuildInterceptableServiceProvider(
@@ -39,7 +39,7 @@ public class Startup
 
     public class FoobarService : IHostedService
     {
-        public FoobarService(SystemClock clock) { }
+        public FoobarService(ISystemClock clock) { }
         public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;   
         public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }

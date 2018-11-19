@@ -27,6 +27,11 @@ namespace Dora.Interception.Test
             Assert.NotSame(typeof(Foobar), foobar.GetType());
             Assert.Equal(1, _counter);
 
+            var foobar1 = provider.GetRequiredService<IInterceptable<Foobar>>().Proxy;
+            var foobar2 = provider.GetRequiredService<IInterceptable<Foobar>>().Proxy;
+            Assert.NotSame(typeof(Foobar), foobar.GetType());
+            Assert.Same(foobar1, foobar2);
+
             provider = new ServiceCollection()
                 .AddSingleton<Foobar, Foobar>()
                 .AddInterception()
@@ -111,6 +116,11 @@ namespace Dora.Interception.Test
             provider2.GetRequiredService<Foobar>();
             Assert.Equal(2, _counter);
 
+            var foobar1 = provider1.GetRequiredService<IInterceptable<Foobar>>().Proxy;
+            var foobar2 = provider1.GetRequiredService<IInterceptable<Foobar>>().Proxy;
+            var foobar3 = provider2.GetRequiredService<IInterceptable<Foobar>>().Proxy;
+            Assert.Same(foobar1, foobar2);
+            Assert.NotSame(foobar1, foobar3);
         }
 
 
@@ -128,6 +138,4 @@ namespace Dora.Interception.Test
             public virtual void Invoke() { }
         }
     }
-
-    
 }

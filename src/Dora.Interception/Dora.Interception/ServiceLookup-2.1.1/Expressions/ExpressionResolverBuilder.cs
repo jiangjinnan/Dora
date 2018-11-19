@@ -307,13 +307,13 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                 return Expression.Call(proxyFactory, WrapMethodInfo, type, target);
             }
 
-            //if (interceptionCallSite.TargetCallSite is ConstructorCallSite || interceptionCallSite.TargetCallSite is CreateInstanceCallSite)
-            //{
-            //    var proxyFactory = Expression.Constant(interceptionCallSite.ProxyFactory, typeof(IInterceptingProxyFactory));
-            //    var type = Expression.Constant( interceptionCallSite.ImplementationType ?? interceptionCallSite.ServiceType);
-            //    var targetAccessor = Expression.Lambda<Func<object>>(VisitCallSite(interceptionCallSite.TargetCallSite, argument));
-            //    return Expression.Call(proxyFactory, CreateMethodInfo, type, argument.ScopeParameter, targetAccessor);
-            //}
+            if (interceptionCallSite.CanIntercept && (interceptionCallSite.TargetCallSite is ConstructorCallSite || interceptionCallSite.TargetCallSite is CreateInstanceCallSite))
+            {
+                var proxyFactory = Expression.Constant(interceptionCallSite.ProxyFactory, typeof(IInterceptingProxyFactory));
+                var type = Expression.Constant(interceptionCallSite.ImplementationType ?? interceptionCallSite.ServiceType);
+                var targetAccessor = Expression.Lambda<Func<object>>(VisitCallSite(interceptionCallSite.TargetCallSite, argument));
+                return Expression.Call(proxyFactory, CreateMethodInfo, type, argument.ScopeParameter, targetAccessor);
+            }
 
             return VisitCallSite(interceptionCallSite.TargetCallSite, argument);
         }

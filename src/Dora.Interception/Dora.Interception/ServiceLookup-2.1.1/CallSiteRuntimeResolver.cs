@@ -113,11 +113,10 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
                 return interceptionCallSite.ProxyFactory.Wrap(interceptionCallSite.ServiceType, target);
             }
 
-            //if (interceptionCallSite.TargetCallSite is ConstructorCallSite || interceptionCallSite.TargetCallSite is CreateInstanceCallSite)
-            //{
-               
-            //    return interceptionCallSite.ProxyFactory.Create(interceptionCallSite.ImplementationType ?? interceptionCallSite.ServiceType, scope, () => VisitCallSite(interceptionCallSite.TargetCallSite, scope));
-            //}
+            if (interceptionCallSite.CanIntercept && (interceptionCallSite.TargetCallSite is ConstructorCallSite || interceptionCallSite.TargetCallSite is CreateInstanceCallSite))
+            {
+                return interceptionCallSite.ProxyFactory.Create(interceptionCallSite.ImplementationType ?? interceptionCallSite.ServiceType, scope, () => VisitCallSite(interceptionCallSite.TargetCallSite, scope));
+            }
 
             return VisitCallSite(interceptionCallSite.TargetCallSite, scope);
         }

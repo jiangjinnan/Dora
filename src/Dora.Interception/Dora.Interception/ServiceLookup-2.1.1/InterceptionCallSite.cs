@@ -10,12 +10,14 @@ namespace Dora.Interception.ServiceLookup
         public Type ServiceType { get; }
         public Type ImplementationType { get; } 
         public CallSiteKind Kind => CallSiteKind.Interception;     
+        public bool CanIntercept { get; }
         public InterceptionCallSite(IInterceptingProxyFactory proxyFactory, IServiceCallSite targetCallSite)
         {
             ProxyFactory = proxyFactory;
             TargetCallSite = targetCallSite;
             ServiceType = targetCallSite.ServiceType;
             ImplementationType = targetCallSite.ImplementationType;
+            CanIntercept = targetCallSite.Kind != CallSiteKind.Factory && targetCallSite.Kind != CallSiteKind.Constant;
         }
     }
 }
