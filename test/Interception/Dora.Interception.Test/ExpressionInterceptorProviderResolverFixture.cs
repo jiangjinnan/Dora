@@ -345,19 +345,19 @@ namespace Dora.Interception.Test
 
         //    var service = new ServiceCollection()
         //        .AddSingleton<IService, FoobarService>()
-        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { this.GetType().Assembly }, new string[] { "Dora.Interception.Test" })
+        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { GetType().Assembly }, new string[] { "Dora.Interception.Test" })
         //        .GetRequiredService<IService>();
         //    await CheckAsync(service, typeof(FoobarService));
 
         //    service = new ServiceCollection()
         //        .AddSingleton<IService, FoobazService>()
-        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { this.GetType().Assembly }, new string[] { "Dora.Interception.Test" })
+        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { GetType().Assembly }, new string[] { "Dora.Interception.Test" })
         //        .GetRequiredService<IService>();
         //    await CheckAsync(service, typeof(FoobazService));
 
         //    service = new ServiceCollection()
         //       .AddSingleton<IService, BarbazService>()
-        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { this.GetType().Assembly }, new string[] { "Dora.Interception.Test" })
+        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { GetType().Assembly }, new string[] { "Dora.Interception.Test" })
         //       .GetRequiredService<IService>();
         //    await CheckAsync(service, typeof(BarbazService));
         //}

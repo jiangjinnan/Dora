@@ -24,7 +24,7 @@ namespace Dora.Interception
         {
             _resolverList = new List<IInterceptorProviderResolver>();       
             _resolverDictionary = new Dictionary<string, IInterceptorProviderResolver>();
-            this.Add(nameof(AttributeInterceptorProviderResolver), new AttributeInterceptorProviderResolver());   
+            Add(nameof(AttributeInterceptorProviderResolver), new AttributeInterceptorProviderResolver());   
         }
         #endregion
 

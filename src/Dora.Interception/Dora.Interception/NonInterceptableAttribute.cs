@@ -19,7 +19,7 @@ namespace Dora.Interception
         /// <param name="interceptorProviderTypes">The interceptor provider types.</param>
         public NonInterceptableAttribute(params Type[] interceptorProviderTypes)
         {
-            this.InterceptorProviderTypes = interceptorProviderTypes;
+            InterceptorProviderTypes = interceptorProviderTypes;
         }
     }
 }

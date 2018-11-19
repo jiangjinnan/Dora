@@ -30,8 +30,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public InterceptionBuilder(IServiceCollection services)
         {
             Guard.ArgumentNotNull(services, nameof(services));
-            this.Services = services;
-            this.InterceptorProviderResolvers = new InterceptorProviderResolverCollection();
+            Services = services;
+            InterceptorProviderResolvers = new InterceptorProviderResolverCollection();
         }
     }
 }

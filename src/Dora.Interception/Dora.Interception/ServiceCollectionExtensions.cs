@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
             foreach (var item in result.ToArray())
             {
                 var serviceType = item.ServiceDescriptor.ServiceType;
-                var newDescriptor = new ServiceDescriptor(serviceType, _ => proxyFactory.Create(item.ServiceDescriptor.ImplementationType, _), item.ServiceDescriptor.Lifetime);
+                var newDescriptor = new ServiceDescriptor(serviceType, _ => proxyFactory.Create(item.ServiceDescriptor.ImplementationType), item.ServiceDescriptor.Lifetime);
                 services.Add(newDescriptor);               
             }
         }

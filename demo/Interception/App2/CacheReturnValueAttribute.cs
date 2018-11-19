@@ -9,7 +9,7 @@ namespace App
     {
         public override void Use(IInterceptorChainBuilder builder)
         {
-            builder.Use<CacheInterceptor>(this.Order);
+            builder.Use<CacheInterceptor>(Order);
         }   
     }
 }

@@ -9,29 +9,26 @@ namespace App
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var clock1 = new ServiceCollection()
               .AddLogging(factory => factory.AddConsole())
               .AddMemoryCache()
               .AddSingleton<ISystemClock, SystemClock>()
-              .AddInterception(builder=>builder.AddPolicy(policyBuilder=> policyBuilder
-                .For<CacheReturnValueAttribute>(1, providerBuilder=> providerBuilder
-                    .To<SystemClock>(targetBuilder=> targetBuilder
-                        .IncludeMethod(it=>it.GetCurrentTime(default(DateTimeKind)))))))
+              .AddInterception(builder=>builder.SetCastleDynamicProxy())
               .BuildServiceProvider()
               .GetRequiredService<IInterceptable<ISystemClock>>()
               .Proxy;
 
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Current time: {clock1.GetCurrentTime(DateTimeKind.Local)}");
+                Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Local)}");
                 Task.Delay(1000).Wait();
             }
 
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Current time: {clock1.GetCurrentTime(DateTimeKind.Utc)}");
+                Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Utc)}");
                 Task.Delay(1000).Wait();
             }
 
@@ -43,13 +40,13 @@ namespace App
 
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Current time: {clock2.GetCurrentTime(DateTimeKind.Local)}");
+                Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Local)}");
                 Task.Delay(1000).Wait();
             }
 
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Current time: {clock2.GetCurrentTime(DateTimeKind.Utc)}");
+                Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Utc)}");
                 Task.Delay(1000).Wait();
             }
         }

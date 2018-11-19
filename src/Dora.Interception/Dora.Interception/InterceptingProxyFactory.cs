@@ -55,10 +55,10 @@ namespace Dora.Interception
             IInterceptorResolver interceptorResolver,
             IServiceProvider serviceProvider)
         {
-            this.InstanceDynamicProxyGenerator = Guard.ArgumentNotNull(instanceDynamicProxyGenerator, nameof(instanceDynamicProxyGenerator));
-            this.TypeDynamicProxyGenerator = Guard.ArgumentNotNull(typeDynamicProxyGenerator, nameof(typeDynamicProxyGenerator));
-            this.InterceptorResolver = Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
-            this.ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
+            InstanceDynamicProxyGenerator = Guard.ArgumentNotNull(instanceDynamicProxyGenerator, nameof(instanceDynamicProxyGenerator));
+            TypeDynamicProxyGenerator = Guard.ArgumentNotNull(typeDynamicProxyGenerator, nameof(typeDynamicProxyGenerator));
+            InterceptorResolver = Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
+            ServiceProvider = Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
         } 
 
         /// <summary>
@@ -75,42 +75,32 @@ namespace Dora.Interception
             Guard.ArgumentNotNull(target,nameof(target));
             Guard.ArgumentAssignableTo(typeToIntercept, target.GetType(), nameof(target));
 
-            if (!this.InstanceDynamicProxyGenerator.CanIntercept(typeToIntercept))
+            if (!InstanceDynamicProxyGenerator.CanIntercept(typeToIntercept))
             {
                 return target;
             }
 
-            var interceptors = this.InterceptorResolver.GetInterceptors(typeToIntercept, target.GetType());
+            var interceptors = InterceptorResolver.GetInterceptors(typeToIntercept, target.GetType());
             if (interceptors.IsEmpty)
             {
                 return target;
             }
 
-            return this.InstanceDynamicProxyGenerator.Wrap(typeToIntercept, target, interceptors);
+            return InstanceDynamicProxyGenerator.Wrap(typeToIntercept, target, interceptors);
         }
-
 
         /// <summary>
         /// Creates the specified type to proxy.
         /// </summary>
         /// <param name="typeToIntercept">The type to proxy.</param>
-        /// <param name="serviceProvider">The service provider.</param>
-        /// <param name="targetAccessor">The target instance accessor.</param>
         /// <returns>
         /// The proxy wrapping the specified target instance.
         /// </returns>
-        public object Create(Type typeToIntercept, IServiceProvider serviceProvider, Func<object> targetAccessor = null)
-        {
-            //return serviceProvider.GetService(typeToIntercept);
-
+        public object Create(Type typeToIntercept)
+        {    
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
-            Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
-            var interceptors = this.InterceptorResolver.GetInterceptors(typeToIntercept);
-            if (interceptors.IsEmpty && targetAccessor != null)
-            {
-                return targetAccessor();
-            }
-            return this.TypeDynamicProxyGenerator.Create(typeToIntercept, interceptors, serviceProvider);
+            var interceptors = InterceptorResolver.GetInterceptors(typeToIntercept);             
+            return TypeDynamicProxyGenerator.Create(typeToIntercept, interceptors, ServiceProvider);
         }
     }
 }

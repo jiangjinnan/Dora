@@ -39,7 +39,7 @@ namespace Dora.Interception
 
             _nonInterceptableTypes = new HashSet<Type>();
             _providerResolver = new CompositeInterceptorProviderResolver(providerResolvers);
-            this.Builder = builder;
+            Builder = builder;
         }
         #endregion
 
@@ -151,7 +151,7 @@ namespace Dora.Interception
                     var providers = SelectEffectiveProviders(providersOfType, providersOfProperty);
                     if (providers.Length > 0)
                     {
-                        var builder = this.Builder.New();
+                        var builder = Builder.New();
                         Array.ForEach(providers, it => it.Use(builder));
                         dictionary[setMethod] = builder.Build();
                     }
@@ -273,7 +273,7 @@ namespace Dora.Interception
             {
                 var property = targetType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                    .FirstOrDefault(it => it.GetMethod == this.GetTargetMethod(getMethod, interfaceMapping));
+                    .FirstOrDefault(it => it.GetMethod == GetTargetMethod(getMethod, interfaceMapping));
                 if (null != property)
                 {
                     return property;
@@ -285,7 +285,7 @@ namespace Dora.Interception
             {
                 var property = targetType
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                    .FirstOrDefault(it => it.SetMethod == this.GetTargetMethod(setMethod, interfaceMapping));
+                    .FirstOrDefault(it => it.SetMethod == GetTargetMethod(setMethod, interfaceMapping));
                 if (null != property)
                 {
                     return property;

@@ -44,7 +44,7 @@ namespace Dora.Interception
                 if (typeof(T).IsInterface && !_isInterceptableServiceProvider)
                 {
                     var target = _serviceProvider.GetService<T>();
-                    return _proxyFactory.Wrap<T>(target);
+                    return (T)_proxyFactory.Wrap(typeof(T), target);
                 }
                 return _serviceProvider.GetService<T>();
             }  

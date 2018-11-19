@@ -36,19 +36,10 @@ namespace Dora.Interception.Castle
         /// Creates the specified type to intercept.
         /// </summary>
         /// <param name="typeToIntercept">The type to intercept.</param>
-        /// <param name="serviceProvider">The service provider.</param>
-        /// <param name="targetAccessor">The target accessor.</param>   
         /// <returns>The proxy wrapping the specified target instance.</returns>
-        public object Create(Type typeToIntercept, IServiceProvider serviceProvider, Func<object> targetAccessor = null)
+        public object Create(Type typeToIntercept)
         {
-            var interceptorDecoration = _interceptorResolver.GetInterceptors(typeToIntercept);
-            if (interceptorDecoration.IsEmpty)
-            {
-                return targetAccessor == null
-                    ? serviceProvider.GetService(typeToIntercept)
-                    : targetAccessor();
-            }
-
+            var interceptorDecoration = _interceptorResolver.GetInterceptors(typeToIntercept); 
             var interceptors = interceptorDecoration.Interceptors
                 .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
             var selector = new DynamicProxyInterceptorSelector(interceptors.ToDictionary(it => it.Key, it => it.Value));

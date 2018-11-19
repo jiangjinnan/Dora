@@ -17,7 +17,7 @@ namespace Dora.Interception.ServiceLookup
             TargetCallSite = targetCallSite;
             ServiceType = targetCallSite.ServiceType;
             ImplementationType = targetCallSite.ImplementationType;
-            CanIntercept = targetCallSite.Kind != CallSiteKind.Factory && targetCallSite.Kind != CallSiteKind.Constant;
+            CanIntercept = ServiceType.IsInterface || (targetCallSite.Kind != CallSiteKind.Factory && targetCallSite.Kind != CallSiteKind.Constant);
         }
     }
 }

@@ -86,9 +86,9 @@ namespace Dora.Interception.Test
             public string Flag { get; }
             public FoobarInterceptor(IFoo foo,IBar bar,string flag)
             {                  
-                this.Foo = foo;
-                this.Bar = bar;
-                this.Flag = flag;
+                Foo = foo;
+                Bar = bar;
+                Flag = flag;
             }
 
             public Task InvokeAsync(InvocationContext context)
@@ -105,11 +105,11 @@ namespace Dora.Interception.Test
 
             public FoobarAttribute(string flag)
             {
-                this.Flag = flag;
+                Flag = flag;
             }
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptor>(this.Order, this.Flag);
+                builder.Use<FoobarInterceptor>(Order, Flag);
             }
         }
 

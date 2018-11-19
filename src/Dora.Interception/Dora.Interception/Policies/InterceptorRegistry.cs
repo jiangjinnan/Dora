@@ -50,7 +50,7 @@
 
 //        public InterceptorProviderRegistry(Func<IInterceptorProvider> interceptorProviderFactory)
 //        {
-//            this.InterceptorProviderFactory = Guard.ArgumentNotNull(interceptorProviderFactory, nameof(interceptorProviderFactory));
+//            InterceptorProviderFactory = Guard.ArgumentNotNull(interceptorProviderFactory, nameof(interceptorProviderFactory));
 //            _targetTypeInterceptorRegistries = new Dictionary<Type, TargetTypeInterceptorRegistry>();
 //        }
                                                                                
@@ -59,7 +59,7 @@
 //        public override InterceptorProviderRegistration GetRegistrations()
 //        {
 //            var targetRegistrations = _targetTypeInterceptorRegistries.Values.Select(it => it.ToRegistration()); 
-//            return new InterceptorProviderRegistration(typeof(TInterceptorProvider),this.InterceptorProviderFactory, targetRegistrations);
+//            return new InterceptorProviderRegistration(typeof(TInterceptorProvider),InterceptorProviderFactory, targetRegistrations);
 //        }
 
 //        public TargetTypeInterceptorRegistry<TTarget> Target<TTarget>()
@@ -78,7 +78,7 @@
 //        public abstract TargetRegistration ToRegistration(); 
 //        public TargetTypeInterceptorRegistry(Type targetType)
 //        {
-//            this.TargetType = Guard.ArgumentNotNull(targetType, nameof(targetType));
+//            TargetType = Guard.ArgumentNotNull(targetType, nameof(targetType));
 //        }
 //    }
 

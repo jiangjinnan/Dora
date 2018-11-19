@@ -27,7 +27,7 @@ namespace Dora.Interception
         {
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
 
-            this.ServiceProvider = serviceProvider;
+            ServiceProvider = serviceProvider;
             _interceptors = new List<Tuple<int, InterceptorDelegate>>();
         }
 
@@ -84,7 +84,7 @@ namespace Dora.Interception
         /// <returns>The new interceptor to create.</returns>
         public IInterceptorChainBuilder New()
         {
-            return new InterceptorChainBuilder(this.ServiceProvider);
+            return new InterceptorChainBuilder(ServiceProvider);
         }  
     }
 }

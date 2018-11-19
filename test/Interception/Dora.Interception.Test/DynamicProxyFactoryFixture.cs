@@ -74,7 +74,7 @@ namespace Dora.Interception.Test
         {
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptor>(this.Order);
+                builder.Use<FoobarInterceptor>(Order);
             }
         }
 

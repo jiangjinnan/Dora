@@ -42,8 +42,8 @@ namespace DemoX
         {
             public Foobar(TFoo foo, TBar bar)
             {
-                this.Foo = foo;
-                this.Bar = bar;
+                Foo = foo;
+                Bar = bar;
             }
             public TFoo Foo { get; }
             public TBar Bar { get; }
@@ -62,7 +62,7 @@ namespace DemoX
         {
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptor>(this.Order);
+                builder.Use<FoobarInterceptor>(Order);
             }
         }
 
