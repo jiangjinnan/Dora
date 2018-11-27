@@ -12,6 +12,7 @@ namespace Dora.Interception.Test
         [Fact]
         public async void Test()
         {
+            _flag = "";
             var foobar = new ServiceCollection()
                 .AddSingleton<Foobar, Foobar>()
                 .BuildInterceptableServiceProvider()
@@ -37,6 +38,7 @@ namespace Dora.Interception.Test
             public async Task InvokeAsync(InvocationContext context)
             {
                 await context.ProceedAsync();
+                await Task.Delay(1000);
                 _flag += "Foobar";
             }
             public override void Use(IInterceptorChainBuilder builder) => builder.Use(this, Order);

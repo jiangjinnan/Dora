@@ -317,7 +317,8 @@ namespace Dora.DynamicProxy
            
             //When return Task<TResult>
             if (methodInfo.ReturnTaskOfResult())
-            {    
+            {
+                il.Emit(OpCodes.Ldloc_3);
                 il.Emit(OpCodes.Ldloc_1);
                 il.Emit(OpCodes.Call, ReturnValueAccessor.GetTaskOfResultMethodDefinition.MakeGenericMethod(returnType));
                 il.Emit(OpCodes.Ret);

@@ -42,16 +42,16 @@ namespace Dora.DynamicProxy
         #region Public Methods
 
         /// <summary>
-        /// Get return value of type <see cref="Task{TResult}"/>.
+        /// Get return value of type <see cref="Task{TResult}" />.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="invocationContext">The <see cref="InvocationContext"/> representing the current method invocation context.</param>
-        /// <returns>The return value of type <see cref="Task{TResult}"/>.</returns>
-        public static Task<TResult> GetTaskOfResult<TResult>(InvocationContext invocationContext)
-        {
-            Guard.ArgumentNotNull(invocationContext, nameof(invocationContext));
-            return (Task<TResult>)invocationContext.ReturnValue;
-        }
+        /// <param name="intercept">The intercept.</param>
+        /// <param name="invocationContext">The <see cref="InvocationContext" /> representing the current method invocation context.</param>
+        /// <returns>
+        /// The return value of type <see cref="Task{TResult}" />.
+        /// </returns>
+        public static Task<TResult> GetTaskOfResult<TResult>(Task intercept, InvocationContext invocationContext)
+        => intercept.ContinueWith(_ => ((Task<TResult>)invocationContext.ReturnValue).Result);
 
         /// <summary>
         /// Gets the result.
@@ -60,10 +60,7 @@ namespace Dora.DynamicProxy
         /// <param name="invocationContext">The <see cref="InvocationContext"/> representing the current method invocation context.</param>
         /// <returns>The return value.</returns>
         public static TResult GetResult<TResult>(InvocationContext invocationContext)
-        {
-            Guard.ArgumentNotNull(invocationContext, nameof(invocationContext));
-            return (TResult)invocationContext.ReturnValue;
-        }
+        =>(TResult)invocationContext.ReturnValue;
         #endregion
     }
 }
