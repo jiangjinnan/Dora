@@ -14,15 +14,6 @@ namespace Dora.Interception.Test
     {
         private static Action _intercept;
 
-        [Theory]
-        [InlineData(null, "1")]
-        [InlineData("1;", null)]
-        public void Use_Arguments_Not_Allow_Null(string builderIndicator, string typeIndicator)
-        {
-            IInterceptorChainBuilder builder = builderIndicator == null ? null : new InterceptorChainBuilder(new ServiceCollection().BuildServiceProvider());
-            Type type = typeIndicator == null ? null : typeof(string);
-            Assert.Throws<ArgumentNullException>(() => builder.Use(type, 1));
-        }
 
         [Fact]
         public async void Use()
@@ -37,11 +28,9 @@ namespace Dora.Interception.Test
         }
 
         private class FoobarInterceptor
-        {
-            private InterceptDelegate _next;
-            public FoobarInterceptor(InterceptDelegate next, IService service, string argument)
-            {
-                _next = next;
+        {                                     
+            public FoobarInterceptor(IService service, string argument)
+            {                 
                 if (null == service || null == argument)
                 {
                     throw new InvalidOperationException();
@@ -51,7 +40,7 @@ namespace Dora.Interception.Test
             public async Task InvokeAsync(InvocationContext context)
             {
                 _intercept();
-                await _next(context);
+                await context.ProceedAsync();
             }
         }
         private interface IService { }

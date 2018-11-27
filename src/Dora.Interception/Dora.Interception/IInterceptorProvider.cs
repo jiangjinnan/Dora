@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Dora.Interception
+﻿namespace Dora.Interception
 {
     /// <summary>
     /// Represents interceptor provider.

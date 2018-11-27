@@ -13,9 +13,9 @@ namespace Dora.Interception
         IServiceProvider ServiceProvider { get; }
 
         /// <summary>
-        /// Create a proxy wrapping specified target instance. 
+        /// Create a proxy wrapping specified target instance to wrap the specified target instance.
         /// </summary>
-        /// <param name="typeToIntercept">The declaration type of proxy to create.</param>
+        /// <param name="typeToIntercept">The type to intercept.</param>
         /// <param name="target">The target instance wrapped by the created proxy.</param>
         /// <returns>The proxy wrapping the specified target instance.</returns>
         object Wrap(Type typeToIntercept, object target);

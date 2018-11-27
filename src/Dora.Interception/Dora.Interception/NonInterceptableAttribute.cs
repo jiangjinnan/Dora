@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Dora.Interception
 {
@@ -14,8 +11,7 @@ namespace Dora.Interception
         /// <summary>
         /// The type of interceptor provider to suppress.
         /// </summary>
-        public Type[] InterceptorProviderTypes { get; }
-
+        public Type[] InterceptorProviderTypes { get; }  
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NonInterceptableAttribute"/> class.
@@ -23,7 +19,7 @@ namespace Dora.Interception
         /// <param name="interceptorProviderTypes">The interceptor provider types.</param>
         public NonInterceptableAttribute(params Type[] interceptorProviderTypes)
         {
-            this.InterceptorProviderTypes = interceptorProviderTypes;
+            InterceptorProviderTypes = interceptorProviderTypes;
         }
     }
 }

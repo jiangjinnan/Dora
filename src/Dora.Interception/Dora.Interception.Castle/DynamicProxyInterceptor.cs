@@ -1,9 +1,6 @@
 ﻿using Castle.DynamicProxy;
 using Dora.DynamicProxy;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Dora.Interception.Castle
@@ -11,7 +8,6 @@ namespace Dora.Interception.Castle
     internal class DynamicProxyInterceptor : AsyncInterceptorBase
     {
         private InterceptorDelegate  _interceptor;
-
         public DynamicProxyInterceptor(InterceptorDelegate inteceptor)
         {
             _interceptor = inteceptor;
@@ -29,6 +25,10 @@ namespace Dora.Interception.Castle
             var invocationContext = new DynamicProxyInvocationContext(invocation);
             InterceptDelegate next = context => proceed(invocation);
             await _interceptor(next)(invocationContext);
+            if (invocationContext.ReturnValue is TResult)
+            {
+                return (TResult)invocationContext.ReturnValue;
+            }
             return ((Task<TResult>)invocationContext.ReturnValue).Result;
         }  
     }

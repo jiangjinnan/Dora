@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoX", "..\..\demo\Interce
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception.Castle", "Dora.Interception.Castle\Dora.Interception.Castle.csproj", "{3DDBC555-1F5E-4AA6-933E-06021E9285F2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{12C4E904-78A0-4537-8647-57D97AF503C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -23,8 +23,6 @@ namespace DemoX
             var foo = foobar.Foo;
             Debug.Assert("Foobar" == flag);
         }
-
-
         public interface IFoo { }
         public interface IBar { }
         public interface IFoobar<TFoo, TBar>
@@ -44,8 +42,8 @@ namespace DemoX
         {
             public Foobar(TFoo foo, TBar bar)
             {
-                this.Foo = foo;
-                this.Bar = bar;
+                Foo = foo;
+                Bar = bar;
             }
             public TFoo Foo { get; }
             public TBar Bar { get; }
@@ -53,16 +51,10 @@ namespace DemoX
       
         public class FoobarInterceptor
         {
-            private InterceptDelegate _next;
-            public FoobarInterceptor(InterceptDelegate next)
-            {
-                _next = next;
-            }
-
             public Task InvokeAsync(InvocationContext context)
             {
                 _action();
-                return _next(context);
+                return context.ProceedAsync();
             }
         }
 
@@ -70,7 +62,7 @@ namespace DemoX
         {
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptor>(this.Order);
+                builder.Use<FoobarInterceptor>(Order);
             }
         }
 

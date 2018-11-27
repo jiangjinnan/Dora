@@ -1,62 +1,80 @@
 ﻿using Dora.DynamicProxy;
 using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;  
+using Microsoft.Extensions.Logging;
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace App
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var clock1 = new ServiceCollection()
               .AddLogging(factory => factory.AddConsole())
               .AddMemoryCache()
-              .AddSingleton<ISystomClock, SystomClock>()
-              .AddInterception()
+              .AddSingleton<ISystemClock, SystemClock>()
+              .AddInterception(builder=>builder.SetCastleDynamicProxy())
               .BuildServiceProvider()
-              .GetRequiredService<IInterceptable<ISystomClock>>()
+              .GetRequiredService<IInterceptable<ISystemClock>>()
               .Proxy;
 
-            var method = typeof(ISystomClock).GetMethod("GetCurrentTime");
-            var field = clock1.GetType().GetField("_interceptors", BindingFlags.NonPublic | BindingFlags.Instance);
-            var decoration = field.GetValue(clock1) as InterceptorDecoration;
-            var interceptor = decoration.GetInterceptor(method);
-
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Current time: {clock1.GetCurrentTime(DateTimeKind.Local)}");
+                Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Local)}");
                 Task.Delay(1000).Wait();
             }
 
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Current time: {clock1.GetCurrentTime(DateTimeKind.Utc)}");
+                Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Utc)}");
                 Task.Delay(1000).Wait();
             }
-
 
             var clock2 = new ServiceCollection()
               .AddMemoryCache()
-              .AddSingleton<ISystomClock, SystomClock>()
+              .AddSingleton<ISystemClock, SystemClock>()
               .BuildInterceptableServiceProvider()
-              .GetRequiredService<ISystomClock>();
+              .GetRequiredService<ISystemClock>();
 
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Current time: {clock2.GetCurrentTime(DateTimeKind.Local)}");
+                Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Local)}");
                 Task.Delay(1000).Wait();
             }
 
             for (int i = 0; i < 5; i++)
             {
-                Console.WriteLine($"Current time: {clock2.GetCurrentTime(DateTimeKind.Utc)}");
+                Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Utc)}");
                 Task.Delay(1000).Wait();
             }
         }
     }
+}
+
+public class FoobarInterceptor
+{
+    public IFoo Foo { get; }
+    public string Baz { get; }  
+    public FoobarInterceptor(IFoo foo, string baz)
+    {
+        Foo = foo;
+        Baz = baz;
+    }
+
+    public async Task InvokeAsync(InvocationContext context, IBar bar)
+    {
+        await Foo.DoSomethingAsync();
+        await bar.DoSomethingAsync();
+        await context.ProceedAsync();
+    }
+}
+
+public interface IFoo {
+    Task DoSomethingAsync();
+}
+public interface IBar {
+    Task DoSomethingAsync();
 }
 

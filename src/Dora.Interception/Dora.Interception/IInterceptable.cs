@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dora.Interception.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace Dora.Interception
@@ -19,45 +20,33 @@ namespace Dora.Interception
     /// Represents the service with a proxy against which the method invocation can be intercepted.
     /// </summary>
     /// <typeparam name="T">The declaration type of service.</typeparam>
-    public class Interceptable<T> : IInterceptable<T> where T : class
+    internal class Interceptable<T> : IInterceptable<T> where T : class
     {
-        private T _proxy;
+        private readonly bool _isInterceptableServiceProvider;
         private readonly IInterceptingProxyFactory _proxyFactory;
         private readonly IServiceProvider _serviceProvider;
-
-        /// <summary>
-        /// Create a new <see cref="Interceptable{T}"/>
-        /// </summary>
-        /// <param name="proxyFactory">The service factory to create the proxy to wrapping the target service instance.</param>
-        /// <param name="serviceProvider">The service provider to provide target service instances.</param>
-        public Interceptable(IInterceptingProxyFactory proxyFactory, IServiceProvider serviceProvider)
+        
+        public Interceptable(IInterceptingProxyFactory proxyFactory, IServiceProvider serviceProvider, IInterceptableServiceProviderIndicator indicator)
         {
             Guard.ArgumentNotNull(proxyFactory, nameof(proxyFactory));
             Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
 
             _proxyFactory = proxyFactory;
             _serviceProvider = serviceProvider;
+            _isInterceptableServiceProvider = indicator.IsInterceptable;
         }
 
-        /// <summary>
-        /// The proxy against which the method invocation can be intercepted.
-        /// </summary>
+       
         public T Proxy
         {
             get
             {
-                if (null != _proxy)
-                {
-                    return _proxy;
-                }
-
-                if (typeof(T).IsInterface)
+                if (typeof(T).IsInterface && !_isInterceptableServiceProvider)
                 {
                     var target = _serviceProvider.GetService<T>();
-                    return _proxy = _proxyFactory.Wrap<T>(target);
+                    return (T)_proxyFactory.Wrap(typeof(T), target);
                 }
-
-                return _proxy = _proxyFactory.Create<T>(_serviceProvider); 
+                return _serviceProvider.GetService<T>();
             }  
         }
     }

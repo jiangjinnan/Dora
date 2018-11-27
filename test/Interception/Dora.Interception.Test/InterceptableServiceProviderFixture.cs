@@ -1,4 +1,5 @@
 ﻿using Dora.DynamicProxy;
+using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -79,23 +80,21 @@ namespace Dora.Interception.Test
 
 
         public class FoobarInterceptor
-        {
-            private readonly InterceptDelegate _next;
+        {                                              
             public IFoo Foo { get; }
             public IBar Bar { get; }
             public string Flag { get; }
-            public FoobarInterceptor(InterceptDelegate next,IFoo foo,IBar bar,string flag)
-            {
-                _next = next;
-                this.Foo = foo;
-                this.Bar = bar;
-                this.Flag = flag;
+            public FoobarInterceptor(IFoo foo,IBar bar,string flag)
+            {                  
+                Foo = foo;
+                Bar = bar;
+                Flag = flag;
             }
 
             public Task InvokeAsync(InvocationContext context)
             {
                 _intercept(context);
-                return _next(context);
+                return context.ProceedAsync();
             }
         }
 
@@ -106,11 +105,11 @@ namespace Dora.Interception.Test
 
             public FoobarAttribute(string flag)
             {
-                this.Flag = flag;
+                Flag = flag;
             }
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptor>(this.Order, this.Flag);
+                builder.Use<FoobarInterceptor>(Order, Flag);
             }
         }
 

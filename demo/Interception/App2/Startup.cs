@@ -10,15 +10,15 @@ using Microsoft.Extensions.Logging;
 
 namespace App
 {
-    public class Startup
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
     {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services
-                .AddSingleton<ISystomClock, SystomClock>()
-                .AddInterception()
-                .AddMvc();
-        }
+        services
+            .AddSingleton<ISystemClock, SystemClock>()
+            .AddInterception()
+            .AddMvc();
+    }
 
         public void Configure(IApplicationBuilder app)
         {

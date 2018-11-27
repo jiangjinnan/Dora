@@ -8,7 +8,7 @@ namespace Dora.Interception
     /// An attribute based interceptor provider.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false)]
-    public abstract class InterceptorAttribute : Attribute, IInterceptorProvider
+    public abstract class InterceptorAttribute : Attribute, IInterceptorProvider, IOrderedSequenceItem
     {
         private readonly ConcurrentBag<Attribute> _attributes = new ConcurrentBag<Attribute>();
         private bool? _allowMultiple;
@@ -27,7 +27,7 @@ namespace Dora.Interception
             {
                 return _allowMultiple.HasValue
                     ? _allowMultiple.Value
-                    : (_allowMultiple = this.GetType().GetTypeInfo().GetCustomAttribute<AttributeUsageAttribute>().AllowMultiple).Value;
+                    : (_allowMultiple = GetType().GetTypeInfo().GetCustomAttribute<AttributeUsageAttribute>().AllowMultiple).Value;
             }
         }
 

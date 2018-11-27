@@ -11,21 +11,21 @@ using Xunit;
 namespace Dora.Interception.Test
 {
     public class PerformanceTest
-    { 
+    {
         [Fact]
         public void ResolveInterceptors()
         {
             var fileName = @"..\..\..\ResolveInterceptors.txt";
             File.WriteAllText(fileName, "");
             var serviceProvider = new ServiceCollection().BuildServiceProvider();
-            var collector = new InterceptorCollector(new InterceptorChainBuilder(serviceProvider));
+            var collector = new InterceptorResolver(new InterceptorChainBuilder(serviceProvider), new IInterceptorProviderResolver[] { new AttributeInterceptorProviderResolver()});
             var sw = Stopwatch.StartNew();
             collector.GetInterceptors(typeof(Demo));
-            File.AppendAllLines(fileName,new string[] { sw.Elapsed.ToString() });
+            File.AppendAllLines(fileName, new string[] { sw.Elapsed.ToString() });
 
             sw.Restart();
             collector.GetInterceptors(typeof(Demo));
-            File.AppendAllLines(fileName,new string[] { sw.Elapsed.ToString() });
+            File.AppendAllLines(fileName, new string[] { sw.Elapsed.ToString() });
 
             sw.Restart();
             collector.GetInterceptors(typeof(Demo));
@@ -35,7 +35,7 @@ namespace Dora.Interception.Test
         }
 
         [Fact]
-        public  void CreateProxy()
+        public void CreateProxy()
         {
             var serviceProvider1 = new ServiceCollection()
                     .AddSingleton<IDemo, Demo>()
@@ -44,7 +44,7 @@ namespace Dora.Interception.Test
                    .AddSingleton<IDemo, Demo>()
                    .BuildInterceptableServiceProvider();
 
-            var fileName = @"..\..\..\performancetest.txt";
+            var fileName = @"..\..\..\CreateProxy.txt";
             File.WriteAllText(fileName, "");
 
             var sw = new Stopwatch();
@@ -88,31 +88,24 @@ namespace Dora.Interception.Test
             [FoobarInterceptor]
             public void Invoke()
             {
-                
+
             }
         }
 
-        public class FoobarInterceptorAttribute: InterceptorAttribute
+        public class FoobarInterceptorAttribute : InterceptorAttribute
         {
-            private readonly InterceptDelegate _next;
-
             public FoobarInterceptorAttribute()
             { }
 
-            public FoobarInterceptorAttribute(InterceptDelegate next)
-            {
-                _next = next;
-            }
-
             public Task InvokeAsync(InvocationContext context)
             {
-                return _next(context);
+                return context.ProceedAsync();
             }
 
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptorAttribute>(this.Order);
+                builder.Use<FoobarInterceptorAttribute>(Order);
             }
-        } 
+        }
     }
 }

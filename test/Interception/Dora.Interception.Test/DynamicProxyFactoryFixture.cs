@@ -62,16 +62,11 @@ namespace Dora.Interception.Test
 
 
         private class FoobarInterceptor
-        {
-            private readonly InterceptDelegate _next;
-            public FoobarInterceptor(InterceptDelegate next)
-            {
-                _next = next;
-            }
+        {  
             public async Task InvokeAsync(InvocationContext context)
             {
                 _flag = "123";
-                await _next(context);
+                await context.ProceedAsync();
             }
         }
 
@@ -79,7 +74,7 @@ namespace Dora.Interception.Test
         {
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptor>(this.Order);
+                builder.Use<FoobarInterceptor>(Order);
             }
         }
 
