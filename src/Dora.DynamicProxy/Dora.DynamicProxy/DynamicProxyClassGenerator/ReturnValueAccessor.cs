@@ -51,7 +51,9 @@ namespace Dora.DynamicProxy
         /// The return value of type <see cref="Task{TResult}" />.
         /// </returns>
         public static Task<TResult> GetTaskOfResult<TResult>(Task intercept, InvocationContext invocationContext)
-        => intercept.ContinueWith(_ => ((Task<TResult>)invocationContext.ReturnValue).Result);
+        => intercept.ContinueWith(_ => invocationContext.ReturnValue != null
+            ? ((Task<TResult>)invocationContext.ReturnValue).Result
+            : default(TResult));
 
         /// <summary>
         /// Gets the result.
