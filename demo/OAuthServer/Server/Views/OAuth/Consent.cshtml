@@ -1,0 +1,14 @@
+﻿@model IEnumerable<Dora.OAuthServer.DelegateScope>
+<html>
+<body>
+    <form method="post" action="/account/delegateconsent?ReturnUrl=@ViewBag.ReturnUrl">
+        <ul>
+            @foreach(var scope in Model)
+            {
+            <li>@scope.Title</li>
+            }
+         </ul>
+     <input type="submit" name="OK" />
+</form>
+</body>
+</html>

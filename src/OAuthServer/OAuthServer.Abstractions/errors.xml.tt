@@ -1,0 +1,55 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Xml.dll" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.IO" #>
+<#@ output extension=".cs" #>
+namespace Dora.OAuthServer
+{
+    /// <summary>
+    /// Predefined Errors
+    /// </summary>
+    public static class OAuthErrors
+	{
+<#
+		var document = new XmlDocument();
+		document.LoadXml(File.ReadAllText(@"C:\Users\jjn47239\Source\OAuthServer\src\OAuthServer.Abstractions\errors.xml"));
+		foreach (XmlElement categry in document.GetElementsByTagName("category"))
+		{
+		string propertyName = categry.GetAttribute("name");
+		string className = propertyName + "Category";
+#>
+        /// <summary>
+        /// <#=categry.GetAttribute("value")#>
+        /// </summary>
+        public static <#=className#> <#=propertyName#> { get; } = new <#=className#>();
+<#}#>
+    }
+<#
+	foreach (XmlElement categry in document.GetElementsByTagName("category"))
+	{
+	string propertyName = categry.GetAttribute("name");
+	string className = propertyName + "Category";
+	string categoryValue = categry.GetAttribute("value");
+#>
+    /// <summary>
+    /// <#=categoryValue#>
+    /// </summary>
+	public class <#=className#>
+	{
+<#
+		foreach (XmlElement error in categry.GetElementsByTagName("add"))
+		{
+			string name = error.GetAttribute("name");
+			string code = error.GetAttribute("code");
+			string desc = error.GetAttribute("desc");
+			string statusCode = error.GetAttribute("statusCode");
+#>
+        /// <summary>
+        /// <#=desc#>
+        /// </summary>
+        public OAuthError <#=name#> { get; } = new OAuthError("<#=code#>", "<#=categoryValue#>", "<#=desc#>", <#=statusCode#>);
+
+<#}#>    }
+<#}#>
+}
