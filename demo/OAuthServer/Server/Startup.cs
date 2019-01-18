@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,11 +30,9 @@ namespace Server
                 {
                     var scope4Account = "http://www.doranet.org/oauth/scope/account";
                     var scope4Personal = "http://www.doranet.org/oauth/scope/personal";
-
                     builder
                         .AddScope(scope4Account, "Account", "Get account", null, false)
-                        .AddScope(scope4Personal, "Personal Information", "Get personal information", null, true);
-                    builder
+                        .AddScope(scope4Personal, "Personal Information", "Get personal information", null, true)                    
                         .AddUserInfoEndpoint("/profile", GetUserInfo, scope4Account, scope4Personal)
                         .AddEntityFrameworkStore<MyDbContext>();
                 })
@@ -47,7 +46,6 @@ namespace Server
                 .UseAuthentication()
                 .UseOAuthServer()
                 .UseMvc();
-
             //appStore.CreateAsync(new Application("foobarapp", "Foobar", "123-456-789", new Uri[] { new Uri("http://localhost:3721") }, ClientType.Confidential, "foobar")).Wait();
         }
 
@@ -67,7 +65,6 @@ namespace Server
                 profile.GivenName = userName;
                 profile.Gender = "Male";
             }
-
             return Task.FromResult(profile);
         }
     }

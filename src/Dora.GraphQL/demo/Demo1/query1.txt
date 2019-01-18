@@ -1,0 +1,20 @@
+{
+  "Query": "query Foobarbaz{
+  Foobarbaz{
+    Foo1{
+      Bar1{
+        Baz1
+        }
+	Bar2{
+		Baz1
+		Baz2
+        }
+	Bar3{
+		Baz1
+        }		
+	  }
+    }
+   }",
+  "OperationName": "Foobarbaz",
+  "Variables": null
+}

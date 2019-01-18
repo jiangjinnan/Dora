@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Dora.GraphQL.GraphTypes
+{
+    public partial class GraphValueResolver
+    {
+        public static GraphValueResolver Boolean = new GraphValueResolver("Boolean", typeof(bool), true, ResolveBoolean);
+        private static object ResolveBoolean(object rawValue)
+        {
+            if (rawValue is bool)
+            {
+                return rawValue;
+            }
+
+            if (rawValue is int)
+            {
+                var intValue = (int)rawValue;
+                return intValue == 1
+                    ? true
+                    : intValue == 0
+                    ? false
+                    : throw new GraphException($"Cannot resolve '{rawValue}' as a Boolean value.");
+            }
+            var strValue = rawValue.ToString();
+            return string.Compare(strValue, "true", true) == 0
+                ? true
+                : string.Compare(strValue, "false", true) == 0
+                ? false
+                : throw new GraphException($"Cannot resolve '{rawValue}' as a Boolean value.");
+        }
+    }
+}

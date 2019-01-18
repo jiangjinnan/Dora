@@ -25,5 +25,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return builder;
         }
+
+        public static OAuthServerBuilder<TUser> AddEntityFrameworkStore<TUser,TDbContext>(this OAuthServerBuilder<TUser> builder)
+            where TDbContext : DbContext
+        {
+            AddEntityFrameworkStore<TDbContext>((OAuthServerBuilder)builder);
+            return builder;
+        }
     }
 }

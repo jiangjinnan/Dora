@@ -1,0 +1,20 @@
+﻿{
+  "Query": "query GetCustomer {
+                    Customer (name: foobar){
+                        Id
+                        Name
+                        ContactInfo {
+                            PhoneNo
+                            Email
+                            Addresses {
+                                Province
+                                City
+                                District
+                                Street
+                            }
+                        }
+                    }
+                }",
+  "OperationName": "GetCustomer",
+  "Variables": null
+}

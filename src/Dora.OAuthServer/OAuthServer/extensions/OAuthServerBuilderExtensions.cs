@@ -30,13 +30,25 @@ namespace Microsoft.Extensions.DependencyInjection
             Guard.ArgumentNotNullOrWhiteSpace(id, nameof(id));
             Guard.ArgumentNotNullOrWhiteSpace(title, nameof(title));
             Guard.ArgumentNotNullOrWhiteSpace(description, nameof(description));
-            builder.Services.Configure<OAuthServerOptions>(options=> options.AuthorizationServer.Scopes.Add(new ScopeOptions {
+            builder.Services.Configure<OAuthServerOptions>(options => options.AuthorizationServer.Scopes.Add(new ScopeOptions
+            {
                 Id = id,
-                 Title = title,
-                  IconUrl = iconUrl,
-                   Description = description,
-                    Optional = optional
+                Title = title,
+                IconUrl = iconUrl,
+                Description = description,
+                Optional = optional
             }));
+            return builder;
+        }
+
+        public static OAuthServerBuilder<TUser> AddScope<TUser>(this OAuthServerBuilder<TUser> builder,
+           string id,
+           string title,
+           string description,
+           string iconUrl,
+           bool optional)
+        {
+            AddScope((OAuthServerBuilder)builder, id, title, description, iconUrl, optional);
             return builder;
         }
 
