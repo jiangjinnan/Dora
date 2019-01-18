@@ -3,9 +3,9 @@ using System.Globalization;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public partial class GraphValueResolver
+    public static partial class GraphValueResolver
     {
-        public static GraphValueResolver Int = new GraphValueResolver("Int", typeof(int), true, ResolveInt);
+        public static Func<object, object> Int = ResolveInt;
         private static object ResolveInt(object rawValue)
         {
             if (rawValue is int)

@@ -22,7 +22,7 @@
             }
 
             object rawValue = argumentToken.ValueToken;
-            if (context.GraphContext.Variables.TryGetValue((string)rawValue, out var value))
+            if (rawValue is string && context.GraphContext.Variables.TryGetValue((string)rawValue, out var value))
             {
                 rawValue = value;
             }

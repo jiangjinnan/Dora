@@ -8,20 +8,34 @@ namespace Dora.GraphQL.GraphTypes
     {
         private readonly IAttributeAccessor _attributeAccessor;
         private readonly ConcurrentDictionary<string, IGraphType> _graphTypes;
-        private readonly IGraphValueResolverProvider _resolverProvider;
 
-        public GraphTypeProvider(IAttributeAccessor attributeAccessor, IGraphValueResolverProvider resolverProvider)
+        public GraphTypeProvider(IAttributeAccessor attributeAccessor)
         {
             _attributeAccessor = attributeAccessor ?? throw new ArgumentNullException(nameof(attributeAccessor));
-            _resolverProvider = resolverProvider ?? throw new ArgumentNullException(nameof(resolverProvider));
             _graphTypes = new ConcurrentDictionary<string, IGraphType>();
+
+            IGraphType graphType;
+            foreach (var type in GraphValueResolver.ScalarTypes)
+            {
+                graphType = new GraphType(_attributeAccessor, type, false, false);
+                _graphTypes.TryAdd(graphType.Name, graphType);
+
+                graphType = new GraphType(_attributeAccessor, type, true, false);
+                _graphTypes.TryAdd(graphType.Name, graphType);
+
+                graphType = new GraphType(_attributeAccessor, type, false, true);
+                _graphTypes.TryAdd(graphType.Name, graphType);
+
+                graphType = new GraphType(_attributeAccessor, type, true, true);
+                _graphTypes.TryAdd(graphType.Name, graphType);
+            }
         }
 
         public IGraphType GetGraphType(Type type, bool? isRequired, bool? isEnumerable)
         {
             Guard.ArgumentNotNull(type, nameof(type));
             type = GetValidType(type);
-            var graphType = new GraphType(_resolverProvider, _attributeAccessor, type, isRequired, isEnumerable);
+            var graphType = new GraphType(_attributeAccessor, type, isRequired, isEnumerable);
             _graphTypes.TryAdd(graphType.Name, graphType);
             return graphType;
         }

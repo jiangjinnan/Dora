@@ -3,9 +3,9 @@ using System.Globalization;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public partial class GraphValueResolver
+    public static partial class GraphValueResolver
     {
-        public static GraphValueResolver Decimal = new GraphValueResolver("Decimal", typeof(decimal), true,  ResolveDecimal);
+        public static Func<object, object> Decimal = ResolveDecimal;
         private static object ResolveDecimal(object rawValue)
         {
             if (rawValue is decimal)

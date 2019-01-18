@@ -7,11 +7,11 @@ namespace Dora.GraphQL.Selections
     public struct NamedValueToken
     {    
         public string Name { get; }
-        public string ValueToken { get; }
-        public NamedValueToken(string name, string valueToken) : this()
+        public object ValueToken { get; }
+        public NamedValueToken(string name, object valueToken) : this()
         {
             Name = Guard.ArgumentNotNullOrWhiteSpace( name, nameof(name));
-            ValueToken = Guard.ArgumentNotNullOrWhiteSpace(valueToken, nameof(valueToken)); 
+            ValueToken = Guard.ArgumentNotNull(valueToken, nameof(valueToken)); 
         }
     }
 }

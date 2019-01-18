@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public partial class GraphValueResolver
+    public static partial class GraphValueResolver
     {
-        public static GraphValueResolver Complex(Type type)
+        public static Func<object, object> Complex(Type type)
         {
             if (type.IsEnumerableType(out _))
             {
@@ -17,8 +17,7 @@ namespace Dora.GraphQL.GraphTypes
             var name = type.IsGenericType
                 ? $"{type.Name.Substring(0, type.Name.IndexOf('`'))}Of{string.Join("", type.GetGenericArguments().Select(it => it.Name))}"
                 : type.Name;
-            Func<object, object> resolver = rawValue => ResolveComplex(type,rawValue, name);
-            return new GraphValueResolver(name, type, false, resolver);
+            return rawValue => ResolveComplex(type,rawValue, name);
         }
 
         private static object ResolveComplex(Type type, object rawValue, string name)

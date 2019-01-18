@@ -2,9 +2,9 @@
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public partial class GraphValueResolver
+    public static partial class GraphValueResolver
     {
-        public static GraphValueResolver TimeSpan = new GraphValueResolver("TimeSpan", typeof(TimeSpan), true, ResolveTimeSpan);
+        public static Func<object, object> TimeSpan = ResolveTimeSpan;
         private static object ResolveTimeSpan(object rawValue)
         {
             if (rawValue is long)

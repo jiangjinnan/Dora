@@ -3,9 +3,9 @@ using System.Globalization;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public partial class GraphValueResolver
+    public static partial class GraphValueResolver
     {
-        public static GraphValueResolver DateTime = new GraphValueResolver("DateTime", typeof(DateTimeOffset), true, ResolveDateTime);
+        public static Func<object, object> DateTime = ResolveDateTime;
         private static object ResolveDateTime(object rawValue)
         {
             if (rawValue is DateTime)

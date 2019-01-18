@@ -178,19 +178,7 @@ namespace Dora.GraphQL.Server
 
                 foreach (var argument in field.Arguments)
                 {
-                    switch (argument.Value)
-                    {
-                        case EnumValue enumValue:
-                            {
-                                selectionNode.AddArgument(new NamedValueToken(argument.Name, enumValue.Name));
-                                break;
-                            }
-                        case VariableReference reference:
-                            {
-                                selectionNode.AddArgument(new NamedValueToken(argument.Name, reference.Name));
-                                break;
-                            }
-                    }
+                    selectionNode.AddArgument(new NamedValueToken(argument.Name, argument.Value.Value));
                 }
 
                 var subSelections = ResolveSelections(field.SelectionSet.Selections);
