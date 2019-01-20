@@ -1,7 +1,5 @@
 ﻿using Dora.GraphQL.Executors;
 using Dora.GraphQL.Selections;
-using System;
-using System.Collections.Generic;
 
 namespace Dora.GraphQL.GraphTypes
 {

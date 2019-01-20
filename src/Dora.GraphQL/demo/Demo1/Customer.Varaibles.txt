@@ -1,0 +1,22 @@
+﻿{
+  "Query": "query GetCustomer ($lowerCase:Boolean = 0, $name: String) {
+    Customer (name: $name){
+        Id
+        Name
+        ContactInfo {
+            PhoneNo
+            Email(lowerCase:$lowerCase)
+            Addresses {
+                Province
+                City
+                District
+                Street
+            }
+        }
+    }
+}",
+  "OperationName": "GetCustomer",
+  "Variables": {
+	name: "Foobar"
+	}
+}

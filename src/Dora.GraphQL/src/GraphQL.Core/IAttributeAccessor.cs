@@ -13,7 +13,7 @@ namespace Dora.GraphQL
     public class AttributeAccessor : IAttributeAccessor
     {
         public object[] GetCustomAttributes(MemberInfo member, Type attributeType, bool inherit)
-       => member.GetCustomAttributes(attributeType, inherit);
+        => member.GetCustomAttributes(attributeType, inherit);
 
         public IEnumerable<Attribute> GetCustomAttributes(ParameterInfo parameter, Type attributeType)
          => parameter.GetCustomAttributes(attributeType);

@@ -15,19 +15,11 @@ namespace Dora.GraphQL.Executors
             return context;
         }
 
-        public static GraphContext AddFragment(this GraphContext context, IFragment  fragment)
+        public static GraphContext AddFragment(this GraphContext context, string name, IFragment  fragment)
         {
             Guard.ArgumentNotNull(context, nameof(context));
             Guard.ArgumentNotNull(fragment, nameof(fragment));
-            context.Fragments[fragment.Name] = fragment;
-            return context;
-        }
-
-        public static GraphContext AddSelection(this GraphContext context, ISelectionNode selection)
-        {
-            Guard.ArgumentNotNull(context, nameof(context));
-            Guard.ArgumentNotNull(selection, nameof(selection));
-            context.SelectionSet[selection.Name] = selection;
+            context.Fragments[name] = fragment;
             return context;
         }
     }

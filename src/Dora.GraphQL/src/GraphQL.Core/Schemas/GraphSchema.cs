@@ -39,14 +39,20 @@ namespace Dora.GraphQL.Schemas
                 builder.Append(new string(' ', level * 4));
             }
 
+            var isUnionType = graphType.OtherTypes.Length > 0;
+
             foreach (var field in graphType.Fields.Values)
             {
                 Indent(indentLevel);
-                builder.Append($"{field.Name}: {field.GraphType.Name}");
+                var fieldName = isUnionType
+                    ? $"{field.ContainerType.Name}.{field.Name}"
+                    : field.Name;
+
+                builder.Append($"{fieldName}: {field.GraphType.Name}");
                 if (field.Arguments.Any())
                 {
                     builder.Append("(");
-                    var index = 0;
+                    var index = 0;  
                     foreach (var argument in field.Arguments.Values)
                     {
                         index++;

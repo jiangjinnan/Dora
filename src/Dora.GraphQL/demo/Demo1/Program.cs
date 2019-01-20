@@ -72,15 +72,15 @@ namespace Demo1
                 {
                     Email = $"{name}@ly.com",
                     PhoneNo = "123",
-                    Addresses = new List<Address> {
-                              new Address
+                    Addresses = new List<object> {
+                              new Address1
                               {
                                    Province = "Jiangsu",
                                     City = "Suzhou",
                                      District = "IndustryPark",
                                       Street = "SR Xinghu"
                               },
-                              new Address
+                              new Address2
                               {
                                    Province = "SiChuan",
                                    City = "Chengdu",

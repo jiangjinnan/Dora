@@ -8,10 +8,12 @@ namespace Dora.GraphQL.Selections
     {    
         public string Name { get; }
         public object ValueToken { get; }
-        public NamedValueToken(string name, object valueToken) : this()
+        public bool IsReference { get; }
+        public NamedValueToken(string name, object valueToken, bool isReference) : this()
         {
             Name = Guard.ArgumentNotNullOrWhiteSpace( name, nameof(name));
-            ValueToken = Guard.ArgumentNotNull(valueToken, nameof(valueToken)); 
+            ValueToken = Guard.ArgumentNotNull(valueToken, nameof(valueToken));
+            IsReference = isReference;
         }
     }
 }

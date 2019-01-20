@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dora.GraphQL.GraphTypes
@@ -17,27 +18,38 @@ namespace Dora.GraphQL.GraphTypes
             IGraphType graphType;
             foreach (var type in GraphValueResolver.ScalarTypes)
             {
-                graphType = new GraphType(_attributeAccessor, type, false, false);
+                graphType = new GraphType(this, _attributeAccessor, type, false, false, Type.EmptyTypes);
                 _graphTypes.TryAdd(graphType.Name, graphType);
 
-                graphType = new GraphType(_attributeAccessor, type, true, false);
+                graphType = new GraphType(this, _attributeAccessor, type, true, false, Type.EmptyTypes);
                 _graphTypes.TryAdd(graphType.Name, graphType);
 
-                graphType = new GraphType(_attributeAccessor, type, false, true);
+                graphType = new GraphType(this, _attributeAccessor, type, false, true, Type.EmptyTypes);
                 _graphTypes.TryAdd(graphType.Name, graphType);
 
-                graphType = new GraphType(_attributeAccessor, type, true, true);
+                graphType = new GraphType(this, _attributeAccessor, type, true, true, Type.EmptyTypes);
                 _graphTypes.TryAdd(graphType.Name, graphType);
             }
         }
 
-        public IGraphType GetGraphType(Type type, bool? isRequired, bool? isEnumerable)
+        public IGraphType GetGraphType(Type type, bool? isRequired, bool? isEnumerable, params Type[] otherTypes)
         {
             Guard.ArgumentNotNull(type, nameof(type));
             type = GetValidType(type);
-            var graphType = new GraphType(_attributeAccessor, type, isRequired, isEnumerable);
-            _graphTypes.TryAdd(graphType.Name, graphType);
+            var graphType = new GraphType(this, _attributeAccessor, type, isRequired, isEnumerable, otherTypes);
+            foreach (var otherType in otherTypes)
+            {
+                GetGraphType(otherType, null, null, Type.EmptyTypes);
+            }
             return graphType;
+        }
+
+        public IGraphTypeProvider AddGraphType(string name, IGraphType graphType)
+        {
+            Guard.ArgumentNotNullOrWhiteSpace(name, nameof(name));
+            Guard.ArgumentNotNull(graphType, nameof(graphType));
+            _graphTypes.TryAdd(name, graphType);
+            return this;
         }
 
         public bool TryGetGraphType(string name, out IGraphType graphType)

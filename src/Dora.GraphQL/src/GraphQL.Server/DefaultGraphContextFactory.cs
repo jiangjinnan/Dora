@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using Directive = Dora.GraphQL.Selections.impl.Directive;
 using OperationType = Dora.GraphQL.Schemas.OperationType;
 using Dora.GraphQL;
+using NamedType = GraphQL.Language.AST.NamedType;
 
 namespace Dora.GraphQL.Server
 {
@@ -64,7 +65,7 @@ namespace Dora.GraphQL.Server
                     }
             }
 
-            if (!graphType.Fields.TryGetValue(operationName, out var operationField))
+            if (!graphType.Fields.TryGetGetField(typeof(void),operationName, out var operationField))
             {
                 throw new GraphException($"Specified GraphQL operation '{operationName}' does not exist in the schema");
             }
@@ -82,12 +83,12 @@ namespace Dora.GraphQL.Server
             {
                 var graphTypeName = definition.Type.Name;
                 var graphType = _graphTypeProvider.GetGraphType(graphTypeName);
-                var fragement = new Fragment(definition.Name, graphType);
-                foreach (var selection in ResolveSelections(definition.SelectionSet.Selections))
+                var fragement = new Fragment(graphType);
+                foreach (var selection in ResolveSelections(context, definition.SelectionSet.Selections))
                 {
                     fragement.SelectionSet.Add(selection);
                 }
-                context.AddFragment(fragement);
+                context.AddFragment(definition.Name, fragement);
             }
         }
 
@@ -119,16 +120,16 @@ namespace Dora.GraphQL.Server
                 }                
                 var defaultValue = variable.DefaultValue == null
                     ? null
-                    : ((EnumValue)variable.DefaultValue).Name;
+                    : variable.DefaultValue.Value;
                 context.AddArgument(new NamedGraphType(name, graphType, defaultValue));
             }
         }
 
         private void SetSelections(GraphContext context, Operation operation)
         {
-            foreach (var selection in ResolveSelections(operation.SelectionSet.Selections))
+            foreach (var selection in ResolveSelections(context, operation.SelectionSet.Selections))
             {
-                context.AddSelection(selection);
+                context.SelectionSet.Add(selection);
             }
         }
 
@@ -144,25 +145,36 @@ namespace Dora.GraphQL.Server
             }
         }
 
-        private ICollection<ISelectionNode> ResolveSelections(IEnumerable<ISelection> selections)
+        private ICollection<ISelectionNode> ResolveSelections(GraphContext context, IEnumerable<ISelection> selections)
         {
             var list = new List<ISelectionNode>();
-            foreach (var definition in selections)
+            foreach (var selection in selections)
             {
-                var field = definition as Field;
+                var inlineFragment = selection as InlineFragment;
+                if (null != inlineFragment)
+                {
+                    var graphType = _graphTypeProvider.GetGraphType(inlineFragment.Type.Name);
+                    var fragment = new Fragment(graphType);
+                    foreach (var item in ResolveSelections(context, inlineFragment.SelectionSet.Selections))
+                    {
+                        fragment.AddSubSelection(item);
+                    }
+                    list.Add(fragment);
+                }
+                var field = selection as Field;
                 if (null == field)
                 {
                     continue;
                 }
-                var selectionNode = new SelectionNode(field.Name)
+                var selectionNode = new FieldSelection(field.Name)
                 {
                     Alias = field.Alias
                 };
 
-                var fragment = field.SelectionSet.Selections.FirstOrDefault() as FragmentSpread;
-                if (null != fragment)
+                var fragmentSpread = field.SelectionSet.Selections.FirstOrDefault() as FragmentSpread;
+                if (null != fragmentSpread)
                 {
-                    selectionNode.Fragment = fragment.Name;
+                    var fragmentType = context.Fragments[fragmentSpread.Name];
                 }
 
                 foreach (var directiveDefinition in field.Directives)
@@ -170,21 +182,20 @@ namespace Dora.GraphQL.Server
                     var directive = new Directive(directiveDefinition.Name);
                     foreach (var argument in directiveDefinition.Arguments)
                     {
-                        var valueToken = ((EnumValue)argument.Value).Name;
-                        directive.AddArgument(new  NamedValueToken(argument.Name, valueToken));
+                        directive.AddArgument(new  NamedValueToken(argument.Name, argument.Value.Value, argument.Value is VariableReference));
                     }
                     selectionNode.AddDirective(directive);
                 }
 
                 foreach (var argument in field.Arguments)
                 {
-                    selectionNode.AddArgument(new NamedValueToken(argument.Name, argument.Value.Value));
+                    selectionNode.AddArgument(new NamedValueToken(argument.Name, argument.Value.Value, argument.Value is VariableReference));
                 }
 
-                var subSelections = ResolveSelections(field.SelectionSet.Selections);
+                var subSelections = ResolveSelections(context, field.SelectionSet.Selections);
                 foreach (var subSelection in subSelections)
                 {
-                    selectionNode.AddChild(subSelection);
+                    selectionNode.AddSubSelection(subSelection);
                 }
                 list.Add(selectionNode);
             }

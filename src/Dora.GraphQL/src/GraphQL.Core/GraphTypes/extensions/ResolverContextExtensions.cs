@@ -1,4 +1,6 @@
-﻿namespace Dora.GraphQL.GraphTypes
+﻿using Dora.GraphQL.Selections;
+
+namespace Dora.GraphQL.GraphTypes
 {
     public static class ResolverContextExtensions
     {
@@ -8,25 +10,30 @@
         }
         public static object GetArgument(this ResolverContext context, string name)
         {
-            if (!context.Field.Arguments.TryGetValue(name, out var argument))
+            if (!context.Field.Arguments.TryGetValue(name, out var fieldArgument))
             {
                 throw new GraphException($"The argument '{name}' is not defined on the filed '{context.Field.Name}' of {context.Container.GetType()}");
             }
 
-            var graphType = argument.GraphType;            
-            if (!context.Selection.Arguments.TryGetValue(name, out var argumentToken))
+            var graphType = fieldArgument.GraphType;            
+            if (((IFieldSelection)context.Selection).Arguments.TryGetValue(name, out var argumentToken))
             {
-                return string.IsNullOrWhiteSpace(argument.DefaultValue)
-                    ? throw new GraphException($"The argument '{name}' without default value is not provided.")
-                    : graphType.Resolve(argument.DefaultValue);
+                object rawValue = argumentToken.ValueToken;
+                if (rawValue is string && context.GraphContext.Variables.TryGetValue((string)rawValue, out var value1))
+                {
+                    rawValue = value1;
+                    return graphType.Resolve(value1);
+                }
+                if (!argumentToken.IsReference)
+                {
+                    return graphType.Resolve(rawValue);
+                }
             }
-
-            object rawValue = argumentToken.ValueToken;
-            if (rawValue is string && context.GraphContext.Variables.TryGetValue((string)rawValue, out var value))
+            if (context.GraphContext.Arguments.TryGetValue(name, out var value2) && value2.DefaultValue != null)
             {
-                rawValue = value;
+                return graphType.Resolve(value2.DefaultValue);
             }
-            return graphType.Resolve(rawValue);
+            return graphType.Resolve(fieldArgument.DefaultValue);
         }
     }
 }

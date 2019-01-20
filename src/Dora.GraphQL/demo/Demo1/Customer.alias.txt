@@ -1,0 +1,16 @@
+﻿{
+  "Query": "query GetCustomer {
+    foo : Customer (name: foo){
+        Id
+        Name
+    },
+	bar : Customer (name: bar){
+        Id
+        Name
+    }
+}",
+  "OperationName": "GetCustomer",
+  "Variables": {
+	name: "Foobar"
+	}
+}

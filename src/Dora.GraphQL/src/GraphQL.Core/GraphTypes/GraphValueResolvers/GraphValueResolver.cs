@@ -53,12 +53,12 @@ namespace Dora.GraphQL.GraphTypes
 
         public static bool IsScalar(Type type) => _scalarTypeNames.ContainsKey(type);
 
-        public static string GetGraphTypeName(Type type)
+        public static string GetGraphTypeName(Type type, params Type[] otherTypes)
         {
             Guard.ArgumentNotNull(type, nameof(type));
-            return _scalarTypeNames.TryGetValue(type, out var value)
-                ? value
-                : GetComplexGraphTypeName(type);
+            return otherTypes.Any() 
+                ? $"UnionOf{type.Name}{string.Join("",otherTypes.Select(it=>it.Name))}"
+                : _scalarTypeNames.TryGetValue(type, out var value) ? value : GetComplexGraphTypeName(type);
         }
 
         public static Type[] ScalarTypes => _scalarTypes;
@@ -73,7 +73,5 @@ namespace Dora.GraphQL.GraphTypes
             var argumentsPart = string.Join("", type.GetGenericArguments().Select(it => GetGraphTypeName(type)));
             return $"{type.Name.Substring(0, type.Name.Length - 2)}Of{argumentsPart}";
         }
-
-
     }
 }

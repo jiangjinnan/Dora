@@ -41,7 +41,7 @@ namespace Dora.GraphQL.Schemas
                     var resolver = new OperationResolver(method);
                     var type = _graphTypeProvider.GetGraphType(method.ReturnType,null,null);
 
-                    var field = new GraphField(name, type, resolver);
+                    var field = new GraphField(name, type, typeof(void), resolver);
                     foreach (var parameter in method.GetParameters())
                     {
                         var argumentAttribute = _attributeAccessor.GetAttribute<ArgumentAttribute>(parameter);
@@ -53,7 +53,7 @@ namespace Dora.GraphQL.Schemas
                         field.AddArgument(new NamedGraphType(argumentAttribute.Name ?? parameter.Name, parameterGraphType));
                     }
 
-                    graphType.AddField(field);
+                    graphType.AddField(typeof(void),field);
                 }
                 return graphType;
             }
