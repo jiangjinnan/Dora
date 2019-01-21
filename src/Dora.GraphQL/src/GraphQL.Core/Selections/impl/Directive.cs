@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace Dora.GraphQL.Selections.impl
+namespace Dora.GraphQL.Selections
 {
     public class Directive: IDirective
     {

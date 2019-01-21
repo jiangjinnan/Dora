@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Dora.GraphQL;
 using Dora.GraphQL.Executors;
 using Dora.GraphQL.GraphTypes;
-using Dora.GraphQL.Schemas;
-using Dora.GraphQL.Selections;
-using Dora.GraphQL.Selections.impl;
 using GraphQL.Execution;
 using GraphQL.Language.AST;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Linq;
-using Directive = Dora.GraphQL.Selections.impl.Directive;
-using OperationType = Dora.GraphQL.Schemas.OperationType;
-using Dora.GraphQL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using NamedType = GraphQL.Language.AST.NamedType;
+using OperationType = Dora.GraphQL.Schemas.OperationType;
 
 namespace Dora.GraphQL.Server
 {
@@ -25,17 +20,20 @@ namespace Dora.GraphQL.Server
         private readonly IGraphSchemaProvider  _schemaProvider;
         private readonly IGraphTypeProvider _graphTypeProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISelectionSetProvider _selectionSetProvider;
 
         public DefaultGraphContextFactory(
            IDocumentBuilder documentBuilder,
            IGraphSchemaProvider schemaProvider, 
            IGraphTypeProvider graphTypeProvider,
-           IHttpContextAccessor httpContextAccessor)
+           IHttpContextAccessor httpContextAccessor,
+           ISelectionSetProvider selectionSetProvider)
         {
             _documentBuilder = documentBuilder ?? throw new ArgumentNullException(nameof(documentBuilder));
             _schemaProvider = schemaProvider ?? throw new ArgumentNullException(nameof(schemaProvider));
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _selectionSetProvider = selectionSetProvider ?? throw new ArgumentNullException(nameof(selectionSetProvider));
         }
 
         public ValueTask<GraphContext> CreateAsync(RequestPayload payload)
@@ -70,26 +68,10 @@ namespace Dora.GraphQL.Server
                 throw new GraphException($"Specified GraphQL operation '{operationName}' does not exist in the schema");
             }
             var context = new GraphContext(operationName, operationType, operationField, _httpContextAccessor.HttpContext.RequestServices);
-            SetFragments(context, document.Fragments);
             SetArguments(context, operation);
-            SetSelections(context, operation);
+            context.SelectionSet = _selectionSetProvider.GetSelectionSet(payload.Query, operation, document.Fragments);
             SetVariables(context, payload);
             return new ValueTask<GraphContext>(context);
-        }
-
-        private void SetFragments(GraphContext context, Fragments fragments)
-        {
-            foreach (var definition in fragments)
-            {
-                var graphTypeName = definition.Type.Name;
-                var graphType = _graphTypeProvider.GetGraphType(graphTypeName);
-                var fragement = new Fragment(graphType);
-                foreach (var selection in ResolveSelections(context, definition.SelectionSet.Selections))
-                {
-                    fragement.SelectionSet.Add(selection);
-                }
-                context.AddFragment(definition.Name, fragement);
-            }
         }
 
         private void SetArguments(GraphContext context, Operation operation)
@@ -125,18 +107,9 @@ namespace Dora.GraphQL.Server
             }
         }
 
-        private void SetSelections(GraphContext context, Operation operation)
-        {
-            foreach (var selection in ResolveSelections(context, operation.SelectionSet.Selections))
-            {
-                context.SelectionSet.Add(selection);
-            }
-        }
-
         private void SetVariables(GraphContext context, RequestPayload payload)
         {
-            var dictionary = Extensions.GetValue(payload.Variables) as Dictionary<string, object>;
-            if (null != dictionary)
+            if (Extensions.GetValue(payload.Variables) is Dictionary<string, object> dictionary)
             {
                 foreach (var item in dictionary)
                 {
@@ -145,70 +118,13 @@ namespace Dora.GraphQL.Server
             }
         }
 
-        private ICollection<ISelectionNode> ResolveSelections(GraphContext context, IEnumerable<ISelection> selections)
-        {
-            var list = new List<ISelectionNode>();
-            foreach (var selection in selections)
-            {
-                var inlineFragment = selection as InlineFragment;
-                if (null != inlineFragment)
-                {
-                    var graphType = _graphTypeProvider.GetGraphType(inlineFragment.Type.Name);
-                    var fragment = new Fragment(graphType);
-                    foreach (var item in ResolveSelections(context, inlineFragment.SelectionSet.Selections))
-                    {
-                        fragment.AddSubSelection(item);
-                    }
-                    list.Add(fragment);
-                }
-                var field = selection as Field;
-                if (null == field)
-                {
-                    continue;
-                }
-                var selectionNode = new FieldSelection(field.Name)
-                {
-                    Alias = field.Alias
-                };
-
-                var fragmentSpread = field.SelectionSet.Selections.FirstOrDefault() as FragmentSpread;
-                if (null != fragmentSpread)
-                {
-                    var fragmentType = context.Fragments[fragmentSpread.Name];
-                }
-
-                foreach (var directiveDefinition in field.Directives)
-                {
-                    var directive = new Directive(directiveDefinition.Name);
-                    foreach (var argument in directiveDefinition.Arguments)
-                    {
-                        directive.AddArgument(new  NamedValueToken(argument.Name, argument.Value.Value, argument.Value is VariableReference));
-                    }
-                    selectionNode.Directives.Add(directive);
-                }
-
-                foreach (var argument in field.Arguments)
-                {
-                    selectionNode.AddArgument(new NamedValueToken(argument.Name, argument.Value.Value, argument.Value is VariableReference));
-                }
-
-                var subSelections = ResolveSelections(context, field.SelectionSet.Selections);
-                foreach (var subSelection in subSelections)
-                {
-                    selectionNode.AddSubSelection(subSelection);
-                }
-                list.Add(selectionNode);
-            }
-            return list;
-        }
     }
 
     internal static class Extensions
     {
         public static object GetValue(this object value)
         {
-            JObject obj2 = value as JObject;
-            if (obj2 != null)
+            if (value is JObject obj2)
             {
                 Dictionary<string, object> dictionary = new Dictionary<string, object>();
                 foreach (KeyValuePair<string, JToken> pair in obj2)
@@ -218,24 +134,24 @@ namespace Dora.GraphQL.Server
                 }
                 return dictionary;
             }
-            JProperty property = value as JProperty;
-            if (property != null)
+            if (value is JProperty property)
             {
-                return new Dictionary<string, object> { {
-            property.Name,
-            property.Value.GetValue()
-        } };
+                return new Dictionary<string, object> {
+                    {
+                        property.Name,
+                        property.Value.GetValue()
+                    }
+                };
             }
-            JArray array = value as JArray;
-            if (array != null)
+            if (value is JArray array)
             {
-                return Enumerable.Aggregate(array.Children(), new List<object>(), delegate (List<object> list, JToken token) {
+                return Enumerable.Aggregate(array.Children(), new List<object>(), delegate (List<object> list, JToken token)
+                {
                     list.Add(token.GetValue());
                     return list;
                 });
             }
-            JValue value2 = value as JValue;
-            if (value2 == null)
+            if (!(value is JValue value2))
             {
                 return value;
             }
@@ -250,6 +166,5 @@ namespace Dora.GraphQL.Server
             }
             return obj3;
         }
-
     }
 }

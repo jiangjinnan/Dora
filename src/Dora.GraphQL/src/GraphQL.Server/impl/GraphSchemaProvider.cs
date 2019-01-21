@@ -5,7 +5,7 @@ using System.Text;
 using Dora.GraphQL.Schemas;
 using Microsoft.Extensions.Hosting;
 
-namespace Dora.GraphQL.Server.impl
+namespace Dora.GraphQL.Server
 {
     public class GraphSchemaProvider : IGraphSchemaProvider
     {

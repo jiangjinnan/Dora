@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 
@@ -22,6 +21,11 @@ namespace Dora.GraphQL.GraphTypes
 
         private static object ResolveComplex(Type type, object rawValue, string name)
         {
+            if (type.IsEnum)
+            {
+                return Enum.Parse(type, (string)rawValue);
+            }
+
             if (type.IsAssignableFrom(rawValue.GetType()))
             {
                 return rawValue;

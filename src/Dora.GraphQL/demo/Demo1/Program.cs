@@ -3,7 +3,7 @@ using Dora.GraphQL.Executors;
 using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Schemas;
 using Dora.GraphQL.Server;
-using Dora.GraphQL.Server.impl;
+using Dora.GraphQL.Server;
 using GraphQL.Execution;
 using Lib;
 using Microsoft.AspNetCore.Builder;
@@ -21,15 +21,7 @@ namespace Demo1
         {
             new WebHostBuilder()
                 .UseKestrel()
-                .ConfigureServices(svcs => svcs
-                    .AddHttpContextAccessor()
-                    .AddSingleton<ISchemaFactory, SchemaFactory>()
-                    .AddSingleton<IAttributeAccessor, AttributeAccessor>()
-                    .AddSingleton<IGraphTypeProvider, GraphTypeProvider>()
-                    .AddSingleton<IGraphContextFactory, DefaultGraphContextFactory>()
-                    .AddSingleton<IDocumentBuilder, GraphQLDocumentBuilder>()
-                    .AddSingleton<IGraphSchemaProvider, GraphSchemaProvider>()
-                    .AddSingleton<IGraphExecutor, DefaultGraphExecutor>())
+                .ConfigureServices(svcs => svcs.AddGraphQLServer())
                 .UseStartup<Startup>()
                 .Build()
                 .Run();
@@ -46,7 +38,7 @@ namespace Demo1
             {
                 app
                     .UseDeveloperExceptionPage()
-                    .UseMiddleware<GraphMiddleware>();
+                    .UseGraphQLServer();
             }
         }
     }

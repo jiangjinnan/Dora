@@ -14,13 +14,5 @@ namespace Dora.GraphQL.Executors
             context.Arguments[argument.Name] = argument;
             return context;
         }
-
-        public static GraphContext AddFragment(this GraphContext context, string name, IFragment  fragment)
-        {
-            Guard.ArgumentNotNull(context, nameof(context));
-            Guard.ArgumentNotNull(fragment, nameof(fragment));
-            context.Fragments[name] = fragment;
-            return context;
-        }
     }
 }

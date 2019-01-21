@@ -1,4 +1,5 @@
 ﻿using Dora.GraphQL.GraphTypes;
+using Dora.GraphQL.Resolvers;
 using Dora.GraphQL.Selections;
 using System;
 using System.Collections;

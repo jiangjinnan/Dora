@@ -12,8 +12,7 @@ namespace Dora.GraphQL.Executors
         public string OperationName { get; }
         public OperationType OperationType { get; }
         public IDictionary<string, NamedGraphType> Arguments { get; }
-        public ICollection<ISelectionNode> SelectionSet { get; }
-        public IDictionary<string, IFragment> Fragments { get; }
+        public ICollection<ISelectionNode> SelectionSet { get; internal set; }
         public IDictionary<string, object> Variables { get; }
         public GraphField Operation { get; }
         public IServiceProvider RequestServices { get; }
@@ -25,7 +24,6 @@ namespace Dora.GraphQL.Executors
             RequestServices = Guard.ArgumentNotNull(requestServices, nameof(requestServices));
             Arguments = new Dictionary<string, NamedGraphType>();
             SelectionSet = new Collection<ISelectionNode>();
-            Fragments = new Dictionary<string, IFragment>();
             Variables = new Dictionary<string, object>();
         }
     }

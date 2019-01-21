@@ -1,26 +1,20 @@
 ﻿{
-  "Query": "query GetCustomer {
-	Customer (name: foobar){
-		Id 
-		Name
+  "Query": "query GetCustomer($withId: Boolean = false) {
+    Customer (name: foobar){
+        Id @include(if: $withId)
+        Name
 		Type
-		ContactInfo {
-			PhoneNo
-			Email(lowerCase:true)
-			Addresses {
-			... on Address1{
-				Province
-				City
-				District
-				Street
-				}
-			... on Address2{                               
-				Province
-				City
-				}
-			}
-		}
-	}
+        ContactInfo {
+            PhoneNo
+            Email(lowerCase:true)
+            Addresses {
+                Province
+                City
+                District
+                Street
+            }
+        }
+    }
 }",
   "OperationName": "GetCustomer",
   "Variables": null
