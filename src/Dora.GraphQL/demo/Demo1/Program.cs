@@ -3,18 +3,15 @@ using Dora.GraphQL.Executors;
 using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Schemas;
 using Dora.GraphQL.Server;
+using Dora.GraphQL.Server.impl;
 using GraphQL.Execution;
 using Lib;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Dora.GraphQL.Server.impl;
 
 namespace Demo1
 {
@@ -68,6 +65,7 @@ namespace Demo1
             {
                 Id = 123,
                 Name = name,
+                Type =  CustomerType.Vip,
                 ContactInfo = new ContactInfo
                 {
                     Email = $"{name}@ly.com",
@@ -76,9 +74,9 @@ namespace Demo1
                               new Address1
                               {
                                    Province = "Jiangsu",
-                                    City = "Suzhou",
-                                     District = "IndustryPark",
-                                      Street = "SR Xinghu"
+                                   City = "Suzhou",
+                                   District = "IndustryPark",
+                                   Street = "SR Xinghu"
                               },
                               new Address2
                               {

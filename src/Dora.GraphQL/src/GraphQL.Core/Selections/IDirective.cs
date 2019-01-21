@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Dora.GraphQL.GraphTypes;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Dora.GraphQL.Selections
 {

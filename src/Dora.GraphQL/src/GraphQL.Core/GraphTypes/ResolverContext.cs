@@ -7,9 +7,9 @@ namespace Dora.GraphQL.GraphTypes
     {       
         public GraphContext GraphContext { get; }
         public GraphField  Field { get; }
-        public ISelectionNode Selection { get; }
+        public IFieldSelection Selection { get; }
         public object Container { get; }
-        public ResolverContext(GraphContext graphContext, GraphField  field, ISelectionNode selection,  object container)
+        public ResolverContext(GraphContext graphContext, GraphField  field, IFieldSelection selection,  object container)
         {
             Container = container;
             GraphContext = Guard.ArgumentNotNull(graphContext, nameof(graphContext));

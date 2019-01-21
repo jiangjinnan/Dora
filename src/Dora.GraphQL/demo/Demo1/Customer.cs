@@ -1,15 +1,17 @@
-﻿using Dora.GraphQL.GraphTypes;
+﻿using Dora.GraphQL;
+using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Schemas;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Demo1
 {
-    
+
     public class Customer
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public CustomerType Type {get;set;}
         public ContactInfo ContactInfo { get; set; }
     }
 
@@ -31,6 +33,12 @@ namespace Demo1
                 : Email;
             return new ValueTask<object>(result);
         }
+    }
+
+    public enum CustomerType
+    {
+        Vip,
+        Normal
     }
 
     [KnownTypes(typeof(Address1), typeof(Address2))]

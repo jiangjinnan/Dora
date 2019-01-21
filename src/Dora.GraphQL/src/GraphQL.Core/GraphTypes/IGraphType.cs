@@ -11,6 +11,7 @@ namespace Dora.GraphQL.GraphTypes
         string Name { get; }
         bool IsRequired { get; }
         bool IsEnumerable { get; }
+        bool IsEnum { get; }
         IDictionary<NamedType, GraphField> Fields { get; }
         object Resolve(object rawValue);
     }

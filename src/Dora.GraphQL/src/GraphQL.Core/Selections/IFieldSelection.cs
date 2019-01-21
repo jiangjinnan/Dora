@@ -7,6 +7,6 @@ namespace Dora.GraphQL.Selections
         string Name { get; }
         string Alias { get; }
         IDictionary<string, NamedValueToken> Arguments { get; }
-        IDictionary<string, IDirective> Directives { get; }
+        ICollection<IDirective> Directives { get; }
     }
 }

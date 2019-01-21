@@ -3,6 +3,7 @@
     Customer (name: $name){
         Id
         Name
+		Type
         ContactInfo {
             PhoneNo
             Email(lowerCase:$lowerCase)

@@ -11,13 +11,6 @@ namespace Dora.GraphQL
             return selection;
         }
 
-        public static ISelectionNode AddDirective(this IFieldSelection selection, IDirective  directive)
-        {
-            Guard.ArgumentNotNull(selection, nameof(selection));
-            selection.Directives[directive.Name] = directive;
-            return selection;
-        }
-
         public static ISelectionNode AddSubSelection(this ISelectionNode selection, ISelectionNode child)
         {
             Guard.ArgumentNotNull(selection, nameof(selection));

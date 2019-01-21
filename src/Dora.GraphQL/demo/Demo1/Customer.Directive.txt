@@ -1,8 +1,9 @@
 ﻿{
   "Query": "query GetCustomer {
 	Customer (name: foobar){
-		Id
+		Id 
 		Name
+		Type
 		ContactInfo {
 			PhoneNo
 			Email(lowerCase:true)

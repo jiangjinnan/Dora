@@ -184,7 +184,7 @@ namespace Dora.GraphQL.Server
                     {
                         directive.AddArgument(new  NamedValueToken(argument.Name, argument.Value.Value, argument.Value is VariableReference));
                     }
-                    selectionNode.AddDirective(directive);
+                    selectionNode.Directives.Add(directive);
                 }
 
                 foreach (var argument in field.Arguments)

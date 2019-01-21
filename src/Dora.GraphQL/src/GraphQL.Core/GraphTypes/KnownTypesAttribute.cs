@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    [AttributeUsage( AttributeTargets.Class| AttributeTargets.Interface)]
+    [AttributeUsage( AttributeTargets.Class| AttributeTargets.Interface, AllowMultiple = true)]
     public class KnownTypesAttribute: Attribute
     {
         public Type[] Types { get; }

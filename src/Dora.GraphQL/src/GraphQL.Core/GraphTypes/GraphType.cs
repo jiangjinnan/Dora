@@ -15,6 +15,7 @@ namespace Dora.GraphQL.GraphTypes
         public string Name { get; }
         public bool IsRequired { get; }
         public bool IsEnumerable { get; }
+        public bool IsEnum { get; }
         public IDictionary<NamedType, GraphField> Fields { get; }
         private GraphType(OperationType operationType)
         {
@@ -63,6 +64,7 @@ namespace Dora.GraphQL.GraphTypes
             Type = clrType;
             IsRequired = isRequired??false;
             IsEnumerable = isEnumerable?? isEnumerableType;
+            IsEnum = clrType.IsEnum;
             var name = GraphValueResolver.GetGraphTypeName(clrType, otherTypes);
             var requiredFlag = IsRequired ? "!" : "";
             Name = IsEnumerable
@@ -137,7 +139,6 @@ namespace Dora.GraphQL.GraphTypes
         public override int GetHashCode() => Name.GetHashCode();
         internal static GraphType CreateGraphType(OperationType operationType) => new GraphType(operationType);       
         public object Resolve(object rawValue) => _valueResolver(rawValue);
-
         private List<(string MemberName, PropertyInfo Property)> GetProperties(IAttributeAccessor attributeAccessor)
         {
             var list = new List<(string MemberName, PropertyInfo Property)>();

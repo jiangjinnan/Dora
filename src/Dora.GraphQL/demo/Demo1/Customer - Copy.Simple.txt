@@ -1,7 +1,7 @@
 ﻿{
-  "Query": "query GetCustomer {
+  "Query": "query GetCustomer($withId: Boolean = false) {
     Customer (name: foobar){
-        Id
+        Id @include(if: $withId)
         Name
 		Type
         ContactInfo {

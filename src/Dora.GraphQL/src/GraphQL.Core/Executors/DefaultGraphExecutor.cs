@@ -21,7 +21,7 @@ namespace Dora.GraphQL.Executors
             var selections = graphContext.SelectionSet;
             if (selections.Count == 1)
             {
-                var selection = selections.Single();
+                var selection = selections.OfType<IFieldSelection>().Single();
                 var resoloverContext = new ResolverContext(graphContext, graphContext.Operation, selection, null);
                 var result = await ExecuteCoreAsync(graphContext, resoloverContext, graphContext.Operation, selection);
                 return new ExecutionResult { Data = result };
@@ -66,6 +66,10 @@ namespace Dora.GraphQL.Executors
                     {
                         field.GraphType.Fields.TryGetGetField(element, fieldSelection.Name, out var subField);
                         var newResolverContext = new ResolverContext(graphContext, subField, fieldSelection, element);
+                        if (newResolverContext.Skip())
+                        {
+                            continue;
+                        }
                         var element1 = await ExecuteCoreAsync(graphContext, newResolverContext, subField, fieldSelection);
                         dictionary[fieldSelection.Alias ?? fieldSelection.Name] = element1;
                     }
@@ -87,6 +91,10 @@ namespace Dora.GraphQL.Executors
             {
                 field.GraphType.Fields.TryGetGetField(container, subSelection.Name, out var subField);
                 var newResolverContext = new ResolverContext(graphContext,  subField, subSelection, container);
+                if (newResolverContext.Skip())
+                {
+                    continue;
+                }
                 var element = await ExecuteCoreAsync(graphContext,newResolverContext, subField, subSelection);
                 node[subSelection.Alias??subSelection.Name] = element;
             }
