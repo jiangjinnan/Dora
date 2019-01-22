@@ -1,4 +1,5 @@
-﻿using Dora.GraphQL;
+﻿using AutoMapper;
+using Dora.GraphQL;
 using Dora.GraphQL.Server;
 using Microsoft.AspNetCore.Builder;
 using System;

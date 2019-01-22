@@ -1,15 +1,11 @@
 ﻿using Dora.GraphQL;
-using Dora.GraphQL.Executors;
-using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Schemas;
-using Dora.GraphQL.Server;
-using Dora.GraphQL.Server;
-using GraphQL.Execution;
 using Lib;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -20,35 +16,38 @@ namespace Demo1
         static void Main()
         {
             new WebHostBuilder()
+                .UseUrls("http://0.0.0.0:4000")
                 .UseKestrel()
-                .ConfigureServices(svcs => svcs.AddGraphQLServer())
                 .UseStartup<Startup>()
                 .Build()
                 .Run();
+        }       
+    }
+
+    public class Startup
+    {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services
+                .AddGraphQLServer()
+                .AddMvc();
         }
 
-        public class Startup
+        public void Configure(IApplicationBuilder app)
         {
-            public Startup(IGraphSchemaProvider provider)
-            {
-                Console.WriteLine(provider.GetSchema().ToString());
-            }
-
-            public void Configure(IApplicationBuilder app)
-            {
-                app
-                    .UseDeveloperExceptionPage()
-                    .UseGraphQLServer();
-            }
+            app
+                .UseDeveloperExceptionPage()
+                .UseGraphQLServer()
+                .UseMvc();
         }
     }
 
     public class DemoGraphService : GraphServiceBase
     {
-        private static Foobarbaz _instance = Foobarbaz.Create(5);
+        public static Foobarbaz Instance = Foobarbaz.Create(5);
 
-        //[GraphOperation( OperationType.Query, Name  = "Foobarbaz")]
-        //public Task<Foobarbaz> GetFoobarbaz() => Task.FromResult(_instance);
+        [GraphOperation(OperationType.Query, Name = "Foobarbaz")]
+        public Task<Foobarbaz> GetFoobarbaz() => Task.FromResult(Instance);
 
         [GraphOperation(OperationType.Query)]
         public Task<Customer> GetCustomer([Argument]string name)
@@ -82,5 +81,11 @@ namespace Demo1
             };
             return Task.FromResult(customer);
         }
+    }
+
+    public  class HomeController : Controller
+    {
+        [HttpGet("/foobarbaz")]
+        public string GetFoobarbaz() => JsonConvert.SerializeObject(DemoGraphService.Instance);
     }
 }

@@ -1,5 +1,5 @@
-﻿using Dora.GraphQL.GraphTypes;
-using Dora.GraphQL.Resolvers;
+﻿using AutoMapper;
+using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Selections;
 using System;
 using System.Collections;
@@ -42,6 +42,22 @@ namespace Dora.GraphQL.Executors
         private async ValueTask<object> ExecuteCoreAsync(GraphContext graphContext, ResolverContext resolverContext, GraphField field, ISelectionNode selection)
         {
             object container = await field.Resolver.ResolveAsync(resolverContext);
+            if (selection is IFieldSelection fieldSelection1)
+            {
+                if (fieldSelection1.IncludeAllFields())
+                {
+                    return container;
+                }
+
+                if (fieldSelection1.TryGetQueryResultType(out var queryResultType))
+                {
+                    return Mapper.Map(container, container.GetType(), queryResultType);
+                }
+            }
+
+
+            Console.WriteLine("Missing...");
+
             var subFields = new List<IFieldSelection>();
             subFields.AddRange(selection.SelectionSet.OfType<IFieldSelection>());                    
 

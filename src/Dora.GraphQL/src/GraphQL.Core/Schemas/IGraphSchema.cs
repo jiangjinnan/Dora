@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Dora.GraphQL.Schemas
 {
-    public interface IGraphSchema
+    public interface IGraphSchema: IGraphType
     {
         IGraphType Query { get; }
         IGraphType Mutation { get; }

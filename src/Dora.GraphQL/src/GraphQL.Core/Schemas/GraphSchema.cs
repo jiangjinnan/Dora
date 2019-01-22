@@ -1,4 +1,5 @@
 ﻿using Dora.GraphQL.GraphTypes;
+using Dora.GraphQL.Resolvers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,65 +14,39 @@ namespace Dora.GraphQL.Schemas
             Query = query ?? throw new ArgumentNullException(nameof(query));
             Mutation = mutation ?? throw new ArgumentNullException(nameof(mutation));
             Subsription = subsription ?? throw new ArgumentNullException(nameof(subsription));
+            Fields = new Dictionary<NamedType, GraphField>();
+
+            var @void = typeof(void);
+            var resolver = FakeResolver.Instance;
+
+            var queryField = new GraphField(GraphDefaults.GraphSchema.QueryFieldName, query, @void, resolver);
+            var mutationField = new GraphField(GraphDefaults.GraphSchema.MutationFieldName, mutation, @void, resolver);
+            var subscriptionField = new GraphField(GraphDefaults.GraphSchema.SaubscriptionFieldName, subsription, @void, resolver);
+            Fields.Add(new NamedType(GraphDefaults.GraphSchema.QueryFieldName, @void), queryField);
+            Fields.Add(new NamedType(GraphDefaults.GraphSchema.MutationFieldName, @void), mutationField);
+            Fields.Add(new NamedType(GraphDefaults.GraphSchema.SaubscriptionFieldName, @void), subscriptionField);
         }
 
         public IGraphType Query { get; }
         public IGraphType Mutation { get; }
         public IGraphType Subsription { get; }
 
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-            builder.AppendLine("Query");
-            Write(builder, 1, Query);
-            builder.AppendLine("Mutation");
-            Write(builder, 1, Mutation);
-            builder.AppendLine("Subsription");
-            Write(builder, 1, Subsription);
+        public Type Type => typeof(void);
 
-            return builder.ToString();
-        }
+        public Type[] OtherTypes => Type.EmptyTypes;
 
-        private void Write(StringBuilder builder, int indentLevel, IGraphType graphType)
-        {
-            void Indent(int level)
-            {
-                builder.Append(new string(' ', level * 4));
-            }
+        public string Name => GraphDefaults.GraphSchema.GraphTypeName;
 
-            var isUnionType = graphType.OtherTypes.Length > 0;
+        public bool IsRequired => true;
 
-            foreach (var field in graphType.Fields.Values)
-            {
-                Indent(indentLevel);
-                var fieldName = isUnionType
-                    ? $"{field.ContainerType.Name}.{field.Name}"
-                    : field.Name;
+        public bool IsEnumerable => false;
 
-                builder.Append($"{fieldName}: {field.GraphType.Name}");
-                if (field.Arguments.Any())
-                {
-                    builder.Append("(");
-                    var index = 0;  
-                    foreach (var argument in field.Arguments.Values)
-                    {
-                        index++;
-                        if (index == field.Arguments.Count)
-                        {
-                            builder.Append($"${argument.Name}:{argument.GraphType.Name})");
-                        }
-                        else
-                        {
-                            builder.Append($"${argument.Name}:{argument.GraphType.Name}, ");
-                        }
-                    }
-                }
-                builder.AppendLine();
+        public bool IsEnum => false;
 
-                indentLevel++;
-                Write(builder, indentLevel, field.GraphType);
-                indentLevel--;
-            }
-        }
+        public IDictionary<NamedType, GraphField> Fields { get; }
+
+        public object Resolve(object rawValue) => null;
+
+        
     }
 }

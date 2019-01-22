@@ -16,6 +16,7 @@ namespace Dora.GraphQL.Executors
         public IDictionary<string, object> Variables { get; }
         public GraphField Operation { get; }
         public IServiceProvider RequestServices { get; }
+        public IDictionary<string, object> Properties { get; }
         public GraphContext(string operationName, OperationType operationType, GraphField operation, IServiceProvider requestServices)
         {
             OperationName = operationName;
@@ -25,6 +26,7 @@ namespace Dora.GraphQL.Executors
             Arguments = new Dictionary<string, NamedGraphType>();
             SelectionSet = new Collection<ISelectionNode>();
             Variables = new Dictionary<string, object>();
+            Properties = new Dictionary<string, object>();
         }
     }
 }

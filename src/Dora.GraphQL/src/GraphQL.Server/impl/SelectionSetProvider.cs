@@ -1,6 +1,9 @@
-﻿using Dora.GraphQL.GraphTypes;
+﻿using Dora.GraphQL.Executors;
+using Dora.GraphQL.GraphTypes;
+using Dora.GraphQL.Schemas;
 using Dora.GraphQL.Selections;
 using GraphQL.Language.AST;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,26 +15,93 @@ namespace Dora.GraphQL.Server
 {
     public class SelectionSetProvider : ISelectionSetProvider
     {
+        private readonly IGraphSchema   _schema;
         private readonly IGraphTypeProvider _graphTypeProvider;
         private readonly ConcurrentDictionary<string, ICollection<ISelectionNode>> _selections;
+        private readonly IQueryResultTypeGenerator _typeGenerator;
+        private readonly FieldNameNormalizer _nameNormalizer;
 
-        public SelectionSetProvider(IGraphTypeProvider graphTypeProvider)
+        public SelectionSetProvider(
+            IGraphTypeProvider graphTypeProvider, 
+            IGraphSchemaProvider schemaProvider,
+            IQueryResultTypeGenerator typeGenerator,
+            IOptions<GraphServerOptions> optionsAccessor)
         {
+            Guard.ArgumentNotNull(schemaProvider, nameof(schemaProvider));
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
             _selections = new ConcurrentDictionary<string, ICollection<ISelectionNode>>();
+            _typeGenerator = Guard.ArgumentNotNull(typeGenerator, nameof(typeGenerator));
+            _schema = schemaProvider.GetSchema();
+            _nameNormalizer = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value.FieldNamingConvention == Options.FieldNamingConvention.PascalCase
+                ? FieldNameNormalizer.PascalCase
+                : FieldNameNormalizer.CamelCase;
         }
 
         public ICollection<ISelectionNode> GetSelectionSet(string query, Operation operation, Fragments fragments)
         {
             Guard.ArgumentNotNullOrWhiteSpace(query, nameof(query));
             Guard.ArgumentNotNull(operation, nameof(operation));
-            return _selections.GetOrAdd(query, _ =>
+
+            var key = query.TryNormalizeQuery(out var normalized, out _)
+                ? normalized
+                : query;
+
+            if (_selections.TryGetValue(key, out var value))
             {
-                var dictionary = new Dictionary<string, IFragment>();
-                SetFragments(fragments, dictionary);
-                return ResolveSelections(operation.SelectionSet.Selections, dictionary);
-            });
+                return value;
+            }
+
+            var selections = CreateSelections(query, operation, fragments);
+            if (selections.Count > 1)
+            {
+                return selections;
+            }
+
+            foreach (var subField in selections.Single().SelectionSet.OfType<IFieldSelection>())
+            {
+                if (HasArguments(subField))
+                {
+                    return selections;
+                }
+            }
+
+            _selections.TryAdd(key, selections);
+            return selections;
+        }       
+
+        private bool HasArguments(IFieldSelection selection)
+        {
+            if (selection.Arguments.Values.Any(it => !it.IsVaribleReference))
+            {
+                return true;
+            }
+
+            foreach (var subField in selection.SelectionSet.OfType<IFieldSelection>())
+            {
+                if (HasArguments(subField))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
+
+        private ICollection<ISelectionNode> CreateSelections(string query, Operation operation, Fragments fragments)
+        {
+            var dictionary = new Dictionary<string, IFragment>();
+            SetFragments(fragments, dictionary);
+            var selections = ResolveSelections(operation.SelectionSet.Selections, dictionary);
+
+            IGraphType graphType = _schema.Fields.Values.Single(it => it.Name == operation.OperationType.ToString()).GraphType;
+            foreach (var fieldSelection in selections.OfType<IFieldSelection>())
+            {
+                var field = graphType.Fields.Values.Single(it => it.Name == operation.Name);
+                fieldSelection.SetIncludeAllFieldsFlags(field, _typeGenerator, out var isSubQueryTree);
+            }
+            return selections;
+        }
+
         private ICollection<ISelectionNode> ResolveSelections(IEnumerable<ISelection> selections, Dictionary<string, IFragment> fragements)
         {
             var list = new List<ISelectionNode>();
@@ -51,7 +121,7 @@ namespace Dora.GraphQL.Server
                 {
                     continue;
                 }
-                var selectionNode = new FieldSelection(field.Name)
+                var fieldSelection = new FieldSelection(_nameNormalizer.NormalizeFromSource(field.Name))
                 {
                     Alias = field.Alias
                 };
@@ -68,20 +138,20 @@ namespace Dora.GraphQL.Server
                     {
                         directive.AddArgument(new NamedValueToken(argument.Name, argument.Value.Value, argument.Value is VariableReference));
                     }
-                    selectionNode.Directives.Add(directive);
+                    fieldSelection.Directives.Add(directive);
                 }
 
                 foreach (var argument in field.Arguments)
                 {
-                    selectionNode.AddArgument(new NamedValueToken(argument.Name, argument.Value.Value, argument.Value is VariableReference));
+                    fieldSelection.AddArgument(new NamedValueToken(argument.Name, argument.Value.Value, argument.Value is VariableReference));
                 }
 
                 var subSelections = ResolveSelections(field.SelectionSet.Selections, fragements);
                 foreach (var subSelection in subSelections)
                 {
-                    selectionNode.AddSubSelection(subSelection);
+                    fieldSelection.AddSubSelection(subSelection);
                 }
-                list.Add(selectionNode);
+                list.Add(fieldSelection);
             }
             return list;
         }

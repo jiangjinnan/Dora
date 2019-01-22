@@ -1,4 +1,5 @@
-﻿using Dora.GraphQL;
+﻿using AutoMapper;
+using Dora.GraphQL;
 using Dora.GraphQL.Executors;
 using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Schemas;
@@ -22,12 +23,15 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IGraphSchemaProvider, GraphSchemaProvider>();
             services.TryAddSingleton<ISelectionSetProvider, SelectionSetProvider>();
             services.TryAddSingleton<IGraphExecutor, DefaultGraphExecutor>();
+            services.TryAddSingleton<IQueryResultTypeGenerator, QueryResultTypeGenerator>();
+            services.TryAddSingleton<IGraphSchemaFormatter, GraphSchemaFormatter>();
 
             if (configure != null)
             {
                 services.Configure<GraphServerOptions>(configure);
             }
 
+            Mapper.Initialize(cfg => cfg.CreateMissingTypeMaps = true);
             return services;
         }
     }

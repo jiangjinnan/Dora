@@ -71,6 +71,7 @@ namespace Dora.GraphQL.Server
             SetArguments(context, operation);
             context.SelectionSet = _selectionSetProvider.GetSelectionSet(payload.Query, operation, document.Fragments);
             SetVariables(context, payload);
+            context.SetArguments(payload.Query);
             return new ValueTask<GraphContext>(context);
         }
 

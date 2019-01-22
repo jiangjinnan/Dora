@@ -32,12 +32,29 @@ namespace Dora.GraphQL.Resolvers
             var arrguments = _parameters.Select(it => {
                 var argumentName = _argumentNames[it.Key];              
                 return context.Field.Arguments.ContainsKey(argumentName)
-                     ? context.GetArgument(argumentName)
+                     ? GetArgument(context, argumentName)
                      : ActivatorUtilities.CreateInstance(serviceProvider, _parameters[it.Key]);
             }).ToArray();
 
             var service = ActivatorUtilities.CreateInstance(serviceProvider, _methodInfo.DeclaringType);
             return await _executor.ExecuteAsync(service, arrguments);            
+        }
+
+        private object GetArgument(ResolverContext context, string name)
+        {
+            if (!context.GraphContext.TryGetArguments(out var arguments) || !arguments.ContainsKey(name))
+            {
+                return context.GetArgument(name);
+            }
+
+            var value = arguments[name];
+            var graphType = context.Field.Arguments[name].GraphType;
+            if (value.StartsWith("$"))
+            {
+               return graphType.Resolve( context.GraphContext.Variables[name.TrimStart('$')]);
+            }
+
+            return graphType.Resolve(value);
         }
     }
 }

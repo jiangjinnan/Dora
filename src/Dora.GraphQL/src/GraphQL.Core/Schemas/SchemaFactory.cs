@@ -59,7 +59,12 @@ namespace Dora.GraphQL.Schemas
             var query = CreateGraphType(OperationType.Query, methods.TryGetValue(OperationType.Query, out var queryMethods) ? queryMethods : null);
             var mutation = CreateGraphType(OperationType.Query, methods.TryGetValue(OperationType.Mutation, out var mutationMethods) ? mutationMethods : null);
             var subscription = CreateGraphType(OperationType.Query, methods.TryGetValue(OperationType.Mutation, out var subscirptionMethods) ? subscirptionMethods : null);
-            return new GraphSchema(query, mutation, subscription);
+            var schema = new GraphSchema(query, mutation, subscription);
+            foreach (var field in schema.Fields.Values)
+            {
+                field.SetHasCustomResolverFlags();
+            }
+            return schema;
         }
 
         protected virtual bool IsGraphService(Type serviceType)
