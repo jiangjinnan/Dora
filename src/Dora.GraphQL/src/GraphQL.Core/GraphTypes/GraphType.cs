@@ -19,7 +19,13 @@ namespace Dora.GraphQL.GraphTypes
         public IDictionary<NamedType, GraphField> Fields { get; }
         private GraphType(OperationType operationType)
         {
-            Type = typeof(void);
+            
+            switch (operationType)
+            {
+                case OperationType.Query: { Type = typeof(Query); break; }
+                case OperationType.Mutation: { Type = typeof(Mutation); break; }
+                default: { Type = typeof(Subscription); break; }
+            }
             OtherTypes = Type.EmptyTypes;
             Name = operationType.ToString();
             IsEnumerable = false;
@@ -159,5 +165,8 @@ namespace Dora.GraphQL.GraphTypes
             Array.ForEach(OtherTypes, it => Collect(it));
             return list;
         }
+        private class Query { }
+        private class Mutation { }
+        private class Subscription { }
     }
 }

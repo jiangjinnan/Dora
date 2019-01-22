@@ -10,7 +10,6 @@ namespace Lib
         public Foo[] Foo1 { get; set; } 
         public Foo[] Foo2 { get; set; } 
         public Foo[] Foo3 { get; set; } 
-
         public static Foobarbaz Create(int elements)=> new Foobarbaz
         {
             Foo1 = Enumerable.Range(1, elements).Select(_ => new Foo()).ToArray(),

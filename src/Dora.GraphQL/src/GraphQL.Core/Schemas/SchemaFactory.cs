@@ -28,6 +28,7 @@ namespace Dora.GraphQL.Schemas
 
             IGraphType CreateGraphType(OperationType operationType, IEnumerable<MethodInfo> methodInfos)
             {
+               
                 var graphType = GraphType.CreateGraphType(operationType);
                 if (methodInfos == null)
                 {

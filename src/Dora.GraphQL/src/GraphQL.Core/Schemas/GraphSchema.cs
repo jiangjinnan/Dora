@@ -31,7 +31,7 @@ namespace Dora.GraphQL.Schemas
         public IGraphType Mutation { get; }
         public IGraphType Subsription { get; }
 
-        public Type Type => typeof(void);
+        public Type Type => typeof(GraphQL);
 
         public Type[] OtherTypes => Type.EmptyTypes;
 
@@ -47,6 +47,6 @@ namespace Dora.GraphQL.Schemas
 
         public object Resolve(object rawValue) => null;
 
-        
+        private class GraphQL { }
     }
 }

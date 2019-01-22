@@ -61,9 +61,9 @@ namespace Dora.GraphQL.Server
                         <title>Graph Schema</title>
                     </head>
                     <body>
-                        <pre>
-                        " + _schemaFormatter.Format(_schemaProvider.GetSchema(), format) + @"
-                        </pre>
+                        <pre>" +
+                        _schemaFormatter.Format(_schemaProvider.GetSchema(), format) + 
+                        @"</pre>
                     </body>
                 </html>");
                 return;

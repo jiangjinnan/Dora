@@ -33,12 +33,43 @@ namespace Dora.GraphQL.Schemas
 
         private  string FormatAsGql(IGraphSchema graphSchema)
         {
+            var types = new List<IGraphType>();
+            CollectGraphTypes(new HashSet<string>(), types, graphSchema);
+
             var builder = new StringBuilder();
-            FormatAsInline(new HashSet<string>(), builder, graphSchema);
+            var root = types.Single(it => it.Name == "GraphQL");
+            WriteAsGQL(builder, root);
+            types.Remove(root);
+
+            var query = types.SingleOrDefault(it => it.Name == "Query");
+            if (null != query)
+            {
+                WriteAsGQL(builder, query);
+                types.Remove(query);
+            }
+
+            var mutation = types.SingleOrDefault(it => it.Name == "Mutation");
+            if (null != mutation)
+            {
+                WriteAsGQL(builder, mutation);
+                types.Remove(mutation);
+            }
+            var subscription = types.SingleOrDefault(it => it.Name == "Subscription");
+            if (null != subscription)
+            {
+                WriteAsGQL(builder, subscription);
+                types.Remove(subscription);
+            }
+
+            foreach (var type in types)
+            {
+                WriteAsGQL(builder, type);
+            }
+
             return builder.ToString();
         }
 
-        private void FormatAsInline(HashSet<string> exists, StringBuilder builder, IGraphType graphType)
+        private void CollectGraphTypes(HashSet<string> exists, List<IGraphType> graphTypes, IGraphType graphType)
         {
             if (!graphType.Fields.Any())
             {
@@ -49,57 +80,54 @@ namespace Dora.GraphQL.Schemas
             {
                 return;
             }
+            graphTypes.Add(_graphTypeProvider.TryGetGraphType(graphTypeName, out var value)? value: graphType);
+            exists.Add(graphTypeName);
+            foreach (var field in graphType.Fields.Values)
+            {
+                CollectGraphTypes(exists, graphTypes, field.GraphType);
+            }
+        }
 
+        private void WriteAsGQL(StringBuilder builder, IGraphType graphType)
+        {
             if (graphType.OtherTypes.Length > 0)
             {
-                exists.Add(graphTypeName);
-                builder.Append($"union {graphTypeName} = {graphType.Type.Name}");
+                builder.Append($"union {graphType.Name.Trim('[', ']', '!')} = {graphType.Type.Name}");
                 foreach (var type in graphType.OtherTypes)
                 {
                     var typeName = GraphValueResolver.GetGraphTypeName(type);
                     builder.Append($"|{typeName}");
                 }
                 builder.AppendLine();
-
-                foreach (var clrType in graphType.OtherTypes)
-                {
-                    var typeName = GraphValueResolver.GetGraphTypeName(clrType);
-                    _graphTypeProvider.TryGetGraphType(typeName, out var type);
-                    FormatAsInline(exists, builder, type);
-                }
+                return;
             }
 
             if (graphType.IsEnum)
             {
-                exists.Add(graphTypeName);
-                builder.AppendLine($"enum {graphType.Name}" + "{");
+                builder.AppendLine($"enum {graphType.Name.Trim('[', ']', '!')}" + " {");
                 foreach (var option in Enum.GetNames(graphType.Type))
                 {
-                    builder.AppendLine($"\t{option}");
+                    builder.AppendLine($"{new string(' ', 4)}{option}");
                 }
                 builder.AppendLine("}");
                 builder.AppendLine();
+                return;
             }
 
             if (graphType.Type.IsInterface)
             {
-                builder.AppendLine($"interface {graphTypeName}" + "{");
+                builder.AppendLine($"interface {graphType.Name.Trim('[', ']', '!')}" + " {");
             }
             else
             {
-                builder.AppendLine($"type {graphTypeName}" + "{");
+                builder.AppendLine($"type {graphType.Name.Trim('[', ']', '!')}" + " {");
             }
             foreach (var item in graphType.Fields)
             {
-                builder.AppendLine($"\t {_nameNormalizer.NormalizeToDestination(item.Key.Name)}: {item.Value.GraphType.Name}");
+                builder.AppendLine($"{new string(' ', 4)}{_nameNormalizer.NormalizeToDestination(item.Key.Name)}: {item.Value.GraphType.Name}");
             }
             builder.AppendLine("}");
             builder.AppendLine();
-
-            foreach (var field in graphType.Fields.Values)
-            {
-                FormatAsInline(exists, builder, field.GraphType);
-            }
         }
 
         private  string FormatAsInline(IGraphSchema graphSchema)
