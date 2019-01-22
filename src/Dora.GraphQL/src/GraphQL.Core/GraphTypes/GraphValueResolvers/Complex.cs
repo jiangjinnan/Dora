@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 
@@ -6,6 +7,8 @@ namespace Dora.GraphQL.GraphTypes
 {
     public static partial class GraphValueResolver
     {
+        public static JsonSerializer JsonSerializer { get; internal set; } = new JsonSerializer();      
+
         public static Func<object, object> Complex(Type type)
         {
             if (type.IsEnumerableType(out _))
@@ -33,7 +36,7 @@ namespace Dora.GraphQL.GraphTypes
             var jToken = rawValue as JToken;
             if (null != jToken)
             {
-                return jToken.ToObject(type);
+                return jToken.ToObject(type, JsonSerializer);
             }
             throw new GraphException($"Cannot resolve '{rawValue}' as a/an {name} value.");
         }

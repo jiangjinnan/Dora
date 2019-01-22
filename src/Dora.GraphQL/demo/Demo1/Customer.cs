@@ -23,8 +23,8 @@ namespace Demo1
         [GraphMember(Resolver = nameof(Resolve))]
         public string Email { get; set; }
 
-        [UnionType(typeof(Address1), typeof(Address2))]
-        public IList<object> Addresses { get; set; }
+        //[UnionType(typeof(Address1), typeof(Address2))]
+        public IList<Address> Addresses { get; set; }
         public ValueTask<object> Resolve(ResolverContext context)
         {
             var lowerCase = context.GetArgument<bool>("lowerCase");
@@ -39,6 +39,14 @@ namespace Demo1
     {
         Vip,
         Normal
+    }
+
+    public class Address 
+    {
+        public string Province { get; set; }
+        public string City { get; set; }
+        public string District { get; set; }
+        public string Street { get; set; }
     }
 
     [KnownTypes(typeof(Address1), typeof(Address2))]

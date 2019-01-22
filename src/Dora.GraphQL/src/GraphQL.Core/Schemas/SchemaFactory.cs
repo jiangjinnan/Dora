@@ -57,8 +57,8 @@ namespace Dora.GraphQL.Schemas
                 return graphType;
             }
             var query = CreateGraphType(OperationType.Query, methods.TryGetValue(OperationType.Query, out var queryMethods) ? queryMethods : null);
-            var mutation = CreateGraphType(OperationType.Query, methods.TryGetValue(OperationType.Mutation, out var mutationMethods) ? mutationMethods : null);
-            var subscription = CreateGraphType(OperationType.Query, methods.TryGetValue(OperationType.Mutation, out var subscirptionMethods) ? subscirptionMethods : null);
+            var mutation = CreateGraphType(OperationType.Mutation, methods.TryGetValue(OperationType.Mutation, out var mutationMethods) ? mutationMethods : null);
+            var subscription = CreateGraphType(OperationType.Subscription, methods.TryGetValue(OperationType.Subscription, out var subscirptionMethods) ? subscirptionMethods : null);
             var schema = new GraphSchema(query, mutation, subscription);
             foreach (var field in schema.Fields.Values)
             {

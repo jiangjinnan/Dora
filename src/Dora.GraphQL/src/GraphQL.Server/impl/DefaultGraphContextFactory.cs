@@ -4,6 +4,7 @@ using Dora.GraphQL.GraphTypes;
 using GraphQL.Execution;
 using GraphQL.Language.AST;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -21,26 +22,33 @@ namespace Dora.GraphQL.Server
         private readonly IGraphTypeProvider _graphTypeProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISelectionSetProvider _selectionSetProvider;
+        private readonly GraphServerOptions _options;
+        private readonly FieldNameNormalizer _nameNormalizer;
 
         public DefaultGraphContextFactory(
            IDocumentBuilder documentBuilder,
            IGraphSchemaProvider schemaProvider, 
            IGraphTypeProvider graphTypeProvider,
            IHttpContextAccessor httpContextAccessor,
-           ISelectionSetProvider selectionSetProvider)
+           ISelectionSetProvider selectionSetProvider,
+           IOptions<GraphServerOptions> optionsAccessor)
         {
             _documentBuilder = documentBuilder ?? throw new ArgumentNullException(nameof(documentBuilder));
             _schemaProvider = schemaProvider ?? throw new ArgumentNullException(nameof(schemaProvider));
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _selectionSetProvider = selectionSetProvider ?? throw new ArgumentNullException(nameof(selectionSetProvider));
+            _options = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value;
+            _nameNormalizer = _options.FieldNamingConvention == Options.FieldNamingConvention.PascalCase
+                ? FieldNameNormalizer.PascalCase
+                : FieldNameNormalizer.CamelCase;
         }
 
         public ValueTask<GraphContext> CreateAsync(RequestPayload payload)
         {
             var document = _documentBuilder.Build(payload.Query);
             var operation = document.Operations.Single();
-            var operationName = operation.Name;
+            var operationName = _nameNormalizer.NormalizeFromSource(operation.Name);
             var operationType = (OperationType)(int)operation.OperationType;
             IGraphType graphType;
             var graphSchema = _schemaProvider.GetSchema();
@@ -110,12 +118,9 @@ namespace Dora.GraphQL.Server
 
         private void SetVariables(GraphContext context, RequestPayload payload)
         {
-            if (Extensions.GetValue(payload.Variables) is Dictionary<string, object> dictionary)
+            foreach (JProperty item in payload.Variables.Children())
             {
-                foreach (var item in dictionary)
-                {
-                    context.Variables[item.Key] = item.Value;
-                }
+                context.Variables[item.Name] = item.Value;
             }
         }
 

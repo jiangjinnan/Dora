@@ -1,11 +1,14 @@
 ﻿using Dora.GraphQL.Executors;
+using Dora.GraphQL.Options;
 using Dora.GraphQL.Schemas;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -70,7 +73,21 @@ namespace Dora.GraphQL.Server
             var context = await _graphContextFactory.CreateAsync(payload);
             var result = await _executor.ExecuteAsync(context);
             httpContext.Response.ContentType = "application/json";
-            await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, new StringEnumConverter()));
+
+            if (_options.FieldNamingConvention == FieldNamingConvention.PascalCase)
+            {
+                await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, new StringEnumConverter()));
+            }
+            else
+            {
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    Converters = new List<JsonConverter> { new StringEnumConverter() }
+                };
+                await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, Formatting.None, settings));
+            }
+
         }
         private static T Deserialize<T>(Stream s)
         {

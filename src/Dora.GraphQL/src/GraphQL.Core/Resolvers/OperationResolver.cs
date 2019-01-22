@@ -37,7 +37,13 @@ namespace Dora.GraphQL.Resolvers
             }).ToArray();
 
             var service = ActivatorUtilities.CreateInstance(serviceProvider, _methodInfo.DeclaringType);
-            return await _executor.ExecuteAsync(service, arrguments);            
+
+            var returnType = _executor.MethodInfo.ReturnType;
+            if (typeof(Task).IsAssignableFrom(returnType) || (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>)))
+            {
+                return await _executor.ExecuteAsync(service, arrguments);
+            }
+            return _executor.Execute(service, arrguments);
         }
 
         private object GetArgument(ResolverContext context, string name)

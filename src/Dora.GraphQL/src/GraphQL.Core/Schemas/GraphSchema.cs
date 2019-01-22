@@ -21,10 +21,10 @@ namespace Dora.GraphQL.Schemas
 
             var queryField = new GraphField(GraphDefaults.GraphSchema.QueryFieldName, query, @void, resolver);
             var mutationField = new GraphField(GraphDefaults.GraphSchema.MutationFieldName, mutation, @void, resolver);
-            var subscriptionField = new GraphField(GraphDefaults.GraphSchema.SaubscriptionFieldName, subsription, @void, resolver);
+            var subscriptionField = new GraphField(GraphDefaults.GraphSchema.SubscriptionFieldName, subsription, @void, resolver);
             Fields.Add(new NamedType(GraphDefaults.GraphSchema.QueryFieldName, @void), queryField);
             Fields.Add(new NamedType(GraphDefaults.GraphSchema.MutationFieldName, @void), mutationField);
-            Fields.Add(new NamedType(GraphDefaults.GraphSchema.SaubscriptionFieldName, @void), subscriptionField);
+            Fields.Add(new NamedType(GraphDefaults.GraphSchema.SubscriptionFieldName, @void), subscriptionField);
         }
 
         public IGraphType Query { get; }

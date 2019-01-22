@@ -1,4 +1,5 @@
 ﻿using Dora.GraphQL;
+using Dora.GraphQL.Options;
 using Dora.GraphQL.Schemas;
 using Lib;
 using Microsoft.AspNetCore.Builder;
@@ -29,7 +30,7 @@ namespace Demo1
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddGraphQLServer()
+                .AddGraphQLServer(options=>options.FieldNamingConvention = FieldNamingConvention.CamelCase)
                 .AddMvc();
         }
 
@@ -46,8 +47,11 @@ namespace Demo1
     {
         public static Foobarbaz Instance = Foobarbaz.Create(5);
 
-        [GraphOperation(OperationType.Query, Name = "Foobarbaz")]
-        public Task<Foobarbaz> GetFoobarbaz() => Task.FromResult(Instance);
+        //[GraphOperation(OperationType.Query, Name = "Foobarbaz")]
+        //public Task<Foobarbaz> GetFoobarbaz() => Task.FromResult(Instance);
+
+        [GraphOperation(OperationType.Mutation)]
+        public Customer AddCustomer([Argument]Customer customer) =>  customer;
 
         [GraphOperation(OperationType.Query)]
         public Task<Customer> GetCustomer([Argument]string name)
@@ -61,15 +65,15 @@ namespace Demo1
                 {
                     Email = $"{name}@ly.com",
                     PhoneNo = "123",
-                    Addresses = new List<object> {
-                              new Address1
+                    Addresses = new List<Address> {
+                              new Address
                               {
                                    Province = "Jiangsu",
                                    City = "Suzhou",
                                    District = "IndustryPark",
                                    Street = "SR Xinghu"
                               },
-                              new Address2
+                              new Address
                               {
                                    Province = "SiChuan",
                                    City = "Chengdu",

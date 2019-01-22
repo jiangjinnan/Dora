@@ -17,40 +17,29 @@ namespace Dora.GraphQL
 
         public static FieldNameNormalizer PascalCase = new FieldNameNormalizer(_ => _, _ => _);
         public static FieldNameNormalizer Default = new FieldNameNormalizer(_ => _, _ => _);
-        public static FieldNameNormalizer CamelCase = new FieldNameNormalizer(src => ToPascalOrCamel(src, true), src => ToPascalOrCamel(src, false));
+        public static FieldNameNormalizer CamelCase = new FieldNameNormalizer(src => ToPascalCase(src), src => ToCamelCase(src));
 
-        public static string ToPascalOrCamel(string s, bool pascal)
+
+        private static string ToPascalCase(string value)
         {
-            if (string.IsNullOrEmpty(s) || !char.IsUpper(s[0]))
+            if (string.IsNullOrWhiteSpace(value) || char.IsUpper(value[0]))
             {
-                return s;
+                return value;
             }
-            char[] chArray = s.ToCharArray();
-            for (int i = 0; i < chArray.Length; i++)
-            {
-                if ((i == 1) && !char.IsUpper(chArray[i]))
-                {
-                    break;
-                }
-                bool flag = (i + 1) < chArray.Length;
-                if (((i > 0) & flag) && !char.IsUpper(chArray[i + 1]))
-                {
-                    if (char.IsSeparator(chArray[i + 1]))
-                    {
-                        chArray[i] = ToLowerOrUpper(chArray[i], pascal);
-                    }
-                    break;
-                }
-                chArray[i] = ToLowerOrUpper(chArray[i], pascal);
-            }
-            return (string)new string(chArray);
+            var array = value.ToCharArray();
+            array[0] = char.ToUpper(array[0]);
+            return new string(array);
         }
 
-        private static char ToLowerOrUpper(char c, bool upper)
+        private static string ToCamelCase(string value)
         {
-            return upper
-                ? char.ToUpper(c, CultureInfo.InvariantCulture)
-                : char.ToLower(c, CultureInfo.InvariantCulture);
+            if (string.IsNullOrWhiteSpace(value) || char.IsLower(value[0]))
+            {
+                return value;
+            }
+            var array = value.ToCharArray();
+            array[0] = char.ToLower(array[0]);
+            return new string(array);
         }
     }
 }

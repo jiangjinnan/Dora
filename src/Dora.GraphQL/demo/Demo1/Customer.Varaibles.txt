@@ -1,6 +1,6 @@
 ﻿{
-  "Query": "query GetCustomer ($lowerCase:Boolean = 0, $name: String) {
-    Customer (name: ""){
+  "Query": "query GetCustomer ($lowerCase:Boolean = 1, $name: String) {
+    Customer (name: $name){
         Id
         Name
 		Type

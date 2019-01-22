@@ -10,8 +10,8 @@ namespace Dora.GraphQL
         {
             public const string GraphTypeName = "GraphSchema";
             public const string QueryFieldName = "Query";
-            public const string MutationFieldName = " Mutation";
-            public const string SaubscriptionFieldName = "Saubscription";
+            public const string MutationFieldName = "Mutation";
+            public const string SubscriptionFieldName = "Subscription";
         }
 
         public static class PropertyNames
