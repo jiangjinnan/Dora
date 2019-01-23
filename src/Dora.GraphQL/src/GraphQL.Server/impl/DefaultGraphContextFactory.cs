@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NamedType = GraphQL.Language.AST.NamedType;
-using OperationType = Dora.GraphQL.Schemas.OperationType;
+using OperationType = Dora.GraphQL.OperationType;
 
 namespace Dora.GraphQL.Server
 {
@@ -23,7 +23,7 @@ namespace Dora.GraphQL.Server
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISelectionSetProvider _selectionSetProvider;
         private readonly GraphOptions _options;
-        private readonly FieldNameNormalizer _nameNormalizer;
+        private readonly FieldNameConverter _fieldNameConverter;
 
         public DefaultGraphContextFactory(
            IDocumentBuilder documentBuilder,
@@ -39,19 +39,17 @@ namespace Dora.GraphQL.Server
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _selectionSetProvider = selectionSetProvider ?? throw new ArgumentNullException(nameof(selectionSetProvider));
             _options = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value;
-            _nameNormalizer = _options.FieldNamingConvention == Options.FieldNamingConvention.PascalCase
-                ? FieldNameNormalizer.PascalCase
-                : FieldNameNormalizer.CamelCase;
+            _fieldNameConverter = _options.FieldNameConverter;
         }
 
         public ValueTask<GraphContext> CreateAsync(RequestPayload payload)
         {
             var document = _documentBuilder.Build(payload.Query);
             var operation = document.Operations.Single();
-            var operationName = _nameNormalizer.NormalizeFromSource(operation.Name);
+            var operationName = _fieldNameConverter.Normalize(operation.Name, NormalizationDirection.Incoming);
             var operationType = (OperationType)(int)operation.OperationType;
             IGraphType graphType;
-            var graphSchema = _schemaProvider.GetSchema();
+            var graphSchema = _schemaProvider.Schema;
             switch (operationType)
             {
                 case OperationType.Query:

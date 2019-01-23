@@ -1,66 +1,70 @@
-﻿using Dora.GraphQL.GraphTypes;
-using Dora.GraphQL.Schemas;
+﻿using Dora.GraphQL.ArgumentBinders;
+using Dora.GraphQL.Descriptors;
+using Dora.GraphQL.GraphTypes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Dora.GraphQL.Resolvers
 {
+    /// <summary>
+    /// The GraphQL operation specific <see cref="IGraphResolver"/>.
+    /// </summary>
     public class OperationResolver : IGraphResolver
     {
-        private readonly MethodInfo _methodInfo;
+        #region Fields
+        private readonly GraphOperationDescriptor _operation;
         private readonly ObjectMethodExecutor _executor;
-        private readonly Dictionary<string, Type> _parameters;
-        private Dictionary<string, string> _argumentNames;
-        public OperationResolver(MethodInfo methodInfo)
-        {
-            _methodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
-            _executor = ObjectMethodExecutor.Create(_methodInfo, _methodInfo.DeclaringType.GetTypeInfo());
-            _parameters = methodInfo.GetParameters().ToDictionary(it => it.Name, it => it.ParameterType);
-        }
+        private readonly IArgumentBinder _binder;
+        #endregion
 
+        #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OperationResolver"/> class.
+        /// </summary>
+        /// <param name="operation">The <see cref="GraphOperationDescriptor"/> describing the current GraphQL operation.</param>
+        /// <param name="binderProvider">The <see cref="IArgumentBinderProvider"/> to provide <see cref="IArgumentBinder"/>.</param>
+        public OperationResolver(GraphOperationDescriptor  operation, IArgumentBinderProvider binderProvider)
+        {
+            _operation = operation ?? throw new ArgumentNullException(nameof(operation));
+            _executor = ObjectMethodExecutor.Create(_operation.MethodInfo, _operation.Service.ServiceType.GetTypeInfo());
+            _binder = Guard.ArgumentNotNull(binderProvider, nameof(binderProvider)).GetArgumentBinder();
+        }
+        #endregion
+
+        #region Public methods
+        /// <summary>
+        /// Resolves the value the current selection node.
+        /// </summary>
+        /// <param name="context">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext" /> in which the field value is resoved.</param>
+        /// <returns>
+        /// The resolved field's value.
+        /// </returns>
         public async ValueTask<object> ResolveAsync(ResolverContext context)
         {
+            var arguments = new object[_operation.Parameters.Count];
+            var index = 0;
+            foreach (var parameter in _operation.Parameters.Values)
+            {
+                var bindingContext = new ArgumentBinderContext(parameter, context);
+                var result = await _binder.BindAsync(bindingContext);
+                var value = result.IsArgumentBound
+                    ? result.Value
+                    : parameter.ParameterInfo.DefaultValue;
+                arguments[index++] = value;
+            }
             var serviceProvider = context.GraphContext.RequestServices;
-            var accessor = serviceProvider.GetRequiredService<IAttributeAccessor>();
-            _argumentNames = _argumentNames ?? _methodInfo.GetParameters().ToDictionary(it => it.Name, it => accessor.GetAttribute<ArgumentAttribute>(it)?.Name ?? it.Name);
-
-            var arrguments = _parameters.Select(it => {
-                var argumentName = _argumentNames[it.Key];              
-                return context.Field.Arguments.ContainsKey(argumentName)
-                     ? GetArgument(context, argumentName)
-                     : ActivatorUtilities.CreateInstance(serviceProvider, _parameters[it.Key]);
-            }).ToArray();
-
-            var service = ActivatorUtilities.CreateInstance(serviceProvider, _methodInfo.DeclaringType);
+            var service = ActivatorUtilities.CreateInstance(serviceProvider, _operation.Service.ServiceType);
 
             var returnType = _executor.MethodInfo.ReturnType;
             if (typeof(Task).IsAssignableFrom(returnType) || (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>)))
             {
-                return await _executor.ExecuteAsync(service, arrguments);
+                return await _executor.ExecuteAsync(service, arguments);
             }
-            return _executor.Execute(service, arrguments);
+            return _executor.Execute(service, arguments);
         }
-
-        private object GetArgument(ResolverContext context, string name)
-        {
-            if (!context.GraphContext.TryGetArguments(out var arguments) || !arguments.ContainsKey(name))
-            {
-                return context.GetArgument(name);
-            }
-
-            var value = arguments[name];
-            var graphType = context.Field.Arguments[name].GraphType;
-            if (value.StartsWith("$"))
-            {
-               return graphType.Resolve( context.GraphContext.Variables[name.TrimStart('$')]);
-            }
-
-            return graphType.Resolve(value);
-        }
+        #endregion
     }
 }

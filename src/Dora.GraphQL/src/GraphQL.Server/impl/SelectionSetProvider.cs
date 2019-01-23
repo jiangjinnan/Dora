@@ -19,7 +19,7 @@ namespace Dora.GraphQL.Server
         private readonly IGraphTypeProvider _graphTypeProvider;
         private readonly ConcurrentDictionary<string, ICollection<ISelectionNode>> _selections;
         private readonly IQueryResultTypeGenerator _typeGenerator;
-        private readonly FieldNameNormalizer _nameNormalizer;
+        private readonly FieldNameConverter  _fieldNameConverter;
 
         public SelectionSetProvider(
             IGraphTypeProvider graphTypeProvider, 
@@ -31,10 +31,8 @@ namespace Dora.GraphQL.Server
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
             _selections = new ConcurrentDictionary<string, ICollection<ISelectionNode>>();
             _typeGenerator = Guard.ArgumentNotNull(typeGenerator, nameof(typeGenerator));
-            _schema = schemaProvider.GetSchema();
-            _nameNormalizer = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value.FieldNamingConvention == Options.FieldNamingConvention.PascalCase
-                ? FieldNameNormalizer.PascalCase
-                : FieldNameNormalizer.CamelCase;
+            _schema = schemaProvider.Schema;
+            _fieldNameConverter = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value.FieldNameConverter;
         }
 
         public ICollection<ISelectionNode> GetSelectionSet(string query, Operation operation, Fragments fragments)
@@ -96,7 +94,7 @@ namespace Dora.GraphQL.Server
             IGraphType graphType = _schema.Fields.Values.Single(it => it.Name == operation.OperationType.ToString()).GraphType;
             foreach (var fieldSelection in selections.OfType<IFieldSelection>())
             {
-                var field = graphType.Fields.Values.Single(it => it.Name == _nameNormalizer.NormalizeFromSource( operation.Name));
+                var field = graphType.Fields.Values.Single(it => it.Name == _fieldNameConverter.Normalize( operation.Name, NormalizationDirection.Incoming));
                 fieldSelection.SetIncludeAllFieldsFlags(field, _typeGenerator, out var isSubQueryTree);
             }
             return selections;
@@ -121,7 +119,7 @@ namespace Dora.GraphQL.Server
                 {
                     continue;
                 }
-                var fieldSelection = new FieldSelection(_nameNormalizer.NormalizeFromSource(field.Name))
+                var fieldSelection = new FieldSelection(_fieldNameConverter.Normalize(field.Name, NormalizationDirection.Incoming))
                 {
                     Alias = field.Alias
                 };

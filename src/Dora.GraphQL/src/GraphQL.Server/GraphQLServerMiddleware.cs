@@ -1,5 +1,4 @@
 ﻿using Dora.GraphQL.Executors;
-using Dora.GraphQL.Options;
 using Dora.GraphQL.Schemas;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +8,6 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -53,22 +51,7 @@ namespace Dora.GraphQL.Server
 
             if (httpContext.Request.Path.StartsWithSegments(_serverOptions.PathBase.Add("/schema")) && httpContext.Request.Method == "GET")
             {
-                var format = httpContext.Request.Query.ContainsKey("inline")
-                    ? GraphSchemaFormat.Inline
-                    : GraphSchemaFormat.GQL;
-
-                httpContext.Response.ContentType = "text/html";
-                await httpContext.Response.WriteAsync(@"
-                <html>
-                    <head>
-                        <title>Graph Schema</title>
-                    </head>
-                    <body>
-                        <pre>" +
-                        _schemaFormatter.Format(_schemaProvider.GetSchema(), format) + 
-                        @"</pre>
-                    </body>
-                </html>");
+                await HandleSchemaRequest(httpContext);
                 return;
             }
 
@@ -78,16 +61,18 @@ namespace Dora.GraphQL.Server
                 return;
             }
 
+            await HandleOperationRequest(httpContext);
+        }
+
+        private async Task HandleOperationRequest(HttpContext httpContext)
+        {
             var payload = Deserialize<RequestPayload>(httpContext.Request.Body);
             var context = await _graphContextFactory.CreateAsync(payload);
+            httpContext.Features.Set<IGraphContextFeature>(new GraphContextFeature(context));
             var result = await _executor.ExecuteAsync(context);
             httpContext.Response.ContentType = "application/json";
 
-            if (_graphOptions.FieldNamingConvention == FieldNamingConvention.PascalCase)
-            {
-                await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, new StringEnumConverter()));
-            }
-            else
+            if (_graphOptions.FieldNameConverter == FieldNameConverter.CamelCase)
             {
                 var settings = new JsonSerializerSettings
                 {
@@ -95,9 +80,34 @@ namespace Dora.GraphQL.Server
                     Converters = new List<JsonConverter> { new StringEnumConverter() }
                 };
                 await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, Formatting.None, settings));
+               
             }
-
+            else
+            {
+                await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, new StringEnumConverter()));
+            }
         }
+
+        private async Task HandleSchemaRequest(HttpContext httpContext)
+        {
+            var format = httpContext.Request.Query.ContainsKey("inline")
+                ? GraphSchemaFormat.Inline
+                : GraphSchemaFormat.GQL;
+
+            httpContext.Response.ContentType = "text/html";
+            await httpContext.Response.WriteAsync(@"
+                <html>
+                    <head>
+                        <title>Graph Schema</title>
+                    </head>
+                    <body>
+                        <pre>" +
+                    _schemaFormatter.Format(_schemaProvider.Schema, format) +
+                    @"</pre>
+                    </body>
+                </html>");
+        }
+
         private static T Deserialize<T>(Stream s)
         {
             using (var reader = new StreamReader(s))

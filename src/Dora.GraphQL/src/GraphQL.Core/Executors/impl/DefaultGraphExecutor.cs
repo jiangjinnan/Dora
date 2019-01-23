@@ -9,34 +9,56 @@ using System.Threading.Tasks;
 
 namespace Dora.GraphQL.Executors
 {
+    /// <summary>
+    /// Default implementation of <see cref="IGraphExecutor"/>.
+    /// </summary>
     public class DefaultGraphExecutor : IGraphExecutor
     {
         private readonly IGraphTypeProvider _graphTypeProvider;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultGraphExecutor"/> class.
+        /// </summary>
+        /// <param name="graphTypeProvider">The graph type provider.</param>
+        /// <exception cref="ArgumentNullException">graphTypeProvider</exception>
         public DefaultGraphExecutor(IGraphTypeProvider graphTypeProvider)
         {
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
         }
 
+        /// <summary>
+        /// Executes and generate final result.
+        /// </summary>
+        /// <param name="graphContext">The <see cref="T:Dora.GraphQL.Executors.GraphContext" /> representing the current request based execution context.</param>
+        /// <returns>
+        /// The <see cref="T:Dora.GraphQL.Executors.ExecutionResult" /> used as the response contents.
+        /// </returns>
         public async  ValueTask<ExecutionResult> ExecuteAsync(GraphContext graphContext)
         {
-            var selections = graphContext.SelectionSet;
-            if (selections.Count == 1)
+            try
             {
-                var selection = selections.OfType<IFieldSelection>().Single();
-                var resoloverContext = new ResolverContext(graphContext, graphContext.Operation, selection, null);
-                var result = await ExecuteCoreAsync(graphContext, resoloverContext, graphContext.Operation, selection);
-                return new ExecutionResult { Data = result };
-            }
+                var selections = graphContext.SelectionSet;
+                if (selections.Count == 1)
+                {
+                    var selection = selections.OfType<IFieldSelection>().Single();
+                    var resoloverContext = new ResolverContext(graphContext, graphContext.Operation, selection, null);
+                    var result = await ExecuteCoreAsync(graphContext, resoloverContext, graphContext.Operation, selection);
+                    return ExecutionResult.Success(result);
+                }
 
-            var dictionary = new Dictionary<string, object>();
-            foreach (IFieldSelection subSelection in graphContext.SelectionSet)
+                var dictionary = new Dictionary<string, object>();
+                foreach (IFieldSelection subSelection in graphContext.SelectionSet)
+                {
+                    var resoloverContext = new ResolverContext(graphContext, graphContext.Operation, subSelection, null);
+                    var result = await ExecuteCoreAsync(graphContext, resoloverContext, graphContext.Operation, subSelection);
+                    dictionary[subSelection.Alias ?? subSelection.Name] = result;
+                }
+                return ExecutionResult.Success(dictionary);
+            }
+            catch (GraphException ex)
             {
-                var resoloverContext = new ResolverContext(graphContext, graphContext.Operation, subSelection, null);
-                var result = await ExecuteCoreAsync(graphContext, resoloverContext, graphContext.Operation, subSelection);
-                dictionary[subSelection.Alias ?? subSelection.Name] = result;
+                return ExecutionResult.Fail(ex);
             }
-
-            return new ExecutionResult { Data = dictionary };
         }
 
         private async ValueTask<object> ExecuteCoreAsync(GraphContext graphContext, ResolverContext resolverContext, GraphField field, ISelectionNode selection)
@@ -54,9 +76,6 @@ namespace Dora.GraphQL.Executors
                     return Mapper.Map(container, container.GetType(), queryResultType);
                 }
             }
-
-
-            Console.WriteLine("Missing...");
 
             var subFields = new List<IFieldSelection>();
             subFields.AddRange(selection.SelectionSet.OfType<IFieldSelection>());                    
@@ -117,7 +136,6 @@ namespace Dora.GraphQL.Executors
             }
             return node;
         }
-
         private bool TryGetFragment(object container, ISelectionNode selection, out IFragment fragment)
         {
             var fragments = selection.SelectionSet.OfType<IFragment>().ToDictionary(it=>it.GraphType, it=>it);

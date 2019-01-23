@@ -1,7 +1,6 @@
 ﻿using Dora.GraphQL.GraphTypes;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Dora.GraphQL
 {
@@ -9,9 +8,6 @@ namespace Dora.GraphQL
     {
         public static bool TryGetGetField(this IDictionary<NamedType, GraphField> fields, Type type, string name, out GraphField field)
         {
-            Guard.ArgumentNotNull(fields, nameof(fields));
-            Guard.ArgumentNotNull(type, nameof(type));
-            Guard.ArgumentNotNullOrWhiteSpace(name, nameof(name));
             if (fields.TryGetValue(new NamedType(name, type), out field))
             {
                 return true;

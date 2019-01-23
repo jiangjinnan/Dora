@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Dora.GraphQL
 {
-    public static class GraphContextExtensions
+    internal static class GraphContextExtensions
     {
         public static GraphContext AddArgument(this GraphContext  context, NamedGraphType argument)
         {

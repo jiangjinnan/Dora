@@ -1,10 +1,16 @@
-﻿using Dora.GraphQL.Options;
-
-namespace Dora.GraphQL
+﻿namespace Dora.GraphQL
 {
+    /// <summary>
+    /// Reprsents GraphQL options.
+    /// </summary>
     public class GraphOptions
     {
-        public FieldNamingConvention FieldNamingConvention { get; set; }
-     
+        /// <summary>
+        /// Gets or sets the field name converter.
+        /// </summary>
+        /// <value>
+        /// The field name converter.
+        /// </value>
+        public FieldNameConverter FieldNameConverter { get; set; } = FieldNameConverter.Default;
     }
 }

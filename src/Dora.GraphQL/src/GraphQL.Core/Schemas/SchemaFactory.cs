@@ -1,74 +1,65 @@
-﻿using Dora.GraphQL.GraphTypes;
+﻿using Dora.GraphQL.ArgumentBinders;
+using Dora.GraphQL.Descriptors;
+using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Resolvers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Dora.GraphQL.Schemas
 {
+    /// <summary>
+    /// Default implementation of <see cref="ISchemaFactory"/>.
+    /// </summary>
+    /// <seealso cref="Dora.GraphQL.Schemas.ISchemaFactory" />
     public class SchemaFactory : ISchemaFactory
     {
+        #region Fields
         private readonly IAttributeAccessor _attributeAccessor;
         private readonly IGraphTypeProvider _graphTypeProvider;
+        private readonly IArgumentBinderProvider _binderProvider;
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SchemaFactory"/> class.
+        /// </summary>
+        /// <param name="attributeAccessor">The attribute accessor.</param>
+        /// <param name="graphTypeProvider">The graph type provider.</param>
+        /// <param name="binderProvider">The binder provider.</param>
         public SchemaFactory(
             IAttributeAccessor attributeAccessor, 
-            IGraphTypeProvider graphTypeProvider)
+            IGraphTypeProvider graphTypeProvider,
+            IArgumentBinderProvider binderProvider)
         {
             _attributeAccessor = attributeAccessor ?? throw new ArgumentNullException(nameof(attributeAccessor));
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
+            _binderProvider = binderProvider ?? throw new ArgumentNullException(nameof(binderProvider));
         }
+        #endregion
 
-        public IGraphSchema Create(Assembly assembly)
-        {
-            var knownTypeAttributes = new List<KnownTypesAttribute>();
-            var serviceTypes = GetGraphServiceTypes(assembly);
-            knownTypeAttributes.AddRange(serviceTypes.SelectMany(it => _attributeAccessor.GetAttributes<KnownTypesAttribute>(it, false)));
-
-            var methods = serviceTypes.SelectMany(it => GetGraphOperationMethods(it)).ToArray();
-            knownTypeAttributes.AddRange(methods.SelectMany(it => _attributeAccessor.GetAttributes<KnownTypesAttribute>(it.Key, false)));
-
-            var knownTypes = knownTypeAttributes.SelectMany(it => it.Types);
+        #region Public methods
+        /// <summary>
+        /// Creates the GraphQL schema factory based on specified GraphQL services.
+        /// </summary>
+        /// <param name="services">The <see cref="T:Dora.GraphQL.Descriptors.GraphServiceDescriptor" /> list.</param>
+        /// <returns>
+        /// The <see cref="T:Dora.GraphQL.Schemas.IGraphSchema" />.
+        /// </returns>
+        public IGraphSchema Create(IEnumerable<GraphServiceDescriptor> services)
+        {           
+            var knownTypes = services.SelectMany(it => it.KnownTypes).ToList();
+            var methods = services.SelectMany(it => it.Operations.Values).ToArray();
+            knownTypes.AddRange(methods.SelectMany(it => it.KnownTypes));
             foreach (var knowType in knownTypes)
             {
                 _graphTypeProvider.GetGraphType(knowType, false, false);
             }
 
             var methodGroups = methods
-                .GroupBy(it => it.Value, it => it.Key)
+                .GroupBy(it => it.OperationType, it => it)
                 .ToDictionary(it => it.Key, it => it);
             
-
-            IGraphType CreateGraphType(OperationType operationType, IEnumerable<MethodInfo> methodInfos)
-            {               
-                var graphType = new GraphType(operationType);
-                if (methodInfos == null)
-                {
-                    return graphType;
-                }
-                foreach (var method in methodInfos)
-                {
-                    var operationAttribute = _attributeAccessor.GetAttribute<GraphOperationAttribute>(method, false);
-                    var name = operationAttribute.Name ?? method.Name;
-                    var resolver = new OperationResolver(method);
-                    var type = _graphTypeProvider.GetGraphType(method.ReturnType,null,null);
-
-                    var field = new GraphField(name, type, typeof(void), resolver);
-                    foreach (var parameter in method.GetParameters())
-                    {
-                        var argumentAttribute = _attributeAccessor.GetAttribute<ArgumentAttribute>(parameter);
-                        if (null == argumentAttribute)
-                        {
-                            continue;
-                        }
-                        var parameterGraphType =  _graphTypeProvider.GetGraphType(parameter.ParameterType, argumentAttribute.IsRequired, argumentAttribute.GetIsEnumerable());
-                        field.AddArgument(new NamedGraphType(argumentAttribute.Name ?? parameter.Name, parameterGraphType));
-                    }
-
-                    graphType.AddField(typeof(void),field);
-                }
-                return graphType;
-            }
             var query = CreateGraphType(OperationType.Query, methodGroups.TryGetValue(OperationType.Query, out var queryMethods) ? queryMethods : null);
             var mutation = CreateGraphType(OperationType.Mutation, methodGroups.TryGetValue(OperationType.Mutation, out var mutationMethods) ? mutationMethods : null);
             var subscription = CreateGraphType(OperationType.Subscription, methodGroups.TryGetValue(OperationType.Subscription, out var subscirptionMethods) ? subscirptionMethods : null);
@@ -79,40 +70,36 @@ namespace Dora.GraphQL.Schemas
             }
             return schema;
         }
+        #endregion
 
-        protected virtual bool IsGraphService(Type serviceType)
+        #region Private methods
+        private IGraphType CreateGraphType(OperationType operationType, IEnumerable<GraphOperationDescriptor> operations)
         {
-            Guard.ArgumentNotNull(serviceType, nameof(serviceType));
-            return typeof(GraphServiceBase).IsAssignableFrom(serviceType);
-        }
-
-        protected virtual IDictionary<MethodInfo, OperationType> GetGraphOperationMethods(Type serviceType)
-        {
-            Guard.ArgumentNotNull(serviceType, nameof(serviceType));
-            return (from method in serviceType.GetMethods()
-                    let operationType = _attributeAccessor.GetAttribute<GraphOperationAttribute>(method, false)?.OperationType
-                    where operationType != null
-                    select (method, operationType)).ToDictionary(it => it.method, it => it.operationType.Value);
-        }
-
-        private  IEnumerable<Type> GetGraphServiceTypes(Assembly assembly)
-        {
-            var list = new List<Type>();
-            AddGraphServiceTypes(list, Guard.ArgumentNotNull(assembly, nameof(assembly)));
-            return list;
-        }
-
-        private void AddGraphServiceTypes(List<Type> types, Assembly assembly)
-        {
-            types.AddRange(assembly.GetExportedTypes().Where(it=>typeof(GraphServiceBase).IsAssignableFrom(it)));
-            foreach (var assemblyName in assembly.GetReferencedAssemblies())
+            var graphType = new GraphType(operationType);
+            if (operations == null)
             {
-                if (assemblyName.Name.StartsWith("Microsoft") || assemblyName.Name.StartsWith("System"))
-                {
-                    continue;
-                }
-                AddGraphServiceTypes(types, Assembly.Load(assemblyName));
+                return graphType;
             }
+            foreach (var operation in operations)
+            {
+                var resolver = new OperationResolver(operation, _binderProvider);
+                var type = _graphTypeProvider.GetGraphType(operation.MethodInfo.ReturnType, null, null);
+
+                var field = new GraphField(operation.Name, type, typeof(void), resolver);
+                foreach (var parameter in operation.Parameters.Values)
+                {
+                    if (!parameter.IsGraphArgument)
+                    {
+                        continue;
+                    }
+                    var parameterGraphType = _graphTypeProvider.GetGraphType(parameter.ParameterInfo.ParameterType, parameter.IsRequired, null);
+                    field.AddArgument(new NamedGraphType(parameter.ArgumentName, parameterGraphType));
+                }
+
+                graphType.AddField(typeof(void), field);
+            }
+            return graphType;
         }
+        #endregion
     }
 }

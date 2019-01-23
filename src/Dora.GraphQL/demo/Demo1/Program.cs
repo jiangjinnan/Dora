@@ -1,14 +1,17 @@
 ﻿using Dora.GraphQL;
+using Dora.GraphQL.Executors;
 using Dora.GraphQL.GraphTypes;
-using Dora.GraphQL.Options;
-using Dora.GraphQL.Schemas;
 using Lib;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Demo1
@@ -53,11 +56,20 @@ namespace Demo1
         //public Task<Foobarbaz> GetFoobarbaz() => Task.FromResult(Instance);
 
         [GraphOperation(OperationType.Mutation)]
-        public Customer AddCustomer([Argument]Customer customer) =>  customer;
+        public Customer AddCustomer([Argument]Customer customer, 
+            HttpContext httpContext, 
+            GraphContext graphContext,
+            CancellationToken cancellationToken,
+            IServiceProvider serviceProvider)
+        {
+            Debug.Assert(httpContext != null && graphContext != null && cancellationToken != null && serviceProvider != null);
+            return customer;
+        }
 
         [GraphOperation(OperationType.Query)]
         public Task<Customer> GetCustomer([Argument]string name)
         {
+         
             var customer = new Customer
             {
                 Id = 123,

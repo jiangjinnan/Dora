@@ -8,8 +8,19 @@ using System.Reflection.Emit;
 
 namespace Dora.GraphQL.Executors
 {
+    /// <summary>
+    /// Default implementation of <see cref="IQueryResultTypeGenerator"/>.
+    /// </summary>
     public class QueryResultTypeGenerator : IQueryResultTypeGenerator
     {
+        /// <summary>
+        /// Generates the query result class generator.
+        /// </summary>
+        /// <param name="selection">The <see cref="T:Dora.GraphQL.Selections.IFieldSelection" /> represents the selection node.</param>
+        /// <param name="field">The <see cref="T:Dora.GraphQL.GraphTypes.GraphField" /> specific to the selection node.</param>
+        /// <returns>
+        /// The generated query result class.
+        /// </returns>
         public Type Generate(IFieldSelection selection, GraphField field)
         {
             var assemblyName = new AssemblyName($"QueryResult{GetSurffix()}");

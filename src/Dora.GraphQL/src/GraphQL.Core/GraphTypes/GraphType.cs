@@ -1,9 +1,12 @@
-﻿using Dora.GraphQL.Schemas;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Dora.GraphQL.GraphTypes
 {
+    /// <summary>
+    /// Default implemention of <see cref="IGraphType"/>.
+    /// </summary>
+    /// <seealso cref="Dora.GraphQL.GraphTypes.IGraphType" />
     public class GraphType : IGraphType
     {
         #region Fields

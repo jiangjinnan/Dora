@@ -1,12 +1,19 @@
 ﻿using Dora.GraphQL.GraphTypes;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Dora.GraphQL
 {
+    /// <summary>
+    /// Defines <see cref="IGraphTypeProvider"/> specific extension methods.
+    /// </summary>
     public static class GraphTypeProviderExtensions
     {
+        /// <summary>
+        /// Gets <see cref="IGraphType"/> based on specified name.
+        /// </summary>
+        /// <param name="provider">The <see cref="IGraphTypeProvider"/>.</param>
+        /// <param name="graphTypeName">Name of the graph type.</param>
+        /// <returns>The <see cref="IGraphType"/>.</returns>
         public static IGraphType GetGraphType(this IGraphTypeProvider provider, string graphTypeName)
         {
             Guard.ArgumentNotNull(provider, nameof(provider));

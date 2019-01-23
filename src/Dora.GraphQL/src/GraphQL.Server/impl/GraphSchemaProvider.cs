@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿using Dora.GraphQL.Descriptors;
 using Dora.GraphQL.Schemas;
-using Microsoft.Extensions.Hosting;
+using System;
 
 namespace Dora.GraphQL.Server
 {
@@ -11,17 +8,17 @@ namespace Dora.GraphQL.Server
     {
         private readonly Lazy<IGraphSchema> _schemaAccessor;
 
-        public GraphSchemaProvider(ISchemaFactory schemaFactory, IHostingEnvironment environment)
+        public GraphSchemaProvider(ISchemaFactory schemaFactory, IGraphServiceDiscoverer serviceDiscoverer)
         {
             Guard.ArgumentNotNull(schemaFactory, nameof(schemaFactory));
-            Guard.ArgumentNotNull(environment, nameof(environment));
-            _schemaAccessor = new Lazy<IGraphSchema>(() =>
-            {
-                var assemblyName = new AssemblyName(environment.ApplicationName);
-                return schemaFactory.Create(Assembly.Load(assemblyName));
-            });
+            Guard.ArgumentNotNull(serviceDiscoverer, nameof(serviceDiscoverer));
 
+            _schemaAccessor = new Lazy<IGraphSchema>(() =>
+            {               
+                return schemaFactory.Create(serviceDiscoverer.Services);
+            });
         }
-        public IGraphSchema GetSchema() => _schemaAccessor.Value;
+
+        public IGraphSchema Schema { get => _schemaAccessor.Value; }
     }
 }

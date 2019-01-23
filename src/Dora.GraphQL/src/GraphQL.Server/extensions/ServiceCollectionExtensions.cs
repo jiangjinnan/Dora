@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Dora.GraphQL;
+using Dora.GraphQL.ArgumentBinders;
+using Dora.GraphQL.Descriptors;
 using Dora.GraphQL.Executors;
 using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Schemas;
@@ -26,6 +28,15 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IQueryResultTypeGenerator, QueryResultTypeGenerator>();
             services.TryAddSingleton<IGraphSchemaFormatter, GraphSchemaFormatter>();
             services.TryAddSingleton<IJsonSerializerProvider, JsonSerializerProvider>();
+            services.TryAddSingleton<IGraphServiceDiscoverer, GraphServiceDiscoverer>();
+            services.TryAddSingleton<IArgumentBinderProvider, ArgumentBinderProvider>();
+
+            services.AddSingleton<IArgumentBinder, GraphArgumentBinder>();
+            services.AddSingleton<IArgumentBinder, HttpContextBinder>();
+            services.AddSingleton<IArgumentBinder, GraphContextBinder>();
+            services.AddSingleton<IArgumentBinder, ServiceProviderBinder>();
+            services.AddSingleton<IArgumentBinder, CancellationTokenBinder>();
+
 
             if (configure != null)
             {

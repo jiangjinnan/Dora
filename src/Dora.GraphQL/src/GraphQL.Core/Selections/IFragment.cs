@@ -1,10 +1,18 @@
 ﻿using Dora.GraphQL.GraphTypes;
-using System.Collections.Generic;
 
 namespace Dora.GraphQL.Selections
 {
+    /// <summary>
+    /// Represents fragement specific <see cref="ISelectionNode"/>.
+    /// </summary>
     public interface IFragment: ISelectionNode
     {
-         IGraphType GraphType { get; }
+        /// <summary>
+        /// Gets fragement specific <see cref="IGraphType"/>.
+        /// </summary>
+        /// <value>
+        /// The fragement specific <see cref="IGraphType"/>
+        /// </value>
+        IGraphType GraphType { get; }
     }
 }

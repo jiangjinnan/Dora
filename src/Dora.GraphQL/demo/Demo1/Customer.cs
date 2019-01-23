@@ -20,7 +20,7 @@ namespace Demo1
         public string PhoneNo { get; set; }
 
         [Argument(Name = "lowerCase",Type = typeof(bool))]
-        [GraphMember(Resolver = nameof(Resolve))]
+        [GraphField(Resolver = nameof(Resolve))]
         public string Email { get; set; }
 
         //[UnionType(typeof(Address1), typeof(Address2))]

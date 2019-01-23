@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    internal static class  Extensions
+    internal static class  TypeExtensions
     {
         public static bool IsEnumerable(this Type type, out Type elementType)
         {

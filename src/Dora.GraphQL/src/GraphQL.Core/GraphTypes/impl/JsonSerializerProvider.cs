@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Dora.GraphQL.Options;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -15,11 +11,22 @@ namespace Dora.GraphQL.GraphTypes
     /// <seealso cref="Dora.GraphQL.GraphTypes.IJsonSerializerProvider" />
     public class JsonSerializerProvider : IJsonSerializerProvider
     {
+        /// <summary>
+        /// Gets the json serializer.
+        /// </summary>
+        /// <value>
+        /// The json serializer.
+        /// </value>
         public JsonSerializer JsonSerializer { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JsonSerializerProvider"/> class.
+        /// </summary>
+        /// <param name="optionsAccessor">The options accessor.</param>
         public JsonSerializerProvider(IOptions<GraphOptions> optionsAccessor)
         {
-            var naming = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value.FieldNamingConvention;
-            var serializer = naming == FieldNamingConvention.PascalCase
+            var fielNameConverter = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value.FieldNameConverter;
+            var serializer = fielNameConverter == FieldNameConverter.Default
                 ? new JsonSerializer()
                 : new JsonSerializer { ContractResolver = new CamelCasePropertyNamesContractResolver() };
             serializer.Converters.Add(new StringEnumConverter());

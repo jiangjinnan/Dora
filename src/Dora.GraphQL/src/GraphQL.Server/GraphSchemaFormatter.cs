@@ -10,16 +10,15 @@ namespace Dora.GraphQL.Schemas
 {
     public class GraphSchemaFormatter : IGraphSchemaFormatter
     {
-        private readonly FieldNameNormalizer _nameNormalizer;
+        private readonly FieldNameConverter  _fieldNameConverter;
         private readonly IGraphTypeProvider _graphTypeProvider;
+
+        public FieldNameConverter FieldNameConverter => _fieldNameConverter;
 
         public GraphSchemaFormatter(IGraphTypeProvider graphTypeProvider, IOptions<GraphOptions> optionsAccessor)
         {
             Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor));
-            _nameNormalizer = optionsAccessor.Value.FieldNamingConvention == Options.FieldNamingConvention.PascalCase
-                ? FieldNameNormalizer.PascalCase
-                : FieldNameNormalizer.CamelCase;
-
+            _fieldNameConverter = optionsAccessor.Value.FieldNameConverter;
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
         }
 
@@ -126,7 +125,7 @@ namespace Dora.GraphQL.Schemas
             }
             foreach (var item in graphType.Fields)
             {
-                builder.AppendLine($"{new string(' ', 4)}{_nameNormalizer.NormalizeToDestination(item.Key.Name)}: {item.Value.GraphType.Name}");
+                builder.AppendLine($"{new string(' ', 4)}{_fieldNameConverter.Normalize(item.Key.Name, NormalizationDirection.Outgoing)}: {item.Value.GraphType.Name}");
             }
             builder.AppendLine("}");
             builder.AppendLine();
@@ -167,7 +166,7 @@ namespace Dora.GraphQL.Schemas
             {
                 Indent(indentLevel);
                 var fieldName = isUnionType
-                    ? $"{field.ContainerType.Name}.{_nameNormalizer.NormalizeToDestination(field.Name)}"
+                    ? $"{field.ContainerType.Name}.{_fieldNameConverter.Normalize(field.Name, NormalizationDirection.Outgoing)}"
                     : field.Name;
 
                 builder.Append($"{fieldName}: {field.GraphType.Name}");

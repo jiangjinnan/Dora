@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Dora.GraphQL
+﻿namespace Dora.GraphQL
 {
-    public static class GraphDefaults
+    internal static class GraphDefaults
     {
         public static class GraphSchema
         {

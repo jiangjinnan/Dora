@@ -38,12 +38,12 @@ namespace Dora.GraphQL.GraphTypes
 
         #region Public methods
         /// <summary>
-        /// Tries to get the created <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> based on specified GraphQL type name.
+        /// Tries to get the created <see cref="IGraphType" /> based on specified GraphQL type name.
         /// </summary>
         /// <param name="name">The GraphQL type name.</param>
-        /// <param name="graphType">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
+        /// <param name="graphType">The <see cref="IGraphType" />.</param>
         /// <returns>
-        /// A <see cref="T:System.Boolean" /> value indicating whether to successfully get the areadly created <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+        /// A <see cref="T:System.Boolean" /> value indicating whether to successfully get the areadly created <see cref="IGraphType" />.
         /// </returns>
         public bool TryGetGraphType(string name, out IGraphType graphType)
         {
@@ -52,14 +52,14 @@ namespace Dora.GraphQL.GraphTypes
         }
 
         /// <summary>
-        /// Create a new <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> or get an existing <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> based on the given CLR type.
+        /// Create a new <see cref="IGraphType" /> or get an existing <see cref="IGraphType" /> based on the given CLR type.
         /// </summary>
-        /// <param name="type">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> specific CLR type.</param>
-        /// <param name="isRequired">Indicate whether to create a required based <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
-        /// <param name="isEnumerable">Indicate whether to create an array based <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
+        /// <param name="type">The <see cref="IGraphType" /> specific CLR type.</param>
+        /// <param name="isRequired">Indicate whether to create a required based <see cref="IGraphType" />.</param>
+        /// <param name="isEnumerable">Indicate whether to create an array based <see cref="IGraphType" />.</param>
         /// <param name="otherTypes">The other CLR types for union GraphQL type.</param>
         /// <returns>
-        /// The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> to be created to provided.
+        /// The <see cref="IGraphType" /> to be created to provided.
         /// </returns>
         public IGraphType GetGraphType(Type type, bool? isRequired, bool? isEnumerable, params Type[] otherTypes)
         {
@@ -91,7 +91,7 @@ namespace Dora.GraphQL.GraphTypes
             {
                 foreach (var (fieldName, property) in GetProperties(type, otherTypes))
                 {
-                    var memberAttribute = _attributeAccessor.GetAttribute<GraphMemberAttribute>(property, false);
+                    var memberAttribute = _attributeAccessor.GetAttribute<GraphFieldAttribute>(property, false);
                     var resolver = GetPropertyResolver(type, property, memberAttribute);
                     var propertyGraphType = GetPropertyGraphType(type, property, memberAttribute);
                     var field = new GraphField(fieldName, propertyGraphType, property.DeclaringType, resolver);
@@ -113,7 +113,7 @@ namespace Dora.GraphQL.GraphTypes
         #endregion
 
         #region Private methods
-        private IGraphType GetPropertyGraphType(Type type, PropertyInfo property, GraphMemberAttribute memberAttribute)
+        private IGraphType GetPropertyGraphType(Type type, PropertyInfo property, GraphFieldAttribute memberAttribute)
         {
             var isPropertyEnumerable = property.PropertyType.IsEnumerable(out var propertyType);
             propertyType = propertyType ?? property.PropertyType;
@@ -130,7 +130,7 @@ namespace Dora.GraphQL.GraphTypes
             return propertyGraphType;
         }
 
-        private IGraphResolver GetPropertyResolver(Type type, PropertyInfo property, GraphMemberAttribute memberAttribute)
+        private IGraphResolver GetPropertyResolver(Type type, PropertyInfo property, GraphFieldAttribute memberAttribute)
         {
             if (!string.IsNullOrEmpty(memberAttribute?.Resolver))
             {
@@ -184,7 +184,7 @@ namespace Dora.GraphQL.GraphTypes
             {
                 foreach (var property in t.GetProperties())
                 {
-                    var memberAttribute = _attributeAccessor.GetAttribute<GraphMemberAttribute>(property, false);
+                    var memberAttribute = _attributeAccessor.GetAttribute<GraphFieldAttribute>(property, false);
                     var name = memberAttribute?.Name ?? property.Name;
                     if (memberAttribute?.Ignored == true)
                     {

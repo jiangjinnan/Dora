@@ -1,0 +1,1946 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Dora.GraphQL.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext">
+            <summary>
+            Represents the argument binding execution context.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext.#ctor(Dora.GraphQL.Descriptors.ParameterDescriptor,Dora.GraphQL.GraphTypes.ResolverContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext"/> struct.
+            </summary>
+            <param name="parameter">The <see cref="T:Dora.GraphQL.Descriptors.ParameterDescriptor"/> describing the parameter.</param>
+            <param name="resolverContext">The <see cref="P:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext.ResolverContext"/>.</param>
+        </member>
+        <member name="P:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext.Parameter">
+            <summary>
+            Gets the <see cref="T:Dora.GraphQL.Descriptors.ParameterDescriptor"/> describing the parameter.
+            </summary>
+            <value>The <see cref="T:Dora.GraphQL.Descriptors.ParameterDescriptor"/> describing the parameter.</value>
+        </member>
+        <member name="P:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext.ResolverContext">
+            <summary>
+            Gets the <see cref="P:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext.ResolverContext"/>.
+            </summary>
+            <value>
+            The <see cref="P:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext.ResolverContext"/>.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult">
+            <summary>
+            Represents the argument binding result.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult.Value">
+            <summary>
+            Gets argument value bound.
+            </summary>
+            <value>
+            The argument value bound.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult.IsArgumentBound">
+            <summary>
+            Gets a value indicating whether argument is successfully bound.
+            </summary>
+            <value>
+              <c>true</c> if argument is successfully bound; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult.#ctor(System.Object,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult"/> struct.
+            </summary>
+            <param name="value">The argument value.</param>
+            <param name="isArgumentBound">if set to <c>true</c> [is argument bound].</param>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult.Failed">
+            <summary>
+            Create a <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult"/> of failed status.
+            </summary>
+            <returns>The <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult"/> of failed status.</returns>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult.Success(System.Object)">
+            <summary>
+            Create a <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult"/> of successful status.
+            </summary>
+            <returns>The <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult"/> of successful status.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.ArgumentBinders.IArgumentBinder">
+            <summary>
+            Represents the argument binder.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.IArgumentBinder.BindAsync(Dora.GraphQL.ArgumentBinders.ArgumentBinderContext)">
+            <summary>
+            Binds the argument.
+            </summary>
+            <param name="context">The <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext"/>.</param>
+            <returns>The <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult"/> representing the argument binding result.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.ArgumentBinders.IArgumentBinderProvider">
+            <summary>
+            Represents the argument binder provider.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.IArgumentBinderProvider.GetArgumentBinder">
+            <summary>
+            Gets the argument binder.
+            </summary>
+            <returns>The <see cref="T:Dora.GraphQL.ArgumentBinders.IArgumentBinder"/>.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.ArgumentBinders.ArgumentBinderProvider">
+            <summary>
+            Default implementation of <see cref="T:Dora.GraphQL.ArgumentBinders.IArgumentBinderProvider"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.ArgumentBinderProvider.#ctor(System.Collections.Generic.IEnumerable{Dora.GraphQL.ArgumentBinders.IArgumentBinder})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBinderProvider"/> class.
+            </summary>
+            <param name="binders">The <see cref="T:Dora.GraphQL.ArgumentBinders.IArgumentBinder"/>s as the inner binders.</param>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.ArgumentBinderProvider.GetArgumentBinder">
+            <summary>
+            Gets the argument binder.
+            </summary>
+            <returns>
+            The <see cref="T:Dora.GraphQL.ArgumentBinders.IArgumentBinder" />.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.ArgumentBinders.GraphArgumentBinder">
+            <summary>
+            Repsents GraphQL argumnet based <see cref="T:Dora.GraphQL.ArgumentBinders.IArgumentBinder"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.ArgumentBinders.GraphArgumentBinder.BindAsync(Dora.GraphQL.ArgumentBinders.ArgumentBinderContext)">
+            <summary>
+            Binds the argument.
+            </summary>
+            <param name="context">The <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBinderContext" />.</param>
+            <returns>
+            The <see cref="T:Dora.GraphQL.ArgumentBinders.ArgumentBindingResult" /> representing the argument binding result.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.AttributeAccessor">
+            <summary>
+            Default implementation of <see cref="T:Dora.GraphQL.IAttributeAccessor"/>.
+            </summary>
+            <seealso cref="T:Dora.GraphQL.IAttributeAccessor" />
+        </member>
+        <member name="M:Dora.GraphQL.AttributeAccessor.GetCustomAttributes(System.Reflection.MemberInfo,System.Type,System.Boolean)">
+            <summary>
+            Gets <see cref="T:System.Reflection.MemberInfo" /> specific attributes.
+            </summary>
+            <param name="member">The member.</param>
+            <param name="attributeType">Type of the attribute.</param>
+            <param name="inherit">if set to <c>true</c> [inherit].</param>
+            <returns>
+            The attributes.
+            </returns>
+        </member>
+        <member name="M:Dora.GraphQL.AttributeAccessor.GetCustomAttributes(System.Reflection.ParameterInfo,System.Type)">
+            <summary>
+            Gets the <see cref="T:System.Reflection.ParameterInfo" /> specific attributes.
+            </summary>
+            <param name="parameter">The parameter.</param>
+            <param name="attributeType">Type of the attribute.</param>
+            <returns>
+            The attributes.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.FieldNameConverter">
+            <summary>
+            Represents a normalizer used to normailize field name.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.FieldNameConverter.Normalize(System.String,Dora.GraphQL.NormalizationDirection)">
+            <summary>
+            Normalzes the specified original field name.
+            </summary>
+            <param name="originalFieldName">Name of the original field.</param>
+            <param name="direction">The direction.</param>
+            <returns>The normalized field name.</returns>
+        </member>
+        <member name="F:Dora.GraphQL.FieldNameConverter.Default">
+            <summary>
+            The pascal case based <see cref="T:Dora.GraphQL.FieldNameConverter"/>.
+            </summary>
+        </member>
+        <member name="F:Dora.GraphQL.FieldNameConverter.CamelCase">
+            <summary>
+            The camel case based <see cref="T:Dora.GraphQL.FieldNameConverter"/>.
+            </summary>
+        </member>
+        <member name="T:Dora.GraphQL.GraphException">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:System.Exception" />
+        </member>
+        <member name="M:Dora.GraphQL.GraphException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphException"/> class.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.GraphException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphException"/> class.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="M:Dora.GraphQL.GraphException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphException"/> class.
+            </summary>
+            <param name="message">The message.</param>
+            <param name="inner">The inner.</param>
+        </member>
+        <member name="M:Dora.GraphQL.GraphException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphException"/> class.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
+        </member>
+        <member name="T:Dora.GraphQL.GraphServiceBase">
+            <summary>
+            Represents base class of all GraphQL classes.
+            </summary>
+        </member>
+        <member name="T:Dora.GraphQL.IAttributeAccessor">
+            <summary>
+            Represents customer attribute accessor.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.IAttributeAccessor.GetCustomAttributes(System.Reflection.MemberInfo,System.Type,System.Boolean)">
+            <summary>
+            Gets <see cref="T:System.Reflection.MemberInfo"/> specific attributes.
+            </summary>
+            <param name="member">The member.</param>
+            <param name="attributeType">Type of the attribute.</param>
+            <param name="inherit">if set to <c>true</c> [inherit].</param>
+            <returns>The attributes.</returns>
+        </member>
+        <member name="M:Dora.GraphQL.IAttributeAccessor.GetCustomAttributes(System.Reflection.ParameterInfo,System.Type)">
+            <summary>
+            Gets the <see cref="T:System.Reflection.ParameterInfo"/> specific attributes.
+            </summary>
+            <param name="parameter">The parameter.</param>
+            <param name="attributeType">Type of the attribute.</param>
+            <returns>The attributes.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.NormalizationDirection">
+            <summary>
+            Represents field name normalization direction.
+            </summary>
+        </member>
+        <member name="F:Dora.GraphQL.NormalizationDirection.Incoming">
+            <summary>
+            The incoming
+            </summary>
+        </member>
+        <member name="F:Dora.GraphQL.NormalizationDirection.Outgoing">
+            <summary>
+            The outgoing
+            </summary>
+        </member>
+        <member name="T:Dora.GraphQL.OperationType">
+            <summary>
+            Represents GraphQL operation type.
+            </summary>
+        </member>
+        <member name="F:Dora.GraphQL.OperationType.Query">
+            <summary>
+            Query
+            </summary>
+        </member>
+        <member name="F:Dora.GraphQL.OperationType.Mutation">
+            <summary>
+            Mutation
+            </summary>
+        </member>
+        <member name="F:Dora.GraphQL.OperationType.Subscription">
+            <summary>
+            Subscription
+            </summary>
+        </member>
+        <member name="T:Dora.GraphQL.Descriptors.GraphOperationDescriptor">
+            <summary>
+            GraphQL operation method specific descriptor.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.MethodInfo">
+            <summary>
+            Gets the <see cref="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.MethodInfo"/>
+            </summary>
+            <value>
+            The <see cref="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.MethodInfo"/>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.Service">
+            <summary>
+            Gets the <see cref="T:Dora.GraphQL.Descriptors.GraphServiceDescriptor"/>.
+            </summary>
+            <value>
+            The <see cref="T:Dora.GraphQL.Descriptors.GraphServiceDescriptor"/>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.Name">
+            <summary>
+            Gets the operation name.
+            </summary>
+            <value>
+            The operation name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.OperationType">
+            <summary>
+            Gets the GraphQL operation type.
+            </summary>
+            <value>
+            The GraphQL operation type.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.Parameters">
+            <summary>
+            Gets the parameters.
+            </summary>
+            <value>
+            The parameters.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.Attributes">
+            <summary>
+            Gets the attributes.
+            </summary>
+            <value>
+            The attributes.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphOperationDescriptor.KnownTypes">
+            <summary>
+            Gets the known types.
+            </summary>
+            <value>
+            The known types.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Descriptors.GraphOperationDescriptor.#ctor(System.Reflection.MethodInfo,Dora.GraphQL.Descriptors.GraphServiceDescriptor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Descriptors.GraphOperationDescriptor"/> class.
+            </summary>
+            <param name="methodInfo">The method information.</param>
+            <param name="service">The service.</param>
+        </member>
+        <member name="T:Dora.GraphQL.Descriptors.GraphServiceDescriptor">
+            <summary>
+            The GraphQL serivce specific descriptor.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphServiceDescriptor.ServiceType">
+            <summary>
+            Gets the type of the service.
+            </summary>
+            <value>
+            The type of the service.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphServiceDescriptor.Operations">
+            <summary>
+            Gets the operations.
+            </summary>
+            <value>
+            The operations.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphServiceDescriptor.Attributes">
+            <summary>
+            Gets the attributes.
+            </summary>
+            <value>
+            The attributes.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.GraphServiceDescriptor.KnownTypes">
+            <summary>
+            Gets the known types.
+            </summary>
+            <value>
+            The known types.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Descriptors.GraphServiceDescriptor.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Descriptors.GraphServiceDescriptor"/> class.
+            </summary>
+            <param name="serviceType">Type of the service.</param>
+            <exception cref="T:System.ArgumentNullException">serviceType</exception>
+        </member>
+        <member name="T:Dora.GraphQL.Descriptors.IGraphServiceDiscoverer">
+            <summary>
+            Represents a GraphQL serivce discoverer.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.IGraphServiceDiscoverer.Services">
+            <summary>
+            Gets all GraphQL services.
+            </summary>
+            <value>
+            The <see cref="T:Dora.GraphQL.Descriptors.GraphServiceDescriptor"/> list.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.Descriptors.ParameterDescriptor">
+            <summary>
+            GraphQL operation method parameter specific descriptor.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.ParameterDescriptor.Name">
+            <summary>
+            Gets the parameter name.
+            </summary>
+            <value>
+            The parameter name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.ParameterDescriptor.ParameterInfo">
+            <summary>
+            Gets the <see cref="P:Dora.GraphQL.Descriptors.ParameterDescriptor.ParameterInfo"/>
+            </summary>
+            <value>
+            The <see cref="P:Dora.GraphQL.Descriptors.ParameterDescriptor.ParameterInfo"/>
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.ParameterDescriptor.IsGraphArgument">
+            <summary>
+            Gets a value indicating whether this instance is graph argument.
+            </summary>
+            <value>
+              <c>true</c> if this instance is graph argument; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.ParameterDescriptor.ArgumentName">
+            <summary>
+            Gets the name of the argument.
+            </summary>
+            <value>
+            The name of the argument.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.ParameterDescriptor.IsRequired">
+            <summary>
+            Gets a value indicating whether this instance is required argument.
+            </summary>
+            <value>
+              <c>true</c> if this instance is required argument; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.ParameterDescriptor.Attributes">
+            <summary>
+            Gets the attributes.
+            </summary>
+            <value>
+            The attributes.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Descriptors.ParameterDescriptor.Operation">
+            <summary>
+            Gets the operation.
+            </summary>
+            <value>
+            The operation.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Descriptors.ParameterDescriptor.#ctor(System.Reflection.ParameterInfo,Dora.GraphQL.Descriptors.GraphOperationDescriptor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Descriptors.ParameterDescriptor"/> class.
+            </summary>
+            <param name="parameterInfo">The parameter information.</param>
+            <param name="operation">The operation.</param>
+        </member>
+        <member name="T:Dora.GraphQL.Executors.ExecutionResult">
+            <summary>
+            Represent GraphQL query result.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.ExecutionResult.Data">
+            <summary>
+            Gets or sets the payload.
+            </summary>
+            <value>
+            The payload.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.ExecutionResult.Error">
+            <summary>
+            Gets or sets the error.
+            </summary>
+            <value>
+            The error.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.ExecutionResult.Success(System.Object)">
+            <summary>
+            Create a new <see cref="T:Dora.GraphQL.Executors.ExecutionResult"/> of success status.
+            </summary>
+            <param name="data">The data.</param>
+            <returns>The see cref="ExecutionResult"/> of success status.</returns>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.ExecutionResult.Fail(System.Exception)">
+            <summary>
+            Create a new <see cref="T:Dora.GraphQL.Executors.ExecutionResult"/> of fail status.
+            </summary>
+            <param name="ex">The exception.</param>
+            <returns>The see cref="ExecutionResult"/> of fail status.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.Executors.GraphContext">
+            <summary>
+            Represents GrapQL request context.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.GraphContext.OperationName">
+            <summary>
+            Gets the name of the GraphQL operation.
+            </summary>
+            <value>
+            The name of the GraphQL operation.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.GraphContext.OperationType">
+            <summary>
+            Gets the type of the GraphQL operation.
+            </summary>
+            <value>
+            The type of the GraphQL operation.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.GraphContext.Arguments">
+            <summary>
+            Gets the argument definitions.
+            </summary>
+            <value>
+            The argument definitions.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.GraphContext.SelectionSet">
+            <summary>
+            Gets the selection set.
+            </summary>
+            <value>
+            The selection set.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.GraphContext.Variables">
+            <summary>
+            Gets the variables.
+            </summary>
+            <value>
+            The variables.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.GraphContext.Operation">
+            <summary>
+            Gets the operation specific <see cref="T:Dora.GraphQL.GraphTypes.GraphField"/>.
+            </summary>
+            <value>
+            The operation specific <see cref="T:Dora.GraphQL.GraphTypes.GraphField"/>..
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.GraphContext.RequestServices">
+            <summary>
+            Gets the request specific <see cref="T:System.IServiceProvider"/>.
+            </summary>
+            <value>
+            The request specific <see cref="T:System.IServiceProvider"/>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Executors.GraphContext.Properties">
+            <summary>
+            Gets the property dictionary.
+            </summary>
+            <value>
+            The property dictionary.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.GraphContext.#ctor(System.String,Dora.GraphQL.OperationType,Dora.GraphQL.GraphTypes.GraphField,System.IServiceProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Executors.GraphContext"/> class.
+            </summary>
+            <param name="operationName">Name of the operation.</param>
+            <param name="operationType">Type of the operation.</param>
+            <param name="operation">The operation.</param>
+            <param name="requestServices">The request services.</param>
+        </member>
+        <member name="T:Dora.GraphQL.Executors.IGraphExecutor">
+            <summary>
+            Represents the GraphQL executor. 
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.IGraphExecutor.ExecuteAsync(Dora.GraphQL.Executors.GraphContext)">
+            <summary>
+            Executes and generate final result.
+            </summary>
+            <param name="graphContext">The <see cref="T:Dora.GraphQL.Executors.GraphContext"/> representing the current request based execution context.</param>
+            <returns>The <see cref="T:Dora.GraphQL.Executors.ExecutionResult"/> used as the response contents.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.Executors.DefaultGraphExecutor">
+            <summary>
+            Default implementation of <see cref="T:Dora.GraphQL.Executors.IGraphExecutor"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.DefaultGraphExecutor.#ctor(Dora.GraphQL.GraphTypes.IGraphTypeProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Executors.DefaultGraphExecutor"/> class.
+            </summary>
+            <param name="graphTypeProvider">The graph type provider.</param>
+            <exception cref="T:System.ArgumentNullException">graphTypeProvider</exception>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.DefaultGraphExecutor.ExecuteAsync(Dora.GraphQL.Executors.GraphContext)">
+            <summary>
+            Executes and generate final result.
+            </summary>
+            <param name="graphContext">The <see cref="T:Dora.GraphQL.Executors.GraphContext" /> representing the current request based execution context.</param>
+            <returns>
+            The <see cref="T:Dora.GraphQL.Executors.ExecutionResult" /> used as the response contents.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.Executors.QueryResultTypeGenerator">
+            <summary>
+            Default implementation of <see cref="T:Dora.GraphQL.Executors.IQueryResultTypeGenerator"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.QueryResultTypeGenerator.Generate(Dora.GraphQL.Selections.IFieldSelection,Dora.GraphQL.GraphTypes.GraphField)">
+            <summary>
+            Generates the query result class generator.
+            </summary>
+            <param name="selection">The <see cref="T:Dora.GraphQL.Selections.IFieldSelection" /> represents the selection node.</param>
+            <param name="field">The <see cref="T:Dora.GraphQL.GraphTypes.GraphField" /> specific to the selection node.</param>
+            <returns>
+            The generated query result class.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.Executors.IQueryResultTypeGenerator">
+            <summary>
+            Represents the query result class generator.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.IQueryResultTypeGenerator.Generate(Dora.GraphQL.Selections.IFieldSelection,Dora.GraphQL.GraphTypes.GraphField)">
+            <summary>
+            Generates the query result class generator.
+            </summary>
+            <param name="selection">The <see cref="T:Dora.GraphQL.Selections.IFieldSelection"/> represents the selection node.</param>
+            <param name="field">The <see cref="T:Dora.GraphQL.GraphTypes.GraphField"/> specific to the selection node.</param>
+            <returns>The generated query result class.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypeExtensions">
+            <summary>
+            Defines <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/> specific extension methods.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypeExtensions.AddField(Dora.GraphQL.GraphTypes.IGraphType,System.Type,Dora.GraphQL.GraphTypes.GraphField)">
+            <summary>
+            Adds a new the field in the given <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+            <param name="graphType">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/> in which the new field is added.</param>
+            <param name="containerType">The CLR type in which the added field is defined.</param>
+            <param name="graphField">The <see cref="T:Dora.GraphQL.GraphTypes.GraphField"/> to add.</param>
+            <returns>The given <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.</returns>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypeExtensions.IsUnionType(Dora.GraphQL.GraphTypes.IGraphType)">
+            <summary>
+            Determines whether [is union type].
+            </summary>
+            <param name="graphType">Type of the graph.</param>
+            <returns>
+              <c>true</c> if [is union type] [the specified graph type]; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypeProviderExtensions">
+            <summary>
+            Defines <see cref="T:Dora.GraphQL.GraphTypes.IGraphTypeProvider"/> specific extension methods.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypeProviderExtensions.GetGraphType(Dora.GraphQL.GraphTypes.IGraphTypeProvider,System.String)">
+            <summary>
+            Gets <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/> based on specified name.
+            </summary>
+            <param name="provider">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphTypeProvider"/>.</param>
+            <param name="graphTypeName">Name of the graph type.</param>
+            <returns>The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.GraphField">
+            <summary>
+            Represents a field of <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphField.Name">
+            <summary>
+            Gets the field name.
+            </summary>
+            <value>
+            The field name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphField.GraphType">
+            <summary>
+            Gets field specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+            <value>
+            The field specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphField.ContainerType">
+            <summary>
+            Gets the container type in which the field specific property is defined.
+            </summary>
+            <value>
+            The container type in which the field specific property is defined.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphField.Resolver">
+            <summary>
+            Gets the <see cref="T:Dora.GraphQL.GraphTypes.IGraphResolver"/> to get the field's value.
+            </summary>
+            <value>
+            The <see cref="T:Dora.GraphQL.GraphTypes.IGraphResolver"/> to get the field's value.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphField.Arguments">
+            <summary>
+            Gets the argument definitions.
+            </summary>
+            <value>
+            The argument definitions.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphField.Properties">
+            <summary>
+            Gets the property dictionary.
+            </summary>
+            <value>
+            The property dictionary.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.GraphField.#ctor(System.String,Dora.GraphQL.GraphTypes.IGraphType,System.Type,Dora.GraphQL.GraphTypes.IGraphResolver)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.GraphField"/> class.
+            </summary>
+            <param name="name">The field name.</param>
+            <param name="graphType">The container type in which the field specific property is defined.</param>
+            <param name="containerType">The container type in which the field specific property is defined.</param>
+            <param name="resolver">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphResolver"/> to get the field's value.</param>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.GraphType">
+            <summary>
+            Default implemention of <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+            <seealso cref="T:Dora.GraphQL.GraphTypes.IGraphType" />
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphType.Type">
+            <summary>
+            Gets the CLR type.
+            </summary>
+            <value>
+            The CLR type.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphType.OtherTypes">
+            <summary>
+            Gets the other types for union type.
+            </summary>
+            <value>
+            The other types for union type.
+            </value>
+            <remarks>
+            It is an empty array for non union type.
+            </remarks>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphType.Name">
+            <summary>
+            Gets the GraphQL type name.
+            </summary>
+            <value>
+            The  GraphQL type name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphType.IsRequired">
+            <summary>
+            Gets a value indicating whether this is a required (non-optional) GraphQL type.
+            </summary>
+            <value>
+            <c>true</c> if this is required; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphType.IsEnumerable">
+            <summary>
+            Gets a value indicating whether this is an enumerable (array) GraphQL type.
+            </summary>
+            <value>
+            <c>true</c> if this is enumerable; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphType.IsEnum">
+            <summary>
+            Gets a value indicating whether this is an enum GraphQL type.
+            </summary>
+            <value>
+            <c>true</c> if this is enum; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.GraphType.Fields">
+            <summary>
+            Gets the fields.
+            </summary>
+            <value>
+            The fields.
+            </value>
+            <remarks>
+            The key is field name + container CLR type. For union GraphQL types, all member types' fields are included.
+            </remarks>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.GraphType.Resolve(System.Object)">
+            <summary>
+            Resolves the value based on provided raw value.
+            </summary>
+            <param name="rawValue">The raw value.</param>
+            <returns>
+            The real value.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.IGraphResolver">
+            <summary>
+            Represent a resolver to generate each node's value.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.IGraphResolver.ResolveAsync(Dora.GraphQL.GraphTypes.ResolverContext)">
+            <summary>
+            Resolves the value the current selection node.
+            </summary>
+            <param name="context">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext"/> in which the field value is resoved.</param>
+            <returns>The resolved field's value.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.IGraphType">
+            <summary>
+            Represent a GraphQL type
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.IGraphType.Type">
+            <summary>
+            Gets the CLR type.
+            </summary>
+            <value>
+            The CLR type.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.IGraphType.OtherTypes">
+            <summary>
+            Gets the other types for union type.
+            </summary>
+            <value>
+            The other types for union type.
+            </value>
+            <remarks>It is an empty array for non union type.</remarks>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.IGraphType.Name">
+            <summary>
+            Gets the GraphQL type name.
+            </summary>
+            <value>
+            The  GraphQL type name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.IGraphType.IsRequired">
+            <summary>
+            Gets a value indicating whether this is a required (non-optional) GraphQL type.
+            </summary>
+            <value>
+              <c>true</c> if this is required; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.IGraphType.IsEnumerable">
+            <summary>
+            Gets a value indicating whether this is an enumerable (array) GraphQL type.
+            </summary>
+            <value>
+              <c>true</c> if this is enumerable; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.IGraphType.IsEnum">
+            <summary>
+            Gets a value indicating whether this is an enum GraphQL type.
+            </summary>
+            <value>
+              <c>true</c> if this is enum; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.IGraphType.Fields">
+            <summary>
+            Gets the fields.
+            </summary>
+            <value>
+            The fields.
+            </value>
+            <remarks>The key is field name + container CLR type. For union GraphQL types, all member types' fields are included.</remarks>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.IGraphType.Resolve(System.Object)">
+            <summary>
+            Resolves the value based on provided raw value.
+            </summary>
+            <param name="rawValue">The raw value.</param>
+            <returns>The real value.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.IGraphTypeProvider">
+            <summary>
+            Represents a provider to create and provide <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.IGraphTypeProvider.GetGraphType(System.Type,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Type[])">
+            <summary>
+            Create a new <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/> or get an existing <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/> based on the given CLR type.
+            </summary>
+            <param name="type">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/> specific CLR type.</param>
+            <param name="isRequired">Indicate whether to create a required based <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.</param>
+            <param name="isEnumerable">Indicate whether to create an array based <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.</param>
+            <param name="otherTypes">The other CLR types for union GraphQL type.</param>
+            <returns>The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/> to be created to provided.</returns>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.IGraphTypeProvider.TryGetGraphType(System.String,Dora.GraphQL.GraphTypes.IGraphType@)">
+            <summary>
+            Tries to get the created <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/> based on specified GraphQL type name.
+            </summary>
+            <param name="name">The GraphQL type name.</param>
+            <param name="graphType">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.</param>
+            <returns>A <see cref="T:System.Boolean"/> value indicating whether to successfully get the areadly created <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.IJsonSerializerProvider">
+            <summary>
+            Represents a JsonSerializer provider.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.IJsonSerializerProvider.JsonSerializer">
+            <summary>
+            Gets the json serializer.
+            </summary>
+            <value>
+            The json serializer.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.GraphTypeProvider">
+            <summary>
+            The default implementation class of <see cref="T:Dora.GraphQL.GraphTypes.IGraphTypeProvider"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.GraphTypeProvider.#ctor(System.IServiceProvider,Dora.GraphQL.IAttributeAccessor)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.GraphTypeProvider"/> class.
+            </summary>
+            <param name="serviceProvider">The service provider.</param>
+            <param name="attributeAccessor">The attribute accessor.</param>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.GraphTypeProvider.TryGetGraphType(System.String,Dora.GraphQL.GraphTypes.IGraphType@)">
+            <summary>
+            Tries to get the created <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> based on specified GraphQL type name.
+            </summary>
+            <param name="name">The GraphQL type name.</param>
+            <param name="graphType">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
+            <returns>
+            A <see cref="T:System.Boolean" /> value indicating whether to successfully get the areadly created <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+            </returns>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.GraphTypeProvider.GetGraphType(System.Type,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.Type[])">
+            <summary>
+            Create a new <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> or get an existing <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> based on the given CLR type.
+            </summary>
+            <param name="type">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> specific CLR type.</param>
+            <param name="isRequired">Indicate whether to create a required based <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
+            <param name="isEnumerable">Indicate whether to create an array based <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
+            <param name="otherTypes">The other CLR types for union GraphQL type.</param>
+            <returns>
+            The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> to be created to provided.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.JsonSerializerProvider">
+            <summary>
+            Default implementation of <see cref="T:Dora.GraphQL.GraphTypes.IJsonSerializerProvider"/>
+            </summary>
+            <seealso cref="T:Dora.GraphQL.GraphTypes.IJsonSerializerProvider" />
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.JsonSerializerProvider.JsonSerializer">
+            <summary>
+            Gets the json serializer.
+            </summary>
+            <value>
+            The json serializer.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.JsonSerializerProvider.#ctor(Microsoft.Extensions.Options.IOptions{Dora.GraphQL.GraphOptions})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.JsonSerializerProvider"/> class.
+            </summary>
+            <param name="optionsAccessor">The options accessor.</param>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.KnownTypesAttribute">
+            <summary>
+            Attribues used to define known types.
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.KnownTypesAttribute.Types">
+            <summary>
+            Gets the known types.
+            </summary>
+            <value>
+            The known types.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.KnownTypesAttribute.#ctor(System.Type[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.KnownTypesAttribute"/> class.
+            </summary>
+            <param name="types">The known types.</param>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.NamedGraphType">
+            <summary>
+            Represents Name + IGraphType + DefaultValue group.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.NamedGraphType.Name">
+            <summary>
+            Gets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.NamedGraphType.GraphType">
+            <summary>
+            Gets the type of the graph.
+            </summary>
+            <value>
+            The type of the graph.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.NamedGraphType.DefaultValue">
+            <summary>
+            Gets the default value.
+            </summary>
+            <value>
+            The default value.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.NamedGraphType.#ctor(System.String,Dora.GraphQL.GraphTypes.IGraphType,System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.NamedGraphType"/> struct.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="graphType">Type of the graph.</param>
+            <param name="defaultValue">The default value.</param>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.NamedGraphType.Equals(Dora.GraphQL.GraphTypes.NamedGraphType)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>
+            true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.
+            </returns>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.NamedGraphType.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.NamedType">
+            <summary>
+            Rerpesents Name + Type pair.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.NamedType.Name">
+            <summary>
+            Gets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.NamedType.Type">
+            <summary>
+            Gets the type.
+            </summary>
+            <value>
+            The type.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.NamedType.#ctor(System.String,System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.NamedType"/> struct.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="type">The type.</param>
+            <exception cref="T:System.ArgumentNullException">type</exception>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.NamedType.Equals(Dora.GraphQL.GraphTypes.NamedType)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>
+            true if the current object is equal to the <paramref name="other">other</paramref> parameter; otherwise, false.
+            </returns>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.NamedType.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.ResolverContext">
+            <summary>
+            Represents the <see cref="T:Dora.GraphQL.GraphTypes.IGraphResolver"/> specific execution context.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.ResolverContext.GraphContext">
+            <summary>
+            Gets the current <see cref="P:Dora.GraphQL.GraphTypes.ResolverContext.GraphContext"/>.
+            </summary>
+            <value>
+            The current <see cref="P:Dora.GraphQL.GraphTypes.ResolverContext.GraphContext"/>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.ResolverContext.Field">
+            <summary>
+            Gets current selection field specific <see cref="T:Dora.GraphQL.GraphTypes.GraphField"/>.
+            </summary>
+            <value>
+            The current selection field specific <see cref="T:Dora.GraphQL.GraphTypes.GraphField"/>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.ResolverContext.Selection">
+            <summary>
+            Gets the selection field.
+            </summary>
+            <value>
+            The selection field.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.ResolverContext.Container">
+            <summary>
+            Gets the container representing the value of parent selection node.
+            </summary>
+            <value>
+            The container representing the value of parent selection node.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.ResolverContext.#ctor(Dora.GraphQL.Executors.GraphContext,Dora.GraphQL.GraphTypes.GraphField,Dora.GraphQL.Selections.IFieldSelection,System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext"/> struct.
+            </summary>
+            <param name="graphContext">The graph context.</param>
+            <param name="field">The current selection field specific <see cref="T:Dora.GraphQL.GraphTypes.GraphField"/>.</param>
+            <param name="selection">The selection field.</param>
+            <param name="container">The container representing the value of parent selection node.</param>
+        </member>
+        <member name="T:Dora.GraphQL.GraphTypes.UnionTypeAttribute">
+            <summary>
+            Attribute used to define union type members.
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.UnionTypeAttribute.Types">
+            <summary>
+            Gets the all union type members.
+            </summary>
+            <value>
+            All union type members..
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.UnionTypeAttribute.Type">
+            <summary>
+            Gets the first union type member.
+            </summary>
+            <value>
+            The first union type member..
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphTypes.UnionTypeAttribute.OtherTypes">
+            <summary>
+            Gets the other union type member.
+            </summary>
+            <value>
+            The other union type member.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.GraphTypes.UnionTypeAttribute.#ctor(System.Type[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.UnionTypeAttribute"/> class.
+            </summary>
+            <param name="types">The union type member.</param>
+        </member>
+        <member name="T:Dora.GraphQL.ResolverContextExtensions">
+            <summary>
+            Defines <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext"/> specific extension methods.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.ResolverContextExtensions.GetArgument``1(Dora.GraphQL.GraphTypes.ResolverContext,System.String)">
+            <summary>
+            Gets the argument value.
+            </summary>
+            <typeparam name="T">The argument type.</typeparam>
+            <param name="context">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext"/>.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <returns>The argument value.</returns>
+        </member>
+        <member name="M:Dora.GraphQL.ResolverContextExtensions.GetArgument(Dora.GraphQL.GraphTypes.ResolverContext,System.String)">
+            <summary>
+            Gets the argument value.
+            </summary>
+            <param name="context">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext"/>.</param>
+            <param name="argumentName">Name of the argument.</param>
+            <returns></returns>
+            <exception cref="T:Dora.GraphQL.GraphException"></exception>
+        </member>
+        <member name="M:Dora.GraphQL.ResolverContextExtensions.Skip(Dora.GraphQL.GraphTypes.ResolverContext)">
+            <summary>
+            Check whether to skip the current selection node.
+            </summary>
+            <param name="context">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext"/>.</param>
+            <returns>A <see cref="T:System.Boolean"/> value indicating whether to the current selection node.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.GraphOptions">
+            <summary>
+            Reprsents GraphQL options.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.GraphOptions.FieldNameConverter">
+            <summary>
+            Gets or sets the field name converter.
+            </summary>
+            <value>
+            The field name converter.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.Resolvers.MethodResolver">
+            <summary>
+            The method calling based <see cref="T:Dora.GraphQL.GraphTypes.IGraphResolver"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Resolvers.MethodResolver.#ctor(System.Reflection.MethodInfo)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Resolvers.MethodResolver"/> class.
+            </summary>
+            <param name="methodInfo">The method information.</param>
+        </member>
+        <member name="M:Dora.GraphQL.Resolvers.MethodResolver.ResolveAsync(Dora.GraphQL.GraphTypes.ResolverContext)">
+            <summary>
+            Resolves the value the current selection node.
+            </summary>
+            <param name="context">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext" /> in which the field value is resoved.</param>
+            <returns>
+            The resolved field's value.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.Resolvers.OperationResolver">
+            <summary>
+            The GraphQL operation specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphResolver"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Resolvers.OperationResolver.#ctor(Dora.GraphQL.Descriptors.GraphOperationDescriptor,Dora.GraphQL.ArgumentBinders.IArgumentBinderProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Resolvers.OperationResolver"/> class.
+            </summary>
+            <param name="operation">The <see cref="T:Dora.GraphQL.Descriptors.GraphOperationDescriptor"/> describing the current GraphQL operation.</param>
+            <param name="binderProvider">The <see cref="T:Dora.GraphQL.ArgumentBinders.IArgumentBinderProvider"/> to provide <see cref="T:Dora.GraphQL.ArgumentBinders.IArgumentBinder"/>.</param>
+        </member>
+        <member name="M:Dora.GraphQL.Resolvers.OperationResolver.ResolveAsync(Dora.GraphQL.GraphTypes.ResolverContext)">
+            <summary>
+            Resolves the value the current selection node.
+            </summary>
+            <param name="context">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext" /> in which the field value is resoved.</param>
+            <returns>
+            The resolved field's value.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.Resolvers.PropertyResolver">
+            <summary>
+            Property accessing based <see cref="T:Dora.GraphQL.GraphTypes.IGraphResolver"/>.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Resolvers.PropertyResolver.#ctor(System.Reflection.PropertyInfo)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Resolvers.PropertyResolver"/> class.
+            </summary>
+            <param name="propertyInfo">The <see cref="T:System.Reflection.PropertyInfo"/>.</param>
+        </member>
+        <member name="M:Dora.GraphQL.Resolvers.PropertyResolver.ResolveAsync(Dora.GraphQL.GraphTypes.ResolverContext)">
+            <summary>
+            Resolves the value the current selection node.
+            </summary>
+            <param name="context">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext" /> in which the field value is resoved.</param>
+            <returns>
+            The resolved field's value.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.ArgumentAttribute">
+            <summary>
+            Attribute used to define GraphQL argument.
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="P:Dora.GraphQL.ArgumentAttribute.Name">
+            <summary>
+            Gets or sets the argument name.
+            </summary>
+            <value>
+            The argument name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.ArgumentAttribute.Type">
+            <summary>
+            Gets or sets the argument type.
+            </summary>
+            <value>
+            The argument type.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.ArgumentAttribute.IsRequired">
+            <summary>
+            Gets or sets a value indicating whether this argument is required.
+            </summary>
+            <value>
+              <c>true</c> if this argument is required; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.ArgumentAttribute.IsEnumerable">
+            <summary>
+            Gets or sets a value indicating whether argument is enumerable.
+            </summary>
+            <value>
+              <c>true</c> if argument is enumerable; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.GraphFieldAttribute">
+            <summary>
+            Attribtue used to define GraphQL type's field.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.GraphFieldAttribute.Name">
+            <summary>
+            Gets or sets the field name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphFieldAttribute.Ignored">
+            <summary>
+            Gets or sets a value indicating whether target property should be ignored.
+            </summary>
+            <value>
+              <c>true</c> if ignored; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphFieldAttribute.IsRequired">
+            <summary>
+            Gets or sets a value indicating whether field is required.
+            </summary>
+            <value>
+              <c>true</c> if field is required; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphFieldAttribute.Resolver">
+            <summary>
+            Gets or sets the resolver method name.
+            </summary>
+            <value>
+            The  resolver method name.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.GraphOperationAttribute">
+            <summary>
+            Attribute used to define GraphQL operation.
+            </summary>
+            <seealso cref="T:System.Attribute" />
+        </member>
+        <member name="P:Dora.GraphQL.GraphOperationAttribute.Name">
+            <summary>
+            Gets or sets the GraphQL operation name.
+            </summary>
+            <value>
+            The GraphQL operation name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.GraphOperationAttribute.OperationType">
+            <summary>
+            Gets the type of the operation.
+            </summary>
+            <value>
+            The type of the operation.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.GraphOperationAttribute.#ctor(Dora.GraphQL.OperationType)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphOperationAttribute"/> class.
+            </summary>
+            <param name="operationType">Type of the operation.</param>
+        </member>
+        <member name="T:Dora.GraphQL.MutationAttribute">
+            <summary>
+            <see cref="T:Dora.GraphQL.GraphOperationAttribute"/> for query operation type.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.MutationAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.QueryAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:Dora.GraphQL.QueryAttribute">
+            <summary>
+            <see cref="T:Dora.GraphQL.GraphOperationAttribute"/> for query operation type.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.QueryAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.QueryAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:Dora.GraphQL.SubscriptionAttribute">
+            <summary>
+            <see cref="T:Dora.GraphQL.GraphOperationAttribute"/> for query operation type.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.SubscriptionAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.SubscriptionAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:Dora.GraphQL.Schemas.GraphSchema">
+            <summary>
+            Default implementation of <see cref="T:Dora.GraphQL.Schemas.IGraphSchema"/>.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.Query">
+            <summary>
+            Gets the query specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+            </summary>
+            <value>
+            The query specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.Mutation">
+            <summary>
+            Gets the mutation specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+            </summary>
+            <value>
+            The mutation specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.Subsription">
+            <summary>
+            Gets the subsription specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+            </summary>
+            <value>
+            The subsription specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.Type">
+            <summary>
+            Gets the CLR type.
+            </summary>
+            <value>
+            The CLR type.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.OtherTypes">
+            <summary>
+            Gets the other types for union type.
+            </summary>
+            <value>
+            The other types for union type.
+            </value>
+            <remarks>
+            It is an empty array for non union type.
+            </remarks>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.Name">
+            <summary>
+            Gets the GraphQL type name.
+            </summary>
+            <value>
+            The  GraphQL type name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.IsRequired">
+            <summary>
+            Gets a value indicating whether this is a required (non-optional) GraphQL type.
+            </summary>
+            <value>
+            <c>true</c> if this is required; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.IsEnumerable">
+            <summary>
+            Gets a value indicating whether this is an enumerable (array) GraphQL type.
+            </summary>
+            <value>
+            <c>true</c> if this is enumerable; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.IsEnum">
+            <summary>
+            Gets a value indicating whether this is an enum GraphQL type.
+            </summary>
+            <value>
+            <c>true</c> if this is enum; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.Fields">
+            <summary>
+            Gets the fields.
+            </summary>
+            <value>
+            The fields.
+            </value>
+            <remarks>
+            The key is field name + container CLR type. For union GraphQL types, all member types' fields are included.
+            </remarks>
+        </member>
+        <member name="M:Dora.GraphQL.Schemas.GraphSchema.Resolve(System.Object)">
+            <summary>
+            Resolves the value based on provided raw value.
+            </summary>
+            <param name="rawValue">The raw value.</param>
+            <returns>
+            The real value.
+            </returns>
+        </member>
+        <member name="M:Dora.GraphQL.Schemas.GraphSchema.#ctor(Dora.GraphQL.GraphTypes.IGraphType,Dora.GraphQL.GraphTypes.IGraphType,Dora.GraphQL.GraphTypes.IGraphType)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Schemas.GraphSchema"/> class.
+            </summary>
+            <param name="query">The query.</param>
+            <param name="mutation">The mutation.</param>
+            <param name="subsription">The subsription.</param>
+        </member>
+        <member name="T:Dora.GraphQL.Schemas.IGraphSchema">
+            <summary>
+            Represents application's GraphQL schema.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.IGraphSchema.Query">
+            <summary>
+            Gets the query specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+            <value>
+            The query specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.IGraphSchema.Mutation">
+            <summary>
+            Gets the mutation specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+            <value>
+            The mutation specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Schemas.IGraphSchema.Subsription">
+            <summary>
+            Gets the subsription specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+            <value>
+            The subsription specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.Schemas.ISchemaFactory">
+            <summary>
+            Represents GraphQL schema factory.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Schemas.ISchemaFactory.Create(System.Collections.Generic.IEnumerable{Dora.GraphQL.Descriptors.GraphServiceDescriptor})">
+            <summary>
+            Creates the GraphQL schema factory based on specified GraphQL services.
+            </summary>
+            <param name="services">The <see cref="T:Dora.GraphQL.Descriptors.GraphServiceDescriptor"/> list.</param>
+            <returns>The <see cref="T:Dora.GraphQL.Schemas.IGraphSchema"/>.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.Schemas.SchemaFactory">
+            <summary>
+            Default implementation of <see cref="T:Dora.GraphQL.Schemas.ISchemaFactory"/>.
+            </summary>
+            <seealso cref="T:Dora.GraphQL.Schemas.ISchemaFactory" />
+        </member>
+        <member name="M:Dora.GraphQL.Schemas.SchemaFactory.#ctor(Dora.GraphQL.IAttributeAccessor,Dora.GraphQL.GraphTypes.IGraphTypeProvider,Dora.GraphQL.ArgumentBinders.IArgumentBinderProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Schemas.SchemaFactory"/> class.
+            </summary>
+            <param name="attributeAccessor">The attribute accessor.</param>
+            <param name="graphTypeProvider">The graph type provider.</param>
+            <param name="binderProvider">The binder provider.</param>
+        </member>
+        <member name="M:Dora.GraphQL.Schemas.SchemaFactory.Create(System.Collections.Generic.IEnumerable{Dora.GraphQL.Descriptors.GraphServiceDescriptor})">
+            <summary>
+            Creates the GraphQL schema factory based on specified GraphQL services.
+            </summary>
+            <param name="services">The <see cref="T:Dora.GraphQL.Descriptors.GraphServiceDescriptor" /> list.</param>
+            <returns>
+            The <see cref="T:Dora.GraphQL.Schemas.IGraphSchema" />.
+            </returns>
+        </member>
+        <member name="T:Dora.GraphQL.DirectiveExtensions">
+            <summary>
+            Defines <see cref="T:Dora.GraphQL.Selections.IDirective"/> specific extension methods.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.DirectiveExtensions.AddArgument(Dora.GraphQL.Selections.IDirective,Dora.GraphQL.Selections.NamedValueToken)">
+            <summary>
+            Adds the argument to specified <see cref="T:Dora.GraphQL.Selections.IDirective"/>.
+            </summary>
+            <param name="directive">The <see cref="T:Dora.GraphQL.Selections.IDirective"/> to which the argumetn is added.</param>
+            <param name="argument">The argument.</param>
+            <returns>The <see cref="T:Dora.GraphQL.Selections.IDirective"/>.</returns>
+        </member>
+        <member name="T:Dora.GraphQL.SelectionNodeExtensions">
+            <summary>
+            Defines <see cref="T:Dora.GraphQL.Selections.IFieldSelection"/> specific extension methods.
+            </summary>
+        </member>
+        <member name="M:Dora.GraphQL.SelectionNodeExtensions.AddArgument(Dora.GraphQL.Selections.IFieldSelection,Dora.GraphQL.Selections.NamedValueToken)">
+            <summary>
+            Adds the argument to specified <see cref="T:Dora.GraphQL.Selections.IFieldSelection"/>.
+            </summary>
+            <param name="field">The <see cref="T:Dora.GraphQL.Selections.IFieldSelection"/> to which the argument is added.</param>
+            <param name="argument">The argument.</param>
+            <returns>The <see cref="T:Dora.GraphQL.Selections.IFieldSelection"/>.</returns>
+        </member>
+        <member name="M:Dora.GraphQL.SelectionNodeExtensions.AddSubSelection(Dora.GraphQL.Selections.ISelectionNode,Dora.GraphQL.Selections.ISelectionNode)">
+            <summary>
+            Adds the sub selection.
+            </summary>
+            <param name="selection">The <see cref="T:Dora.GraphQL.Selections.ISelectionNode"/> to which the sub selection is added.</param>
+            <param name="child">The sub selection.</param>
+            <returns>The <see cref="T:Dora.GraphQL.Selections.ISelectionNode"/></returns>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.IDirective">
+            <summary>
+            Represents GraphQL directive.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.IDirective.Name">
+            <summary>
+            Gets the directive name.
+            </summary>
+            <value>
+            The directive name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.IDirective.Arguments">
+            <summary>
+            Gets the arguments.
+            </summary>
+            <value>
+            The arguments.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.IFieldSelection">
+            <summary>
+            Represents field specific <see cref="T:Dora.GraphQL.Selections.ISelectionNode"/>.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.IFieldSelection.Name">
+            <summary>
+            Gets the field name.
+            </summary>
+            <value>
+            The field name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.IFieldSelection.Alias">
+            <summary>
+            Gets the alias.
+            </summary>
+            <value>
+            The alias.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.IFieldSelection.Arguments">
+            <summary>
+            Gets the arguments.
+            </summary>
+            <value>
+            The arguments.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.IFieldSelection.Directives">
+            <summary>
+            Gets the directives.
+            </summary>
+            <value>
+            The directives.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.IFragment">
+            <summary>
+            Represents fragement specific <see cref="T:Dora.GraphQL.Selections.ISelectionNode"/>.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.IFragment.GraphType">
+            <summary>
+            Gets fragement specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
+            </summary>
+            <value>
+            The fragement specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.Directive">
+            <summary>
+            The default implementation of <see cref="T:Dora.GraphQL.Selections.IDirective"/>.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.Directive.Name">
+            <summary>
+            Gets the directive name.
+            </summary>
+            <value>
+            The directive name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.Directive.Arguments">
+            <summary>
+            Gets the arguments.
+            </summary>
+            <value>
+            The arguments.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Selections.Directive.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Selections.Directive"/> class.
+            </summary>
+            <param name="name">The directive name.</param>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.FieldSelection">
+            <summary>
+            The default implemention of <see cref="T:Dora.GraphQL.Selections.IFieldSelection"/>.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.FieldSelection.Name">
+            <summary>
+            Gets the field name.
+            </summary>
+            <value>
+            The field name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.FieldSelection.Alias">
+            <summary>
+            Gets the alias.
+            </summary>
+            <value>
+            The alias.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.FieldSelection.Arguments">
+            <summary>
+            Gets the arguments.
+            </summary>
+            <value>
+            The arguments.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.FieldSelection.Directives">
+            <summary>
+            Gets the directives.
+            </summary>
+            <value>
+            The directives.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.FieldSelection.SelectionSet">
+            <summary>
+            Gets the sub selection set.
+            </summary>
+            <value>
+            The sub selection set.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.FieldSelection.Properties">
+            <summary>
+            Gets the custom property dictionary.
+            </summary>
+            <value>
+            The custom property dictionary.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Selections.FieldSelection.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Selections.FieldSelection"/> class.
+            </summary>
+            <param name="name">The name.</param>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.Fragment">
+            <summary>
+            The default implementation of <see cref="T:Dora.GraphQL.Selections.IFragment"/>.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.Fragment.GraphType">
+            <summary>
+            Gets fragement specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+            </summary>
+            <value>
+            The fragement specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.Fragment.SelectionSet">
+            <summary>
+            Gets the sub selection set.
+            </summary>
+            <value>
+            The sub selection set.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.Fragment.Properties">
+            <summary>
+            Gets the custom property dictionary.
+            </summary>
+            <value>
+            The custom property dictionary.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Selections.Fragment.#ctor(Dora.GraphQL.GraphTypes.IGraphType)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Selections.Fragment"/> class.
+            </summary>
+            <param name="graphType">Type of the graph.</param>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.ISelectionNode">
+            <summary>
+            Represents GraphQL query selection node.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.ISelectionNode.SelectionSet">
+            <summary>
+            Gets the sub selection set.
+            </summary>
+            <value>
+            The sub selection set.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.ISelectionNode.Properties">
+            <summary>
+            Gets the custom property dictionary.
+            </summary>
+            <value>
+            The custom property dictionary.
+            </value>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.NamedValueToken">
+            <summary>
+            Represents Name + Value structure.
+            </summary>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.NamedValueToken.Name">
+            <summary>
+            Gets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.NamedValueToken.ValueToken">
+            <summary>
+            Gets the value token.
+            </summary>
+            <value>
+            The value token.
+            </value>
+        </member>
+        <member name="P:Dora.GraphQL.Selections.NamedValueToken.IsVaribleReference">
+            <summary>
+            Gets a value indicating whether this instance is varible reference.
+            </summary>
+            <value>
+              <c>true</c> if this instance is varible reference; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="M:Dora.GraphQL.Selections.NamedValueToken.#ctor(System.String,System.Object,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Selections.NamedValueToken"/> struct.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="valueToken">The value token.</param>
+            <param name="isVariableReference">if set to <c>true</c> [is variable reference].</param>
+        </member>
+        <member name="T:Dora.GraphQL.Selections.ResolverDelegate">
+            <summary>
+            Represents GraphQL resolver specific delegate.
+            </summary>
+            <param name="resolverContext">The <see cref="T:Dora.GraphQL.GraphTypes.ResolverContext"/>.</param>
+            <returns>The resolved value.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.Internal.ObjectMethodExecutor.Execute(System.Object,System.Object[])">
+            <summary>
+            Executes the configured method on <paramref name="target"/>. This can be used whether or not
+            the configured method is asynchronous.
+            </summary>
+            <remarks>
+            Even if the target method is asynchronous, it's desirable to invoke it using Execute rather than
+            ExecuteAsync if you know at compile time what the return type is, because then you can directly
+            "await" that value (via a cast), and then the generated code will be able to reference the
+            resulting awaitable as a value-typed variable. If you use ExecuteAsync instead, the generated
+            code will have to treat the resulting awaitable as a boxed object, because it doesn't know at
+            compile time what type it would be.
+            </remarks>
+            <param name="target">The object whose method is to be executed.</param>
+            <param name="parameters">Parameters to pass to the method.</param>
+            <returns>The method return value.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.Internal.ObjectMethodExecutor.ExecuteAsync(System.Object,System.Object[])">
+            <summary>
+            Executes the configured method on <paramref name="target"/>. This can only be used if the configured
+            method is asynchronous.
+            </summary>
+            <remarks>
+            If you don't know at compile time the type of the method's returned awaitable, you can use ExecuteAsync,
+            which supplies an awaitable-of-object. This always works, but can incur several extra heap allocations
+            as compared with using Execute and then using "await" on the result value typecasted to the known
+            awaitable type. The possible extra heap allocations are for:
+            
+            1. The custom awaitable (though usually there's a heap allocation for this anyway, since normally
+               it's a reference type, and you normally create a new instance per call).
+            2. The custom awaiter (whether or not it's a value type, since if it's not, you need a new instance
+               of it, and if it is, it will have to be boxed so the calling code can reference it as an object).
+            3. The async result value, if it's a value type (it has to be boxed as an object, since the calling
+               code doesn't know what type it's going to be).
+            </remarks>
+            <param name="target">The object whose method is to be executed.</param>
+            <param name="parameters">Parameters to pass to the method.</param>
+            <returns>An object that you can "await" to get the method return value.</returns>
+        </member>
+        <member name="T:Microsoft.Extensions.Internal.ObjectMethodExecutorAwaitable">
+            <summary>
+            Provides a common awaitable structure that <see cref="M:Microsoft.Extensions.Internal.ObjectMethodExecutor.ExecuteAsync(System.Object,System.Object[])"/> can
+            return, regardless of whether the underlying value is a System.Task, an FSharpAsync, or an
+            application-defined custom awaitable.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.Internal.ObjectMethodExecutorFSharpSupport">
+            <summary>
+            Helper for detecting whether a given type is FSharpAsync`1, and if so, supplying
+            an <see cref="T:System.Linq.Expressions.Expression"/> for mapping instances of that type to a C# awaitable.
+            </summary>
+            <remarks>
+            The main design goal here is to avoid taking a compile-time dependency on
+            FSharp.Core.dll, because non-F# applications wouldn't use it. So all the references
+            to FSharp types have to be constructed dynamically at runtime.
+            </remarks>
+        </member>
+    </members>
+</doc>

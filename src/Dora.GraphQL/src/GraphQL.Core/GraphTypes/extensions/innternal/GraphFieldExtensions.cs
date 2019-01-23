@@ -35,7 +35,6 @@ namespace Dora.GraphQL
             }
             return false;
         }
-
         public static GraphField AddArgument(this GraphField field,  NamedGraphType argument)
         {
             Guard.ArgumentNotNull(field, nameof(field));
