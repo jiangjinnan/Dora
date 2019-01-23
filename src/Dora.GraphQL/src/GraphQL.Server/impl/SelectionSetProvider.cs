@@ -3,6 +3,7 @@ using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Schemas;
 using Dora.GraphQL.Selections;
 using GraphQL.Language.AST;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
@@ -20,11 +21,14 @@ namespace Dora.GraphQL.Server
         private readonly ConcurrentDictionary<string, ICollection<ISelectionNode>> _selections;
         private readonly IQueryResultTypeGenerator _typeGenerator;
         private readonly FieldNameConverter  _fieldNameConverter;
+        private readonly ILogger _logger;
+        private readonly Action<ILogger, DateTimeOffset, string, string, Exception> _log4MissCache;
 
         public SelectionSetProvider(
             IGraphTypeProvider graphTypeProvider, 
             IGraphSchemaProvider schemaProvider,
             IQueryResultTypeGenerator typeGenerator,
+            ILogger<SelectionSetProvider> logger,
             IOptions<GraphOptions> optionsAccessor)
         {
             Guard.ArgumentNotNull(schemaProvider, nameof(schemaProvider));
@@ -33,6 +37,8 @@ namespace Dora.GraphQL.Server
             _typeGenerator = Guard.ArgumentNotNull(typeGenerator, nameof(typeGenerator));
             _schema = schemaProvider.Schema;
             _fieldNameConverter = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value.FieldNameConverter;
+            _logger = Guard.ArgumentNotNull(logger, nameof(logger));
+            _log4MissCache = LoggerMessage.Define<DateTimeOffset, string, string>(LogLevel.Trace, 0, "[{0}]Selection set cache missing. Operation: {1}; Reason: {2}.");
         }
 
         public ICollection<ISelectionNode> GetSelectionSet(string query, Operation operation, Fragments fragments)
@@ -52,6 +58,7 @@ namespace Dora.GraphQL.Server
             var selections = CreateSelections(query, operation, fragments);
             if (selections.Count > 1)
             {
+                _log4MissCache(_logger,DateTimeOffset.Now, operation.Name, "Use alias", null);
                 return selections;
             }
 
@@ -59,6 +66,7 @@ namespace Dora.GraphQL.Server
             {
                 if (HasArguments(subField))
                 {
+                    _log4MissCache(_logger, DateTimeOffset.Now, operation.Name, "Has arguments", null);
                     return selections;
                 }
             }
@@ -95,7 +103,7 @@ namespace Dora.GraphQL.Server
             foreach (var fieldSelection in selections.OfType<IFieldSelection>())
             {
                 var field = graphType.Fields.Values.Single(it => it.Name == _fieldNameConverter.Normalize( operation.Name, NormalizationDirection.Incoming));
-                fieldSelection.SetIncludeAllFieldsFlags(field, _typeGenerator, out var isSubQueryTree);
+                fieldSelection.SetIncludeAllFieldsFlags(field, _typeGenerator, true, out var isSubQueryTree);
             }
             return selections;
         }

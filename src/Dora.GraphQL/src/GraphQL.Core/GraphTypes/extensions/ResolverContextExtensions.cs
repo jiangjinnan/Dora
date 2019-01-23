@@ -20,7 +20,10 @@ namespace Dora.GraphQL
         public static T GetArgument<T>(this ResolverContext context, string argumentName)
         {
             Guard.ArgumentNotNullOrWhiteSpace(argumentName, nameof(argumentName));
-           return (T)context.GetArgument(argumentName);
+            var value = context.GetArgument(argumentName);
+            return value == null
+                ? default
+                : (T)value;
         }
 
         /// <summary>
@@ -55,7 +58,10 @@ namespace Dora.GraphQL
             {
                 return graphType.Resolve(value2.DefaultValue);
             }
-            return graphType.Resolve(fieldArgument.DefaultValue);
+
+            return fieldArgument.DefaultValue == null
+                ? null
+                : graphType.Resolve(fieldArgument.DefaultValue);
         }
 
         /// <summary>

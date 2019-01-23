@@ -1,5 +1,6 @@
 ﻿using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Selections;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,20 @@ namespace Dora.GraphQL.Executors
     /// </summary>
     public class QueryResultTypeGenerator : IQueryResultTypeGenerator
     {
+        private readonly ILogger _logger;
+        private readonly Action<ILogger, DateTimeOffset, string, Exception> _log4GenerateQueryResultType;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="QueryResultTypeGenerator"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <exception cref="ArgumentNullException">logger</exception>
+        public QueryResultTypeGenerator(ILogger<QueryResultTypeGenerator> logger)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _log4GenerateQueryResultType = LoggerMessage.Define<DateTimeOffset, string>(LogLevel.Trace, 0, "[{0}Dynamically generate query result type. Source type: {1}]");
+        }
+
         /// <summary>
         /// Generates the query result class generator.
         /// </summary>
@@ -23,6 +38,7 @@ namespace Dora.GraphQL.Executors
         /// </returns>
         public Type Generate(IFieldSelection selection, GraphField field)
         {
+            _log4GenerateQueryResultType(_logger, DateTimeOffset.Now, field.GraphType.Type.AssemblyQualifiedName, null);
             var assemblyName = new AssemblyName($"QueryResult{GetSurffix()}");
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule($"{assemblyName}.dll");

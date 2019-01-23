@@ -592,12 +592,12 @@
             Default implementation of <see cref="T:Dora.GraphQL.Executors.IGraphExecutor"/>.
             </summary>
         </member>
-        <member name="M:Dora.GraphQL.Executors.DefaultGraphExecutor.#ctor(Dora.GraphQL.GraphTypes.IGraphTypeProvider)">
+        <member name="M:Dora.GraphQL.Executors.DefaultGraphExecutor.#ctor(Dora.GraphQL.GraphTypes.IGraphTypeProvider,Microsoft.Extensions.Logging.ILogger{Dora.GraphQL.Executors.DefaultGraphExecutor})">
             <summary>
-            Initializes a new instance of the <see cref="T:Dora.GraphQL.Executors.DefaultGraphExecutor"/> class.
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Executors.DefaultGraphExecutor" /> class.
             </summary>
             <param name="graphTypeProvider">The graph type provider.</param>
-            <exception cref="T:System.ArgumentNullException">graphTypeProvider</exception>
+            <param name="logger">The logger.</param>
         </member>
         <member name="M:Dora.GraphQL.Executors.DefaultGraphExecutor.ExecuteAsync(Dora.GraphQL.Executors.GraphContext)">
             <summary>
@@ -612,6 +612,13 @@
             <summary>
             Default implementation of <see cref="T:Dora.GraphQL.Executors.IQueryResultTypeGenerator"/>.
             </summary>
+        </member>
+        <member name="M:Dora.GraphQL.Executors.QueryResultTypeGenerator.#ctor(Microsoft.Extensions.Logging.ILogger{Dora.GraphQL.Executors.QueryResultTypeGenerator})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.Executors.QueryResultTypeGenerator"/> class.
+            </summary>
+            <param name="logger">The logger.</param>
+            <exception cref="T:System.ArgumentNullException">logger</exception>
         </member>
         <member name="M:Dora.GraphQL.Executors.QueryResultTypeGenerator.Generate(Dora.GraphQL.Selections.IFieldSelection,Dora.GraphQL.GraphTypes.GraphField)">
             <summary>

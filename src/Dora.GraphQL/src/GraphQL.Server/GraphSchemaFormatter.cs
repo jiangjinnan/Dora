@@ -1,7 +1,7 @@
 ﻿using Dora.GraphQL.GraphTypes;
-using Dora.GraphQL.Server;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,10 +10,9 @@ namespace Dora.GraphQL.Schemas
 {
     public class GraphSchemaFormatter : IGraphSchemaFormatter
     {
-        private readonly FieldNameConverter  _fieldNameConverter;
         private readonly IGraphTypeProvider _graphTypeProvider;
-
-        public FieldNameConverter FieldNameConverter => _fieldNameConverter;
+        private readonly FieldNameConverter _fieldNameConverter;
+        private string _formatted;
 
         public GraphSchemaFormatter(IGraphTypeProvider graphTypeProvider, IOptions<GraphOptions> optionsAccessor)
         {
@@ -25,9 +24,14 @@ namespace Dora.GraphQL.Schemas
         public string Format(IGraphSchema schema, GraphSchemaFormat  format)
         {
             Guard.ArgumentNotNull(schema, nameof(schema));
-            return format == GraphSchemaFormat.GQL
+            if (null != _formatted)
+            {
+                return _formatted;
+            }
+            _formatted = format == GraphSchemaFormat.GQL
                 ? FormatAsGql(schema)
                 : FormatAsInline(schema);
+            return _formatted;
         }
 
         private  string FormatAsGql(IGraphSchema graphSchema)

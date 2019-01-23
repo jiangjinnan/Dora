@@ -116,9 +116,12 @@ namespace Dora.GraphQL.Server
 
         private void SetVariables(GraphContext context, RequestPayload payload)
         {
-            foreach (JProperty item in payload.Variables.Children())
+            if (payload.Variables != null)
             {
-                context.Variables[item.Name] = item.Value;
+                foreach (JProperty item in payload.Variables.Children())
+                {
+                    context.Variables[item.Name] = item.Value;
+                }
             }
         }
 

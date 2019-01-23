@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace Demo1
 {
@@ -24,6 +26,9 @@ namespace Demo1
                 .UseUrls("http://0.0.0.0:4000")
                 .UseKestrel()
                 .UseStartup<Startup>()
+                .ConfigureLogging(buidler=>buidler
+                    .AddConsole()
+                    .AddFilter<ConsoleLoggerProvider>((category, level)=>category.StartsWith("Dora")))
                 .Build()
                 .Run();
         }       
@@ -52,8 +57,8 @@ namespace Demo1
     {
         public static Foobarbaz Instance = Foobarbaz.Create(5);
 
-        //[GraphOperation(OperationType.Query, Name = "Foobarbaz")]
-        //public Task<Foobarbaz> GetFoobarbaz() => Task.FromResult(Instance);
+        [GraphOperation(OperationType.Query, Name = "Foobarbaz")]
+        public Task<Foobarbaz> GetFoobarbaz() => Task.FromResult(Instance);
 
         [GraphOperation(OperationType.Mutation)]
         public Customer AddCustomer([Argument]Customer customer, 

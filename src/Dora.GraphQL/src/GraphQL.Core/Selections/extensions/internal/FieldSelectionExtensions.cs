@@ -35,7 +35,12 @@ namespace Dora.GraphQL
             return (type = null) != null;
         }
 
-        public static bool SetIncludeAllFieldsFlags(this IFieldSelection selection, GraphField graphField, IQueryResultTypeGenerator typeGenerator, out bool isSubQueryTree)
+        public static bool SetIncludeAllFieldsFlags(
+            this IFieldSelection selection, 
+            GraphField graphField, 
+            IQueryResultTypeGenerator typeGenerator, 
+            bool generateQueryResultType,
+            out bool isSubQueryTree)
         {
             Guard.ArgumentNotNull(selection, nameof(selection));
             Guard.ArgumentNotNull(graphField, nameof(graphField));
@@ -44,6 +49,7 @@ namespace Dora.GraphQL
             bool? flags = null;
             if (graphField.HasCustomResolver() || selection.Directives.Any() || selection.SelectionSet.Any(it=>it is IFragment))
             {
+                generateQueryResultType = false;
                 isSubQueryTree = false;
                 flags = false;
             }
@@ -61,7 +67,7 @@ namespace Dora.GraphQL
                 {
                     throw new GraphException($"Field '{subSelection.Name}' is not defined in the GraphType '{graphField.GraphType.Name}'");
                 }
-                if (!SetIncludeAllFieldsFlags(subSelection, subFields[0], typeGenerator, out var isSubtree))
+                if (!SetIncludeAllFieldsFlags(subSelection, subFields[0], typeGenerator, generateQueryResultType, out var isSubtree))
                 {
                     flags = false;
                     if (!isSubtree)
@@ -86,7 +92,7 @@ namespace Dora.GraphQL
                         throw new GraphException($"Field '{fieldSelection.Name}' is not defined in the GraphType '{fragement.GraphType.Name}'");
                     }
 
-                    if (!SetIncludeAllFieldsFlags(fieldSelection, fields[0], typeGenerator, out var isSubtree))
+                    if (!SetIncludeAllFieldsFlags(fieldSelection, fields[0], typeGenerator, generateQueryResultType, out var isSubtree))
                     {
                         flags = false;
                         if (!isSubtree)
@@ -111,7 +117,7 @@ namespace Dora.GraphQL
             if (selection.SelectionSet.OfType<IFieldSelection>().Count() == graphField.GraphType.Fields.Count)
             {
                 selection.Properties[GraphDefaults.PropertyNames.IncludeAllFields] = true;
-                if (graphField.GraphType.Fields.Any())
+                if (graphField.GraphType.Fields.Any() && generateQueryResultType)
                 {
                     selection.Properties[GraphDefaults.PropertyNames.QueryResultType] = typeGenerator.Generate(selection, graphField);
                 }
@@ -120,7 +126,7 @@ namespace Dora.GraphQL
 
             selection.Properties[GraphDefaults.PropertyNames.IncludeAllFields] = false;
             selection.Properties[GraphDefaults.PropertyNames.IsSubQueryTree] = true;
-            if (graphField.GraphType.Fields.Any())
+            if (graphField.GraphType.Fields.Any() && generateQueryResultType)
             {
                 selection.Properties[GraphDefaults.PropertyNames.QueryResultType] = typeGenerator.Generate(selection, graphField);
             }

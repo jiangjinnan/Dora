@@ -27,7 +27,6 @@ namespace Dora.GraphQL
         /// </value>
         public Type Type { get; set; }
 
-
         /// <summary>
         /// Gets or sets a value indicating whether this argument is required.
         /// </summary>

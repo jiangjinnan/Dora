@@ -19,7 +19,7 @@ namespace Demo1
     {
         public string PhoneNo { get; set; }
 
-        [Argument(Name = "lowerCase",Type = typeof(bool))]
+        [Argument(Name = "lowerCase",Type = typeof(bool), IsRequired =true)]
         [GraphField(Resolver = nameof(Resolve))]
         public string Email { get; set; }
 

@@ -2,6 +2,7 @@
 using Dora.GraphQL.Schemas;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -22,15 +23,18 @@ namespace Dora.GraphQL.Server
         private readonly GraphServerOptions  _serverOptions;
         private readonly IGraphSchemaFormatter _schemaFormatter;
         private readonly IGraphSchemaProvider  _schemaProvider;
+        private readonly ILogger _logger;
+        private readonly Action<ILogger, DateTimeOffset, string, string, Exception> _log4Error;
 
         public GraphQLServerMiddleware(
-            RequestDelegate next, 
-            IGraphContextFactory graphContextFactory, 
+            RequestDelegate next,
+            IGraphContextFactory graphContextFactory,
             IGraphExecutor executor,
             IGraphSchemaFormatter schemaFormatter,
             IGraphSchemaProvider schemaProvider,
             IOptions<GraphOptions> graphOptionsAccessor,
-            IOptions<GraphServerOptions> serverOptionsAccessor)
+            IOptions<GraphServerOptions> serverOptionsAccessor,
+            ILogger<GraphQLServerMiddleware> logger)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _graphContextFactory = graphContextFactory ?? throw new ArgumentNullException(nameof(graphContextFactory));
@@ -39,6 +43,8 @@ namespace Dora.GraphQL.Server
             _schemaProvider = schemaProvider ?? throw new ArgumentNullException(nameof(schemaProvider));
             _graphOptions = (graphOptionsAccessor ?? throw new ArgumentNullException(nameof(graphOptionsAccessor))).Value;
             _serverOptions = (serverOptionsAccessor ?? throw new ArgumentNullException(nameof(serverOptionsAccessor))).Value;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _log4Error = LoggerMessage.Define<DateTimeOffset, string, string>(LogLevel.Error, 0, "[{0}]Unhandled exception. Operation: {1}. Detailed information: {2}");
         }
 
         public async Task InvokeAsync(HttpContext httpContext, IHostingEnvironment hostingEnvironment)
@@ -57,34 +63,52 @@ namespace Dora.GraphQL.Server
 
             if (httpContext.Request.Method != "POST")
             {
-                await _next(httpContext);
+                httpContext.Response.StatusCode = 405;
+                await httpContext.Response.WriteAsync("The HTTP method of GraphQL request must be POST.");
                 return;
             }
 
+            var contentType = httpContext.Request.ContentType;
+            if (contentType != "application/json" && httpContext.Response.ContentType != "text/json")
+            {
+                httpContext.Response.StatusCode = 406;
+                await httpContext.Response.WriteAsync("The Content-Type of GraphQL request must be application/json.");
+                return;
+            }
             await HandleOperationRequest(httpContext);
         }
 
         private async Task HandleOperationRequest(HttpContext httpContext)
         {
             var payload = Deserialize<RequestPayload>(httpContext.Request.Body);
-            var context = await _graphContextFactory.CreateAsync(payload);
-            httpContext.Features.Set<IGraphContextFeature>(new GraphContextFeature(context));
-            var result = await _executor.ExecuteAsync(context);
-            httpContext.Response.ContentType = "application/json";
+            try
+            {
+                var context = await _graphContextFactory.CreateAsync(payload);
+                httpContext.Features.Set<IGraphContextFeature>(new GraphContextFeature(context));
+                var result = await _executor.ExecuteAsync(context);
+                httpContext.Response.ContentType = "application/json";
 
-            if (_graphOptions.FieldNameConverter == FieldNameConverter.CamelCase)
-            {
-                var settings = new JsonSerializerSettings
+                if (_graphOptions.FieldNameConverter == FieldNameConverter.CamelCase)
                 {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    Converters = new List<JsonConverter> { new StringEnumConverter() }
-                };
-                await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, Formatting.None, settings));
-               
+                    var settings = new JsonSerializerSettings
+                    {
+                        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                        Converters = new List<JsonConverter> { new StringEnumConverter() }
+                    };
+                    await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result, Formatting.None, settings));
+                }
+                else
+                {
+                    await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result, new StringEnumConverter()));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, new StringEnumConverter()));
+                if (_logger.IsEnabled(LogLevel.Error))
+                {
+                    _log4Error(_logger, DateTimeOffset.Now, payload.OperationName, ErrorFormatter.Instance.Format(ex), null);
+                }
+                throw;
             }
         }
 

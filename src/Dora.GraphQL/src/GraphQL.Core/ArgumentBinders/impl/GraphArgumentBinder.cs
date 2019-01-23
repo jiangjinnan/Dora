@@ -24,7 +24,7 @@ namespace Dora.GraphQL.ArgumentBinders
             var graphContext = context.ResolverContext.GraphContext;
             var argumentName = context.Parameter.ArgumentName;
 
-            if (!graphContext.TryGetArguments(out var arguments) || !arguments.ContainsKey(argumentName))
+            if (graphContext.TryGetArguments(out var arguments) || arguments.ContainsKey(argumentName))
             {
                 var argumentValue = context.ResolverContext.GetArgument(argumentName);
                 return new ValueTask<ArgumentBindingResult>( ArgumentBindingResult.Success(argumentValue));
