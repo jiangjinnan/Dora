@@ -25,7 +25,7 @@ namespace Dora.GraphQL.Server
             IGraphTypeProvider graphTypeProvider, 
             IGraphSchemaProvider schemaProvider,
             IQueryResultTypeGenerator typeGenerator,
-            IOptions<GraphServerOptions> optionsAccessor)
+            IOptions<GraphOptions> optionsAccessor)
         {
             Guard.ArgumentNotNull(schemaProvider, nameof(schemaProvider));
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));

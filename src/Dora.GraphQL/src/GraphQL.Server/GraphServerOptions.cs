@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Dora.GraphQL.Server
 {
-    public class GraphServerOptions: GraphOptions
+    public class GraphServerOptions
     {
         public PathString PathBase { get; set; } = "/graphql";
     }

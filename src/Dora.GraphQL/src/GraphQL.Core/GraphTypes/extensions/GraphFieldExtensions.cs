@@ -13,8 +13,6 @@ namespace Dora.GraphQL
                 : false;
         }
 
-   
-
         public static bool SetHasCustomResolverFlags(this GraphField field)
         {
             Guard.ArgumentNotNull(field, nameof(field));
@@ -36,6 +34,13 @@ namespace Dora.GraphQL
                 return true;
             }
             return false;
+        }
+
+        public static GraphField AddArgument(this GraphField field,  NamedGraphType argument)
+        {
+            Guard.ArgumentNotNull(field, nameof(field));
+            field.Arguments.Add(argument.Name, argument);
+            return field;
         }
     }
 }

@@ -4,11 +4,10 @@ using System.Linq;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public static partial class GraphValueResolver
+    internal static partial class GraphValueResolver
     {
         private static Dictionary<Type, Func<object, object>> _sclarResolvers;
         private static Dictionary<Type, string> _scalarTypeNames;
-        private static Type[] _scalarTypes;
         static GraphValueResolver()
         {
             _sclarResolvers = new Dictionary<Type, Func<object, object>>
@@ -41,18 +40,19 @@ namespace Dora.GraphQL.GraphTypes
                 [typeof(Guid)] = "Guid",
                 [typeof(string)] = "String",
             };
-            _scalarTypes = _scalarTypeNames.Keys.ToArray();
+            ScalarTypes = _scalarTypeNames.Keys.ToArray();
         }
-        public static Func<object, object> GetResolver(Type type)
+
+        public static Func<object, object> GetResolver(Type type, IServiceProvider serviceProvider)
         {
             Guard.ArgumentNotNull(type, nameof(type));
+            Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
             return _sclarResolvers.TryGetValue(type, out var value)
                 ? value
-                : Complex(type);
+                : Complex(type, serviceProvider);
         }
 
         public static bool IsScalar(Type type) => _scalarTypeNames.ContainsKey(type);
-
         public static string GetGraphTypeName(Type type, params Type[] otherTypes)
         {
             Guard.ArgumentNotNull(type, nameof(type));
@@ -60,9 +60,7 @@ namespace Dora.GraphQL.GraphTypes
                 ? $"UnionOf{type.Name}{string.Join("",otherTypes.Select(it=>it.Name))}"
                 : _scalarTypeNames.TryGetValue(type, out var value) ? value : GetComplexGraphTypeName(type);
         }
-
-        public static Type[] ScalarTypes => _scalarTypes;
-
+        public static Type[] ScalarTypes { get; private set; }
         private static string GetComplexGraphTypeName(Type type)
         {
             if (!type.IsGenericType)
@@ -70,7 +68,7 @@ namespace Dora.GraphQL.GraphTypes
                 return type.Name;
             }
 
-            var argumentsPart = string.Join("", type.GetGenericArguments().Select(it => GetGraphTypeName(type)));
+            var argumentsPart = string.Join("", type.GetGenericArguments().Select(it => GetGraphTypeName(it)));
             return $"{type.Name.Substring(0, type.Name.Length - 2)}Of{argumentsPart}";
         }
     }

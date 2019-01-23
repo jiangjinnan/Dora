@@ -13,7 +13,7 @@ namespace Dora.GraphQL.Schemas
         private readonly FieldNameNormalizer _nameNormalizer;
         private readonly IGraphTypeProvider _graphTypeProvider;
 
-        public GraphSchemaFormatter(IGraphTypeProvider graphTypeProvider, IOptions<GraphServerOptions> optionsAccessor)
+        public GraphSchemaFormatter(IGraphTypeProvider graphTypeProvider, IOptions<GraphOptions> optionsAccessor)
         {
             Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor));
             _nameNormalizer = optionsAccessor.Value.FieldNamingConvention == Options.FieldNamingConvention.PascalCase
@@ -75,7 +75,9 @@ namespace Dora.GraphQL.Schemas
             {
                 return;
             }
-            var graphTypeName = GraphValueResolver.GetGraphTypeName(graphType.Type);
+            var graphTypeName = (!graphType.IsRequired && !graphType.IsEnumerable)
+                ? graphType.Name 
+                : GraphValueResolver.GetGraphTypeName(graphType.Type);
             if (exists.Contains(graphTypeName))
             {
                 return;
@@ -133,12 +135,21 @@ namespace Dora.GraphQL.Schemas
         private  string FormatAsInline(IGraphSchema graphSchema)
         {
             var builder = new StringBuilder();
-            builder.AppendLine("Query");
-            WriteAsInline(builder, 1, graphSchema.Query);
-            builder.AppendLine("Mutation");
-            WriteAsInline(builder, 1, graphSchema.Mutation);
-            builder.AppendLine("Subsription");
-            WriteAsInline(builder, 1, graphSchema.Subsription);
+            if (graphSchema.Query.Fields.Any())
+            {
+                builder.AppendLine("Query");
+                WriteAsInline(builder, 1, graphSchema.Query);
+            }
+            if (graphSchema.Mutation.Fields.Any())
+            {
+                builder.AppendLine("Mutation");
+                WriteAsInline(builder, 1, graphSchema.Mutation);
+            }
+            if (graphSchema.Subsription.Fields.Any())
+            {
+                builder.AppendLine("Subsription");
+                WriteAsInline(builder, 1, graphSchema.Subsription);
+            }
 
             return builder.ToString();
         }

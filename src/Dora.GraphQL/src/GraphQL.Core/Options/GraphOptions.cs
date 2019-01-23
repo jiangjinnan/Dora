@@ -5,5 +5,6 @@ namespace Dora.GraphQL
     public class GraphOptions
     {
         public FieldNamingConvention FieldNamingConvention { get; set; }
+     
     }
 }

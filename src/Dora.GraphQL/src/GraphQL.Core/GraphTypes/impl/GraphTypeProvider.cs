@@ -1,61 +1,201 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
+﻿using Dora.GraphQL.Resolvers;
+using Dora.GraphQL.Schemas;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Dora.GraphQL.GraphTypes
 {
+    /// <summary>
+    /// The default implementation class of <see cref="IGraphTypeProvider"/>.
+    /// </summary>
     public class GraphTypeProvider : IGraphTypeProvider
     {
+        #region Fields
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAttributeAccessor _attributeAccessor;
-        private readonly ConcurrentDictionary<string, IGraphType> _graphTypes;
+        private Dictionary<string, IGraphType> _graphTypes;
+        #endregion
 
-        public GraphTypeProvider(IAttributeAccessor attributeAccessor)
+        #region Constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GraphTypeProvider"/> class.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="attributeAccessor">The attribute accessor.</param>
+        public GraphTypeProvider(IServiceProvider serviceProvider, IAttributeAccessor attributeAccessor)
         {
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _attributeAccessor = attributeAccessor ?? throw new ArgumentNullException(nameof(attributeAccessor));
-            _graphTypes = new ConcurrentDictionary<string, IGraphType>();
-
-            IGraphType graphType;
-            foreach (var type in GraphValueResolver.ScalarTypes)
+            _graphTypes = new Dictionary<string, IGraphType>();
+            foreach (var scalarType in GraphValueResolver.ScalarTypes)
             {
-                graphType = new GraphType(this, _attributeAccessor, type, false, false, Type.EmptyTypes);
-                _graphTypes.TryAdd(graphType.Name, graphType);
-
-                graphType = new GraphType(this, _attributeAccessor, type, true, false, Type.EmptyTypes);
-                _graphTypes.TryAdd(graphType.Name, graphType);
-
-                graphType = new GraphType(this, _attributeAccessor, type, false, true, Type.EmptyTypes);
-                _graphTypes.TryAdd(graphType.Name, graphType);
-
-                graphType = new GraphType(this, _attributeAccessor, type, true, true, Type.EmptyTypes);
-                _graphTypes.TryAdd(graphType.Name, graphType);
+                GetGraphType(scalarType, false, false);
             }
         }
+        #endregion
 
-        public IGraphType GetGraphType(Type type, bool? isRequired, bool? isEnumerable, params Type[] otherTypes)
-        {
-            Guard.ArgumentNotNull(type, nameof(type));
-            type = GetValidType(type);
-            var graphType = new GraphType(this, _attributeAccessor, type, isRequired, isEnumerable, otherTypes);
-            foreach (var otherType in otherTypes)
-            {
-                GetGraphType(otherType, null, null, Type.EmptyTypes);
-            }
-            return graphType;
-        }
-
-        public IGraphTypeProvider AddGraphType(string name, IGraphType graphType)
-        {
-            Guard.ArgumentNotNullOrWhiteSpace(name, nameof(name));
-            Guard.ArgumentNotNull(graphType, nameof(graphType));
-            _graphTypes.TryAdd(name, graphType);
-            return this;
-        }
-
+        #region Public methods
+        /// <summary>
+        /// Tries to get the created <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> based on specified GraphQL type name.
+        /// </summary>
+        /// <param name="name">The GraphQL type name.</param>
+        /// <param name="graphType">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
+        /// <returns>
+        /// A <see cref="T:System.Boolean" /> value indicating whether to successfully get the areadly created <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
+        /// </returns>
         public bool TryGetGraphType(string name, out IGraphType graphType)
         {
             Guard.ArgumentNotNullOrWhiteSpace(name, nameof(name));
             return _graphTypes.TryGetValue(name, out graphType);
+        }
+
+        /// <summary>
+        /// Create a new <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> or get an existing <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> based on the given CLR type.
+        /// </summary>
+        /// <param name="type">The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> specific CLR type.</param>
+        /// <param name="isRequired">Indicate whether to create a required based <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
+        /// <param name="isEnumerable">Indicate whether to create an array based <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.</param>
+        /// <param name="otherTypes">The other CLR types for union GraphQL type.</param>
+        /// <returns>
+        /// The <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" /> to be created to provided.
+        /// </returns>
+        public IGraphType GetGraphType(Type type, bool? isRequired, bool? isEnumerable, params Type[] otherTypes)
+        {
+            Guard.ArgumentNotNull(type, nameof(type));
+            type = GetValidType(type);
+            EnsureValidUnionTypes(otherTypes);
+            var isEnumerableType = type.IsEnumerable(out var elementType);
+            if (isEnumerableType && isEnumerable == false)
+            {
+                throw new GraphException($"Cannot create non-enumerable GraphType based on the type '{type}'");
+            }
+            var clrType = isEnumerableType ? elementType : type;
+            var enumerable = isEnumerable ?? isEnumerableType;
+            var isEnum = clrType.IsEnum;
+            var name = GraphValueResolver.GetGraphTypeName(clrType, otherTypes);
+            var requiredFlag = isRequired == true ? "!" : "";
+            var valueResolver = GraphValueResolver.GetResolver(clrType, _serviceProvider);
+            name = enumerable
+                ? $"[{name}]{requiredFlag}"
+                : $"{name}{requiredFlag}";
+
+            if (_graphTypes.TryGetValue(name, out var value))
+            {
+                return value;
+            }
+            var graphType = new GraphType(valueResolver, type, otherTypes, name, isRequired == true, enumerable, isEnum);
+            _graphTypes[name] = graphType;
+            if (!GraphValueResolver.IsScalar(type))
+            {
+                foreach (var (fieldName, property) in GetProperties(type, otherTypes))
+                {
+                    var memberAttribute = _attributeAccessor.GetAttribute<GraphMemberAttribute>(property, false);
+                    var resolver = GetPropertyResolver(type, property, memberAttribute);
+                    var propertyGraphType = GetPropertyGraphType(type, property, memberAttribute);
+                    var field = new GraphField(fieldName, propertyGraphType, property.DeclaringType, resolver);
+                    foreach (var argument in GetPropertyArguments(property))
+                    {
+                        field.AddArgument(argument);
+                    }
+                    graphType.AddField(property.DeclaringType, field);
+                }
+            }
+
+            var knownTypeAttribute = _attributeAccessor.GetAttribute<KnownTypesAttribute>(type,false);
+            if (knownTypeAttribute != null)
+            {
+                Array.ForEach(knownTypeAttribute.Types, it => GetGraphType(it, false, false));
+            }
+            return graphType;
+        }
+        #endregion
+
+        #region Private methods
+        private IGraphType GetPropertyGraphType(Type type, PropertyInfo property, GraphMemberAttribute memberAttribute)
+        {
+            var isPropertyEnumerable = property.PropertyType.IsEnumerable(out var propertyType);
+            propertyType = propertyType ?? property.PropertyType;
+            var isPropertyRequired = memberAttribute?.IsRequired == true;
+
+            var unionTypeAttribute = _attributeAccessor.GetAttribute<UnionTypeAttribute>(property, false);
+            var propertyGraphType = unionTypeAttribute == null
+                ? GetGraphType(propertyType, isPropertyRequired, isPropertyEnumerable)
+                : GetGraphType(unionTypeAttribute.Type, isPropertyRequired, isPropertyEnumerable, unionTypeAttribute.OtherTypes);
+            if (unionTypeAttribute != null)
+            {
+                Array.ForEach(unionTypeAttribute.Types, it => GetGraphType(it, false, false));
+            }
+            return propertyGraphType;
+        }
+
+        private IGraphResolver GetPropertyResolver(Type type, PropertyInfo property, GraphMemberAttribute memberAttribute)
+        {
+            if (!string.IsNullOrEmpty(memberAttribute?.Resolver))
+            {
+                var resolverMethod = type.GetMethod(memberAttribute.Resolver);
+                if (null == resolverMethod)
+                {
+                    throw new GraphException($"The specified custom resolver method '{memberAttribute.Resolver}' is not defined in the type '{type}'");
+                }
+                return new MethodResolver(resolverMethod);
+            }
+            return new PropertyResolver(property);
+        }
+
+        private IEnumerable<NamedGraphType> GetPropertyArguments(PropertyInfo property)
+        {
+            var argumentAttributes = _attributeAccessor.GetAttributes<ArgumentAttribute>(property, false);
+            foreach (var attribute in argumentAttributes)
+            {
+                if (string.IsNullOrWhiteSpace(attribute.Name))
+                {
+                    throw new GraphException("Does not specifiy the Name property of the ArgumentAttribute annotated with property member.");
+                }
+
+                if (attribute.Type == null)
+                {
+                    throw new GraphException("Does not specifiy the Type property of the ArgumentAttribute annotated with property member.");
+                }
+
+                var isEnumerableArgument = attribute.Type.IsEnumerable(out var argumentType);
+                argumentType = argumentType ?? attribute.Type;
+                var argumentGraphType = GetGraphType(argumentType, attribute.IsRequired, attribute.GetIsEnumerable() ?? isEnumerableArgument);
+                yield return new NamedGraphType(attribute.Name, argumentGraphType);
+            }
+        }
+
+        private static void EnsureValidUnionTypes(Type[] otherTypes)
+        {
+            foreach (var otherType in otherTypes)
+            {
+                if (otherType.IsEnumerable(out _))
+                {
+                    throw new ArgumentException($"Union GraphType cannnot be created based on enumerable type 'otherType'", nameof(otherTypes));
+                }
+            }
+        }
+
+        private List<(string MemberName, PropertyInfo Property)> GetProperties(Type type, Type[] otherTypes)
+        {
+            var list = new List<(string MemberName, PropertyInfo Property)>();
+            void Collect(Type t)
+            {
+                foreach (var property in t.GetProperties())
+                {
+                    var memberAttribute = _attributeAccessor.GetAttribute<GraphMemberAttribute>(property, false);
+                    var name = memberAttribute?.Name ?? property.Name;
+                    if (memberAttribute?.Ignored == true)
+                    {
+                        continue;
+                    }
+                    list.Add((memberAttribute?.Name ?? property.Name, property));
+                }
+            }
+            Collect(type);
+            Array.ForEach(otherTypes, it => Collect(it));
+            return list;
         }
 
         private static Type GetValidType(Type type)
@@ -77,5 +217,6 @@ namespace Dora.GraphQL.GraphTypes
 
             return type;
         }
+        #endregion
     }
 }

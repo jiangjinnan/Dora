@@ -7,7 +7,7 @@ namespace Dora.GraphQL.GraphTypes
 {
     internal static class  Extensions
     {
-        public static bool IsEnumerableType(this Type type, out Type elementType)
+        public static bool IsEnumerable(this Type type, out Type elementType)
         {
             elementType = null;
             if (type == typeof(string))

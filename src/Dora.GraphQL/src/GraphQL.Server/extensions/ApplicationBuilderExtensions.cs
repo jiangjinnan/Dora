@@ -13,11 +13,7 @@ namespace Microsoft.AspNetCore.Builder
     {
         public static IApplicationBuilder UseGraphQLServer(this IApplicationBuilder app)
         {
-            Guard.ArgumentNotNull(app, nameof(app));
-            var namingConvention = app.ApplicationServices.GetRequiredService<IOptions<GraphServerOptions>>().Value.FieldNamingConvention;
-            GraphValueResolver.JsonSerializer = namingConvention == FieldNamingConvention.PascalCase
-                ? new JsonSerializer()
-                : new JsonSerializer { ContractResolver = new CamelCasePropertyNamesContractResolver() };
+            Guard.ArgumentNotNull(app, nameof(app));           
             return app.UseMiddleware<GraphQLServerMiddleware>();
         }
     }

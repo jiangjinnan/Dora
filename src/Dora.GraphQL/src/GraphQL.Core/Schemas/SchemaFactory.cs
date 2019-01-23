@@ -21,15 +21,27 @@ namespace Dora.GraphQL.Schemas
 
         public IGraphSchema Create(Assembly assembly)
         {
-            var methods = GetGraphServiceTypes(assembly)
-                .SelectMany(it => GetGraphOperationMethods(it))
+            var knownTypeAttributes = new List<KnownTypesAttribute>();
+            var serviceTypes = GetGraphServiceTypes(assembly);
+            knownTypeAttributes.AddRange(serviceTypes.SelectMany(it => _attributeAccessor.GetAttributes<KnownTypesAttribute>(it, false)));
+
+            var methods = serviceTypes.SelectMany(it => GetGraphOperationMethods(it)).ToArray();
+            knownTypeAttributes.AddRange(methods.SelectMany(it => _attributeAccessor.GetAttributes<KnownTypesAttribute>(it.Key, false)));
+
+            var knownTypes = knownTypeAttributes.SelectMany(it => it.Types);
+            foreach (var knowType in knownTypes)
+            {
+                _graphTypeProvider.GetGraphType(knowType, false, false);
+            }
+
+            var methodGroups = methods
                 .GroupBy(it => it.Value, it => it.Key)
                 .ToDictionary(it => it.Key, it => it);
+            
 
             IGraphType CreateGraphType(OperationType operationType, IEnumerable<MethodInfo> methodInfos)
-            {
-               
-                var graphType = GraphType.CreateGraphType(operationType);
+            {               
+                var graphType = new GraphType(operationType);
                 if (methodInfos == null)
                 {
                     return graphType;
@@ -57,9 +69,9 @@ namespace Dora.GraphQL.Schemas
                 }
                 return graphType;
             }
-            var query = CreateGraphType(OperationType.Query, methods.TryGetValue(OperationType.Query, out var queryMethods) ? queryMethods : null);
-            var mutation = CreateGraphType(OperationType.Mutation, methods.TryGetValue(OperationType.Mutation, out var mutationMethods) ? mutationMethods : null);
-            var subscription = CreateGraphType(OperationType.Subscription, methods.TryGetValue(OperationType.Subscription, out var subscirptionMethods) ? subscirptionMethods : null);
+            var query = CreateGraphType(OperationType.Query, methodGroups.TryGetValue(OperationType.Query, out var queryMethods) ? queryMethods : null);
+            var mutation = CreateGraphType(OperationType.Mutation, methodGroups.TryGetValue(OperationType.Mutation, out var mutationMethods) ? mutationMethods : null);
+            var subscription = CreateGraphType(OperationType.Subscription, methodGroups.TryGetValue(OperationType.Subscription, out var subscirptionMethods) ? subscirptionMethods : null);
             var schema = new GraphSchema(query, mutation, subscription);
             foreach (var field in schema.Fields.Values)
             {

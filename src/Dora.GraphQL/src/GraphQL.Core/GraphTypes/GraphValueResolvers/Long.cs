@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public static partial class GraphValueResolver
+    internal static partial class GraphValueResolver
     {
         public static Func<object, object> Long = ResolveLong;
         private static object ResolveLong(object rawValue)

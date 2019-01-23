@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public static partial class GraphValueResolver
+    internal static partial class GraphValueResolver
     {
         public static Func<object, object> Boolean = ResolveBoolean;
         private static object ResolveBoolean(object rawValue)

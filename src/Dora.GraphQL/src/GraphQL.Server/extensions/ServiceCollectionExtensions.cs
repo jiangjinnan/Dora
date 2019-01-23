@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddGraphQLServer(this IServiceCollection services, Action<GraphServerOptions> configure = null)
+        public static IServiceCollection AddGraphQLServer(this IServiceCollection services, Action<GraphServerBuilder> configure = null)
         {
             services.AddHttpContextAccessor();
             services.TryAddSingleton<ISchemaFactory, SchemaFactory>();
@@ -25,10 +25,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IGraphExecutor, DefaultGraphExecutor>();
             services.TryAddSingleton<IQueryResultTypeGenerator, QueryResultTypeGenerator>();
             services.TryAddSingleton<IGraphSchemaFormatter, GraphSchemaFormatter>();
+            services.TryAddSingleton<IJsonSerializerProvider, JsonSerializerProvider>();
 
             if (configure != null)
             {
-                services.Configure<GraphServerOptions>(configure);
+                var builder = new GraphServerBuilder(services);
+                configure(builder);
             }
 
             Mapper.Initialize(cfg => cfg.CreateMissingTypeMaps = true);

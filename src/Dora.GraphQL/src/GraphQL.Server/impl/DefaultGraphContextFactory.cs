@@ -22,7 +22,7 @@ namespace Dora.GraphQL.Server
         private readonly IGraphTypeProvider _graphTypeProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISelectionSetProvider _selectionSetProvider;
-        private readonly GraphServerOptions _options;
+        private readonly GraphOptions _options;
         private readonly FieldNameNormalizer _nameNormalizer;
 
         public DefaultGraphContextFactory(
@@ -31,7 +31,7 @@ namespace Dora.GraphQL.Server
            IGraphTypeProvider graphTypeProvider,
            IHttpContextAccessor httpContextAccessor,
            ISelectionSetProvider selectionSetProvider,
-           IOptions<GraphServerOptions> optionsAccessor)
+           IOptions<GraphOptions> optionsAccessor)
         {
             _documentBuilder = documentBuilder ?? throw new ArgumentNullException(nameof(documentBuilder));
             _schemaProvider = schemaProvider ?? throw new ArgumentNullException(nameof(schemaProvider));

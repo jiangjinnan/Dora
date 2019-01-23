@@ -20,7 +20,8 @@ namespace Dora.GraphQL.Server
         private readonly RequestDelegate _next;
         private readonly IGraphContextFactory _graphContextFactory;
         private readonly IGraphExecutor _executor;
-        private readonly GraphServerOptions  _options;
+        private readonly GraphOptions   _graphOptions;
+        private readonly GraphServerOptions  _serverOptions;
         private readonly IGraphSchemaFormatter _schemaFormatter;
         private readonly IGraphSchemaProvider  _schemaProvider;
 
@@ -30,25 +31,27 @@ namespace Dora.GraphQL.Server
             IGraphExecutor executor,
             IGraphSchemaFormatter schemaFormatter,
             IGraphSchemaProvider schemaProvider,
-            IOptions<GraphServerOptions> optionsAccessor)
+            IOptions<GraphOptions> graphOptionsAccessor,
+            IOptions<GraphServerOptions> serverOptionsAccessor)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _graphContextFactory = graphContextFactory ?? throw new ArgumentNullException(nameof(graphContextFactory));
             _executor = executor ?? throw new ArgumentNullException(nameof(executor));
             _schemaFormatter = schemaFormatter ?? throw new ArgumentNullException(nameof(schemaFormatter));
             _schemaProvider = schemaProvider ?? throw new ArgumentNullException(nameof(schemaProvider));
-            _options = (optionsAccessor ?? throw new ArgumentNullException(nameof(optionsAccessor))).Value;
+            _graphOptions = (graphOptionsAccessor ?? throw new ArgumentNullException(nameof(graphOptionsAccessor))).Value;
+            _serverOptions = (serverOptionsAccessor ?? throw new ArgumentNullException(nameof(serverOptionsAccessor))).Value;
         }
 
         public async Task InvokeAsync(HttpContext httpContext, IHostingEnvironment hostingEnvironment)
         {
-            if (!httpContext.Request.Path.StartsWithSegments(_options.PathBase))
+            if (!httpContext.Request.Path.StartsWithSegments(_serverOptions.PathBase))
             {
                 await _next(httpContext);
                 return;
             }
 
-            if (httpContext.Request.Path.StartsWithSegments(_options.PathBase.Add("/schema")))
+            if (httpContext.Request.Path.StartsWithSegments(_serverOptions.PathBase.Add("/schema")) && httpContext.Request.Method == "GET")
             {
                 var format = httpContext.Request.Query.ContainsKey("inline")
                     ? GraphSchemaFormat.Inline
@@ -69,12 +72,18 @@ namespace Dora.GraphQL.Server
                 return;
             }
 
+            if (httpContext.Request.Method != "POST")
+            {
+                await _next(httpContext);
+                return;
+            }
+
             var payload = Deserialize<RequestPayload>(httpContext.Request.Body);
             var context = await _graphContextFactory.CreateAsync(payload);
             var result = await _executor.ExecuteAsync(context);
             httpContext.Response.ContentType = "application/json";
 
-            if (_options.FieldNamingConvention == FieldNamingConvention.PascalCase)
+            if (_graphOptions.FieldNamingConvention == FieldNamingConvention.PascalCase)
             {
                 await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result.Data, new StringEnumConverter()));
             }

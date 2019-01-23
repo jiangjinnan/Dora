@@ -1,4 +1,5 @@
 ﻿using Dora.GraphQL;
+using Dora.GraphQL.GraphTypes;
 using Dora.GraphQL.Options;
 using Dora.GraphQL.Schemas;
 using Lib;
@@ -30,7 +31,7 @@ namespace Demo1
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddGraphQLServer(options=>options.FieldNamingConvention = FieldNamingConvention.CamelCase)
+                .AddGraphQLServer(builder=>builder.UseCamelCase())
                 .AddMvc();
         }
 
@@ -43,6 +44,7 @@ namespace Demo1
         }
     }
 
+    [KnownTypes(typeof(Address1), typeof(Address2))]
     public class DemoGraphService : GraphServiceBase
     {
         public static Foobarbaz Instance = Foobarbaz.Create(5);

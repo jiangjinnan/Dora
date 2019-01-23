@@ -1,17 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 
 namespace Dora.GraphQL.GraphTypes
 {
-    public static partial class GraphValueResolver
+    internal static partial class GraphValueResolver
     {
-        public static JsonSerializer JsonSerializer { get; internal set; } = new JsonSerializer();      
-
-        public static Func<object, object> Complex(Type type)
+        public static Func<object, object> Complex(Type type, IServiceProvider serviceProvider)
         {
-            if (type.IsEnumerableType(out _))
+            if (type.IsEnumerable(out _))
             {
                 throw new GraphException($"GraphValueResolver cannot be created based on an enumerable type '{type}'");
             }
@@ -19,10 +18,10 @@ namespace Dora.GraphQL.GraphTypes
             var name = type.IsGenericType
                 ? $"{type.Name.Substring(0, type.Name.IndexOf('`'))}Of{string.Join("", type.GetGenericArguments().Select(it => it.Name))}"
                 : type.Name;
-            return rawValue => ResolveComplex(type,rawValue, name);
+            return rawValue => ResolveComplex(type,rawValue, name, serviceProvider?.GetRequiredService<IJsonSerializerProvider>().JsonSerializer);
         }
 
-        private static object ResolveComplex(Type type, object rawValue, string name)
+        private static object ResolveComplex(Type type, object rawValue, string name, JsonSerializer serializer)
         {
             if (type.IsEnum)
             {
@@ -36,7 +35,7 @@ namespace Dora.GraphQL.GraphTypes
             var jToken = rawValue as JToken;
             if (null != jToken)
             {
-                return jToken.ToObject(type, JsonSerializer);
+                return jToken.ToObject(type, serializer);
             }
             throw new GraphException($"Cannot resolve '{rawValue}' as a/an {name} value.");
         }
