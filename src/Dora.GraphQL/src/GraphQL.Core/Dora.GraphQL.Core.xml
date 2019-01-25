@@ -158,12 +158,11 @@
             Represents a normalizer used to normailize field name.
             </summary>
         </member>
-        <member name="M:Dora.GraphQL.FieldNameConverter.Normalize(System.String,Dora.GraphQL.NormalizationDirection)">
+        <member name="M:Dora.GraphQL.FieldNameConverter.Normalize(System.String)">
             <summary>
             Normalzes the specified original field name.
             </summary>
-            <param name="originalFieldName">Name of the original field.</param>
-            <param name="direction">The direction.</param>
+            <param name="fieldName">Name of the original field.</param>
             <returns>The normalized field name.</returns>
         </member>
         <member name="F:Dora.GraphQL.FieldNameConverter.Default">
@@ -233,21 +232,6 @@
             <param name="parameter">The parameter.</param>
             <param name="attributeType">Type of the attribute.</param>
             <returns>The attributes.</returns>
-        </member>
-        <member name="T:Dora.GraphQL.NormalizationDirection">
-            <summary>
-            Represents field name normalization direction.
-            </summary>
-        </member>
-        <member name="F:Dora.GraphQL.NormalizationDirection.Incoming">
-            <summary>
-            The incoming
-            </summary>
-        </member>
-        <member name="F:Dora.GraphQL.NormalizationDirection.Outgoing">
-            <summary>
-            The outgoing
-            </summary>
         </member>
         <member name="T:Dora.GraphQL.OperationType">
             <summary>
@@ -941,12 +925,13 @@
             The default implementation class of <see cref="T:Dora.GraphQL.GraphTypes.IGraphTypeProvider"/>.
             </summary>
         </member>
-        <member name="M:Dora.GraphQL.GraphTypes.GraphTypeProvider.#ctor(System.IServiceProvider,Dora.GraphQL.IAttributeAccessor)">
+        <member name="M:Dora.GraphQL.GraphTypes.GraphTypeProvider.#ctor(System.IServiceProvider,Dora.GraphQL.IAttributeAccessor,Microsoft.Extensions.Options.IOptions{Dora.GraphQL.GraphOptions})">
             <summary>
-            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.GraphTypeProvider"/> class.
+            Initializes a new instance of the <see cref="T:Dora.GraphQL.GraphTypes.GraphTypeProvider" /> class.
             </summary>
             <param name="serviceProvider">The service provider.</param>
             <param name="attributeAccessor">The attribute accessor.</param>
+            <param name="optionsAccessor">The options accessor.</param>
         </member>
         <member name="M:Dora.GraphQL.GraphTypes.GraphTypeProvider.TryGetGraphType(System.String,Dora.GraphQL.GraphTypes.IGraphType@)">
             <summary>
@@ -1450,7 +1435,7 @@
             The mutation specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
             </value>
         </member>
-        <member name="P:Dora.GraphQL.Schemas.GraphSchema.Subsription">
+        <member name="P:Dora.GraphQL.Schemas.GraphSchema.Subscription">
             <summary>
             Gets the subsription specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
             </summary>
@@ -1558,7 +1543,7 @@
             The mutation specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
             </value>
         </member>
-        <member name="P:Dora.GraphQL.Schemas.IGraphSchema.Subsription">
+        <member name="P:Dora.GraphQL.Schemas.IGraphSchema.Subscription">
             <summary>
             Gets the subsription specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType"/>.
             </summary>

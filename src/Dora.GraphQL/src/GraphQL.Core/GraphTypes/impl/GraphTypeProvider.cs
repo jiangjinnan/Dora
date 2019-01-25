@@ -1,5 +1,6 @@
 ﻿using Dora.GraphQL.Resolvers;
 using Dora.GraphQL.Schemas;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -16,22 +17,25 @@ namespace Dora.GraphQL.GraphTypes
         private readonly IServiceProvider _serviceProvider;
         private readonly IAttributeAccessor _attributeAccessor;
         private Dictionary<string, IGraphType> _graphTypes;
+        private readonly FieldNameConverter _fieldNameConverter;
         #endregion
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="GraphTypeProvider"/> class.
+        /// Initializes a new instance of the <see cref="GraphTypeProvider" /> class.
         /// </summary>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="attributeAccessor">The attribute accessor.</param>
-        public GraphTypeProvider(IServiceProvider serviceProvider, IAttributeAccessor attributeAccessor)
+        /// <param name="optionsAccessor">The options accessor.</param>
+        public GraphTypeProvider(IServiceProvider serviceProvider, IAttributeAccessor attributeAccessor, IOptions<GraphOptions> optionsAccessor)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _attributeAccessor = attributeAccessor ?? throw new ArgumentNullException(nameof(attributeAccessor));
             _graphTypes = new Dictionary<string, IGraphType>();
+            _fieldNameConverter = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value.FieldNameConverter;
             foreach (var scalarType in GraphValueResolver.ScalarTypes)
             {
-                GetGraphType(scalarType, false, false);
+                GetGraphType(scalarType, null, false);
             }
         }
         #endregion
@@ -66,6 +70,19 @@ namespace Dora.GraphQL.GraphTypes
             Guard.ArgumentNotNull(type, nameof(type));
             type = GetValidType(type);
             EnsureValidUnionTypes(otherTypes);
+
+            if (GraphValueResolver.IsRequired(type) == true && isRequired == false)
+            {
+                throw new GraphException($"Cannot create optional GraphType based on the type '{type}'");
+            }
+
+            if (GraphValueResolver.IsRequired(type) == false && isRequired == true)
+            {
+                throw new GraphException($"Cannot create required GraphType based on the type '{type}'");
+            }
+
+            var required = isRequired ?? GraphValueResolver.IsRequired(type) ?? false;
+
             var isEnumerableType = type.IsEnumerable(out var elementType);
             if (isEnumerableType && isEnumerable == false)
             {
@@ -75,11 +92,11 @@ namespace Dora.GraphQL.GraphTypes
             var enumerable = isEnumerable ?? isEnumerableType;
             var isEnum = clrType.IsEnum;
             var name = GraphValueResolver.GetGraphTypeName(clrType, otherTypes);
-            var requiredFlag = isRequired == true ? "!" : "";
+            var requiredFlag = required == true ? "!" : "";
             var valueResolver = GraphValueResolver.GetResolver(clrType, _serviceProvider);
             name = enumerable
-                ? $"[{name}]{requiredFlag}"
-                : $"{name}{requiredFlag}";
+                ? $"[{name.TrimEnd('!')}]{requiredFlag}"
+                : $"{name.TrimEnd('!')}{requiredFlag}";
 
             if (_graphTypes.TryGetValue(name, out var value))
             {
@@ -94,7 +111,8 @@ namespace Dora.GraphQL.GraphTypes
                     var memberAttribute = _attributeAccessor.GetAttribute<GraphFieldAttribute>(property, false);
                     var resolver = GetPropertyResolver(type, property, memberAttribute);
                     var propertyGraphType = GetPropertyGraphType(type, property, memberAttribute);
-                    var field = new GraphField(fieldName, propertyGraphType, property.DeclaringType, resolver);
+                    var normalizedFieldName = _fieldNameConverter.Normalize(fieldName);
+                    var field = new GraphField(normalizedFieldName, propertyGraphType, property.DeclaringType, resolver);
                     foreach (var argument in GetPropertyArguments(property))
                     {
                         field.AddArgument(argument);
@@ -117,7 +135,7 @@ namespace Dora.GraphQL.GraphTypes
         {
             var isPropertyEnumerable = property.PropertyType.IsEnumerable(out var propertyType);
             propertyType = propertyType ?? property.PropertyType;
-            var isPropertyRequired = memberAttribute?.IsRequired == true;
+            var isPropertyRequired = memberAttribute?.IsRequired;
 
             var unionTypeAttribute = _attributeAccessor.GetAttribute<UnionTypeAttribute>(property, false);
             var propertyGraphType = unionTypeAttribute == null

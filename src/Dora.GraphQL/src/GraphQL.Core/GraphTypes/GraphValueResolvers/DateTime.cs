@@ -8,6 +8,11 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> DateTime = ResolveDateTime;
         private static object ResolveDateTime(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
+
             if (rawValue is DateTime)
             {
                 return rawValue;

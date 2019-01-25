@@ -29,6 +29,6 @@ namespace Dora.GraphQL.Schemas
         /// <value>
         /// The subsription specific <see cref="IGraphType"/>.
         /// </value>
-        IGraphType Subsription { get; }
+        IGraphType Subscription { get; }
     }
 }

@@ -8,6 +8,11 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> Decimal = ResolveDecimal;
         private static object ResolveDecimal(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
+
             if (rawValue is decimal)
             {
                 return rawValue;

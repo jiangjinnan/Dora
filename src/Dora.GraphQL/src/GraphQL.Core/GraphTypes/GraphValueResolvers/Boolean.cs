@@ -9,6 +9,10 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> Boolean = ResolveBoolean;
         private static object ResolveBoolean(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
             if (rawValue is bool)
             {
                 return rawValue;

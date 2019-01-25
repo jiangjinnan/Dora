@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\opensources\graphql-dotnet-2.4.0\src\GraphQL\GraphQL.csproj" />
     <ProjectReference Include="..\..\src\GraphQL.Core\GraphQL.Core.csproj" />
   </ItemGroup>
 

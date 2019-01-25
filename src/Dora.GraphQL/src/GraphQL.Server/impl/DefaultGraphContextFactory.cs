@@ -46,7 +46,7 @@ namespace Dora.GraphQL.Server
         {
             var document = _documentBuilder.Build(payload.Query);
             var operation = document.Operations.Single();
-            var operationName = _fieldNameConverter.Normalize(operation.Name, NormalizationDirection.Incoming);
+            var operationName = operation.Name;
             var operationType = (OperationType)(int)operation.OperationType;
             IGraphType graphType;
             var graphSchema = _schemaProvider.Schema;
@@ -64,7 +64,7 @@ namespace Dora.GraphQL.Server
                     }
                 default:
                     {
-                        graphType = graphSchema.Subsription;
+                        graphType = graphSchema.Subscription;
                         break;
                     }
             }

@@ -30,6 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IJsonSerializerProvider, JsonSerializerProvider>();
             services.TryAddSingleton<IGraphServiceDiscoverer, GraphServiceDiscoverer>();
             services.TryAddSingleton<IArgumentBinderProvider, ArgumentBinderProvider>();
+            services.TryAddSingleton<IGraphSchemaConverter, GraphSchemaConverter>();
 
             services.AddSingleton<IArgumentBinder, GraphArgumentBinder>();
             services.AddSingleton<IArgumentBinder, HttpContextBinder>();

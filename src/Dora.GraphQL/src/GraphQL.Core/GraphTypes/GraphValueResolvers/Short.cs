@@ -8,6 +8,11 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> Short = ResolveShort;
         private static object ResolveShort(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
+
             if (rawValue is short)
             {
                 return rawValue;

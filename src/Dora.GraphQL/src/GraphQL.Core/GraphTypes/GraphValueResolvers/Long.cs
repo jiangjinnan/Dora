@@ -8,6 +8,10 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> Long = ResolveLong;
         private static object ResolveLong(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
             if (rawValue is long)
             {
                 return rawValue;

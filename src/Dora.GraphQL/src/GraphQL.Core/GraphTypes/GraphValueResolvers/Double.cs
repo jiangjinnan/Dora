@@ -8,6 +8,11 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> Double = ResolveDouble;
         private static object ResolveDouble(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
+
             if (rawValue is double)
             {
                 return rawValue;

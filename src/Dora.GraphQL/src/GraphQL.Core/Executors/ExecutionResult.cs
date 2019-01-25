@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace Dora.GraphQL.Executors
 {
@@ -13,6 +14,7 @@ namespace Dora.GraphQL.Executors
         /// <value>
         /// The payload.
         /// </value>
+        [JsonProperty(PropertyName = "data")]
         public object Data { get; set; }
 
         /// <summary>

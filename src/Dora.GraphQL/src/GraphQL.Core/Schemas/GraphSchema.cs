@@ -32,7 +32,7 @@ namespace Dora.GraphQL.Schemas
         /// <value>
         /// The subsription specific <see cref="T:Dora.GraphQL.GraphTypes.IGraphType" />.
         /// </value>
-        public IGraphType Subsription { get; }
+        public IGraphType Subscription { get; }
 
         /// <summary>
         /// Gets the CLR type.
@@ -115,7 +115,7 @@ namespace Dora.GraphQL.Schemas
         {
             Query = query ?? throw new ArgumentNullException(nameof(query));
             Mutation = mutation ?? throw new ArgumentNullException(nameof(mutation));
-            Subsription = subsription ?? throw new ArgumentNullException(nameof(subsription));
+            Subscription = subsription ?? throw new ArgumentNullException(nameof(subsription));
             Fields = new Dictionary<NamedType, GraphField>();
 
             var @void = typeof(void);

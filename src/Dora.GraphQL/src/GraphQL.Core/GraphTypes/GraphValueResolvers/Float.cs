@@ -8,6 +8,11 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> Float = ResolveFloat;
         private static object ResolveFloat(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
+
             if (rawValue is float)
             {
                 return rawValue;

@@ -39,7 +39,7 @@ namespace Dora.GraphQL
             this IFieldSelection selection, 
             GraphField graphField, 
             IQueryResultTypeGenerator typeGenerator, 
-            bool generateQueryResultType,
+            ref bool generateQueryResultType,
             out bool isSubQueryTree)
         {
             Guard.ArgumentNotNull(selection, nameof(selection));
@@ -67,7 +67,7 @@ namespace Dora.GraphQL
                 {
                     throw new GraphException($"Field '{subSelection.Name}' is not defined in the GraphType '{graphField.GraphType.Name}'");
                 }
-                if (!SetIncludeAllFieldsFlags(subSelection, subFields[0], typeGenerator, generateQueryResultType, out var isSubtree))
+                if (!SetIncludeAllFieldsFlags(subSelection, subFields[0], typeGenerator, ref generateQueryResultType, out var isSubtree))
                 {
                     flags = false;
                     if (!isSubtree)
@@ -92,14 +92,27 @@ namespace Dora.GraphQL
                         throw new GraphException($"Field '{fieldSelection.Name}' is not defined in the GraphType '{fragement.GraphType.Name}'");
                     }
 
-                    if (!SetIncludeAllFieldsFlags(fieldSelection, fields[0], typeGenerator, generateQueryResultType, out var isSubtree))
+                    if (!SetIncludeAllFieldsFlags(fieldSelection, fields[0], typeGenerator, ref generateQueryResultType, out var isSubtree))
                     {
                         flags = false;
                         if (!isSubtree)
                         {
-                            isSubtree = false;
+                            isSubQueryTree = false;
                         }
                     }
+                }
+            }
+
+            if (isSubQueryTree == false)
+            {
+                selection.Properties[GraphDefaults.PropertyNames.IsSubQueryTree] = false;
+            }
+            else
+            {
+                if (graphField.GraphType.Fields.Any() && generateQueryResultType)
+                {
+                    selection.Properties[GraphDefaults.PropertyNames.QueryResultType] = typeGenerator.Generate(selection, graphField);
+                    selection.Properties[GraphDefaults.PropertyNames.IsSubQueryTree] = false;
                 }
             }
 
@@ -109,29 +122,27 @@ namespace Dora.GraphQL
                 return false;
             }
 
-            if (isSubQueryTree == false)
-            {
-                selection.Properties[GraphDefaults.PropertyNames.IsSubQueryTree] = false;
-            }
-
-            if (selection.SelectionSet.OfType<IFieldSelection>().Count() == graphField.GraphType.Fields.Count)
+            if (IncludeAllMembers(selection, graphField))
             {
                 selection.Properties[GraphDefaults.PropertyNames.IncludeAllFields] = true;
-                if (graphField.GraphType.Fields.Any() && generateQueryResultType)
-                {
-                    selection.Properties[GraphDefaults.PropertyNames.QueryResultType] = typeGenerator.Generate(selection, graphField);
-                }
                 return true;
             }
 
             selection.Properties[GraphDefaults.PropertyNames.IncludeAllFields] = false;
-            selection.Properties[GraphDefaults.PropertyNames.IsSubQueryTree] = true;
-            if (graphField.GraphType.Fields.Any() && generateQueryResultType)
+            return false;
+        }
+
+        private static bool IncludeAllMembers(IFieldSelection fieldSelection, GraphField field)
+        {
+            var fieldNames = field.GraphType.Fields.Values.Select(it=>it.Name).Distinct().ToArray();
+            var selectedFieldNames = fieldSelection.SelectionSet.OfType<IFieldSelection>().Select(it => it.Name).Distinct().ToArray();
+            var invalidFieldNames = selectedFieldNames.Except(fieldNames);
+            if (invalidFieldNames.Any())
             {
-                selection.Properties[GraphDefaults.PropertyNames.QueryResultType] = typeGenerator.Generate(selection, graphField);
+                throw new GraphException($"Specified field(s) '{string.Join(", ", invalidFieldNames)}' is/are not defined in the GraphType '{field.GraphType.Name}'");
             }
 
-            return false;
+            return fieldNames.Length == selectedFieldNames.Length;
         }
     }
 }

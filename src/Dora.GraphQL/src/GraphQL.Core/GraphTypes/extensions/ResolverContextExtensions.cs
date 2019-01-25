@@ -85,7 +85,7 @@ namespace Dora.GraphQL
                         return (bool)GraphValueResolver.Boolean(value2.DefaultValue);
                     }
                 }
-                return (bool)GraphValueResolver.Boolean(argument.Name);
+                return (bool)GraphValueResolver.Boolean(argument.ValueToken);
             }
 
             var skipDirective = context.Selection.Directives.SingleOrDefault(it => it.Name == "skip");

@@ -8,6 +8,11 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> DateTimeOffset = ResolveDateTimeOffset;
         private static object ResolveDateTimeOffset(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
+
             if (rawValue is DateTimeOffset)
             {
                 return rawValue;

@@ -7,36 +7,32 @@ namespace Dora.GraphQL
     /// </summary>
     public class FieldNameConverter
     {
-        private Func<string, string> _fromSource;
-        private Func<string, string> _toDestination;
-        private FieldNameConverter(Func<string, string> fromSource, Func<string, string> toDestination)
+        private Func<string, string> _converter;
+        private FieldNameConverter(Func<string, string> converter)
         {
-            _fromSource = fromSource;
-            _toDestination = toDestination;
+            _converter = converter;
         }
 
         /// <summary>
         /// Normalzes the specified original field name.
         /// </summary>
-        /// <param name="originalFieldName">Name of the original field.</param>
-        /// <param name="direction">The direction.</param>
+        /// <param name="fieldName">Name of the original field.</param>
         /// <returns>The normalized field name.</returns>
-        public string Normalize(string originalFieldName, NormalizationDirection direction)
+        public string Normalize(string fieldName)
         {
-            return direction == NormalizationDirection.Incoming
-                ? _fromSource(originalFieldName)
-                : _toDestination(originalFieldName);
+            Guard.ArgumentNotNullOrWhiteSpace(fieldName, nameof(fieldName));
+            return _converter(fieldName);
         }
 
         /// <summary>
         /// The pascal case based <see cref="FieldNameConverter"/>.
         /// </summary>
-        public static FieldNameConverter Default = new FieldNameConverter(_ => _, _ => _);
+        public static FieldNameConverter Default = new FieldNameConverter(_ => _);
 
         /// <summary>
         /// The camel case based <see cref="FieldNameConverter"/>.
         /// </summary>
-        public static FieldNameConverter CamelCase = new FieldNameConverter(src => ToPascalCase(src), src => ToCamelCase(src));
+        public static FieldNameConverter CamelCase = new FieldNameConverter(src => ToCamelCase(src));
 
         private static string ToPascalCase(string value)
         {

@@ -129,7 +129,7 @@ namespace Dora.GraphQL.Schemas
             }
             foreach (var item in graphType.Fields)
             {
-                builder.AppendLine($"{new string(' ', 4)}{_fieldNameConverter.Normalize(item.Key.Name, NormalizationDirection.Outgoing)}: {item.Value.GraphType.Name}");
+                builder.AppendLine($"{new string(' ', 4)}{item.Key.Name}: {item.Value.GraphType.Name}");
             }
             builder.AppendLine("}");
             builder.AppendLine();
@@ -148,10 +148,10 @@ namespace Dora.GraphQL.Schemas
                 builder.AppendLine("Mutation");
                 WriteAsInline(builder, 1, graphSchema.Mutation);
             }
-            if (graphSchema.Subsription.Fields.Any())
+            if (graphSchema.Subscription.Fields.Any())
             {
                 builder.AppendLine("Subsription");
-                WriteAsInline(builder, 1, graphSchema.Subsription);
+                WriteAsInline(builder, 1, graphSchema.Subscription);
             }
 
             return builder.ToString();
@@ -170,7 +170,7 @@ namespace Dora.GraphQL.Schemas
             {
                 Indent(indentLevel);
                 var fieldName = isUnionType
-                    ? $"{field.ContainerType.Name}.{_fieldNameConverter.Normalize(field.Name, NormalizationDirection.Outgoing)}"
+                    ? $"{field.ContainerType.Name}.{field.Name}"
                     : field.Name;
 
                 builder.Append($"{fieldName}: {field.GraphType.Name}");

@@ -7,6 +7,11 @@ namespace Dora.GraphQL.GraphTypes
         public static Func<object, object> Guid = ResolveGuid;
         private static object ResolveGuid(object rawValue)
         {
+            if (rawValue == null)
+            {
+                return null;
+            }
+
             if (rawValue is Guid)
             {
                 return rawValue;

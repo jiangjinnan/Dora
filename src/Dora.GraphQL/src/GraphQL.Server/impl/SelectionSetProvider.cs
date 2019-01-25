@@ -102,8 +102,9 @@ namespace Dora.GraphQL.Server
             IGraphType graphType = _schema.Fields.Values.Single(it => it.Name == operation.OperationType.ToString()).GraphType;
             foreach (var fieldSelection in selections.OfType<IFieldSelection>())
             {
-                var field = graphType.Fields.Values.Single(it => it.Name == _fieldNameConverter.Normalize( operation.Name, NormalizationDirection.Incoming));
-                fieldSelection.SetIncludeAllFieldsFlags(field, _typeGenerator, true, out var isSubQueryTree);
+                var field = graphType.Fields.Values.Single(it => it.Name == operation.Name);
+                var generateQueryResultClass = true;
+                fieldSelection.SetIncludeAllFieldsFlags(field, _typeGenerator, ref generateQueryResultClass, out var isSubQueryTree);
             }
             return selections;
         }
@@ -127,7 +128,7 @@ namespace Dora.GraphQL.Server
                 {
                     continue;
                 }
-                var fieldSelection = new FieldSelection(_fieldNameConverter.Normalize(field.Name, NormalizationDirection.Incoming))
+                var fieldSelection = new FieldSelection(field.Name)
                 {
                     Alias = field.Alias
                 };

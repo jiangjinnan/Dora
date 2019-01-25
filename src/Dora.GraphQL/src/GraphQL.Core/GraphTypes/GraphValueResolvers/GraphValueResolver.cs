@@ -24,21 +24,45 @@ namespace Dora.GraphQL.GraphTypes
                 [typeof(TimeSpan)] = TimeSpan,
                 [typeof(Guid)] = Guid,
                 [typeof(string)] = String,
+
+                [typeof(bool?)] = Boolean,
+                [typeof(DateTime?)] = DateTime,
+                [typeof(DateTimeOffset?)] = DateTimeOffset,
+                [typeof(decimal?)] = Decimal,
+                [typeof(float?)] = Float,
+                [typeof(double?)] = Double,
+                [typeof(short?)] = Short,
+                [typeof(int?)] = Int,
+                [typeof(long?)] = Long,
+                [typeof(TimeSpan?)] = TimeSpan,
+                [typeof(Guid?)] = Guid,
             };
             _scalarTypeNames = new Dictionary<Type, string>
             {
-                [typeof(bool)] = "Boolean",
-                [typeof(DateTime)] = "DateTime",
-                [typeof(DateTimeOffset)] = "DateTimeOffset",
-                [typeof(decimal)] = "Decimal",
-                [typeof(float)] = "Float",
-                [typeof(double)] = "Double",
-                [typeof(short)] = "Short",
-                [typeof(int)] = "Int",
+                [typeof(bool)] = "Boolean!",
+                [typeof(DateTime)] = "DateTime!",
+                [typeof(DateTimeOffset)] = "DateTimeOffset!",
+                [typeof(decimal)] = "Decimal!",
+                [typeof(float)] = "Float!",
+                [typeof(double)] = "Double!",
+                [typeof(short)] = "Short!",
+                [typeof(int)] = "Int!",
                 [typeof(long)] = "Long",
-                [typeof(TimeSpan)] = "TimeSpan",
-                [typeof(Guid)] = "Guid",
+                [typeof(TimeSpan)] = "TimeSpan!",
+                [typeof(Guid)] = "Guid!",
                 [typeof(string)] = "String",
+
+                [typeof(bool?)] = "Boolean",
+                [typeof(DateTime?)] = "DateTime",
+                [typeof(DateTimeOffset?)] = "DateTimeOffset",
+                [typeof(decimal?)] = "Decimal",
+                [typeof(float?)] = "Float",
+                [typeof(double?)] = "Double",
+                [typeof(short?)] = "Short",
+                [typeof(int?)] = "Int",
+                [typeof(long?)] = "Long",
+                [typeof(TimeSpan?)] = "TimeSpan",
+                [typeof(Guid?)] = "Guid",
             };
             ScalarTypes = _scalarTypeNames.Keys.ToArray();
         }
@@ -51,7 +75,18 @@ namespace Dora.GraphQL.GraphTypes
                 ? value
                 : Complex(type, serviceProvider);
         }
-
+        public static bool? IsRequired(Type type)
+        {
+            if (type == typeof(string))
+            {
+                return null;
+            }
+            if (_scalarTypeNames.TryGetValue(type, out var name))
+            {
+                return name.EndsWith("!");
+            }
+            return null;
+        }
         public static bool IsScalar(Type type) => _scalarTypeNames.ContainsKey(type);
         public static string GetGraphTypeName(Type type, params Type[] otherTypes)
         {
