@@ -74,6 +74,18 @@ namespace Dora.GraphQL.Schemas
 
         private void CollectGraphTypes(HashSet<string> exists, List<IGraphType> graphTypes, IGraphType graphType)
         {
+            if (graphType.OtherTypes.Any())
+            {
+                graphTypes.Add(graphType);
+                exists.Add(graphType.Name);
+
+                CollectGraphTypes(exists, graphTypes, _graphTypeProvider.GetGraphType(graphType.Type, false, false));
+                foreach (var type in graphType.OtherTypes)
+                {
+                    CollectGraphTypes(exists, graphTypes, _graphTypeProvider.GetGraphType(type, false, false));
+                }
+            }
+
             if (!graphType.Fields.Any())
             {
                 return;
@@ -103,6 +115,7 @@ namespace Dora.GraphQL.Schemas
                     var typeName = GraphValueResolver.GetGraphTypeName(type);
                     builder.Append($"|{typeName}");
                 }
+                builder.AppendLine();
                 builder.AppendLine();
                 return;
             }
@@ -170,7 +183,7 @@ namespace Dora.GraphQL.Schemas
             {
                 Indent(indentLevel);
                 var fieldName = isUnionType
-                    ? $"{field.ContainerType.Name}.{field.Name}"
+                    ? $"[{field.ContainerType.Name}]{field.Name}"
                     : field.Name;
 
                 builder.Append($"{fieldName}: {field.GraphType.Name}");
@@ -183,11 +196,11 @@ namespace Dora.GraphQL.Schemas
                         index++;
                         if (index == field.Arguments.Count)
                         {
-                            builder.Append($"${argument.Name}:{argument.GraphType.Name})");
+                            builder.Append($"{argument.Name}:{argument.GraphType.Name})");
                         }
                         else
                         {
-                            builder.Append($"${argument.Name}:{argument.GraphType.Name}, ");
+                            builder.Append($"{argument.Name}:{argument.GraphType.Name}, ");
                         }
                     }
                 }

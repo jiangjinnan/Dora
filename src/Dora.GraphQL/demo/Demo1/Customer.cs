@@ -23,8 +23,8 @@ namespace Demo1
         [GraphField(Resolver = nameof(Resolve))]
         public string Email { get; set; }
 
-        //[UnionType(typeof(Address1), typeof(Address2))]
-        public IList<Address> Addresses { get; set; }
+        [UnionType(typeof(Address1), typeof(Address2))]
+        public IList<object> Addresses { get; set; }
         public ValueTask<object> Resolve(ResolverContext context)
         {
             var lowerCase = context.GetArgument<bool>("lowerCase");

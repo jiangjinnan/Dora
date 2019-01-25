@@ -7,6 +7,6 @@ namespace Dora.GraphQL.Server
 {
     public interface IGraphSchemaConverter
     {
-        GraphQLNetSchema Convert(IGraphSchema graphSchema);
+       ISchema Convert(IGraphSchema graphSchema);
     }
 }

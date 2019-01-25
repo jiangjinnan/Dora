@@ -44,6 +44,9 @@ namespace Dora.GraphQL
         {
             Guard.ArgumentNotNull(selection, nameof(selection));
             Guard.ArgumentNotNull(graphField, nameof(graphField));
+
+            EnsureSpecifyRequiredArguments(selection, graphField);
+
             isSubQueryTree = true;
 
             bool? flags = null;
@@ -116,20 +119,14 @@ namespace Dora.GraphQL
                 }
             }
 
-            if (flags == false)
+            if (!IncludeAllMembers(selection, graphField) || flags == false)
             {
                 selection.Properties[GraphDefaults.PropertyNames.IncludeAllFields] = false;
                 return false;
             }
 
-            if (IncludeAllMembers(selection, graphField))
-            {
-                selection.Properties[GraphDefaults.PropertyNames.IncludeAllFields] = true;
-                return true;
-            }
-
-            selection.Properties[GraphDefaults.PropertyNames.IncludeAllFields] = false;
-            return false;
+            selection.Properties[GraphDefaults.PropertyNames.IncludeAllFields] = true;
+            return true;
         }
 
         private static bool IncludeAllMembers(IFieldSelection fieldSelection, GraphField field)
@@ -141,8 +138,21 @@ namespace Dora.GraphQL
             {
                 throw new GraphException($"Specified field(s) '{string.Join(", ", invalidFieldNames)}' is/are not defined in the GraphType '{field.GraphType.Name}'");
             }
-
             return fieldNames.Length == selectedFieldNames.Length;
+        }
+
+        private static void EnsureSpecifyRequiredArguments(IFieldSelection fieldSelection, GraphField field)
+        {
+            var argumentNames = field.Arguments.Values
+                .Where(it => it.GraphType.IsRequired)
+                .Select(it => it.Name)
+                .Except(fieldSelection.Arguments.Keys)
+                .ToArray();
+
+            if (argumentNames.Any())
+            {
+                throw new GraphException($"The mandatory argument(s) '{string.Join(", ", argumentNames)}' is/are not provided.");
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ using GraphQL;
 using GraphQL.Types;
 using GraphQL.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using IGraphType = Dora.GraphQL.GraphTypes.IGraphType;
 using IGraphTypeOfGraphQLNet = GraphQL.Types.IGraphType;
@@ -15,16 +16,17 @@ namespace Dora.GraphQL.Server
     public class GraphSchemaConverter : IGraphSchemaConverter
     {
         private readonly IGraphTypeProvider _graphTypeProvider;
+
         public GraphSchemaConverter(IGraphTypeProvider graphTypeProvider)
         {
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
         }
-        public GraphQLNetSchema Convert(IGraphSchema graphSchema)
+        public ISchema Convert(IGraphSchema graphSchema)
         {
-            var schema = new GraphQLNetSchema();
+            var schema = new Schema();
             if (graphSchema.Query.Fields.Any())
             {
-                schema.Query = CreateSchema(OperationType.Query, graphSchema.Query);
+                schema.Query = CreateSchema(OperationType.Query, graphSchema.Query, schema);
             }
             if (graphSchema.Mutation.Fields.Any())
             {
@@ -32,20 +34,40 @@ namespace Dora.GraphQL.Server
             }
             if (graphSchema.Subscription.Fields.Any())
             {
-                schema.Subscription = CreateSchema(OperationType.Subscription, graphSchema.Subscription);
+                schema.Subscription = CreateSchema(OperationType.Subscription, graphSchema.Subscription, schema);
             }
 
             return schema;
         }
-        private IGraphTypeOfGraphQLNet Convert(IGraphType graphType, bool input)
+        private IGraphTypeOfGraphQLNet Convert(IGraphType graphType, bool input, ISchema root)
         {
             try
             {
+                //Union
+                if (graphType.OtherTypes.Any() && !input)
+                {
+                    var list = new List<IObjectGraphType>();
+                    var convertedGraphType = (IObjectGraphType)Convert(_graphTypeProvider.GetGraphType(graphType.Type, false, false), false, root);
+                    convertedGraphType.IsTypeOf = _ => true;
+                    root.RegisterType(convertedGraphType);
+                    list.Add(convertedGraphType);
+                    foreach (var type in graphType.OtherTypes)
+                    {
+                        convertedGraphType = (IObjectGraphType)Convert(_graphTypeProvider.GetGraphType(type, false, false), false, root);
+                        convertedGraphType.IsTypeOf = _ => true;
+                        root.RegisterType(convertedGraphType);
+                        list.Add(convertedGraphType);
+                    }
+                    var unionType = new UnionGraphType { PossibleTypes = list };
+                    root.RegisterType(unionType);
+                    return unionType;
+                }
+
                 //Enumerable
                 if (graphType.IsEnumerable)
                 {
                     var elementGraphType = _graphTypeProvider.GetGraphType(graphType.Type, false, false);
-                    var listGraphType = new ListGraphType(Convert(elementGraphType, input));
+                    var listGraphType = new ListGraphType(Convert(elementGraphType, input, root));
                     return graphType.IsRequired
                         ? new NonNullGraphType(listGraphType)
                         : (IGraphTypeOfGraphQLNet)listGraphType;
@@ -76,9 +98,10 @@ namespace Dora.GraphQL.Server
 
                     if (null != scalarType)
                     {
+                        var resolvedGraphType = (IGraphTypeOfGraphQLNet)Activator.CreateInstance(scalarType);
                         return graphType.IsRequired
-                            ? (IGraphTypeOfGraphQLNet)Activator.CreateInstance(typeof(NonNullGraphType<>).MakeGenericType(scalarType))
-                            : (IGraphTypeOfGraphQLNet)Activator.CreateInstance(scalarType);
+                            ? new NonNullGraphType(resolvedGraphType)
+                            : resolvedGraphType;
                     }
 
                     throw new GraphException($"Unknown GraphType '{graphType.Name}'");
@@ -93,7 +116,7 @@ namespace Dora.GraphQL.Server
                     var fieldType = new FieldType
                     {
                         Name = field.Name,
-                        ResolvedType = Convert(field.GraphType, input)
+                        ResolvedType = Convert(field.GraphType, input, root)
                     };
                     if (field.Arguments.Any())
                     {
@@ -101,7 +124,7 @@ namespace Dora.GraphQL.Server
                     }
                     foreach (var argument in field.Arguments.Values)
                     {
-                        var queryArgument = new QueryArgument(Convert(argument.GraphType, input)) { Name = argument.Name };
+                        var queryArgument = new QueryArgument(Convert(argument.GraphType, input, root)) { Name = argument.Name };
                         fieldType.Arguments.Add(queryArgument);
                     }
                     objectGraphType.AddField(fieldType);
@@ -117,7 +140,7 @@ namespace Dora.GraphQL.Server
             }
         }
 
-        private ObjectGraphType CreateSchema(OperationType operationType, IGraphType graphType, GraphQLNetSchema  root = null)
+        private ObjectGraphType CreateSchema(OperationType operationType, IGraphType graphType, ISchema  root)
         {
             ObjectGraphType schema;
             switch (operationType)
@@ -144,7 +167,7 @@ namespace Dora.GraphQL.Server
                 var fieldType = new FieldType
                 {
                     Name = field.Name,
-                    ResolvedType = Convert(field.GraphType, false)
+                    ResolvedType = Convert(field.GraphType, false, root)
                 };
                 if (field.Arguments.Any())
                 {
@@ -152,7 +175,7 @@ namespace Dora.GraphQL.Server
                 }
                 foreach (var argument in field.Arguments.Values)
                 {
-                    var argumentType = Convert(argument.GraphType, operationType == OperationType.Mutation);
+                    var argumentType = Convert(argument.GraphType, operationType == OperationType.Mutation, root);
                     root?.RegisterType(argumentType);
                     var queryArgument = new QueryArgument(argumentType) { Name = argument.Name };
                     fieldType.Arguments.Add(queryArgument);

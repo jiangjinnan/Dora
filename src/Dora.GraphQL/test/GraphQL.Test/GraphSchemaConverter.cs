@@ -19,6 +19,8 @@ namespace Dora.GraphQL.Server
         public GraphSchemaConverter(IGraphTypeProvider graphTypeProvider)
         {
             _graphTypeProvider = graphTypeProvider ?? throw new ArgumentNullException(nameof(graphTypeProvider));
+            GraphTypeTypeRegistry.Register<Guid, GuidGraphType>();
+            GraphTypeTypeRegistry.Register<short, IntGraphType>();
         }
         public GraphQLNetSchema Convert(IGraphSchema graphSchema)
         {
@@ -36,8 +38,6 @@ namespace Dora.GraphQL.Server
             {
                 schema.Subscription = CreateSchema(OperationType.Subscription, graphSchema.Subscription);
             }
-
-            schema.Initialize();
             return schema;
         }
         private IGraphTypeOfGraphQLNet Convert(IGraphType graphType)
@@ -79,11 +79,11 @@ namespace Dora.GraphQL.Server
 
                     if (null != scalarType)
                     {
+                        var resolvedGraphType = (IGraphTypeOfGraphQLNet)Activator.CreateInstance(scalarType);
                         return graphType.IsRequired
-                            ? (IGraphTypeOfGraphQLNet)Activator.CreateInstance(typeof(NonNullGraphType<>).MakeGenericType(scalarType))
-                            : (IGraphTypeOfGraphQLNet)Activator.CreateInstance(scalarType);
+                            ? new NonNullGraphType(resolvedGraphType)
+                            : resolvedGraphType;
                     }
-
                     throw new GraphException($"Unknown GraphType '{graphType.Name}'");
                 }
 

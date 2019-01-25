@@ -6,6 +6,7 @@ using GraphQL.Execution;
 using GraphQL.Http;
 using GraphQL.Server;
 using GraphQL.Server.Internal;
+using GraphQL.Types;
 using GraphQL.Validation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -163,10 +164,11 @@ namespace Dora.GraphQL.Server
 
         private readonly IFieldNameConverter _defaultConverter = new DefaultFieldNameConverter();
         private readonly IFieldNameConverter _camelCaseConverter = new CamelCaseFieldNameConverter();
+        private ISchema _schema;
         private async Task HandleIntrospectionQuery(RequestPayload requestPayload, HttpContext httpContext)
         {
             var schema = _schemaProvider.Schema;
-            var convertedSchema = _schemaConverter.Convert(schema);
+            var convertedSchema = _schema?? _schemaConverter.Convert(schema);
             var docuemntExecutor = new DocumentExecuter();
             var executionOptions = new ExecutionOptions()
             {

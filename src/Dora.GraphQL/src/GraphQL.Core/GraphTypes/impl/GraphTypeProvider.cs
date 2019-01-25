@@ -34,7 +34,7 @@ namespace Dora.GraphQL.GraphTypes
             _graphTypes = new Dictionary<string, IGraphType>();
             _fieldNameConverter = Guard.ArgumentNotNull(optionsAccessor, nameof(optionsAccessor)).Value.FieldNameConverter;
             foreach (var scalarType in GraphValueResolver.ScalarTypes)
-            {
+            {                
                 GetGraphType(scalarType, null, false);
             }
         }
@@ -75,7 +75,6 @@ namespace Dora.GraphQL.GraphTypes
             {
                 throw new GraphException($"Cannot create optional GraphType based on the type '{type}'");
             }
-
             if (GraphValueResolver.IsRequired(type) == false && isRequired == true)
             {
                 throw new GraphException($"Cannot create required GraphType based on the type '{type}'");
@@ -102,7 +101,7 @@ namespace Dora.GraphQL.GraphTypes
             {
                 return value;
             }
-            var graphType = new GraphType(valueResolver, type, otherTypes, name, isRequired == true, enumerable, isEnum);
+            var graphType = new GraphType(valueResolver, type, otherTypes, name, required, enumerable, isEnum);
             _graphTypes[name] = graphType;
             if (!GraphValueResolver.IsScalar(type))
             {
