@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 
 namespace Dora.DynamicProxy
 {
@@ -16,7 +17,8 @@ namespace Dora.DynamicProxy
         /// <returns>The task to invoke interceptor and target method.</returns>
         public static Task InvokeHandler(InterceptorDelegate interceptor, InterceptDelegate handler, InvocationContext context)
         {
-            InterceptDelegate wrapper = async _ => {
+            InterceptDelegate wrapper = async _ =>
+            {
                 await handler(_);
                 var task = _.ReturnValue as Task;
                 if (null != task)
@@ -24,7 +26,16 @@ namespace Dora.DynamicProxy
                     await task;
                 }
             };
-            return interceptor(wrapper)(context);
+
+            var resultTask = interceptor(wrapper)(context);
+            // throw inner InterceptorException 
+            var agregateException = resultTask.Exception;
+            if (agregateException != null && 
+                agregateException.InnerExceptions.Any(ex => (ex is InterceptorException) && (ex as InterceptorException).RequireThrow))
+            {
+                throw resultTask.Exception;
+            }
+            return resultTask;
         }
     }
-} 
+}
