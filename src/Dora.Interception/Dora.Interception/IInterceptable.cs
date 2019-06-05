@@ -35,8 +35,7 @@ namespace Dora.Interception
             _serviceProvider = serviceProvider;
             _isInterceptableServiceProvider = indicator.IsInterceptable;
         }
-
-       
+        
         public T Proxy
         {
             get

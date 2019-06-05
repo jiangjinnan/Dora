@@ -39,12 +39,14 @@ namespace Dora.Interception
         /// <summary>
         /// Adds the policy.
         /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <param name="fileName">Name of the file.</param>
-        /// <param name="configure">The configure.</param>
-        /// <returns></returns>
+        /// <param name="builder">The <see cref="InterceptionBuilder"/>.</param>
+        /// <param name="fileName">The name of interception policy file.</param>
+        /// <param name="configure">The <see cref="Action{PolicyFileBuilder}"/> to provide <see cref="ScriptOptions"/>.</param>
+        /// <returns>The <see cref="InterceptionBuilder"/>.</returns>
         public static InterceptionBuilder AddPolicy(this InterceptionBuilder builder, string fileName, Action<PolicyFileBuilder> configure = null)
         {
+            Guard.ArgumentNotNull(builder, nameof(builder));
+            Guard.ArgumentNotNullOrWhiteSpace(fileName, nameof(fileName));
             var serviceProvider = builder.Services.BuildServiceProvider();
             var fileBuilder = new PolicyFileBuilder()
                 .AddImports("Dora.Interception", "System")
@@ -54,19 +56,44 @@ namespace Dora.Interception
                     .WithReferences(fileBuilder.References)
                     .WithImports(fileBuilder.Imports);
             var policyBuilder = new InterceptionPolicyBuilder(serviceProvider);
+            var contents = fileBuilder.ReadAllText(fileName);
             var script = CSharpScript
-                .Create($"var builder = Builder;{fileBuilder.ReadAllText(fileName)}", options, typeof(Host));            
-            script.RunAsync(new Host(policyBuilder)).Wait();
+                .Create($"var builder = Builder;{Environment.NewLine}{contents}", options, typeof(Globals));            
+            script.RunAsync(new Globals(policyBuilder)).Wait();
             var resolver = new PolicyInterceptorProviderResolver(policyBuilder.Build());
             builder.InterceptorProviderResolvers.Add(nameof(PolicyInterceptorProviderResolver), resolver);
             return builder;
         }
+
+        /// <summary>
+        /// Represents the Globals for C# script parsing.
+        /// </summary>
+        public sealed class Globals
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Globals"/> class.
+            /// </summary>
+            /// <param name="builder">The builder.</param>
+            /// <exception cref="System.ArgumentNullException">builder</exception>
+            public Globals(IInterceptionPolicyBuilder builder)
+            {
+                Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+            }
+
+            /// <summary>
+            /// Gets the <see cref="IInterceptionPolicyBuilder"/>.
+            /// </summary>
+            /// <value>
+            /// The <see cref="IInterceptionPolicyBuilder"/>.
+            /// </value>
+            public IInterceptionPolicyBuilder Builder { get; }
+        }
     }
 
     /// <summary>
-    /// 
+    /// A builder to specify <see cref="ScriptOptions"/> based information and interception policy file specific <see cref="IFileProvider"/>.
     /// </summary>
-    public class PolicyFileBuilder
+    public sealed class PolicyFileBuilder
     {
         private IFileProvider _fileProvider;
         private readonly HashSet<Assembly> _references = new HashSet<Assembly>();
@@ -136,6 +163,7 @@ namespace Dora.Interception
         /// <returns></returns>
         public string ReadAllText(string fileName)
         {
+            Guard.ArgumentNotNullOrWhiteSpace(fileName, nameof(fileName));
             byte[] buffer;
             using (var stream = FileProvider.GetFileInfo(fileName).CreateReadStream())
             {
@@ -146,27 +174,5 @@ namespace Dora.Interception
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public class Host
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Host"/> class.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <exception cref="System.ArgumentNullException">builder</exception>
-        public Host(IInterceptionPolicyBuilder builder)
-        {
-            Builder = builder ?? throw new ArgumentNullException(nameof(builder));
-        }
-
-        /// <summary>
-        /// Gets the builder.
-        /// </summary>
-        /// <value>
-        /// The builder.
-        /// </value>
-        public IInterceptionPolicyBuilder Builder { get; }
-    }
+    
 }

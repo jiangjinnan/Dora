@@ -19,17 +19,16 @@ namespace Dora.Interception.Policies
             Action<IInterceptorProviderPolicyBuilder> configureTargets,  
             params object[] arguments) where TInterceptorProvider : IInterceptorProvider
         {
-            Func<IInterceptorProvider> providerAccessor = () =>
+            IInterceptorProvider GetInteceptorProvider()
             {
                 var provider = ActivatorUtilities.CreateInstance<TInterceptorProvider>(ServiceProvider, arguments);
-                var orderedElement = provider as IOrderedSequenceItem;
-                if (null != orderedElement)
+                if (provider is IOrderedSequenceItem orderedElement)
                 {
                     orderedElement.Order = order;
                 }
                 return provider;
-            };
-            var targetBuilder = new InterceptorProviderPolicyBuilder<TInterceptorProvider>(providerAccessor);
+            }
+            var targetBuilder = new InterceptorProviderPolicyBuilder<TInterceptorProvider>(GetInteceptorProvider);
             configureTargets?.Invoke(targetBuilder);
             _policy.Add(targetBuilder.Build());
             return this;

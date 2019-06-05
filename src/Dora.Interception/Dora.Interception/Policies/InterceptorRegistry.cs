@@ -19,12 +19,12 @@
 //            Registries = new Dictionary<Type, InterceptorProviderRegistry>();
 //        }
 //        public InterceptorProviderRegistry<TInterceptorProvider> For<TInterceptorProvider>(int order, params object[] arguments)
-//            where TInterceptorProvider: IInterceptorProvider
+//            where TInterceptorProvider : IInterceptorProvider
 //        {
 
 //            Func<IInterceptorProvider> factory = () =>
 //            {
-//               var provider =  Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance<TInterceptorProvider>(ServiceProvider, arguments);
+//                var provider = Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance<TInterceptorProvider>(ServiceProvider, arguments);
 //                var orderedElement = provider as IOrderedSequenceItem;
 //                if (null != orderedElement)
 //                {
@@ -43,8 +43,8 @@
 //        public abstract Func<IInterceptorProvider> InterceptorProviderFactory { get; }
 //        public abstract InterceptorProviderRegistration GetRegistrations();
 //    }
-//    public  class InterceptorProviderRegistry<TInterceptorProvider>: InterceptorProviderRegistry
-//        where TInterceptorProvider: IInterceptorProvider
+//    public class InterceptorProviderRegistry<TInterceptorProvider> : InterceptorProviderRegistry
+//        where TInterceptorProvider : IInterceptorProvider
 //    {
 //        private Dictionary<Type, TargetTypeInterceptorRegistry> _targetTypeInterceptorRegistries;
 
@@ -53,21 +53,21 @@
 //            InterceptorProviderFactory = Guard.ArgumentNotNull(interceptorProviderFactory, nameof(interceptorProviderFactory));
 //            _targetTypeInterceptorRegistries = new Dictionary<Type, TargetTypeInterceptorRegistry>();
 //        }
-                                                                               
+
 //        public override Func<IInterceptorProvider> InterceptorProviderFactory { get; }
 
 //        public override InterceptorProviderRegistration GetRegistrations()
 //        {
-//            var targetRegistrations = _targetTypeInterceptorRegistries.Values.Select(it => it.ToRegistration()); 
-//            return new InterceptorProviderRegistration(typeof(TInterceptorProvider),InterceptorProviderFactory, targetRegistrations);
+//            var targetRegistrations = _targetTypeInterceptorRegistries.Values.Select(it => it.ToRegistration());
+//            return new InterceptorProviderRegistration(typeof(TInterceptorProvider), InterceptorProviderFactory, targetRegistrations);
 //        }
 
 //        public TargetTypeInterceptorRegistry<TTarget> Target<TTarget>()
-//            where TTarget:class
+//            where TTarget : class
 //        {
 //            var returnValue = _targetTypeInterceptorRegistries.TryGetValue(typeof(TTarget), out var registry)
 //            ? registry
-//            : _targetTypeInterceptorRegistries[typeof(TTarget)] = new TargetTypeInterceptorRegistry<TTarget>(); 
+//            : _targetTypeInterceptorRegistries[typeof(TTarget)] = new TargetTypeInterceptorRegistry<TTarget>();
 //            return (TargetTypeInterceptorRegistry<TTarget>)returnValue;
 //        }
 //    }
@@ -75,15 +75,15 @@
 //    public abstract class TargetTypeInterceptorRegistry
 //    {
 //        public Type TargetType { get; }
-//        public abstract TargetRegistration ToRegistration(); 
+//        public abstract TargetRegistration ToRegistration();
 //        public TargetTypeInterceptorRegistry(Type targetType)
 //        {
 //            TargetType = Guard.ArgumentNotNull(targetType, nameof(targetType));
 //        }
 //    }
 
-//    public  class TargetTypeInterceptorRegistry<TTarget>: TargetTypeInterceptorRegistry
-//        where TTarget: class
+//    public class TargetTypeInterceptorRegistry<TTarget> : TargetTypeInterceptorRegistry
+//        where TTarget : class
 //    {
 //        private TargetRegistration _registration;
 //        public TargetTypeInterceptorRegistry() : base(typeof(TTarget))
@@ -107,7 +107,7 @@
 //            => RegisterMethod(expression, false);
 //        public TargetTypeInterceptorRegistry<TTarget> IncludeProperty<TProperty>(Expression<Func<TTarget, TProperty>> expression, PropertyMethod propertyMethod)
 //            => RegisterProperty(expression, propertyMethod, true);
-//        public  TargetTypeInterceptorRegistry<TTarget> ExcludeProperty<TProperty>(Expression<Func<TTarget, TProperty>> expression, PropertyMethod propertyMethod)
+//        public TargetTypeInterceptorRegistry<TTarget> ExcludeProperty<TProperty>(Expression<Func<TTarget, TProperty>> expression, PropertyMethod propertyMethod)
 //            => RegisterProperty(expression, propertyMethod, false);
 
 //        public override TargetRegistration ToRegistration() => _registration;
@@ -119,7 +119,7 @@
 //            if (methodCall == null)
 //            {
 //                throw new ArgumentException(Resources.NotMethodCallExpression, nameof(expression));
-//            } 
+//            }
 //            var method = methodCall.Method;
 //            if (method.IsGenericMethod)
 //            {
