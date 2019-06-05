@@ -8,14 +8,13 @@
     <Authors>Jiang Jin Nan</Authors>
     <Company>Artech</Company>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Product>Dora</Product>
     <Version>2.1.4</Version>
     <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy, Castle, Dynamic Proxy</PackageTags>
     <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
     <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.doranet.org/nuget-license</PackageLicenseUrl>
     <PackageReleaseNotes>Align with Dora.DynamicProxy 2.1.4</PackageReleaseNotes>
   </PropertyGroup>
 

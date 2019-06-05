@@ -47,7 +47,7 @@ namespace Dora.Interception.Test
         private class Service : IService { }
         private class FoobarInvocationContext : InvocationContext
         {
-            public override MethodBase Method => throw new NotImplementedException();
+            public override MethodInfo Method => throw new NotImplementedException();
 
             public override object Proxy => throw new NotImplementedException();
 

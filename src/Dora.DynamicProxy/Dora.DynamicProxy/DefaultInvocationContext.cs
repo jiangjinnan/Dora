@@ -13,7 +13,7 @@ namespace Dora.DynamicProxy
         /// <summary>
         /// Gets the <see cref="MethodInfo" /> representing the method being invoked on the proxy.
         /// </summary>
-        public override MethodBase Method { get; }
+        public override MethodInfo Method { get; }
 
         /// <summary>
         /// Gets the proxy object on which the intercepted method is invoked.
@@ -61,7 +61,7 @@ namespace Dora.DynamicProxy
         /// <exception cref="ArgumentNullException">The specified<paramref name="target"/> is null.</exception>   
         /// <exception cref="ArgumentNullException">The specified<paramref name="arguments"/> is null.</exception>
         public DefaultInvocationContext(
-             MethodBase method,  
+             MethodInfo method,  
              object proxy,
              object target,
              object[] arguments)

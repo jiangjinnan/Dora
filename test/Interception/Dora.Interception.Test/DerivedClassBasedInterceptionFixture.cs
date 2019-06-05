@@ -22,6 +22,7 @@ namespace Dora.Interception.Test
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<IFoobar>();
             await bar.Invoke1();
+            Assert.Equal("FoobarAttribute", _flag4Interceptor);
             Assert.Equal("Foo", _flag);
             await bar.Invoke2();
             Assert.Equal("Bar", _flag);

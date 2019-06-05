@@ -37,10 +37,10 @@ namespace Dora.Interception.Test
             var builder = new InterceptorChainBuilder(new ServiceCollection().BuildServiceProvider());
             string value = "";
 
-            InterceptorDelegate interceptor1 = next => (async context => { value += "1"; await next(context); });
-            InterceptorDelegate interceptor2 = next => (async context => { value += "2"; await next(context); });
-            InterceptorDelegate interceptor3 = next => (context => { value += "3"; return Task.CompletedTask; });
-            InterceptorDelegate interceptor4 = next => (async context => { value += "4"; await next(context); });
+            InterceptDelegate interceptor1(InterceptDelegate next) => (async context => { value += "1"; await next(context); });
+            InterceptDelegate interceptor2(InterceptDelegate next) => (async context => { value += "2"; await next(context); });
+            InterceptDelegate interceptor3(InterceptDelegate next) => (context => { value += "3"; return Task.CompletedTask; });
+            InterceptDelegate interceptor4(InterceptDelegate next) => (async context => { value += "4"; await next(context); });
 
             builder
                .Use(interceptor2, 2)
@@ -62,7 +62,7 @@ namespace Dora.Interception.Test
 
         private class FoobarInvocationContext : InvocationContext
         {
-            public override MethodBase Method => throw new NotImplementedException();
+            public override MethodInfo Method => throw new NotImplementedException();
 
             public override object Proxy => throw new NotImplementedException();
 

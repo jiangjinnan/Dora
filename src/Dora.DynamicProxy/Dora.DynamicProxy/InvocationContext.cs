@@ -11,7 +11,7 @@ namespace Dora.DynamicProxy
     public abstract class InvocationContext
     {
         #region Fields
-        private MethodBase _targetMethod;
+        private MethodInfo _targetMethod;
         private Type _targetType;
         #endregion
 
@@ -19,7 +19,7 @@ namespace Dora.DynamicProxy
         /// <summary>
         ///  Gets the <see cref="MethodInfo"/> representing the method of type to intercept.
         /// </summary>
-        public abstract MethodBase Method { get; }
+        public abstract MethodInfo Method { get; }
 
         /// <summary>
         /// Gets the method of target type.
@@ -27,7 +27,7 @@ namespace Dora.DynamicProxy
         /// <value>
         /// The method of target type.
         /// </value>
-        public MethodBase TargetMethod
+        public MethodInfo TargetMethod
         {
             get
             {

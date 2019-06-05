@@ -14,7 +14,7 @@ namespace Dora.Interception.Castle
             _invocation = invocation;
         }
 
-        public override MethodBase Method => _invocation.Method;
+        public override MethodInfo Method => _invocation.Method;
 
         public override object Proxy => _invocation.Proxy;
 
