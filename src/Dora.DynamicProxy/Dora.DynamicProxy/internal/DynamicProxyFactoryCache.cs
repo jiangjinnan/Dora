@@ -5,24 +5,24 @@ using System.Linq.Expressions;
 
 namespace Dora.DynamicProxy
 {
-    internal class DynamicProxyFactoryCache: IDynamicProxyFactoryCache
+    internal sealed class DynamicProxyFactoryCache: IDynamicProxyFactoryCache
     {
         #region Fields  
-        private Dictionary<Type, Func<object, InterceptorDecoration, object>> _instanceFactories;
-        private Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>> _typeFactories;    
+        private Dictionary<Type, Func<object, InterceptorRegistry, object>> _instanceFactories;
+        private Dictionary<Type, Func<InterceptorRegistry, IServiceProvider, object>> _typeFactories;    
         #endregion
 
         #region Constructors
         internal DynamicProxyFactoryCache()
         {
-            _instanceFactories = new Dictionary<Type, Func<object, InterceptorDecoration, object>>();
-            _typeFactories = new Dictionary<Type, Func<InterceptorDecoration, IServiceProvider, object>>();      
+            _instanceFactories = new Dictionary<Type, Func<object, InterceptorRegistry, object>>();
+            _typeFactories = new Dictionary<Type, Func<InterceptorRegistry, IServiceProvider, object>>();      
         }
         #endregion
 
         #region Public Methods           
 
-        public Func<object, InterceptorDecoration, object> GetInstanceFactory(Type type, InterceptorDecoration interceptors)
+        public Func<object, InterceptorRegistry, object> GetInstanceFactory(Type type, InterceptorRegistry interceptors)
         {
             if (_instanceFactories.TryGetValue(type, out var factory))
             {
@@ -39,7 +39,7 @@ namespace Dora.DynamicProxy
             }
         }
 
-        public Func<InterceptorDecoration, IServiceProvider, object> GetTypeFactory(Type type, InterceptorDecoration interceptors)
+        public Func<InterceptorRegistry, IServiceProvider, object> GetTypeFactory(Type type, InterceptorRegistry interceptors)
         {
             if (_typeFactories.TryGetValue(type, out var factory))
             {
@@ -57,28 +57,44 @@ namespace Dora.DynamicProxy
         }
         #endregion
 
-        #region Private Methods
-        private Func<object, InterceptorDecoration, object> CreateInstanceFactory(Type proxyType)
+        #region Private Methods        
+        /// <summary>
+        /// Creates the instance factory.
+        /// </summary>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <returns></returns>\
+        /// <example>
+        /// public class FoobarProxy
+        /// {
+        ///     private Foobar _target;
+        ///     private InterceptorRegistry _interceptors;
+        ///     public (FoobarProxy target, InterceptorRegistry interceptors)
+        ///     {
+        ///         _target = target;
+        ///         _interceptors = interceptors;
+        ///     }
+        /// }
+        /// </example>
+        private Func<object, InterceptorRegistry, object> CreateInstanceFactory(Type proxyType)
         {
             var target = Expression.Parameter(typeof(object));
-            var interceptors = Expression.Parameter(typeof(InterceptorDecoration));
+            var interceptors = Expression.Parameter(typeof(InterceptorRegistry));
             var typeToIntercept = Expression.Constant(proxyType);
-
+            
             var constructor = proxyType.GetConstructors()[0];
             var targetType = constructor.GetParameters()[0].ParameterType;
 
             var convert = Expression.Convert(target, targetType);
             var create = Expression.New(constructor, convert, interceptors);
             return Expression
-                .Lambda<Func<object, InterceptorDecoration, object>>(create, target, interceptors)
+                .Lambda<Func<object, InterceptorRegistry, object>>(create, target, interceptors)
                 .Compile();
         }
 
-        private Func<InterceptorDecoration, IServiceProvider, object> CreateTypeFactory(Type proxyType)
+        private Func<InterceptorRegistry, IServiceProvider, object> CreateTypeFactory(Type proxyType)
         {
             return (interceptors, serviceProvider) =>
             {
-                //var proxy = serviceProvider.GetRequiredService(proxyType);
                 var proxy = ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, proxyType);
                 ((IInterceptorsInitializer)proxy).SetInterceptors(interceptors);
                 return proxy;

@@ -72,7 +72,7 @@ namespace Dora.Interception.Test
 
             public override object ReturnValue { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-            public override IDictionary<string, object> ExtendedProperties => throw new NotImplementedException();
+            public override IDictionary<string, object> Properties => throw new NotImplementedException();
         }
     }
 }

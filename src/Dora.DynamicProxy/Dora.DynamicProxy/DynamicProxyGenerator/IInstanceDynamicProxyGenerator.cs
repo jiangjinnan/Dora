@@ -12,8 +12,8 @@ namespace Dora.DynamicProxy
         /// </summary>
         /// <param name="type">The interface type to intercept.</param>
         /// <param name="target">The target instance wrapped by the proxy.</param>
-        /// <param name="interceptors">The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</param>
+        /// <param name="interceptors">The <see cref="InterceptorRegistry"/> representing the type members decorated with interceptors.</param>
         /// <returns>The generated interceptable dynamic proxy.</returns>
-        object Wrap(Type type, object target, InterceptorDecoration interceptors);
+        object Wrap(Type type, object target, InterceptorRegistry interceptors);
     }
 }

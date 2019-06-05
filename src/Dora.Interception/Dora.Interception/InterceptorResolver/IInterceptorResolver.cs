@@ -13,16 +13,16 @@ namespace Dora.Interception
         /// </summary>
         /// <param name="initerfaceType">The type to intercept.</param>
         /// <param name="targetType">Type of the target instance.</param>
-        /// <returns>The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</returns>
-        InterceptorDecoration GetInterceptors(Type initerfaceType, Type targetType);
+        /// <returns>The <see cref="InterceptorRegistry"/> representing the type members decorated with interceptors.</returns>
+        InterceptorRegistry GetInterceptors(Type initerfaceType, Type targetType);
 
 
         /// <summary>
         /// Gets the interceptors decorated with the specified type.
         /// </summary>
         /// <param name="targetType">The type to intercept.</param>  
-        /// <returns>The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</returns>
-        InterceptorDecoration GetInterceptors(Type targetType);
+        /// <returns>The <see cref="InterceptorRegistry"/> representing the type members decorated with interceptors.</returns>
+        InterceptorRegistry GetInterceptors(Type targetType);
     }
 }
                                                                                                        

@@ -6,7 +6,7 @@ namespace Dora.Interception
 {
     internal class AttributeInterceptorProviderResolver : IInterceptorProviderResolver
     {
-        private static IInterceptorProvider[] _empty = new IInterceptorProvider[0];
+        private static readonly IInterceptorProvider[] _empty = new IInterceptorProvider[0];
         public IInterceptorProvider[] GetInterceptorProvidersForType(Type type)
         {
             Guard.ArgumentNotNull(nameof(type), nameof(type));            

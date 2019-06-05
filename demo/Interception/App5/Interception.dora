@@ -1,0 +1,3 @@
+﻿builder
+	.For<CacheReturnValueAttribute>(1, cache => cache.To<SystemClock>(clock => clock
+		.IncludeMethod(it => it.GetCurrentTime(default(DateTimeKind)))));

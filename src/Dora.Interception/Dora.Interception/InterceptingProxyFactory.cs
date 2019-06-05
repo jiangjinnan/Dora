@@ -53,7 +53,7 @@ namespace Dora.Interception
         /// <param name="target">The target.</param>
         /// <param name="interceptors">The interceptors.</param>
         /// <returns></returns>
-        protected override object Wrap(Type typeToIntercept, object target, InterceptorDecoration interceptors)
+        protected override object Wrap(Type typeToIntercept, object target, InterceptorRegistry interceptors)
         {
             return InstanceDynamicProxyGenerator.Wrap(typeToIntercept, target, interceptors);
         }
@@ -63,11 +63,11 @@ namespace Dora.Interception
         /// </summary>
         /// <param name="typeToIntercept">The type to intercept.</param>
         /// <param name="serviceProvider">The <see cref="IServiceProvider" /> used to provide dependent service instances.</param>
-        /// <param name="interceptors">The <see cref="InterceptorDecoration" /> representing which interceptors are applied to which members of a type to intercept.</param>
+        /// <param name="interceptors">The <see cref="InterceptorRegistry" /> representing which interceptors are applied to which members of a type to intercept.</param>
         /// <returns>
         /// The interceptable proxy instance.
         /// </returns>
-        protected override object Create(Type typeToIntercept, IServiceProvider serviceProvider, InterceptorDecoration interceptors)
+        protected override object Create(Type typeToIntercept, IServiceProvider serviceProvider, InterceptorRegistry interceptors)
         {
             return TypeDynamicProxyGenerator.Create(typeToIntercept, interceptors, serviceProvider);
         }

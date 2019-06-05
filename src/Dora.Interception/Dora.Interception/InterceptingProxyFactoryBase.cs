@@ -93,16 +93,16 @@ namespace Dora.Interception
         /// <param name="typeToIntercept">The type to intercept.</param>
         /// <param name="target">The target.</param>
         /// <param name="interceptors">The interceptors.</param>
-        protected abstract object Wrap(Type typeToIntercept, object target, InterceptorDecoration interceptors);
+        protected abstract object Wrap(Type typeToIntercept, object target, InterceptorRegistry interceptors);
 
         /// <summary>
         /// Create an interceptable proxy instance.
         /// </summary>
         /// <param name="typeToIntercept">The type to intercept.</param>
         /// <param name="serviceProvider">The <see cref="IServiceProvider"/> used to provide dependent service instances.</param>
-        /// <param name="interceptors">The <see cref="InterceptorDecoration"/> representing which interceptors are applied to which members of a type to intercept.</param>
+        /// <param name="interceptors">The <see cref="InterceptorRegistry"/> representing which interceptors are applied to which members of a type to intercept.</param>
         /// <returns>The interceptable proxy instance.</returns>
-        protected abstract object Create(Type typeToIntercept, IServiceProvider serviceProvider, InterceptorDecoration interceptors);
+        protected abstract object Create(Type typeToIntercept, IServiceProvider serviceProvider, InterceptorRegistry interceptors);
 
         /// <summary>
         /// Determines whether specified type can be intercepted.

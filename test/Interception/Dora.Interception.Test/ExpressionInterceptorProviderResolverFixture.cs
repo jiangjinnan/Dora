@@ -5,51 +5,215 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
+using Dora.Interception;
 
 namespace Dora.Interception.Test
 {
     public class ExpressionInterceptorProviderResolverFixture
     {
         [Fact]
-        public async void Intercept()
+        public async void Intercept1()
         {
-            Action<InterceptionBuilder> policyBuilder = buidler => buidler.AddPolicy(pb => pb
-                 .For<FooInterceptorAttribute>(1, providerBuilder => providerBuilder
-                     .To<FoobarService>(targetBuilder => targetBuilder
-                         .IncludeMethod(it => it.InterceptableInvokeAsync())
-                         .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                         .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                         .IncludeProperty(it => it.Set, PropertyMethod.Set))
-                     .To<FoobazService>(targetBuilder => targetBuilder
-                         .IncludeMethod(it => it.InterceptableInvokeAsync())
-                         .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                         .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                         .IncludeProperty(it => it.Set, PropertyMethod.Set)))
+            void BuildPolicy(InterceptionBuilder buidler) => buidler.AddPolicy(pb => pb
+                  .For<FooInterceptorAttribute>(1, providerBuilder => providerBuilder
+                      .To<FoobarService>(targetBuilder => targetBuilder
+                          .IncludeMethod(it => it.InterceptableInvokeAsync())
+                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
+                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
+                          .IncludeProperty(it => it.Set, PropertyMethod.Set))
+                      .To<FoobazService>(targetBuilder => targetBuilder
+                          .IncludeMethod(it => it.InterceptableInvokeAsync())
+                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
+                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
+                          .IncludeProperty(it => it.Set, PropertyMethod.Set)))
 
-                .For<BarInterceptorAttribute>(2, providerBuilder => providerBuilder
-                     .To<FoobarService>(targetBuilder => targetBuilder
-                         .IncludeMethod(it => it.InterceptableInvokeAsync())
-                         .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                         .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                         .IncludeProperty(it => it.Set, PropertyMethod.Set))
-                     .To<BarbazService>(targetBuilder => targetBuilder
-                         .IncludeMethod(it => it.InterceptableInvokeAsync())
-                         .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                         .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                         .IncludeProperty(it => it.Set, PropertyMethod.Set)))
+                 .For<BarInterceptorAttribute>(2, providerBuilder => providerBuilder
+                      .To<FoobarService>(targetBuilder => targetBuilder
+                          .IncludeMethod(it => it.InterceptableInvokeAsync())
+                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
+                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
+                          .IncludeProperty(it => it.Set, PropertyMethod.Set))
+                      .To<BarbazService>(targetBuilder => targetBuilder
+                          .IncludeMethod(it => it.InterceptableInvokeAsync())
+                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
+                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
+                          .IncludeProperty(it => it.Set, PropertyMethod.Set)))
 
-                 .For<BazInterceptorAttribute>(3, providerBuilder => providerBuilder
-                     .To<FoobazService>(targetBuilder => targetBuilder
-                         .IncludeAllMembers()
-                         .ExecludeMethod(it => it.NonInterceptableInvokeAsync())
-                         .ExcludeProperty(it => it.NonInterceptable, PropertyMethod.Both)
-                         .ExcludeProperty(it => it.Get, PropertyMethod.Set)
-                         .ExcludeProperty(it => it.Set, PropertyMethod.Get))
-                     .To<BarbazService>(targetBuilder => targetBuilder
-                         .IncludeMethod(it => it.InterceptableInvokeAsync())
-                         .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                         .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                         .IncludeProperty(it => it.Set, PropertyMethod.Set))));
+                  .For<BazInterceptorAttribute>(3, providerBuilder => providerBuilder
+                      .To<FoobazService>(targetBuilder => targetBuilder
+                          .IncludeAllMembers()
+                          .ExcludeMethod(it => it.NonInterceptableInvokeAsync())
+                          .ExcludeProperty(it => it.NonInterceptable, PropertyMethod.Both)
+                          .ExcludeProperty(it => it.Get, PropertyMethod.Set)
+                          .ExcludeProperty(it => it.Set, PropertyMethod.Get))
+                      .To<BarbazService>(targetBuilder => targetBuilder
+                          .IncludeMethod(it => it.InterceptableInvokeAsync())
+                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
+                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
+                          .IncludeProperty(it => it.Set, PropertyMethod.Set))));
+
+            async Task CheckAsync(IService svc, Type serviceType)
+            {
+                if (serviceType == typeof(FoobarService))
+                {
+                    _interceptors.Clear();
+                    await svc.InterceptableInvokeAsync();
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BarInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    await svc.NonInterceptableInvokeAsync();
+                    Assert.True(_interceptors.Count == 0);
+
+                    _interceptors.Clear();
+                    var value = svc.Get;
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BarInterceptorAttribute);
+                    _interceptors.Clear();
+                    svc.Get = null;
+                    Assert.True(_interceptors.Count == 0);
+
+                    _interceptors.Clear();
+                    value = svc.Set;
+                    Assert.True(_interceptors.Count == 0);
+                    _interceptors.Clear();
+                    svc.Set = null;
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BarInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    value = svc.Both;
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BarInterceptorAttribute);
+                    _interceptors.Clear();
+                    svc.Both = null;
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BarInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    value = svc.NonInterceptable;
+                    Assert.True(_interceptors.Count == 0);
+                    _interceptors.Clear();
+                    svc.NonInterceptable = null;
+                    Assert.True(_interceptors.Count == 0);
+                }
+
+                if (serviceType == typeof(FoobazService))
+                {
+                    _interceptors.Clear();
+                    await svc.InterceptableInvokeAsync();
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    await svc.NonInterceptableInvokeAsync();
+                    Assert.True(_interceptors.Count == 0);
+
+                    _interceptors.Clear();
+                    var value = svc.Get;
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+                    _interceptors.Clear();
+                    svc.Get = null;
+                    Assert.True(_interceptors.Count == 0);
+
+                    _interceptors.Clear();
+                    value = svc.Set;
+                    _interceptors.Clear();
+                    _interceptors.Clear();
+                    svc.Set = null;
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    value = svc.Both;
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+                    _interceptors.Clear();
+                    svc.Both = null;
+                    Assert.True(_interceptors[0] is FooInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    value = svc.NonInterceptable;
+                    Assert.True(_interceptors.Count == 0);
+                    _interceptors.Clear();
+                    svc.NonInterceptable = null;
+                    Assert.True(_interceptors.Count == 0);
+                }
+
+                if (serviceType == typeof(BarbazService))
+                {
+                    _interceptors.Clear();
+                    await svc.InterceptableInvokeAsync();
+                    Assert.True(_interceptors[0] is BarInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    await svc.NonInterceptableInvokeAsync();
+                    Assert.True(_interceptors.Count == 0);
+
+                    _interceptors.Clear();
+                    var value = svc.Get;
+                    Assert.True(_interceptors[0] is BarInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+                    _interceptors.Clear();
+                    svc.Get = null;
+                    Assert.True(_interceptors.Count == 0);
+
+                    _interceptors.Clear();
+                    value = svc.Set;
+                    _interceptors.Clear();
+                    _interceptors.Clear();
+                    svc.Set = null;
+                    Assert.True(_interceptors[0] is BarInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    value = svc.Both;
+                    Assert.True(_interceptors[0] is BarInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+                    _interceptors.Clear();
+                    svc.Both = null;
+                    Assert.True(_interceptors[0] is BarInterceptorAttribute);
+                    Assert.True(_interceptors[1] is BazInterceptorAttribute);
+
+                    _interceptors.Clear();
+                    value = svc.NonInterceptable;
+                    Assert.True(_interceptors.Count == 0);
+                    _interceptors.Clear();
+                    svc.NonInterceptable = null;
+                    Assert.True(_interceptors.Count == 0);
+                }
+            }
+
+            var service = new ServiceCollection()
+                .AddSingleton<IService, FoobarService>()
+               .BuildInterceptableServiceProvider(BuildPolicy)
+                .GetRequiredService<IService>();
+            await CheckAsync(service, typeof(FoobarService));
+
+            service = new ServiceCollection()
+                .AddSingleton<IService, FoobazService>()
+               .BuildInterceptableServiceProvider(BuildPolicy)
+                .GetRequiredService<IService>();
+            await CheckAsync(service, typeof(FoobazService));
+
+            service = new ServiceCollection()
+               .AddSingleton<IService, BarbazService>()
+               .BuildInterceptableServiceProvider(BuildPolicy)
+               .GetRequiredService<IService>();
+            await CheckAsync(service, typeof(BarbazService));
+        }
+
+        [Fact]
+        public async void Intercept2()
+        {
+            void policyBuilder(InterceptionBuilder buidler) => buidler.AddPolicy(
+               "policy.txt",
+               fileBuilder => fileBuilder
+                .AddImports("Dora.Interception.Test")
+                .AddReferences(typeof(ExpressionInterceptorProviderResolverFixture).Assembly));
 
             async Task CheckAsync(IService svc, Type serviceType)
             {
@@ -194,7 +358,7 @@ namespace Dora.Interception.Test
 
             service = new ServiceCollection()
                 .AddSingleton<IService, FoobazService>()
-               .BuildInterceptableServiceProvider(policyBuilder)
+                .BuildInterceptableServiceProvider(policyBuilder)
                 .GetRequiredService<IService>();
             await CheckAsync(service, typeof(FoobazService));
 
@@ -204,164 +368,6 @@ namespace Dora.Interception.Test
                .GetRequiredService<IService>();
             await CheckAsync(service, typeof(BarbazService));
         }
-
-        //[Fact]
-        //public async void Intercept2()
-        //{
-        //    async Task CheckAsync(IService svc, Type serviceType)
-        //    {
-        //        if (serviceType == typeof(FoobarService))
-        //        {
-        //            _interceptors.Clear();
-        //            await svc.InterceptableInvokeAsync();
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BarInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            await svc.NonInterceptableInvokeAsync();
-        //            Assert.True(_interceptors.Count == 0);
-
-        //            _interceptors.Clear();
-        //            var value = svc.Get;
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BarInterceptorAttribute);
-        //            _interceptors.Clear();
-        //            svc.Get = null;
-        //            Assert.True(_interceptors.Count == 0);
-
-        //            _interceptors.Clear();
-        //            value = svc.Set;
-        //            Assert.True(_interceptors.Count == 0);
-        //            _interceptors.Clear();
-        //            svc.Set = null;
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BarInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            value = svc.Both;
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BarInterceptorAttribute);
-        //            _interceptors.Clear();
-        //            svc.Both = null;
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BarInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            value = svc.NonInterceptable;
-        //            Assert.True(_interceptors.Count == 0);
-        //            _interceptors.Clear();
-        //            svc.NonInterceptable = null;
-        //            Assert.True(_interceptors.Count == 0);
-        //        }
-
-        //        if (serviceType == typeof(FoobazService))
-        //        {
-        //            _interceptors.Clear();
-        //            await svc.InterceptableInvokeAsync();
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            await svc.NonInterceptableInvokeAsync();
-        //            Assert.True(_interceptors.Count == 0);
-
-        //            _interceptors.Clear();
-        //            var value = svc.Get;
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-        //            _interceptors.Clear();
-        //            svc.Get = null;
-        //            Assert.True(_interceptors.Count == 0);
-
-        //            _interceptors.Clear();
-        //            value = svc.Set;
-        //            _interceptors.Clear();
-        //            _interceptors.Clear();
-        //            svc.Set = null;
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            value = svc.Both;
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-        //            _interceptors.Clear();
-        //            svc.Both = null;
-        //            Assert.True(_interceptors[0] is FooInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            value = svc.NonInterceptable;
-        //            Assert.True(_interceptors.Count == 0);
-        //            _interceptors.Clear();
-        //            svc.NonInterceptable = null;
-        //            Assert.True(_interceptors.Count == 0);
-        //        }
-
-        //        if (serviceType == typeof(BarbazService))
-        //        {
-        //            _interceptors.Clear();
-        //            await svc.InterceptableInvokeAsync();
-        //            Assert.True(_interceptors[0] is BarInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            await svc.NonInterceptableInvokeAsync();
-        //            Assert.True(_interceptors.Count == 0);
-
-        //            _interceptors.Clear();
-        //            var value = svc.Get;
-        //            Assert.True(_interceptors[0] is BarInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-        //            _interceptors.Clear();
-        //            svc.Get = null;
-        //            Assert.True(_interceptors.Count == 0);
-
-        //            _interceptors.Clear();
-        //            value = svc.Set;
-        //            _interceptors.Clear();
-        //            _interceptors.Clear();
-        //            svc.Set = null;
-        //            Assert.True(_interceptors[0] is BarInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            value = svc.Both;
-        //            Assert.True(_interceptors[0] is BarInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-        //            _interceptors.Clear();
-        //            svc.Both = null;
-        //            Assert.True(_interceptors[0] is BarInterceptorAttribute);
-        //            Assert.True(_interceptors[1] is BazInterceptorAttribute);
-
-        //            _interceptors.Clear();
-        //            value = svc.NonInterceptable;
-        //            Assert.True(_interceptors.Count == 0);
-        //            _interceptors.Clear();
-        //            svc.NonInterceptable = null;
-        //            Assert.True(_interceptors.Count == 0);
-        //        }
-        //    }
-
-        //    var service = new ServiceCollection()
-        //        .AddSingleton<IService, FoobarService>()
-        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { GetType().Assembly }, new string[] { "Dora.Interception.Test" })
-        //        .GetRequiredService<IService>();
-        //    await CheckAsync(service, typeof(FoobarService));
-
-        //    service = new ServiceCollection()
-        //        .AddSingleton<IService, FoobazService>()
-        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { GetType().Assembly }, new string[] { "Dora.Interception.Test" })
-        //        .GetRequiredService<IService>();
-        //    await CheckAsync(service, typeof(FoobazService));
-
-        //    service = new ServiceCollection()
-        //       .AddSingleton<IService, BarbazService>()
-        //       .BuildInterceptableServiceProvider(@"D:\projects\dora\test\Interception\Dora.Interception.Test\policy.txt", new Assembly[] { GetType().Assembly }, new string[] { "Dora.Interception.Test" })
-        //       .GetRequiredService<IService>();
-        //    await CheckAsync(service, typeof(BarbazService));
-        //}
-
 
         internal static List<object> _interceptors = new List<object>();
     }

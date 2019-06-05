@@ -64,37 +64,6 @@ namespace Dora.Interception
                 return result.Value;
             }
             return null;
-        }
-
-        //public bool? WillIntercept(Type targetType, MethodInfo method)
-        //{
-        //    Guard.ArgumentNotNull(method, nameof(method));
-        //    for (int index = _providerResolvers.Length - 1; index >= 0; index--)
-        //    {
-        //        var result = _providerResolvers[index].WillIntercept(targetType,method);
-        //        if (result == null)
-        //        {
-        //            continue;
-        //        }
-        //        return result.Value;
-        //    }   
-        //    return null;
-        //}
-
-        //public bool? WillIntercept(Type targetType, PropertyInfo property)
-        //{
-        //    Guard.ArgumentNotNull(property, nameof(property));
-        //    for (int index = _providerResolvers.Length - 1; index >= 0; index--)
-        //    {
-        //        var result = _providerResolvers[index].WillIntercept(targetType, property);
-        //        if (result == null)
-        //        {
-        //            continue;
-        //        }
-        //        return result.Value;
-        //    }
-
-        //    return null;
-        //}
+        }        
     }
 }

@@ -18,8 +18,7 @@ namespace Dora.Interception.Policies
         public ITargetPolicyBuilder<T> ExcludeProperty<TValue>(Expression<Func<T, TValue>> propertyAccessor, PropertyMethod propertyMethod)
         {
             Guard.ArgumentNotNull(propertyAccessor, nameof(propertyAccessor));
-            var expression = propertyAccessor.Body as MemberExpression;
-            if (null == expression)
+            if (!(propertyAccessor.Body is MemberExpression expression))
             {
                 throw new ArgumentException(Resources.NotPropertyAccessExpression, nameof(propertyAccessor));
             }
@@ -37,11 +36,10 @@ namespace Dora.Interception.Policies
             _policy.IncludedMethods.Add(expression.Method.MetadataToken);
             return this;
         }       
-        public ITargetPolicyBuilder<T> ExecludeMethod(Expression<Action<T>> methodInvocation)
+        public ITargetPolicyBuilder<T> ExcludeMethod(Expression<Action<T>> methodInvocation)
         {
             Guard.ArgumentNotNull(methodInvocation, nameof(methodInvocation));
-            var expression = methodInvocation.Body as MethodCallExpression;
-            if (null == expression)
+            if (!(methodInvocation.Body is MethodCallExpression expression))
             {
                 throw new ArgumentException(Resources.NotMethodCallExpression, nameof(methodInvocation));
             }
@@ -56,8 +54,7 @@ namespace Dora.Interception.Policies
         private static MethodCallExpression GetMetehod(Expression<Action<T>> methodInvocation)
         {
             Guard.ArgumentNotNull(methodInvocation, nameof(methodInvocation));
-            var expression = methodInvocation.Body as MethodCallExpression;
-            if (null == expression)
+            if (!(methodInvocation.Body is MethodCallExpression expression))
             {
                 throw new ArgumentException(Resources.NotMethodCallExpression, nameof(methodInvocation));
             }
@@ -67,8 +64,7 @@ namespace Dora.Interception.Policies
         private static PropertyInfo GetProperty<TValue>(Expression<Func<T, TValue>> propertyAccessor)
         {
             Guard.ArgumentNotNull(propertyAccessor, nameof(propertyAccessor));
-            var expression = propertyAccessor.Body as MemberExpression;
-            if (null == expression)
+            if (!(propertyAccessor.Body is MemberExpression expression))
             {
                 throw new ArgumentException(Resources.NotPropertyAccessExpression, nameof(propertyAccessor));
             }

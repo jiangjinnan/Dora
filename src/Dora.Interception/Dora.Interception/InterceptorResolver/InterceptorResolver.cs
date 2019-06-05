@@ -52,7 +52,7 @@ namespace Dora.Interception
         /// <returns>
         /// The <see cref="T:Dora.DynamicProxy.InterceptorDecoration" /> representing the type members decorated with interceptors.
         /// </returns>
-        public InterceptorDecoration GetInterceptors(Type interfaceType, Type targetType)
+        public InterceptorRegistry GetInterceptors(Type interfaceType, Type targetType)
         {
             Guard.ArgumentNotNull(interfaceType, nameof(interfaceType));
             Guard.ArgumentNotNull(targetType, nameof(targetType));
@@ -61,7 +61,7 @@ namespace Dora.Interception
                 return GetInterceptorsCore(interfaceType, targetType, targetType.GetInterfaceMap(interfaceType));
             }
 
-            return InterceptorDecoration.Empty;
+            return InterceptorRegistry.Empty;
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Dora.Interception
         /// <returns>
         /// The <see cref="T:Dora.DynamicProxy.InterceptorDecoration" /> representing the type members decorated with interceptors.
         /// </returns>
-        public InterceptorDecoration GetInterceptors(Type typeToIntercept)
+        public InterceptorRegistry GetInterceptors(Type typeToIntercept)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             return GetInterceptorsCore(typeToIntercept, typeToIntercept);
@@ -79,21 +79,21 @@ namespace Dora.Interception
         #endregion
 
         #region Private Methods
-        private InterceptorDecoration GetInterceptorsCore(Type typeToIntercept, Type targetType, InterfaceMapping? interfaceMapping = null)
+        private InterceptorRegistry GetInterceptorsCore(Type typeToIntercept, Type targetType, InterfaceMapping? interfaceMapping = null)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             targetType = targetType ?? typeToIntercept;
             var isInterface = interfaceMapping != null;
             if (_nonInterceptableTypes.Contains(typeToIntercept))
             {
-                return InterceptorDecoration.Empty;
+                return InterceptorRegistry.Empty;
             }
 
             //If target type is explicitly marked as Non-interceptable.
             if (_providerResolver.WillIntercept(targetType) == false)
             {
                 _nonInterceptableTypes.Add(typeToIntercept);
-                return InterceptorDecoration.Empty;
+                return InterceptorRegistry.Empty;
             }
 
             var dictionary = new Dictionary<MethodInfo, InterceptorDelegate>();
@@ -133,7 +133,7 @@ namespace Dora.Interception
                 var setMethod = property.SetMethod;
 
                 //GET method
-                if (null != getMethod && (isInterface || getMethod.IsVirtual))
+                if (null != getMethod && (isInterface || getMethod.IsOverridable()))
                 {
                     var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetType,targetProperty, PropertyMethod.Get);
                     var providers = SelectEffectiveProviders(providersOfType, providersOfProperty);
@@ -145,7 +145,7 @@ namespace Dora.Interception
                     }
                 }
 
-                if (null != setMethod && (isInterface || setMethod.IsVirtual))
+                if (null != setMethod && (isInterface || setMethod.IsOverridable()))
                 {
                     var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetType,targetProperty, PropertyMethod.Set);
                     var providers = SelectEffectiveProviders(providersOfType, providersOfProperty);
@@ -161,23 +161,23 @@ namespace Dora.Interception
             if (dictionary.Count == 0)
             {
                 _nonInterceptableTypes.Add(typeToIntercept);
-                return InterceptorDecoration.Empty;
+                return InterceptorRegistry.Empty;
             }
 
-            return new InterceptorDecoration(dictionary, interfaceMapping);
+            return new InterceptorRegistry(dictionary, interfaceMapping);
         }
         private MethodInfo[] GetCandidateMethods(Type type, bool isInterface)
         {
             return type
              .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-             .Where(it => !it.IsSpecialName && (isInterface || it.IsVirtual))
+             .Where(it => !it.IsSpecialName && (isInterface || it.IsOverridable()))
              .ToArray();
         }
         private PropertyInfo[] GetCandidateProperties(Type type, bool isInterface)
         {
             return type
              .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-             .Where(it => isInterface || it?.GetMethod?.IsVirtual == true || it?.SetMethod?.IsVirtual == true)
+             .Where(it => isInterface || it?.GetMethod?.IsOverridable() == true || it?.SetMethod?.IsOverridable() == true)
              .ToArray();
         }
        

@@ -24,6 +24,6 @@ namespace Dora.Interception.Castle
 
         public override object ReturnValue { get => _invocation.ReturnValue; set => _invocation.ReturnValue = value; }
 
-        public override IDictionary<string, object> ExtendedProperties => new Dictionary<string, object>();
+        public override IDictionary<string, object> Properties => new Dictionary<string, object>();
     }
 }

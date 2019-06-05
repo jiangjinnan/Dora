@@ -23,12 +23,12 @@ namespace Dora.DynamicProxy
         public Type TypeToIntercept { get; }
 
         /// <summary>
-        /// Gets the <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.
+        /// Gets the <see cref="InterceptorRegistry"/> representing the type members decorated with interceptors.
         /// </summary>
         /// <value>
-        /// The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.
+        /// The <see cref="InterceptorRegistry"/> representing the type members decorated with interceptors.
         /// </value>
-        public InterceptorDecoration Interceptors { get; }
+        public InterceptorRegistry Interceptors { get; }
 
 
         /// <summary>
@@ -71,10 +71,10 @@ namespace Dora.DynamicProxy
         /// Initializes a new instance of the <see cref="DynamicProxyClassGenerator"/> class.
         /// </summary>
         /// <param name="typeToIntercept">The type to intercept.</param>
-        /// <param name="interceptors">The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</param>
+        /// <param name="interceptors">The <see cref="InterceptorRegistry"/> representing the type members decorated with interceptors.</param>
         /// <exception cref="ArgumentNullException">Specified <paramref name="typeToIntercept"/> is null.</exception>    
         /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors"/> is null.</exception>
-        private DynamicProxyClassGenerator(Type typeToIntercept, InterceptorDecoration interceptors)
+        private DynamicProxyClassGenerator(Type typeToIntercept, InterceptorRegistry interceptors)
         {
             TypeToIntercept = Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             Interceptors = Guard.ArgumentNotNull(interceptors, nameof(interceptors));
@@ -92,7 +92,7 @@ namespace Dora.DynamicProxy
             {
                 TypeBuilder = ModuleBuilder.DefineType($"{typeToIntercept.Name}{GenerateSurfix()}", TypeAttributes.Public, typeToIntercept, new Type[] { typeof(IInterceptorsInitializer) });
             }
-            InterceptorsField = TypeBuilder.DefineField("_interceptors", typeof(InterceptorDecoration), FieldAttributes.Private);
+            InterceptorsField = TypeBuilder.DefineField("_interceptors", typeof(InterceptorRegistry), FieldAttributes.Private);
         }
 
         #endregion
@@ -102,12 +102,12 @@ namespace Dora.DynamicProxy
         /// Creates a <see cref="DynamicProxyClassGenerator"/> to generate dynamic proxy class based on interface based interception.
         /// </summary>
         /// <param name="interface">The interface type to intercept.</param>
-        /// <param name="interceptors">The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</param>
+        /// <param name="interceptors">The <see cref="InterceptorRegistry"/> representing the type members decorated with interceptors.</param>
         /// <returns>The created <see cref="DynamicProxyClassGenerator"/>.</returns>      
         /// <exception cref="ArgumentNullException">Specified <paramref name="interface"/> is null.</exception>   
         /// <exception cref="ArgumentException">Specified <paramref name="interface"/> is not an interface type.</exception>     
         /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors"/> is null.</exception>
-        public static DynamicProxyClassGenerator CreateInterfaceGenerator(Type @interface, InterceptorDecoration interceptors)
+        public static DynamicProxyClassGenerator CreateInterfaceGenerator(Type @interface, InterceptorRegistry interceptors)
         {
             Guard.ArgumentNotNull(@interface, nameof(@interface));
             if (!@interface.IsInterface)
@@ -121,12 +121,12 @@ namespace Dora.DynamicProxy
         /// Creates a <see cref="DynamicProxyClassGenerator"/> to generate dynamic proxy class based on interface based interception.
         /// </summary>
         /// <param name="type">The interface type to intercept.</param>
-        /// <param name="interceptors">The <see cref="InterceptorDecoration"/> representing the type members decorated with interceptors.</param>
+        /// <param name="interceptors">The <see cref="InterceptorRegistry"/> representing the type members decorated with interceptors.</param>
         /// <returns>The created <see cref="DynamicProxyClassGenerator"/>.</returns>      
         /// <exception cref="ArgumentNullException">Specified <paramref name="type"/> is null.</exception>   
         /// <exception cref="ArgumentException">Specified <paramref name="type"/> is  a sealed type.</exception>     
         /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors"/> is null.</exception>
-        public static DynamicProxyClassGenerator CreateVirtualMethodGenerator(Type type, InterceptorDecoration interceptors)
+        public static DynamicProxyClassGenerator CreateVirtualMethodGenerator(Type type, InterceptorRegistry interceptors)
         {
             Guard.ArgumentNotNull(type, nameof(type));
             if (type.IsSealed)
@@ -161,9 +161,21 @@ namespace Dora.DynamicProxy
         /// Defines the constructor for class implementing the specified interface.
         /// </summary>
         /// <returns>The <see cref="ConstructorBuilder"/> representing the generated constructor.</returns>
+        /// <example>
+        /// public class FoobarProxy
+        /// {
+        ///     private Foobar _target;
+        ///     private InterceptorRegistry _interceptors;
+        ///     public (FoobarProxy target, InterceptorRegistry interceptors)
+        ///     {
+        ///         _target = target;
+        ///         _interceptors = interceptors;
+        ///     }
+        /// }
+        /// </example>
         protected virtual ConstructorBuilder DefineConstructorForImplementationClass()
         {
-            var parameterTypes = new Type[] { TypeToIntercept, typeof(InterceptorDecoration) };
+            var parameterTypes = new Type[] { TypeToIntercept, typeof(InterceptorRegistry) };
             var constructor = TypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, parameterTypes);
             var il = constructor.GetILGenerator();
 
@@ -298,7 +310,7 @@ namespace Dora.DynamicProxy
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldfld, InterceptorsField);
             il.Emit(OpCodes.Ldloc_2);
-            il.Emit(OpCodes.Call, InterceptorDecoration.MethodOfGetInterceptor);
+            il.Emit(OpCodes.Call, InterceptorRegistry.MethodOfGetInterceptor);
 
             //Create and store handler to invoke target method
             il.Emit(OpCodes.Ldarg_0);   
@@ -333,7 +345,7 @@ namespace Dora.DynamicProxy
                 return methodBuilder;
             }
 
-            Action storeRefArguments = () =>
+            void StoreRefArguments()
             {
                 if (parameters.Any(it => it.ParameterType.IsByRef))
                 {
@@ -351,7 +363,7 @@ namespace Dora.DynamicProxy
                         }
                     }
                 }
-            };
+            }
 
             //Return a general value
             if (!methodInfo.ReturnVoid())
@@ -360,7 +372,7 @@ namespace Dora.DynamicProxy
                 il.Emit(OpCodes.Ldloc_1);
                 il.Emit(OpCodes.Call, ReturnValueAccessor.GetResultMethodDefinition.MakeGenericMethod(returnType));
                 il.Emit(OpCodes.Stloc_S, 4);
-                storeRefArguments();
+                StoreRefArguments();
                 il.Emit(OpCodes.Ldloc_S, 4);
                 il.Emit(OpCodes.Ret);
                 return methodBuilder;
@@ -369,7 +381,7 @@ namespace Dora.DynamicProxy
             //Return void
             il.Emit(OpCodes.Ldloc_3);
             il.Emit(OpCodes.Callvirt, ReflectionUtility.WaitMethodOfTask);
-            storeRefArguments();
+            StoreRefArguments();
             il.Emit(OpCodes.Ret);
             return methodBuilder; 
         }
@@ -445,13 +457,13 @@ namespace Dora.DynamicProxy
         }
 
         /// <summary>
-        /// Defines the "SetInterceptors" method to set the interceptors of type <see cref="InterceptorDecoration"/>.
+        /// Defines the "SetInterceptors" method to set the interceptors of type <see cref="InterceptorRegistry"/>.
         /// </summary>
         /// <param name="attributes">The attributes applied to the generated method.</param>
         /// <returns>The <see cref="MethodBuilder"/> representing the generated method.</returns>
         protected virtual MethodBuilder DefineSetInterceptorsMethod(MethodAttributes attributes)
         {
-            var methodBuilder = TypeBuilder.DefineMethod("SetInterceptors", attributes, typeof(void), new Type[] { typeof(InterceptorDecoration) });
+            var methodBuilder = TypeBuilder.DefineMethod("SetInterceptors", attributes, typeof(void), new Type[] { typeof(InterceptorRegistry) });
             var il = methodBuilder.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);                        
             il.Emit(OpCodes.Ldarg_1);
@@ -467,6 +479,8 @@ namespace Dora.DynamicProxy
         {
             var attributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final;
             DefineConstructorForImplementationClass();
+
+            //Methods
             foreach (var methodInfo in TypeToIntercept.GetMethods().Where(it => !it.IsSpecialName))
             {
                 if (Interceptors.Contains(methodInfo))
@@ -478,6 +492,8 @@ namespace Dora.DynamicProxy
                     DefineNonInterceptableMethod(methodInfo, attributes);
                 }
             }
+
+            //Properties
             foreach (var property in TypeToIntercept.GetProperties())
             {
                 var parameterTypes = property.GetIndexParameters().Select(it => it.ParameterType).ToArray();
@@ -500,6 +516,7 @@ namespace Dora.DynamicProxy
                 }
             }
 
+            //Events
             foreach (var eventInfo in TypeToIntercept.GetEvents())
             {
                 var eventBuilder = TypeBuilder.DefineEvent(eventInfo.Name, eventInfo.Attributes, eventInfo.EventHandlerType);
@@ -510,11 +527,16 @@ namespace Dora.DynamicProxy
 
         private void GenerateForVirtualMethods()
         {
+            //Constructor
             DefineConstructorsForSubClass();
+
+            //SetInterceptors method
             DefineSetInterceptorsMethod( MethodAttributes.Public| MethodAttributes.HideBySig| MethodAttributes.Virtual| MethodAttributes.Final);
+
+            //Methods
             foreach (var methodInfo in TypeToIntercept.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             { 
-                if (!methodInfo.IsSpecialName && methodInfo.IsVirtual && Interceptors.Contains(methodInfo))
+                if (!methodInfo.IsSpecialName && methodInfo.IsOverridable() && Interceptors.Contains(methodInfo) )
                 {
                     var attributes = GetMethodAttributes(methodInfo);
                     if (null != attributes)
@@ -524,11 +546,14 @@ namespace Dora.DynamicProxy
                 }
             }
 
+            //Properties
             foreach (var property in TypeToIntercept.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 PropertyBuilder propertyBuilder = null;
+
+                //Getter
                 var getMethod = property.GetMethod;
-                if (getMethod !=  null && getMethod.IsVirtual && Interceptors.Contains(getMethod))
+                if (getMethod !=  null && getMethod.IsOverridable() && Interceptors.Contains(getMethod) )
                 {
                     var attributes = GetMethodAttributes(getMethod);
                     if (null != attributes)
@@ -540,8 +565,9 @@ namespace Dora.DynamicProxy
                     }
                 }
 
+                //Setter
                 var setMethod = property.SetMethod;
-                if (setMethod != null && setMethod.IsVirtual && Interceptors.Contains(setMethod))
+                if (setMethod != null && getMethod.IsOverridable() && Interceptors.Contains(setMethod))
                 {
                     var attributes = GetMethodAttributes(setMethod);
                     if (null != attributes)

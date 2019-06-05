@@ -45,7 +45,7 @@ namespace Dora.DynamicProxy
         /// <value>
         /// The extended properties.
         /// </value>
-        public override IDictionary<string, object> ExtendedProperties { get; }
+        public override IDictionary<string, object> Properties { get; }
         #endregion
 
         #region Constructors
@@ -70,7 +70,7 @@ namespace Dora.DynamicProxy
             Proxy = Guard.ArgumentNotNull(proxy, nameof(proxy));
             Target = Guard.ArgumentNotNull(target, nameof(target));
             Arguments = Guard.ArgumentNotNull(arguments, nameof(arguments));
-            ExtendedProperties = new Dictionary<string, object>();  
+            Properties = new Dictionary<string, object>();  
         }
         #endregion
     }

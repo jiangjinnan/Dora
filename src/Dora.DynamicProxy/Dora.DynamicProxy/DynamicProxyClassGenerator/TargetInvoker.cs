@@ -16,15 +16,15 @@ namespace Dora.DynamicProxy
         /// <returns>The task to invoke interceptor and target method.</returns>
         public static Task InvokeHandler(InterceptorDelegate interceptor, InterceptDelegate handler, InvocationContext context)
         {
-            InterceptDelegate wrapper = async _ => {
+            async Task Wrap(InvocationContext _)
+            {
                 await handler(_);
-                var task = _.ReturnValue as Task;
-                if (null != task)
+                if (_.ReturnValue is Task task)
                 {
                     await task;
                 }
-            };
-            return interceptor(wrapper)(context);
+            }
+            return interceptor(Wrap)(context);
         }
     }
 } 

@@ -9,7 +9,7 @@ namespace Dora.DynamicProxy
     /// <summary>
     /// Representing which interceptors are applied to which members of a type to intercept.
     /// </summary>
-    public sealed class InterceptorDecoration
+    public sealed class InterceptorRegistry
     {     
         #region Fields
         private static MethodInfo _methodOfGetInterceptor;
@@ -33,19 +33,19 @@ namespace Dora.DynamicProxy
         public bool IsEmpty { get => Interceptors.Count == 0; }
 
         /// <summary>
-        /// Gets an empty <see cref="InterceptorDecoration"/>.
+        /// Gets an empty <see cref="InterceptorRegistry"/>.
         /// </summary>
         /// <value>
-        /// The empty <see cref="InterceptorDecoration"/>.
+        /// The empty <see cref="InterceptorRegistry"/>.
         /// </value>
-        public static InterceptorDecoration Empty { get; } = new InterceptorDecoration(new Dictionary<MethodInfo, InterceptorDelegate>());
+        public static InterceptorRegistry Empty { get; } = new InterceptorRegistry(new Dictionary<MethodInfo, InterceptorDelegate>());
 
         internal static MethodInfo MethodOfGetInterceptor
         {
             get
             {
                 return _methodOfGetInterceptor
-                     ?? (_methodOfGetInterceptor = ReflectionUtility.GetMethod<InterceptorDecoration>(_ => _.GetInterceptor(null)));
+                     ?? (_methodOfGetInterceptor = ReflectionUtility.GetMethod<InterceptorRegistry>(_ => _.GetInterceptor(null)));
             }
         }
 
@@ -64,13 +64,13 @@ namespace Dora.DynamicProxy
 
         #region Constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="InterceptorDecoration" /> class.
+        /// Initializes a new instance of the <see cref="InterceptorRegistry" /> class.
         /// </summary>
         /// <param name="interceptors">The interceptors.</param>
         /// <param name="interfaceMapping">Interface mapping.</param>
         /// <exception cref="ArgumentNullException">Specified <paramref name="interceptors" /> is null.</exception>
         /// <exception cref="ArgumentException">Specified <paramref name="interceptors" /> is empty.</exception>
-        public InterceptorDecoration(
+        public InterceptorRegistry(
             IDictionary<MethodInfo, InterceptorDelegate> interceptors, 
             InterfaceMapping? interfaceMapping = null)
         {

@@ -37,14 +37,14 @@ namespace Dora.DynamicProxy
         /// </summary>
         /// <param name="type">The interface type to intercept.</param>
         /// <param name="target">The target instance wrapped by the proxy.</param>
-        /// <param name="interceptors">The <see cref="InterceptorDecoration" /> representing the type members decorated with interceptors.</param>
+        /// <param name="interceptors">The <see cref="InterceptorRegistry" /> representing the type members decorated with interceptors.</param>
         /// <returns>
         /// The generated interceptable dynamic proxy.
         /// </returns>     
         /// <exception cref="ArgumentNullException"> <paramref name="type"/> is null.</exception>
         /// <exception cref="ArgumentNullException"> <paramref name="target"/> is null.</exception>
         /// <exception cref="ArgumentNullException"> <paramref name="interceptors"/> is null.</exception>
-        public object Wrap(Type type, object target, InterceptorDecoration interceptors)
+        public object Wrap(Type type, object target, InterceptorRegistry interceptors)
         {
             Guard.ArgumentNotNull(type, nameof(type));
             Guard.ArgumentNotNull(target, nameof(target));

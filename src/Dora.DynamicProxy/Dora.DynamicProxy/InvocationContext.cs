@@ -76,7 +76,7 @@ namespace Dora.DynamicProxy
         /// <value>
         /// The extended properties.
         /// </value>
-        public abstract IDictionary<string, object> ExtendedProperties { get; }
+        public abstract IDictionary<string, object> Properties { get; }
 
         /// <summary>
         /// Gets or sets the <see cref="InterceptDelegate"/> to invoke the next interceptor or target method.
@@ -89,10 +89,8 @@ namespace Dora.DynamicProxy
         /// Invoke the next interceptor or target method.
         /// </summary>
         /// <returns>The task to invoke the next interceptor or target method.</returns>
-        public Task ProceedAsync()
-        {
-            return Next.Invoke(this);
-        }
+        public Task ProceedAsync()=> Next.Invoke(this);
+
         #endregion
     }                             
 }

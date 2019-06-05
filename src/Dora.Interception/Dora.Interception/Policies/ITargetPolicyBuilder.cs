@@ -33,7 +33,7 @@ namespace Dora.Interception.Policies
         /// </summary>
         /// <param name="methodInvocation">The excluded method based invocation expression.</param>  
         /// <returns>The current <see cref="ITargetPolicyBuilder{T}"/></returns>
-        ITargetPolicyBuilder<T> ExecludeMethod(Expression<Action<T>> methodInvocation);
+        ITargetPolicyBuilder<T> ExcludeMethod(Expression<Action<T>> methodInvocation);
 
         /// <summary>
         /// Includes specified property of the target type.

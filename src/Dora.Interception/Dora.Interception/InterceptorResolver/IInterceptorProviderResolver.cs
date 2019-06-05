@@ -17,26 +17,6 @@ namespace Dora.Interception
         /// </returns>
         bool? WillIntercept(Type targetType);
 
-        ///// <summary>
-        ///// Determine whether the specified method should be intercepted.
-        ///// </summary>
-        ///// <param name="targetType">Type of the target.</param>
-        ///// <param name="targetMethod">The method to be checked for interception.</param>
-        ///// <returns>
-        ///// A <see cref="Nullable{Boolean}" /> indicating whether the specified method should be intercepted.
-        ///// </returns>
-        //bool? WillIntercept(Type targetType, MethodInfo targetMethod);
-
-        ///// <summary>
-        ///// Determine whether the specified method should be intercepted.
-        ///// </summary>
-        ///// <param name="targetType">Type of the target.</param>
-        ///// <param name="targetProperty">The property to be checked for interception.</param>
-        ///// <returns>
-        ///// A <see cref="Nullable{Boolean}" /> indicating whether the specified method should be intercepted.
-        ///// </returns>
-        //bool? WillIntercept(Type targetType, PropertyInfo targetProperty);
-
         /// <summary>
         /// Gets the interceptor providers applied to the specified type.
         /// </summary>

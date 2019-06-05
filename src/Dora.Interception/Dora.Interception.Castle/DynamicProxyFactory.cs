@@ -31,7 +31,7 @@ namespace Dora.Interception.Castle
         /// <returns>
         /// The interceptable proxy instance.
         /// </returns>
-        protected override object Create(Type typeToIntercept, IServiceProvider serviceProvider, InterceptorDecoration interceptors)
+        protected override object Create(Type typeToIntercept, IServiceProvider serviceProvider, InterceptorRegistry interceptors)
         {
             var dictionary = interceptors.Interceptors
                  .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
@@ -47,7 +47,7 @@ namespace Dora.Interception.Castle
         /// <param name="target">The target.</param>
         /// <param name="interceptors">The interceptors.</param>
         /// <returns></returns>
-        protected override object Wrap(Type typeToIntercept, object target, InterceptorDecoration interceptors)
+        protected override object Wrap(Type typeToIntercept, object target, InterceptorRegistry interceptors)
         {
             var dictionary = interceptors.Interceptors
                 .ToDictionary(it => it.Key, it => new DynamicProxyInterceptor(it.Value).ToInterceptor());
