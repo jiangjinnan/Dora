@@ -15,8 +15,8 @@ namespace Dora.Interception.Test
         {
             var provider = new ServiceCollection()
                 .AddInterception()
-                .AddInterceptable(typeof(IFoobar), typeof(Foobar), ServiceLifetime.Singleton)
-                .AddInterceptable(typeof(Foobar), typeof(Foobar), ServiceLifetime.Singleton)
+                .AddInterceptableSingleton< IFoobar, Foobar>()
+                .AddInterceptableSingleton<Foobar>()
                 .BuildServiceProvider();
 
             var proxy1 = provider.GetRequiredService<IFoobar>();
@@ -26,7 +26,7 @@ namespace Dora.Interception.Test
 
             var proxy2 = provider.GetRequiredService<Foobar>();
             _flag = 0;
-            proxy1.Invoke();
+            proxy2.Invoke();
             Assert.Equal(1, _flag);
         }
 

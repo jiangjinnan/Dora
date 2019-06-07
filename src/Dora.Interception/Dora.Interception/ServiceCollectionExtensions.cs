@@ -1,11 +1,10 @@
 ﻿using Dora;
 using Dora.DynamicProxy;
 using Dora.Interception;
+using Dora.Interception.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
-using System.Reflection;
 using System.Linq;
-using Dora.Interception.Internal;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -27,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
         private static IServiceCollection AddInterceptionCore(this IServiceCollection services, Action<InterceptionBuilder> configure, bool overrideExistingRegistrations)
         {
             Guard.ArgumentNotNull(services, nameof(services));
+            services.AddHttpContextAccessor();
             services.TryAddTransient(typeof(IInterceptable<>), typeof(Interceptable<>));
             services.TryAddSingleton<IInterceptorChainBuilder, InterceptorChainBuilder>();
             services.TryAddSingleton<IInterceptingProxyFactory, InterceptingProxyFactory>();
@@ -64,7 +64,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                where !it.ServiceType.IsInterface &&
                                 it.ImplementationFactory == null &&
                                 it.ImplementationInstance == null &&
-                                it.ImplementationType != null &&
+                                it.ImplementationType != null && 
                                 !interceptors.IsEmpty
                                select new { ServiceDescriptor = it, Interceptors = interceptors } )
                                .ToArray();
@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
             foreach (var item in result.ToArray())
             {
                 var serviceType = item.ServiceDescriptor.ServiceType;
-                var newDescriptor = new ServiceDescriptor(serviceType, _ => proxyFactory.Create(item.ServiceDescriptor.ImplementationType, _), item.ServiceDescriptor.Lifetime);
+                var newDescriptor = new ServiceDescriptor(serviceType, provider => proxyFactory.Create(item.ServiceDescriptor.ImplementationType, provider), item.ServiceDescriptor.Lifetime);
                 services.Add(newDescriptor);               
             }
         }
@@ -107,10 +107,10 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
             services.AddInterceptionCore(configure, false);
-            var proxyFactory = services.BuildServiceProvider().GetRequiredService<IInterceptingProxyFactory>();
+            var proxyFactory = services.BuildServiceProvider(validateScopes).GetRequiredService<IInterceptingProxyFactory>();
             return new InterceptableServiceProvider(services, options, proxyFactory);
         }
 
-        private class ServiceOverrideIndicator { }
+        private class ServiceOverrideIndicator {}
     }
 }

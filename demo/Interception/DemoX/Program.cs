@@ -9,62 +9,93 @@ namespace DemoX
 {
     public class Program
     {
-        private static Action _action = () => { };
-        static void Main(string[] args)
-        {
-            var foobar = new ServiceCollection()
-                 .AddSingleton<IFoo, Foo>()
-                 .AddSingleton<IBar, Bar>()
-                 .AddSingleton(typeof(IFoobar<,>), typeof(Foobar<,>))
-                 .BuildInterceptableServiceProvider()
-                 .GetRequiredService<IFoobar<IFoo, IBar>>();
-            var flag = "";
-            _action = () => flag = "Foobar";
-            var foo = foobar.Foo;
-            Debug.Assert("Foobar" == flag);
-        }
-        public interface IFoo { }
-        public interface IBar { }
-        public interface IFoobar<TFoo, TBar>
-            where TFoo : IFoo
-            where TBar : IBar
-        {
-            TFoo Foo { get; }
-            TBar Bar { get; }
-        }
-        public class Foo : IFoo { }
-        public class Bar : IBar { }
+        private static int _flag = 0; 
 
-        [Foobar]
-        public class Foobar<TFoo, TBar> : IFoobar<TFoo, TBar>
-            where TFoo : IFoo
-            where TBar : IBar
+        static void Main()
         {
-            public Foobar(TFoo foo, TBar bar)
-            {
-                Foo = foo;
-                Bar = bar;
-            }
-            public TFoo Foo { get; }
-            public TBar Bar { get; }
-        }   
-      
-        public class FoobarInterceptor
+            Intercept1();
+            Intercept2();
+            Intercept3();
+        }
+
+        private static void Intercept1()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddSingleton<IFoobar, Foobar>()
+                .AddSingleton<Foobar>()
+                .AddInterception()
+                .BuildServiceProvider();
+
+            var proxy1 = serviceProvider.GetRequiredService<IInterceptable<IFoobar>>().Proxy;
+            _flag = 0;
+            proxy1.Invoke();
+            Debug.Assert(_flag == 1);
+
+            var proxy2 = serviceProvider.GetRequiredService<IInterceptable<Foobar>>().Proxy;
+            _flag = 0;
+            proxy2.Invoke();
+            Debug.Assert(_flag == 1);
+        }
+
+        private static void Intercept2()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddInterception()
+                .AddInterceptableSingleton<IFoobar, Foobar>()
+                .AddInterceptableSingleton<Foobar>()
+                .BuildServiceProvider();
+
+            var proxy1 = serviceProvider.GetRequiredService<IFoobar>();
+            _flag = 0;
+            proxy1.Invoke();
+            Debug.Assert(_flag == 1);
+
+            var proxy2 = serviceProvider.GetRequiredService<Foobar>();
+            _flag = 0;
+            proxy2.Invoke();
+            Debug.Assert(_flag == 1);
+        }
+
+        private static void Intercept3()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddSingleton<IFoobar, Foobar>()
+                .AddSingleton<Foobar>()
+                .BuildInterceptableServiceProvider();
+
+            var proxy1 = serviceProvider.GetRequiredService<IFoobar>();
+            _flag = 0;
+            proxy1.Invoke();
+            Debug.Assert(_flag == 1);
+
+            var proxy2 = serviceProvider.GetRequiredService<Foobar>();
+            _flag = 0;
+            proxy2.Invoke();
+            Debug.Assert(_flag == 1);
+        }
+
+        public interface IFoobar
+        {
+            void Invoke();
+        }
+
+        public class Foobar : IFoobar
+        {
+            [FakeInterceptor]
+            public virtual void Invoke() { }
+        }
+
+        public class FakeInterceptorAttribute : InterceptorAttribute
         {
             public Task InvokeAsync(InvocationContext context)
             {
-                _action();
+                _flag = 1;
                 return context.ProceedAsync();
             }
-        }
-
-        public class FoobarAttribute : InterceptorAttribute
-        {
             public override void Use(IInterceptorChainBuilder builder)
             {
-                builder.Use<FoobarInterceptor>(Order);
+                builder.Use(this, Order);
             }
         }
-
     }
 }

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace App
 {
+    public class ScopedService
+    { }
     public class CacheInterceptor
-    {            
+    {
         public async Task InvokeAsync(InvocationContext context, IMemoryCache cache, IOptions<MemoryCacheEntryOptions> optionsAccessor)
         {
             var key = new Cachekey(context.Method, context.Arguments);
@@ -70,7 +72,7 @@ namespace App
                 int hashCode = Method.GetHashCode();
                 foreach (var argument in InputArguments)
                 {
-                    hashCode = hashCode ^ argument.GetHashCode();
+                    hashCode ^= argument.GetHashCode();
                 }
                 return hashCode;
             }

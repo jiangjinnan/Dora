@@ -12,14 +12,18 @@ namespace App
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services
+                .AddHttpContextAccessor()
+                .AddScoped<ScopedService>()
                 .AddScoped<ISystemClock, SystemClock>()
                 .AddMvc();
-            return services.BuildInterceptableServiceProvider();
+            return services.BuildInterceptableServiceProvider(true);
         }
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseMvc();
+            app
+                .UseDeveloperExceptionPage()
+                .UseMvc();
         }
     }
 }

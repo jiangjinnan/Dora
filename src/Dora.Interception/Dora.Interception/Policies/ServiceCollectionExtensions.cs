@@ -58,7 +58,7 @@ namespace Dora.Interception
             var policyBuilder = new InterceptionPolicyBuilder(serviceProvider);
             var contents = fileBuilder.ReadAllText(fileName);
             var script = CSharpScript
-                .Create($"var builder = Builder;{Environment.NewLine}{contents}", options, typeof(Globals));            
+                .Create($"var policyBuilder = Builder;{Environment.NewLine}{contents}", options, typeof(Globals));            
             script.RunAsync(new Globals(policyBuilder)).Wait();
             var resolver = new PolicyInterceptorProviderResolver(policyBuilder.Build());
             builder.InterceptorProviderResolvers.Add(nameof(PolicyInterceptorProviderResolver), resolver);

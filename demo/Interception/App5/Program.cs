@@ -12,7 +12,7 @@ namespace App
         public static void Main(string[] args)
         {
             new WebHostBuilder()
-                .UseContentRoot(Directory.GetCurrentDirectory())
+                 .UseContentRoot(Directory.GetCurrentDirectory())
                  .UseKestrel()
                  .UseStartup<Startup>()
                  .Build()

@@ -1,104 +1,182 @@
 ﻿using Dora.DynamicProxy;
 using Dora.Interception;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// Defines extension methods to register interceptable services.
+    /// </summary>
     public static class ServiceCollectionServiceExtensions
     {
-        private static Dictionary<IServiceCollection, IInterceptorResolver> _resolvers = new Dictionary<IServiceCollection, IInterceptorResolver>();
-        private static Dictionary<IServiceCollection, IInstanceDynamicProxyGenerator> _instanceDynamicProxyGenerators = new Dictionary<IServiceCollection, IInstanceDynamicProxyGenerator>();
-        private static Dictionary<IServiceCollection, ITypeDynamicProxyGenerator> _typeDynamicProxyGenerators = new Dictionary<IServiceCollection, ITypeDynamicProxyGenerator>();
-
-        private static IInterceptorResolver GetResolver(IServiceCollection collection)
+        private static readonly Dictionary<IServiceCollection, object> _cache = new Dictionary<IServiceCollection, object>();
+        private static (IInterceptorResolver Resolver, IInstanceDynamicProxyGenerator InstanceGenerator, ITypeDynamicProxyGenerator TypeGenerator) GetResolverAndClassGenerators(IServiceCollection services)
         {
-            return _resolvers.TryGetValue(collection, out var resolver)
-                ? resolver
-                : _resolvers[collection] = collection.BuildServiceProvider().GetRequiredService<IInterceptorResolver>();
-        }
-        private static IInstanceDynamicProxyGenerator GetInstanceProxyGenerator(IServiceCollection collection)
-        {
-            return _instanceDynamicProxyGenerators.TryGetValue(collection, out var generator)
-                ? generator
-                : _instanceDynamicProxyGenerators[collection] = collection.BuildServiceProvider().GetRequiredService<IInstanceDynamicProxyGenerator>();
-        }
-
-        private static ITypeDynamicProxyGenerator GetTypeProxyGenerator(IServiceCollection collection)
-        {
-            return _typeDynamicProxyGenerators.TryGetValue(collection, out var generator)
-                ? generator
-                : _typeDynamicProxyGenerators[collection] = collection.BuildServiceProvider().GetRequiredService<ITypeDynamicProxyGenerator>();
+            if (_cache.TryGetValue(services, out var value))
+            {
+                return ((IInterceptorResolver Resolver, IInstanceDynamicProxyGenerator InstanceGenerator, ITypeDynamicProxyGenerator TypeGenerator))value;
+            }
+            var provider = services.BuildServiceProvider();
+            var resolver = provider.GetRequiredService<IInterceptorResolver>();
+            var instanceGenerator = provider.GetRequiredService<IInstanceDynamicProxyGenerator>();
+            var typeGenerator = provider.GetRequiredService<ITypeDynamicProxyGenerator>();
+            (IInterceptorResolver Resolver, IInstanceDynamicProxyGenerator InstanceGenerator, ITypeDynamicProxyGenerator TypeGenerator) resolverAndGenerators = (resolver, instanceGenerator, typeGenerator);
+            _cache[services] = resolverAndGenerators;
+            return resolverAndGenerators;
         }
 
-        public static IServiceCollection AddInterceptable(this IServiceCollection collection, Type serviceType, Type implementationType, ServiceLifetime lifetime)
+        private static IServiceCollection AddInterceptable(this IServiceCollection services, Type serviceType, Type implementationType, ServiceLifetime lifetime)
         {
+            var (resolver, instanceGenerator, typeGenerator) = GetResolverAndClassGenerators(services);
             if (serviceType.IsInterface)
             {
-                var interceptors = GetResolver(collection).GetInterceptors(serviceType, implementationType);
+                var interceptors = resolver.GetInterceptors(serviceType, implementationType);
                 object CreateProxy(IServiceProvider provider)
                 {
                     var target = ActivatorUtilities.CreateInstance(provider, implementationType);
-                    return GetInstanceProxyGenerator(collection).Wrap(serviceType, target, interceptors);
+                    return instanceGenerator.Wrap(serviceType, target, interceptors);
                 }
-                collection.Add(ServiceDescriptor.Describe(serviceType, CreateProxy, lifetime));
+                services.Add(ServiceDescriptor.Describe(serviceType, CreateProxy, lifetime));
             }
             else
             {
-                var interceptors = GetResolver(collection).GetInterceptors(implementationType);
+                var interceptors = resolver.GetInterceptors(implementationType);
                 object CreateProxy(IServiceProvider provider)
                 {
-                    return GetTypeProxyGenerator(collection).Create(implementationType, interceptors, provider);
+                    return typeGenerator.Create(implementationType, interceptors, provider);
                 }
-                collection.Add(ServiceDescriptor.Describe(serviceType, CreateProxy, lifetime));
+                services.Add(ServiceDescriptor.Describe(serviceType, CreateProxy, lifetime));
             }
-            return collection;
+            return services;
         }
+
+        /// <summary>
+        /// Adds an interceptable scoped service of the type.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
         public static IServiceCollection AddInterceptableScoped<TService>(this IServiceCollection services) where TService : class
         {
+            services.AddScoped<TService>();
             return services.AddInterceptable(typeof(TService), typeof(TService), ServiceLifetime.Scoped);
         }
+
+        /// <summary>
+        /// Adds an interceptable scoped service of the type.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
         public static IServiceCollection AddInterceptableScoped<TService, TImplementation>(this IServiceCollection services) where TService : class where TImplementation : class, TService
         {
             return services.AddInterceptable(typeof(TService), typeof(TImplementation), ServiceLifetime.Scoped);
         }
-        public static IServiceCollection AddInterceptableScoped<TService, TImplementation>(this IServiceCollection services, Func<IServiceProvider, TImplementation> implementationFactory) where TService : class where TImplementation : class, TService
-        {
-            if (!typeof(TService).IsInterface)
-            {
-                throw new InvalidOperationException($"{typeof(TService).Name}  is not an interface.");
-            }
 
-            var interceptors = GetResolver(services).GetInterceptors(typeof(TService), typeof(TImplementation));
-            object CreateProxy(IServiceProvider provider)
-            {
-                var target = implementationFactory(provider);
-                return GetInstanceProxyGenerator(services).Wrap(typeof(TService), target, interceptors);
-            }
-            services.Add(ServiceDescriptor.Describe(typeof(TService), CreateProxy,  ServiceLifetime.Scoped));
-            return services;
+        /// <summary>
+        /// Adds an interceptable scoped service of the type.
+        /// </summary>
+        /// <param name="serviceType">The type of the service to add.</param>
+        /// <param name="implementationType">The type of the implementation to use.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddInterceptableScoped(this IServiceCollection services, Type serviceType, Type implementationType)
+        {
+            return services.AddInterceptable(serviceType, implementationType, ServiceLifetime.Scoped);
         }
-        //public static IServiceCollection AddScoped<TService>(this IServiceCollection services, Func<IServiceProvider, TService> implementationFactory) where TService : class;
-        //public static IServiceCollection AddScoped(this IServiceCollection services, Type serviceType);
-        //public static IServiceCollection AddScoped(this IServiceCollection services, Type serviceType, Func<IServiceProvider, object> implementationFactory);
-        //public static IServiceCollection AddScoped(this IServiceCollection services, Type serviceType, Type implementationType);
-        //public static IServiceCollection AddSingleton<TService>(this IServiceCollection services) where TService : class;
-        //public static IServiceCollection AddSingleton<TService, TImplementation>(this IServiceCollection services) where TService : class where TImplementation : class, TService;
-        //public static IServiceCollection AddSingleton<TService>(this IServiceCollection services, TService implementationInstance) where TService : class;
-        //public static IServiceCollection AddSingleton<TService, TImplementation>(this IServiceCollection services, Func<IServiceProvider, TImplementation> implementationFactory) where TService : class where TImplementation : class, TService;
-        //public static IServiceCollection AddSingleton<TService>(this IServiceCollection services, Func<IServiceProvider, TService> implementationFactory) where TService : class;
-        //public static IServiceCollection AddSingleton(this IServiceCollection services, Type serviceType);
-        //public static IServiceCollection AddSingleton(this IServiceCollection services, Type serviceType, Func<IServiceProvider, object> implementationFactory);
-        //public static IServiceCollection AddSingleton(this IServiceCollection services, Type serviceType, object implementationInstance);
-        //public static IServiceCollection AddSingleton(this IServiceCollection services, Type serviceType, Type implementationType);
-        //public static IServiceCollection AddTransient<TService>(this IServiceCollection services) where TService : class;
-        //public static IServiceCollection AddTransient<TService, TImplementation>(this IServiceCollection services) where TService : class where TImplementation : class, TService;
-        //public static IServiceCollection AddTransient<TService, TImplementation>(this IServiceCollection services, Func<IServiceProvider, TImplementation> implementationFactory) where TService : class where TImplementation : class, TService;
-        //public static IServiceCollection AddTransient<TService>(this IServiceCollection services, Func<IServiceProvider, TService> implementationFactory) where TService : class;
-        //public static IServiceCollection AddTransient(this IServiceCollection services, Type serviceType);
-        //public static IServiceCollection AddTransient(this IServiceCollection services, Type serviceType, Func<IServiceProvider, object> implementationFactory);
-        //public static IServiceCollection AddTransient(this IServiceCollection services, Type serviceType, Type implementationType);
+
+        /// <summary>
+        /// Adds an interceptable singleton service of the type.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddInterceptableSingleton<TService>(this IServiceCollection services) where TService : class
+        {
+            return services.AddInterceptable(typeof(TService), typeof(TService), ServiceLifetime.Singleton);
+        }
+
+        /// <summary>
+        /// Adds an interceptable singleton service of the type.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddInterceptableSingleton<TService, TImplementation>(this IServiceCollection services) where TService : class where TImplementation : class, TService
+        {
+            return services.AddInterceptable(typeof(TService), typeof(TImplementation), ServiceLifetime.Singleton);
+        }
+
+        /// <summary>
+        /// Adds an interceptable singleton service of the type.
+        /// </summary>
+        /// <param name="serviceType">The type of the service to add.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddInterceptableSingleton(this IServiceCollection services, Type serviceType)
+        {
+            return services.AddInterceptable(serviceType, serviceType, ServiceLifetime.Singleton);
+        }
+
+        /// <summary>
+        /// Adds an interceptable singleton service of the type.
+        /// </summary>
+        /// <param name="serviceType">The type of the service to add.</param>
+        /// <param name="implementationType">The type of the implementation to use.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddInterceptableSingleton(this IServiceCollection services, Type serviceType, Type implementationType)
+        {
+            return services.AddInterceptable(serviceType, implementationType, ServiceLifetime.Singleton);
+        }
+
+        /// <summary>
+        /// Adds an interceptable transient service of the type.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddInterceptableTransient<TService>(this IServiceCollection services) where TService : class
+        {
+            return services.AddInterceptable(typeof(TService), typeof(TService), ServiceLifetime.Transient);
+        }
+
+        /// <summary>
+        /// Adds an interceptable transient service of the type.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to add.</typeparam>
+        /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddInterceptableTransient<TService, TImplementation>(this IServiceCollection services) where TService : class where TImplementation : class, TService
+        {
+            return services.AddInterceptable(typeof(TService), typeof(TImplementation), ServiceLifetime.Transient);
+        }
+
+        /// <summary>
+        /// Adds an interceptable transient service of the type.
+        /// </summary>
+        /// <param name="serviceType">The type of the service to add.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddInterceptableTransient(this IServiceCollection services, Type serviceType)
+        {
+            return services.AddInterceptable(serviceType, serviceType, ServiceLifetime.Transient);
+        }
+
+        /// <summary>
+        /// Adds an interceptable transient service of the type.
+        /// </summary>
+        /// <param name="serviceType">The type of the service to add.</param>
+        /// <param name="implementationType">The type of the implementation to use.</param>
+        /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+        /// <returns> A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection AddTransient(this IServiceCollection services, Type serviceType, Type implementationType)
+        {
+            return services.AddInterceptable(serviceType, implementationType, ServiceLifetime.Transient);
+        }
     }
 }

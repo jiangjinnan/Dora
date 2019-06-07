@@ -1,4 +1,5 @@
 ﻿using Dora.DynamicProxy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,9 @@ namespace Dora.Interception
     public static class InterceptorChainBuilderExtensions
     {
         private delegate Task InvokeDelegate(object interceptor, InvocationContext context, IServiceProvider serviceProvider);
-        private static readonly MethodInfo _getServiceMethod = typeof(InterceptorChainBuilderExtensions).GetTypeInfo().GetMethod("GetService", BindingFlags.Static | BindingFlags.NonPublic);
-        private static Dictionary<Type, InvokeDelegate> _invokers = new Dictionary<Type, InvokeDelegate>();
+        private static readonly MethodInfo _getServiceMethod = ReflectionUtility.GetMethod(() => GetService(null, null));
+        private static readonly Dictionary<Type, InvokeDelegate> _invokers = new Dictionary<Type, InvokeDelegate>();
         private static readonly object _syncHelper = new object();
-
 
         /// <summary>
         /// Register the interceptor of <typeparamref name="TInterceptor"/> type to specified interceptor chain builder.
@@ -73,7 +73,8 @@ namespace Dora.Interception
                     context.Next = next;
                     if (TryGetInvoke(interceptor.GetType(), out var invoker))
                     {
-                        await invoker(interceptor, context, builder.ServiceProvider);
+                        var serviceProvider = builder.ServiceProvider.GetService<IHttpContextAccessor>()?.HttpContext?.RequestServices ?? builder.ServiceProvider;
+                        await invoker(interceptor, context, serviceProvider);
                     }
                     else
                     {

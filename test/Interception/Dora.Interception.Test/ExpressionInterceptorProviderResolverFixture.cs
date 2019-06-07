@@ -14,43 +14,43 @@ namespace Dora.Interception.Test
         [Fact]
         public async void Intercept1()
         {
-            void BuildPolicy(InterceptionBuilder buidler) => buidler.AddPolicy(pb => pb
-                  .For<FooInterceptorAttribute>(1, providerBuilder => providerBuilder
-                      .To<FoobarService>(targetBuilder => targetBuilder
-                          .IncludeMethod(it => it.InterceptableInvokeAsync())
-                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                          .IncludeProperty(it => it.Set, PropertyMethod.Set))
+            void BuildPolicy(InterceptionBuilder buidler) => buidler.AddPolicy(policy => policy
+                  .For<FooInterceptorAttribute>(1, interceptor => interceptor
+                      .To<FoobarService>(target => target
+                          .IncludeMethod(foobar => foobar.InterceptableInvokeAsync())
+                          .IncludeProperty(foobar => foobar.Both, PropertyMethod.Both)
+                          .IncludeProperty(foobar => foobar.Get, PropertyMethod.Get)
+                          .IncludeProperty(foobar => foobar.Set, PropertyMethod.Set))
                       .To<FoobazService>(targetBuilder => targetBuilder
-                          .IncludeMethod(it => it.InterceptableInvokeAsync())
-                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                          .IncludeProperty(it => it.Set, PropertyMethod.Set)))
+                          .IncludeMethod(foobar => foobar.InterceptableInvokeAsync())
+                          .IncludeProperty(foobar => foobar.Both, PropertyMethod.Both)
+                          .IncludeProperty(foobar => foobar.Get, PropertyMethod.Get)
+                          .IncludeProperty(foobar => foobar.Set, PropertyMethod.Set)))
 
-                 .For<BarInterceptorAttribute>(2, providerBuilder => providerBuilder
-                      .To<FoobarService>(targetBuilder => targetBuilder
-                          .IncludeMethod(it => it.InterceptableInvokeAsync())
-                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                          .IncludeProperty(it => it.Set, PropertyMethod.Set))
+                 .For<BarInterceptorAttribute>(2, interceptor => interceptor
+                      .To<FoobarService>(target => target
+                          .IncludeMethod(foobar => foobar.InterceptableInvokeAsync())
+                          .IncludeProperty(foobar => foobar.Both, PropertyMethod.Both)
+                          .IncludeProperty(foobar => foobar.Get, PropertyMethod.Get)
+                          .IncludeProperty(foobar => foobar.Set, PropertyMethod.Set))
                       .To<BarbazService>(targetBuilder => targetBuilder
-                          .IncludeMethod(it => it.InterceptableInvokeAsync())
-                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                          .IncludeProperty(it => it.Set, PropertyMethod.Set)))
+                          .IncludeMethod(foobar => foobar.InterceptableInvokeAsync())
+                          .IncludeProperty(foobar => foobar.Both, PropertyMethod.Both)
+                          .IncludeProperty(foobar => foobar.Get, PropertyMethod.Get)
+                          .IncludeProperty(foobar => foobar.Set, PropertyMethod.Set)))
 
-                  .For<BazInterceptorAttribute>(3, providerBuilder => providerBuilder
-                      .To<FoobazService>(targetBuilder => targetBuilder
+                  .For<BazInterceptorAttribute>(3, interceptor => interceptor
+                      .To<FoobazService>(target => target
                           .IncludeAllMembers()
-                          .ExcludeMethod(it => it.NonInterceptableInvokeAsync())
-                          .ExcludeProperty(it => it.NonInterceptable, PropertyMethod.Both)
-                          .ExcludeProperty(it => it.Get, PropertyMethod.Set)
-                          .ExcludeProperty(it => it.Set, PropertyMethod.Get))
+                          .ExcludeMethod(foobar => foobar.NonInterceptableInvokeAsync())
+                          .ExcludeProperty(foobar => foobar.NonInterceptable, PropertyMethod.Both)
+                          .ExcludeProperty(foobar => foobar.Get, PropertyMethod.Set)
+                          .ExcludeProperty(foobar => foobar.Set, PropertyMethod.Get))
                       .To<BarbazService>(targetBuilder => targetBuilder
-                          .IncludeMethod(it => it.InterceptableInvokeAsync())
-                          .IncludeProperty(it => it.Both, PropertyMethod.Both)
-                          .IncludeProperty(it => it.Get, PropertyMethod.Get)
-                          .IncludeProperty(it => it.Set, PropertyMethod.Set))));
+                          .IncludeMethod(foobar => foobar.InterceptableInvokeAsync())
+                          .IncludeProperty(foobar => foobar.Both, PropertyMethod.Both)
+                          .IncludeProperty(foobar => foobar.Get, PropertyMethod.Get)
+                          .IncludeProperty(foobar => foobar.Set, PropertyMethod.Set))));
 
             async Task CheckAsync(IService svc, Type serviceType)
             {
@@ -209,9 +209,7 @@ namespace Dora.Interception.Test
         [Fact]
         public async void Intercept2()
         {
-            void policyBuilder(InterceptionBuilder buidler) => buidler.AddPolicy(
-               "policy.txt",
-               fileBuilder => fileBuilder
+            void policyBuilder(InterceptionBuilder buidler) => buidler.AddPolicy("policy.dora",policyFile => policyFile
                 .AddImports("Dora.Interception.Test")
                 .AddReferences(typeof(ExpressionInterceptorProviderResolverFixture).Assembly));
 
