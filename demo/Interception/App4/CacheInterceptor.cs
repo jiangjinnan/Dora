@@ -70,7 +70,7 @@ namespace App
                 int hashCode = Method.GetHashCode();
                 foreach (var argument in InputArguments)
                 {
-                    hashCode = hashCode ^ argument.GetHashCode();
+                    hashCode ^= argument.GetHashCode();
                 }
                 return hashCode;
             }
