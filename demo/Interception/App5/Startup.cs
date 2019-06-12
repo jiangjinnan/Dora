@@ -21,10 +21,14 @@ namespace App
             services
                 .AddScoped<ISystemClock, SystemClock>()
                 .AddMvc();
-            return services.BuildInterceptableServiceProvider(builder => builder.AddPolicy("Interception.dora", fileBuilder => fileBuilder
-                .AddImports("App")
-                .AddReferences(typeof(Startup).Assembly)
-                .SetFileProvider(Environment.ContentRootFileProvider)));
+
+            return services.BuildInterceptableServiceProvider(builder => builder
+                .AddFilters(filters => filters.Add(new CacheReturnValueAttribute(), method => method.DeclaringType == typeof(SystemClock) && method.Name == "GetCurrentTime1")));
+
+            //return services.BuildInterceptableServiceProvider(builder => builder.AddPolicy("Interception.dora", fileBuilder => fileBuilder
+            //    .AddImports("App")
+            //    .AddReferences(typeof(Startup).Assembly)
+            //    .SetFileProvider(Environment.ContentRootFileProvider)));
         }
 
         public void Configure(IApplicationBuilder app)

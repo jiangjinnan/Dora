@@ -15,7 +15,7 @@ namespace Dora.Interception
     /// <summary>
     /// Define extension methods agasint <see cref="InterceptionBuilder"/>.
     /// </summary>
-    public static class ServiceCollectionExtensions
+    public static partial class InterceptionBuilderExtensions
     {
         /// <summary>
         /// Adds the interception policy.
