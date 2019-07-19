@@ -57,7 +57,11 @@ namespace Dora.DynamicProxy
             {
                 if (task.IsFaulted)
                 {
-                    throw task.Exception.InnerException;
+                    throw task.Exception.InnerException;                    
+                }
+                if (task.IsCanceled)
+                {
+                    throw new TaskCanceledException();
                 }
 
                 if (invocationContext.ReturnValue is Task task2)
@@ -66,7 +70,12 @@ namespace Dora.DynamicProxy
                     {
                         throw task2.Exception.InnerException;
                     }
+                    if (task2.IsCanceled)
+                    {
+                        throw new TaskCanceledException();
+                    }
                 }
+
                 return invocationContext.ReturnValue != null
                     ? ((Task<TResult>)invocationContext.ReturnValue).Result
                     : default(TResult);
