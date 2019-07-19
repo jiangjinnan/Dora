@@ -43,8 +43,7 @@ namespace App
 
             public override bool Equals(object obj)
             {
-                Cachekey another = obj as Cachekey;
-                if (null == another)
+                if (!(obj is Cachekey another))
                 {
                     return false;
                 }

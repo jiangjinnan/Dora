@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
     <RootNamespace>Dora</RootNamespace>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
 </Project>

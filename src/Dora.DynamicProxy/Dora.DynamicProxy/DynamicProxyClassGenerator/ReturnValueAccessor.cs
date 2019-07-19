@@ -64,7 +64,7 @@ namespace Dora.DynamicProxy
                 {
                     if (task2.IsFaulted)
                     {
-                        throw task.Exception.InnerException;
+                        throw task2.Exception.InnerException;
                     }
                 }
                 return invocationContext.ReturnValue != null
