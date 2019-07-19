@@ -10,7 +10,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Product>Dora</Product>
-    <Version>2.2.0</Version>
+    <Version>2.2.1</Version>
     <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy, Castle, Dynamic Proxy</PackageTags>
     <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
