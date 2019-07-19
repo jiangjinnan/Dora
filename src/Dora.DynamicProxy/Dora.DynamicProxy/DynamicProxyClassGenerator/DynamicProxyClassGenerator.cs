@@ -766,7 +766,6 @@ namespace Dora.DynamicProxy
             }
 
             return map;
-
         }             
 
         private static string GenerateSurfix()

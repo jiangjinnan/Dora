@@ -15,7 +15,7 @@
     <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
     <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
-    <PackageReleaseNotes>Align with Dora.DynamicProxy 2.1.4</PackageReleaseNotes>
+    <PackageReleaseNotes>Performance enhancement, more ways to register interceptors, bug fixing.</PackageReleaseNotes>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 

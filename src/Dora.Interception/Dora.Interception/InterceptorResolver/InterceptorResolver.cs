@@ -170,7 +170,7 @@ namespace Dora.Interception
         {
             return type
              .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-             .Where(it => !it.IsSpecialName && (isInterface || it.IsOverridable()))
+             .Where(it => !it.IsSpecialName && (isInterface || it.IsOverridable()) && it.DeclaringType != typeof(object))
              .ToArray();
         }
         private PropertyInfo[] GetCandidateProperties(Type type, bool isInterface)
