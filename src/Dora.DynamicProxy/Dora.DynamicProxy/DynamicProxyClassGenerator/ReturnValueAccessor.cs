@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Dora.DynamicProxy
@@ -55,30 +56,31 @@ namespace Dora.DynamicProxy
             return intercept.ContinueWith(Continue);
             TResult Continue(Task task)
             {
-                if (task.IsFaulted)
+                TryRethrowException(task);
+                if (invocationContext.ReturnValue is Task task2)
                 {
-                    throw task.Exception.InnerException;                    
+                    TryRethrowException(task2);
+                }
+                return invocationContext.ReturnValue != null
+                    ? ((Task<TResult>)invocationContext.ReturnValue).Result
+                    : default(TResult);             
+            }
+
+            void TryRethrowException(Task task)
+            {
+                var exception = task.Exception;
+                if (null != exception)
+                {
+                    if (exception.InnerExceptions.Count == 1)
+                    {
+                        throw exception.InnerException;
+                    }
+                    throw exception;
                 }
                 if (task.IsCanceled)
                 {
                     throw new TaskCanceledException();
                 }
-
-                if (invocationContext.ReturnValue is Task task2)
-                {
-                    if (task2.IsFaulted)
-                    {
-                        throw task2.Exception.InnerException;
-                    }
-                    if (task2.IsCanceled)
-                    {
-                        throw new TaskCanceledException();
-                    }
-                }
-
-                return invocationContext.ReturnValue != null
-                    ? ((Task<TResult>)invocationContext.ReturnValue).Result
-                    : default(TResult);
             }
         }
        
