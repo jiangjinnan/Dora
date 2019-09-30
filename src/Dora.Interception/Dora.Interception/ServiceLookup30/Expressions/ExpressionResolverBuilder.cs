@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Dora.Interception;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -192,6 +193,25 @@ namespace Microsoft.Extensions.DependencyInjection.ServiceLookup
         {
             var lambda = Build(callSite);
             return Expression.Invoke(Expression.Constant(lambda), ScopeParameter);
+        }
+
+        private static MethodInfo _wrapMethod = typeof(IInterceptingProxyFactory).GetMethod("Wrap", BindingFlags.Instance | BindingFlags.Public);
+        private static MethodInfo _createMethod = typeof(IInterceptingProxyFactory).GetMethod("Create", BindingFlags.Instance | BindingFlags.Public);
+
+        protected override Expression VisitInterception(InterceptionCallSite interceptionCallSite, object  context)
+        {
+            if (interceptionCallSite.CanIntercept)
+            {
+                var factory = Expression.Constant(interceptionCallSite.ProxyFactory);
+                var sreviceType = Expression.Constant(interceptionCallSite.ServiceType);
+                if (interceptionCallSite.ServiceType.IsInterface)
+                {
+                    var target = VisitCallSite(interceptionCallSite.Target, context);
+                    return Expression.Call(factory, _wrapMethod, sreviceType, target);
+                }
+                return Expression.Call(factory, _createMethod, sreviceType, ScopeParameter, Expression.Constant(null));
+            }
+            return VisitCallSite(interceptionCallSite.Target, context);
         }
 
         // Move off the main stack
