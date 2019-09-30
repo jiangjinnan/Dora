@@ -8,8 +8,8 @@ namespace Dora.DynamicProxy
     internal sealed class DynamicProxyFactoryCache: IDynamicProxyFactoryCache
     {
         #region Fields  
-        private Dictionary<Type, Func<object, InterceptorRegistry, object>> _instanceFactories;
-        private Dictionary<Type, Func<InterceptorRegistry, IServiceProvider, object>> _typeFactories;    
+        private readonly Dictionary<Type, Func<object, InterceptorRegistry, object>> _instanceFactories;
+        private readonly Dictionary<Type, Func<InterceptorRegistry, IServiceProvider, object>> _typeFactories;    
         #endregion
 
         #region Constructors
@@ -79,7 +79,6 @@ namespace Dora.DynamicProxy
         {
             var target = Expression.Parameter(typeof(object));
             var interceptors = Expression.Parameter(typeof(InterceptorRegistry));
-            var typeToIntercept = Expression.Constant(proxyType);
             
             var constructor = proxyType.GetConstructors()[0];
             var targetType = constructor.GetParameters()[0].ParameterType;

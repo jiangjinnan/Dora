@@ -8,7 +8,7 @@ namespace Dora.DynamicProxy
     public class VirtualMethodDynamicProxyGenerator : ITypeDynamicProxyGenerator
     {
         #region Fields
-        private IDynamicProxyFactoryCache _dynamicProxyFactoryCache;
+        private readonly IDynamicProxyFactoryCache _dynamicProxyFactoryCache;
         #endregion
 
         #region Constructors

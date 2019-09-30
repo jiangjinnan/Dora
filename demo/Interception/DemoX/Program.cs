@@ -9,7 +9,7 @@ namespace DemoX
 {
     public class Program
     {
-        private static int _flag = 0; 
+        private static int _flag = 0;
 
         static void Main()
         {
@@ -41,8 +41,8 @@ namespace DemoX
         {
             var serviceProvider = new ServiceCollection()
                 .AddInterception()
-                .AddInterceptableSingleton<IFoobar, Foobar>()
-                .AddInterceptableSingleton<Foobar>()
+                //.AddInterceptableSingleton<IFoobar, Foobar>()
+                //.AddInterceptableSingleton<Foobar>()
                 .BuildServiceProvider();
 
             var proxy1 = serviceProvider.GetRequiredService<IFoobar>();

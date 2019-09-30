@@ -13,7 +13,7 @@ namespace Dora.DynamicProxy
     {     
         #region Fields
         private static MethodInfo _methodOfGetInterceptor;
-        private Dictionary<MethodInfo, MethodInfo> _interfaceMapping;
+        private readonly Dictionary<MethodInfo, MethodInfo> _interfaceMapping;
 
         #endregion
 

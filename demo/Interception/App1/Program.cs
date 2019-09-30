@@ -9,13 +9,13 @@ namespace App
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static async Task Main()
         {
             var clock1 = new ServiceCollection()
               .AddLogging(factory => factory.AddConsole())
               .AddMemoryCache()
               .AddSingleton<ISystemClock, SystemClock>()
-              .AddInterception(builder=>builder.SetCastleDynamicProxy())
+              .AddInterception()
               .BuildServiceProvider()
               .GetRequiredService<IInterceptable<ISystemClock>>()
               .Proxy;

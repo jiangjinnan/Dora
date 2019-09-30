@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -12,7 +12,7 @@
     <Product>Dora</Product>
     <Version>2.2.1</Version>
     <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy</PackageTags>
-    <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
+    <!--<PackageIcon>http://www.doranet.org/images/logo.png</PackageIcon>-->
     <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
     <PackageReleaseNotes>Performance enhancement, more ways to register interceptors, bug fixing.</PackageReleaseNotes>
@@ -35,21 +35,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ServiceLookup-2.1.1\**" />
+    <Compile Remove="ServiceLookup1x\**" />
     <Compile Remove="ServiceLookup\**" />
     <Compile Remove="shared\**" />
+    <EmbeddedResource Remove="ServiceLookup-2.1.1\**" />
+    <EmbeddedResource Remove="ServiceLookup1x\**" />
     <EmbeddedResource Remove="ServiceLookup\**" />
     <EmbeddedResource Remove="shared\**" />
+    <None Remove="ServiceLookup-2.1.1\**" />
+    <None Remove="ServiceLookup1x\**" />
     <None Remove="ServiceLookup\**" />
     <None Remove="shared\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.3.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="3.0.0" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Dora.DynamicProxy\Dora.DynamicProxy\Dora.DynamicProxy.csproj" />

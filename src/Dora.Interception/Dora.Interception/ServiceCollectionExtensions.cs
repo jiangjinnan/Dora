@@ -108,7 +108,10 @@ namespace Microsoft.Extensions.DependencyInjection
             var options = new ServiceProviderOptions { ValidateScopes = validateScopes };
             services.AddInterceptionCore(configure, false);
             var proxyFactory = services.BuildServiceProvider(validateScopes).GetRequiredService<IInterceptingProxyFactory>();
-            return new InterceptableServiceProvider(services, options, proxyFactory);
+
+            //TODO
+            return null;
+            //return new InterceptableServiceProvider(services, options, proxyFactory);
         }
 
         private class ServiceOverrideIndicator {}

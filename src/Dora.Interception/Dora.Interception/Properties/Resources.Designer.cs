@@ -19,7 +19,7 @@ namespace Dora.Interception.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -70,6 +70,24 @@ namespace Dora.Interception.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to activate type &apos;{0}&apos;. The following constructors are ambiguous:.
+        /// </summary>
+        internal static string AmbiguousConstructorException {
+            get {
+                return ResourceManager.GetString("AmbiguousConstructorException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; type only implements IAsyncDisposable. Use DisposeAsync to dispose the container..
+        /// </summary>
+        internal static string AsyncDisposableServiceDispose {
+            get {
+                return ResourceManager.GetString("AsyncDisposableServiceDispose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to resolve service for type &apos;{0}&apos; while attempting to activate &apos;{1}&apos;..
         /// </summary>
         internal static string CannotResolveService {
@@ -88,6 +106,15 @@ namespace Dora.Interception.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Constant value of type &apos;{0}&apos; can&apos;t be converted to service type &apos;{1}&apos;.
+        /// </summary>
+        internal static string ConstantCantBeConvertedToServiceType {
+            get {
+                return ResourceManager.GetString("ConstantCantBeConvertedToServiceType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot resolve {1} service &apos;{0}&apos; from root provider..
         /// </summary>
         internal static string DirectScopedResolvedFromRootException {
@@ -102,6 +129,15 @@ namespace Dora.Interception.Properties {
         internal static string DuplicateInterceptorProviderResolverIsAdded {
             get {
                 return ResourceManager.GetString("DuplicateInterceptorProviderResolverIsAdded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Implementation type &apos;{0}&apos; can&apos;t be converted to service type &apos;{1}&apos;.
+        /// </summary>
+        internal static string ImplementationTypeCantBeConvertedToServiceType {
+            get {
+                return ResourceManager.GetString("ImplementationTypeCantBeConvertedToServiceType", resourceCulture);
             }
         }
         

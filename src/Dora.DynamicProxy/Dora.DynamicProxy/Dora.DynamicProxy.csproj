@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-      <TargetFramework>netstandard2.0</TargetFramework>
+      <TargetFramework>netstandard2.1</TargetFramework>
       <SignAssembly>true</SignAssembly>
       <AssemblyOriginatorKeyFile>..\..\..\Key.snk</AssemblyOriginatorKeyFile>
       <Description>Provide underlying intercepting dynamic proxy generating mechanism for Dora.Interception.</Description>
@@ -11,7 +11,7 @@
       <Product>Dora</Product>
       <Version>2.2.1</Version>
       <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy</PackageTags>
-      <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
+      <!--<PackageIcon>http://www.doranet.org/images/logo.png</PackageIcon>-->
       <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
       <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -42,10 +42,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.6.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
   </ItemGroup>
 
   <ItemGroup>

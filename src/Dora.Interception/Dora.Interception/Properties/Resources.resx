@@ -120,6 +120,12 @@
   <data name="AmbigiousConstructorException" xml:space="preserve">
     <value>Unable to activate type '{0}'. The following constructors are ambigious:</value>
   </data>
+  <data name="AmbiguousConstructorException" xml:space="preserve">
+    <value>Unable to activate type '{0}'. The following constructors are ambiguous:</value>
+  </data>
+  <data name="AsyncDisposableServiceDispose" xml:space="preserve">
+    <value>'{0}' type only implements IAsyncDisposable. Use DisposeAsync to dispose the container.</value>
+  </data>
   <data name="CannotResolveService" xml:space="preserve">
     <value>Unable to resolve service for type '{0}' while attempting to activate '{1}'.</value>
     <comment>{0} = service which cannot be resolved, {1} = service being activated</comment>
@@ -128,11 +134,17 @@
     <value>A circular dependency was detected for the service of type '{0}'.</value>
     <comment>{0} = service type with circular dependency</comment>
   </data>
+  <data name="ConstantCantBeConvertedToServiceType" xml:space="preserve">
+    <value>Constant value of type '{0}' can't be converted to service type '{1}'</value>
+  </data>
   <data name="DirectScopedResolvedFromRootException" xml:space="preserve">
     <value>Cannot resolve {1} service '{0}' from root provider.</value>
   </data>
   <data name="DuplicateInterceptorProviderResolverIsAdded" xml:space="preserve">
     <value>Duplicate InterceptorProviderResolver with the name "{0}" is registered.</value>
+  </data>
+  <data name="ImplementationTypeCantBeConvertedToServiceType" xml:space="preserve">
+    <value>Implementation type '{0}' can't be converted to service type '{1}'</value>
   </data>
   <data name="InterceptorProviderResolverNotRegistered" xml:space="preserve">
     <value>The InterceptorProviderResolver with name "{0}" is not registered.</value>

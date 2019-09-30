@@ -8,7 +8,7 @@ namespace Dora.DynamicProxy
     /// <seealso cref="Dora.DynamicProxy.IInstanceDynamicProxyGenerator" />
     public class InterfaceDynamicProxyGenerator : IInstanceDynamicProxyGenerator
     {
-        private IDynamicProxyFactoryCache _dynamicProxyFactoryCache;
+        private readonly IDynamicProxyFactoryCache _dynamicProxyFactoryCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterfaceDynamicProxyGenerator"/> class.
