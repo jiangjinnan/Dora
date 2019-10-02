@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Dora.Interception;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Dora.Interception;
 
 namespace App
 {

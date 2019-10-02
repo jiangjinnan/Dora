@@ -61,105 +61,6 @@ namespace Dora.Interception.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to activate type &apos;{0}&apos;. The following constructors are ambigious:.
-        /// </summary>
-        internal static string AmbigiousConstructorException {
-            get {
-                return ResourceManager.GetString("AmbigiousConstructorException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to activate type &apos;{0}&apos;. The following constructors are ambiguous:.
-        /// </summary>
-        internal static string AmbiguousConstructorException {
-            get {
-                return ResourceManager.GetString("AmbiguousConstructorException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; type only implements IAsyncDisposable. Use DisposeAsync to dispose the container..
-        /// </summary>
-        internal static string AsyncDisposableServiceDispose {
-            get {
-                return ResourceManager.GetString("AsyncDisposableServiceDispose", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to resolve service for type &apos;{0}&apos; while attempting to activate &apos;{1}&apos;..
-        /// </summary>
-        internal static string CannotResolveService {
-            get {
-                return ResourceManager.GetString("CannotResolveService", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A circular dependency was detected for the service of type &apos;{0}&apos;..
-        /// </summary>
-        internal static string CircularDependencyException {
-            get {
-                return ResourceManager.GetString("CircularDependencyException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Constant value of type &apos;{0}&apos; can&apos;t be converted to service type &apos;{1}&apos;.
-        /// </summary>
-        internal static string ConstantCantBeConvertedToServiceType {
-            get {
-                return ResourceManager.GetString("ConstantCantBeConvertedToServiceType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot resolve {1} service &apos;{0}&apos; from root provider..
-        /// </summary>
-        internal static string DirectScopedResolvedFromRootException {
-            get {
-                return ResourceManager.GetString("DirectScopedResolvedFromRootException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Duplicate InterceptorProviderResolver with the name &quot;{0}&quot; is registered..
-        /// </summary>
-        internal static string DuplicateInterceptorProviderResolverIsAdded {
-            get {
-                return ResourceManager.GetString("DuplicateInterceptorProviderResolverIsAdded", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Implementation type &apos;{0}&apos; can&apos;t be converted to service type &apos;{1}&apos;.
-        /// </summary>
-        internal static string ImplementationTypeCantBeConvertedToServiceType {
-            get {
-                return ResourceManager.GetString("ImplementationTypeCantBeConvertedToServiceType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The InterceptorProviderResolver with name &quot;{0}&quot; is not registered..
-        /// </summary>
-        internal static string InterceptorProviderResolverNotRegistered {
-            get {
-                return ResourceManager.GetString("InterceptorProviderResolverNotRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A suitable constructor for type &apos;{0}&apos; could not be located. Ensure the type is concrete and services are registered for all parameters of a public constructor..
-        /// </summary>
-        internal static string NoConstructorMatch {
-            get {
-                return ResourceManager.GetString("NoConstructorMatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The specified is not a method call expression..
         /// </summary>
         internal static string NotMethodCallExpression {
@@ -178,15 +79,6 @@ namespace Dora.Interception.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open generic service type &apos;{0}&apos; requires registering an open generic implementation type..
-        /// </summary>
-        internal static string OpenGenericServiceRequiresOpenGenericImplementation {
-            get {
-                return ResourceManager.GetString("OpenGenericServiceRequiresOpenGenericImplementation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The property &quot;{0}&quot; of &quot;{1}&quot; does not have a Get method..
         /// </summary>
         internal static string PropertyHasNoGetMethod {
@@ -201,42 +93,6 @@ namespace Dora.Interception.Properties {
         internal static string PropertyHasNoSetMethod {
             get {
                 return ResourceManager.GetString("PropertyHasNoSetMethod", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot consume {2} service &apos;{0}&apos; from {3} &apos;{1}&apos;..
-        /// </summary>
-        internal static string ScopedInSingletonException {
-            get {
-                return ResourceManager.GetString("ScopedInSingletonException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot resolve &apos;{0}&apos; from root provider because it requires {2} service &apos;{1}&apos;..
-        /// </summary>
-        internal static string ScopedResolvedFromRootException {
-            get {
-                return ResourceManager.GetString("ScopedResolvedFromRootException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot instantiate implementation type &apos;{0}&apos; for service type &apos;{1}&apos;..
-        /// </summary>
-        internal static string TypeCannotBeActivated {
-            get {
-                return ResourceManager.GetString("TypeCannotBeActivated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No constructor for type &apos;{0}&apos; can be instantiated using services from the service container and default values..
-        /// </summary>
-        internal static string UnableToActivateTypeException {
-            get {
-                return ResourceManager.GetString("UnableToActivateTypeException", resourceCulture);
             }
         }
     }

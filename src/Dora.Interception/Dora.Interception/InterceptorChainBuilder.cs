@@ -1,5 +1,4 @@
-﻿using Dora.DynamicProxy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ namespace Dora.Interception
     /// </summary>
     public class InterceptorChainBuilder : IInterceptorChainBuilder
     {
-        private List<Tuple<int, InterceptorDelegate>> _interceptors;
+        private readonly List<Tuple<int, InterceptorDelegate>> _interceptors;
 
         /// <summary>
         /// Gets the service provider to get dependency services.

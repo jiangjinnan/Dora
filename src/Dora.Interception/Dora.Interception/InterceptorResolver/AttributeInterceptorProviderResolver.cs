@@ -6,7 +6,8 @@ namespace Dora.Interception
 {
     internal class AttributeInterceptorProviderResolver : IInterceptorProviderResolver
     {
-        private static readonly IInterceptorProvider[] _empty = new IInterceptorProvider[0];
+        public static IInterceptorProvider[] Empty { get; } = new IInterceptorProvider[0];
+
         public IInterceptorProvider[] GetInterceptorProvidersForType(Type type)
         {
             Guard.ArgumentNotNull(nameof(type), nameof(type));            
@@ -27,8 +28,9 @@ namespace Dora.Interception
         {
             Guard.ArgumentNotNull(nameof(property), nameof(property));
             var method = propertyMethod == PropertyMethod.Get ? property.GetMethod : property.SetMethod;
-            return CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(property).ToArray()
-                .Concat(CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(method).ToArray());
+            var providers = CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(property);
+            providers.Concat(CustomAttributeAccessor.GetCustomAttributes<IInterceptorProvider>(method));
+            return providers.ToArray();
         }
 
         public bool? WillIntercept(Type type)

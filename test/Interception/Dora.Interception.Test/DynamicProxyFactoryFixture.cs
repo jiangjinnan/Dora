@@ -1,5 +1,4 @@
-﻿using Dora.DynamicProxy;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using Xunit;
 

@@ -1,12 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Xunit;
-using Dora;
-using System.Threading.Tasks;
 using System.Reflection;
-using Dora.DynamicProxy;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace Dora.Interception.Test
 {

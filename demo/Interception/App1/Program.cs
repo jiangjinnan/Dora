@@ -3,6 +3,7 @@ using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace App
@@ -11,44 +12,50 @@ namespace App
     {
         public static async Task Main()
         {
-            var clock1 = new ServiceCollection()
-              .AddLogging(factory => factory.AddConsole())
-              .AddMemoryCache()
-              .AddSingleton<ISystemClock, SystemClock>()
-              .AddInterception()
-              .BuildServiceProvider()
-              .GetRequiredService<IInterceptable<ISystemClock>>()
-              .Proxy;
+            //var clock1 = new ServiceCollection()
+            //  .AddLogging(factory => factory.AddConsole())
+            //  .AddMemoryCache()
+            //  .AddSingleton<ISystemClock, SystemClock>()
+            //  .AddInterception()
+            //  .BuildServiceProvider()
+            //  .GetRequiredService<IInterceptable<ISystemClock>>()
+            //  .Proxy;
 
-            for (int i = 0; i < 5; i++)
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Local)}");
+            //    Task.Delay(1000).Wait();
+            //}
+
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Utc)}");
+            //    Task.Delay(1000).Wait();
+            //}
+
+            var watch = Stopwatch.StartNew();
+            for (int i = 0; i < 10000; i++)
             {
-                Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Local)}");
-                Task.Delay(1000).Wait();
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Utc)}");
-                Task.Delay(1000).Wait();
-            }
-
-            var clock2 = new ServiceCollection()
+                var clock2 = new ServiceCollection()
               .AddMemoryCache()
               .AddSingleton<ISystemClock, SystemClock>()
               .BuildInterceptableServiceProvider()
               .GetRequiredService<ISystemClock>();
-
-            for (int i = 0; i < 5; i++)
-            {
-                Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Local)}");
-                Task.Delay(1000).Wait();
             }
+            Console.WriteLine(watch.Elapsed);
+            
 
-            for (int i = 0; i < 5; i++)
-            {
-                Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Utc)}");
-                Task.Delay(1000).Wait();
-            }
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Local)}");
+            //    Task.Delay(1000).Wait();
+            //}
+
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Utc)}");
+            //    Task.Delay(1000).Wait();
+            //}
         }
     }
 }

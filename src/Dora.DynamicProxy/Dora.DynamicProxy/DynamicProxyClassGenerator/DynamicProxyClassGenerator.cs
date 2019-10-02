@@ -85,12 +85,12 @@ namespace Dora.DynamicProxy
 
             if (TypeToIntercept.IsInterface)
             {
-                TypeBuilder = ModuleBuilder.DefineType($"{typeToIntercept.Name}{GenerateSurfix()}", TypeAttributes.Public, typeof(object), new Type[] { typeToIntercept });
+                TypeBuilder = ModuleBuilder.DefineType($"{typeToIntercept.Name}{GenerateSurfix()}", TypeAttributes.Public, typeof(object), new Type[] { typeToIntercept, typeof(IInterceptableProxy) });
                 TargetField = TypeBuilder.DefineField("_target", typeToIntercept, FieldAttributes.Private);
             }
             else
             {
-                TypeBuilder = ModuleBuilder.DefineType($"{typeToIntercept.Name}{GenerateSurfix()}", TypeAttributes.Public, typeToIntercept, new Type[] { typeof(IInterceptorsInitializer) });
+                TypeBuilder = ModuleBuilder.DefineType($"{typeToIntercept.Name}{GenerateSurfix()}", TypeAttributes.Public, typeToIntercept, new Type[] { typeof(IInterceptorsInitializer), typeof(IInterceptableProxy) });
             }
             InterceptorsField = TypeBuilder.DefineField("_interceptors", typeof(InterceptorRegistry), FieldAttributes.Private);
         }

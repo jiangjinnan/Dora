@@ -1,8 +1,8 @@
-﻿using Dora.DynamicProxy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Dora.Interception
 {
@@ -12,8 +12,8 @@ namespace Dora.Interception
     public class InterceptorResolver : IInterceptorResolver
     {
         #region Fields
-        private HashSet<Type> _nonInterceptableTypes = new HashSet<Type>();
-        private CompositeInterceptorProviderResolver _providerResolver;
+        private readonly HashSet<Type> _nonInterceptableTypes = new HashSet<Type>();
+        private readonly CompositeInterceptorProviderResolver _providerResolver;
         #endregion
 
         #region Properties
@@ -52,15 +52,31 @@ namespace Dora.Interception
         /// <returns>
         /// The <see cref="T:Dora.DynamicProxy.InterceptorDecoration" /> representing the type members decorated with interceptors.
         /// </returns>
-        public InterceptorRegistry GetInterceptors(Type interfaceType, Type targetType)
+        public IInterceptorRegistry GetInterceptors(Type interfaceType, Type targetType)
         {
             Guard.ArgumentNotNull(interfaceType, nameof(interfaceType));
             Guard.ArgumentNotNull(targetType, nameof(targetType));
             if (interfaceType.IsInterface)
             {
-                return GetInterceptorsCore(interfaceType, targetType, targetType.GetInterfaceMap(interfaceType));
+                InterfaceMapping2 mapping;
+                try
+                {
+                    if (interfaceType.IsGenericTypeDefinition)
+                    {
+                        mapping = ReflectionUtility.GetInterfaceMap(interfaceType, targetType);
+                    }
+                    else
+                    {
+                        mapping = new InterfaceMapping2(targetType.GetInterfaceMap(interfaceType));
+                    }
+                }
+                catch(Exception ex)
+                {
+                    throw ex;
+                   // return InterceptorRegistry.Empty;
+                }
+                return GetInterceptorsCore(interfaceType, targetType, mapping);
             }
-
             return InterceptorRegistry.Empty;
         }
 
@@ -71,7 +87,7 @@ namespace Dora.Interception
         /// <returns>
         /// The <see cref="T:Dora.DynamicProxy.InterceptorDecoration" /> representing the type members decorated with interceptors.
         /// </returns>
-        public InterceptorRegistry GetInterceptors(Type typeToIntercept)
+        public IInterceptorRegistry GetInterceptors(Type typeToIntercept)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             return GetInterceptorsCore(typeToIntercept, typeToIntercept);
@@ -79,10 +95,10 @@ namespace Dora.Interception
         #endregion
 
         #region Private Methods
-        private InterceptorRegistry GetInterceptorsCore(Type typeToIntercept, Type targetType, InterfaceMapping? interfaceMapping = null)
+        private IInterceptorRegistry GetInterceptorsCore(Type typeToIntercept, Type targetType, InterfaceMapping2? interfaceMapping = null)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
-            targetType = targetType ?? typeToIntercept;
+            targetType ??= typeToIntercept;
             var isInterface = interfaceMapping != null;
             if (_nonInterceptableTypes.Contains(typeToIntercept))
             {
@@ -251,7 +267,7 @@ namespace Dora.Interception
 
             return array;
         }
-        private MethodInfo GetTargetMethod(MethodInfo methodToIntercept, InterfaceMapping? interfaceMapping = null)
+        private MethodInfo GetTargetMethod(MethodInfo methodToIntercept, InterfaceMapping2? interfaceMapping = null)
         {
             if (interfaceMapping == null)
             {
@@ -261,7 +277,7 @@ namespace Dora.Interception
             var index = Array.IndexOf(interfaceMapping.Value.InterfaceMethods, methodToIntercept);
             return interfaceMapping.Value.TargetMethods[index];
         }
-        private PropertyInfo GetTargetProperty(PropertyInfo propertyToIntercept, Type targetType = null, InterfaceMapping? interfaceMapping = null)
+        private PropertyInfo GetTargetProperty(PropertyInfo propertyToIntercept, Type targetType = null, InterfaceMapping2? interfaceMapping = null)
         {
             if (interfaceMapping == null)
             {

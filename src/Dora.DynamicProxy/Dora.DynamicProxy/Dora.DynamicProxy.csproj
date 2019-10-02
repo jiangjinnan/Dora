@@ -17,6 +17,7 @@
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <PackageReleaseNotes>Performance enhancement, more ways to register interceptors, bug fixing.</PackageReleaseNotes>
       <PackageId>Dora.DynamicProxy</PackageId>
+      <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
