@@ -19,6 +19,7 @@ namespace Dora.Interception
         private FieldBuilder _targetField;
         private FieldBuilder _interceptorsField;
         private readonly MethodInfo _methodOfGetInterceptor = ReflectionUtility.GetMethod<IInterceptorRegistry>(_ => _.GetInterceptor(null));
+        private readonly MethodInfo _getInterceptorsMethod = ReflectionUtility.GetMethod<IInterceptorResolver>(_ => _.GetInterceptors(null, null));
         #endregion
 
         #region Public methods
@@ -106,7 +107,8 @@ namespace Dora.Interception
         /// </example>
         private ConstructorBuilder DefineConstructorForImplementationClass()
         {
-            var parameterTypes = new Type[] { _interfaceOrBaseType, typeof(IInterceptorRegistry) };
+            var targetParameterType = _interfaceOrBaseType.IsGenericTypeDefinition ? _targetType : _interfaceOrBaseType;
+            var parameterTypes = new Type[] { targetParameterType, typeof(IInterceptorResolver) };
             var constructor = _typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, parameterTypes);
             var il = constructor.GetILGenerator();
 
@@ -122,6 +124,9 @@ namespace Dora.Interception
             //Set _interceptors field
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Ldtoken, _interfaceOrBaseType);
+            il.Emit(OpCodes.Ldtoken, _targetType);
+            il.Emit(OpCodes.Callvirt, _getInterceptorsMethod);
             il.Emit(OpCodes.Stfld, _interceptorsField);
 
             //Return

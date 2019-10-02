@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App4", "..\..\demo\Intercep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App5", "..\..\demo\Interception\App5\App5.csproj", "{8D5DB404-97DF-46B5-9A02-DF3855223B2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dora.Interception.Abstractions", "Dora.Interception.Abstractions\Dora.Interception.Abstractions.csproj", "{75318169-DCC3-4AE9-8046-487E8839C2A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dora.Interception.Abstractions", "Dora.Interception.Abstractions\Dora.Interception.Abstractions.csproj", "{75318169-DCC3-4AE9-8046-487E8839C2A0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ref", "ref", "{072598FB-A7DE-4615-9AD0-9B56C9812E16}"
 EndProject

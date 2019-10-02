@@ -45,13 +45,13 @@ namespace Dora.Interception
                 }
                 else if (serviceType.IsGenericTypeDefinition)
                 {
-                    _secondaryDescriptor = new ServiceDescriptor(implementationType, implementationType);
+                    _secondaryDescriptor = new ServiceDescriptor(implementationType, implementationType, lifetime);
                     var codeGenerator = codeGeneratorFactory.Create();
                     var context = new CodeGenerationContext(serviceType, implementationType, interceptors);
                     var proxyType = codeGenerator.GenerateInterceptableProxyClass(context);
-                    _primaryDescriptor = new ServiceDescriptor(serviceType, proxyType);
+                    _primaryDescriptor = new ServiceDescriptor(serviceType,proxyType, lifetime);
 
-                    _primaryDescriptor = serviceDescriptor;
+                    //_primaryDescriptor = serviceDescriptor;
                 }
                 else
                 {
@@ -59,7 +59,7 @@ namespace Dora.Interception
                     object CreateOrGet(IServiceProvider serviceProvider)
                     {
                         var target = ActivatorUtilities.CreateInstance(serviceProvider, implementationType);
-                        return factoryCache.GetInstanceFactory(serviceType, interceptors).Invoke(target);
+                        return factoryCache.GetInstanceFactory(serviceType, implementationType).Invoke(target);
                     }
                 }
             }
@@ -75,7 +75,7 @@ namespace Dora.Interception
                     _primaryDescriptor = new ServiceDescriptor(serviceType, CreateOrGet, lifetime);
                     object CreateOrGet(IServiceProvider serviceProvider)
                     {
-                        return factoryCache.GetTypeFactory(implementationType, interceptors).Invoke(serviceProvider);
+                        return factoryCache.GetTypeFactory(implementationType).Invoke(serviceProvider);
                     }
                 }
             }
