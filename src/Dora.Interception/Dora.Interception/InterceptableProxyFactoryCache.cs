@@ -2,21 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace Dora.Interception
 {
     internal sealed class InterceptableProxyFactoryCache : IInterceptableProxyFactoryCache
     {
         #region Fields  
+        private readonly ReaderWriterLockSlim _instanceLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim _typeLock = new ReaderWriterLockSlim();
         private readonly ICodeGeneratorFactory _codeGeneratorFactory;
         private readonly Dictionary<Tuple<Type, Type>, Func<object, object>> _instanceFactories;
-        private readonly Dictionary<Type, Func< IServiceProvider, object>> _typeFactories;
+        private readonly Dictionary<Type, Func<IServiceProvider, object>> _typeFactories;
         private readonly IInterceptorResolver _interceptorResolver;
         #endregion
 
         #region Constructors
         public InterceptableProxyFactoryCache(
-            ICodeGeneratorFactory  codeGeneratorFactory,
+            ICodeGeneratorFactory codeGeneratorFactory,
             IInterceptorResolver interceptorResolver)
         {
             _codeGeneratorFactory = codeGeneratorFactory;
@@ -31,13 +34,22 @@ namespace Dora.Interception
         public Func<object, object> GetInstanceFactory(Type @interface, Type targetType)
         {
             var key = new Tuple<Type, Type>(@interface, targetType);
-            if (_instanceFactories.TryGetValue(key, out var factory))
+            _instanceLock.EnterReadLock();
+            try
             {
-                return factory;
+                if (_instanceFactories.TryGetValue(key, out var factory))
+                {
+                    return factory;
+                }
             }
-            lock (_instanceFactories)
+            finally
             {
-                if (_instanceFactories.TryGetValue(key, out factory))
+                _instanceLock.ExitReadLock();
+            }
+            _instanceLock.EnterWriteLock();
+            try
+            {
+                if (_instanceFactories.TryGetValue(key, out var factory))
                 {
                     return factory;
                 }
@@ -45,24 +57,41 @@ namespace Dora.Interception
                 var proxyType = _codeGeneratorFactory.Create().GenerateInterceptableProxyClass(context);
                 return _instanceFactories[key] = CreateInstanceFactory(proxyType);
             }
+            finally
+            {
+                _instanceLock.ExitWriteLock();
+            }
         }
 
         public Func<IServiceProvider, object> GetTypeFactory(Type type)
         {
-            if (_typeFactories.TryGetValue(type, out var factory))
+            _typeLock.EnterReadLock();
+            try
             {
-                return factory;
+                if (_typeFactories.TryGetValue(type, out var factory))
+                {
+                    return factory;
+                }
             }
-            lock (_typeFactories)
+            finally
             {
-                if (_typeFactories.TryGetValue(type, out factory))
+                _typeLock.ExitReadLock();
+            }
+            _typeLock.EnterWriteLock();
+            try
+            {
+                if (_typeFactories.TryGetValue(type, out var factory))
                 {
                     return factory;
                 }
                 var interceptors = _interceptorResolver.GetInterceptors(type);
                 var context = new CodeGenerationContext(type, interceptors);
                 var proxyType = _codeGeneratorFactory.Create().GenerateInterceptableProxyClass(context);
-                return _typeFactories[type] = CreateTypeFactory(proxyType, interceptors);
+                return _typeFactories[type] = CreateTypeFactory(proxyType);
+            }
+            finally
+            {
+                _typeLock.ExitWriteLock();
             }
         }
         #endregion
@@ -98,12 +127,12 @@ namespace Dora.Interception
                 .Compile();
         }
 
-        private Func<IServiceProvider, object> CreateTypeFactory(Type proxyType, IInterceptorRegistry interceptors)
+        private Func<IServiceProvider, object> CreateTypeFactory(Type proxyType)
         {
             return serviceProvider =>
             {
                 var proxy = ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, proxyType);
-                ((IInterceptorsInitializer)proxy).SetInterceptors(interceptors);
+                //((IInterceptorsInitializer)proxy).SetInterceptors(interceptors);
                 return proxy;
             };
         }

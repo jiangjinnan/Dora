@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace Dora.Interception
 {
@@ -15,7 +14,6 @@ namespace Dora.Interception
         /// <param name="targetType">Type of the target instance.</param>
         /// <returns>The <see cref="IInterceptorRegistry"/> representing the type members decorated with interceptors.</returns>
         IInterceptorRegistry GetInterceptors(Type initerfaceType, Type targetType);
-
 
         /// <summary>
         /// Gets the interceptors decorated with the specified type.

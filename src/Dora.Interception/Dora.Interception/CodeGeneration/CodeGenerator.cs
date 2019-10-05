@@ -19,7 +19,9 @@ namespace Dora.Interception
         private FieldBuilder _targetField;
         private FieldBuilder _interceptorsField;
         private readonly MethodInfo _methodOfGetInterceptor = ReflectionUtility.GetMethod<IInterceptorRegistry>(_ => _.GetInterceptor(null));
-        private readonly MethodInfo _getInterceptorsMethod = ReflectionUtility.GetMethod<IInterceptorResolver>(_ => _.GetInterceptors(null, null));
+        private readonly MethodInfo _getInterceptorsMethod4Interface = ReflectionUtility.GetMethod<IInterceptorResolver>(_ => _.GetInterceptors(null, null));
+        private readonly MethodInfo _getInterceptorsMethod4Class = ReflectionUtility.GetMethod<IInterceptorResolver>(_ => _.GetInterceptors(null));
+        private readonly MethodInfo _writeLineMethod = typeof(Console).GetMethod("WriteLine", new Type[] { typeof(object) });
         #endregion
 
         #region Public methods
@@ -40,7 +42,7 @@ namespace Dora.Interception
             }
             else
             {
-                _typeBuilder = _moduleBuilder.DefineType($"{_interfaceOrBaseType.Name}{GenerateSurfix()}", TypeAttributes.Public, _interfaceOrBaseType, new Type[] { typeof(IInterceptorsInitializer) });
+                _typeBuilder = _moduleBuilder.DefineType($"{_interfaceOrBaseType.Name}{GenerateSurfix()}", TypeAttributes.Public, _interfaceOrBaseType);
             }
 
             if (_interfaceOrBaseType.IsGenericType)
@@ -94,14 +96,14 @@ namespace Dora.Interception
         /// </summary>
         /// <returns>The <see cref="ConstructorBuilder"/> representing the generated constructor.</returns>
         /// <example>
-        /// public class FoobarProxy
+        /// public class FoobarProxy: IFoobar
         /// {
         ///     private Foobar _target;
         ///     private InterceptorRegistry _interceptors;
-        ///     public (FoobarProxy target, InterceptorRegistry interceptors)
+        ///     public (FoobarProxy target, IInterceptorResolver resolver)
         ///     {
         ///         _target = target;
-        ///         _interceptors = interceptors;
+        ///         _interceptors = resolver.GetInterceptors(typeof(IFoobar), typeof(Foobar));
         ///     }
         /// }
         /// </example>
@@ -126,7 +128,7 @@ namespace Dora.Interception
             il.Emit(OpCodes.Ldarg_2);
             il.Emit(OpCodes.Ldtoken, _interfaceOrBaseType);
             il.Emit(OpCodes.Ldtoken, _targetType);
-            il.Emit(OpCodes.Callvirt, _getInterceptorsMethod);
+            il.Emit(OpCodes.Callvirt, _getInterceptorsMethod4Interface);
             il.Emit(OpCodes.Stfld, _interceptorsField);
 
             //Return
@@ -145,16 +147,25 @@ namespace Dora.Interception
             for (int index1 = 0; index1 < constructors.Length; index1++)
             {
                 var constructor = constructors[index1];
-                var parameterTypes = constructor.GetParameters().Select(it => it.ParameterType).ToArray();
-                var constructorBuilder = constructorBuilders[index1] = _typeBuilder.DefineConstructor(constructor.Attributes, CallingConventions.HasThis, parameterTypes);
+                var parameterTypes = constructor.GetParameters().Select(it => it.ParameterType).ToList();
+                parameterTypes.Add(typeof(IInterceptorResolver));
+                var constructorBuilder = constructorBuilders[index1] = _typeBuilder.DefineConstructor(constructor.Attributes, CallingConventions.HasThis, parameterTypes.ToArray());
                 var il = constructorBuilder.GetILGenerator();
 
                 il.Emit(OpCodes.Ldarg_0);
-                for (int index2 = 0; index2 < parameterTypes.Length; index2++)
+                for (int index2 = 0; index2 < parameterTypes.Count -1; index2++)
                 {
                     il.EmitLoadArgument(index2);
-                }
+                }                
                 il.Emit(OpCodes.Call, constructor);
+
+                il.Emit(OpCodes.Ldarg_0);
+                il.EmitLoadArgument(parameterTypes.Count - 1);
+                il.Emit(OpCodes.Ldtoken, _interfaceOrBaseType);
+                il.Emit(OpCodes.Callvirt, _getInterceptorsMethod4Class);
+                //il.Emit(OpCodes.Call, _writeLineMethod);
+                il.Emit(OpCodes.Stfld, _interceptorsField);
+
                 il.Emit(OpCodes.Ret);
             }
             return constructorBuilders;
@@ -392,21 +403,21 @@ namespace Dora.Interception
             return null;
         }
 
-        /// <summary>
-        /// Defines the "SetInterceptors" method to set the interceptors of type <see cref="InterceptorRegistry"/>.
-        /// </summary>
-        /// <param name="attributes">The attributes applied to the generated method.</param>
-        /// <returns>The <see cref="MethodBuilder"/> representing the generated method.</returns>
-        private  MethodBuilder DefineSetInterceptorsMethod(MethodAttributes attributes)
-        {
-            var methodBuilder = _typeBuilder.DefineMethod("SetInterceptors", attributes, typeof(void), new Type[] { typeof(IInterceptorRegistry) });
-            var il = methodBuilder.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Stfld, _interceptorsField);
-            il.Emit(OpCodes.Ret);
-            return methodBuilder;
-        }
+        ///// <summary>
+        ///// Defines the "SetInterceptors" method to set the interceptors of type <see cref="InterceptorRegistry"/>.
+        ///// </summary>
+        ///// <param name="attributes">The attributes applied to the generated method.</param>
+        ///// <returns>The <see cref="MethodBuilder"/> representing the generated method.</returns>
+        //private  MethodBuilder DefineSetInterceptorsMethod(MethodAttributes attributes)
+        //{
+        //    var methodBuilder = _typeBuilder.DefineMethod("SetInterceptors", attributes, typeof(void), new Type[] { typeof(IInterceptorRegistry) });
+        //    var il = methodBuilder.GetILGenerator();
+        //    il.Emit(OpCodes.Ldarg_0);
+        //    il.Emit(OpCodes.Ldarg_1);
+        //    il.Emit(OpCodes.Stfld, _interceptorsField);
+        //    il.Emit(OpCodes.Ret);
+        //    return methodBuilder;
+        //}
 
         private void GenerateForInterface()
         {
@@ -464,7 +475,7 @@ namespace Dora.Interception
             DefineConstructorsForSubClass();
 
             //SetInterceptors method
-            DefineSetInterceptorsMethod(MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Final);
+            //DefineSetInterceptorsMethod(MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Final);
 
             //Methods
             foreach (var methodInfo in _interfaceOrBaseType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
@@ -517,7 +528,8 @@ namespace Dora.Interception
         private Dictionary<Type, Type> DefineMethodGenericParameters(MethodBuilder methodBuilder, MethodInfo methodInfo)
         {
             var genericParameters = methodInfo.GetGenericArguments();
-            var genericParameterNames = Enumerable.Range(1, genericParameters.Length).Select(it => $"T{it}").ToArray();
+            //var genericParameterNames = Enumerable.Range(1, genericParameters.Length).Select(it => $"T{it}").ToArray();
+            var genericParameterNames = genericParameters.Select(it => it.Name).ToArray();
             var builders = methodBuilder.DefineGenericParameters(genericParameterNames);
             for (int index = 0; index < genericParameters.Length; index++)
             {
@@ -557,14 +569,34 @@ namespace Dora.Interception
             return map;
         }
 
+        //Task Invoke{Surfix}(InvocationContext invocationContext)
         private MethodBuilder DefineTargetInvokerMethod(MethodInfo methodInfo)
         {
-            methodInfo = _interceptors.GetTargetMethod(methodInfo);
+            var @interface = methodInfo.DeclaringType;
+            var prefix = @interface.IsGenericType
+                ? @interface.FullName.Substring(0, @interface.FullName.IndexOf('`'))
+                : @interface.FullName;
+            prefix = prefix.Replace("+", ".");
+
+            var isExplicitlyEmplemented = _interceptors.GetTargetMethod(methodInfo).Name.StartsWith(prefix);
+            if (!isExplicitlyEmplemented)
+            {
+                methodInfo = _interceptors.GetTargetMethod(methodInfo);
+            }
             var methodBuilder = _typeBuilder.DefineMethod($"Invoke{GenerateSurfix()}", MethodAttributes.Private | MethodAttributes.HideBySig, typeof(Task), new Type[] { typeof(InvocationContext) });
             var genericParameterTypeMap = methodInfo.IsGenericMethod
               ? DefineMethodGenericParameters(methodBuilder, methodInfo)
-              : new Dictionary<Type, Type>(); var parameters = methodInfo.GetParameters();
+              : new Dictionary<Type, Type>(); 
+            var parameters = methodInfo.GetParameters();
             var parameterTypes = parameters.Select(it => it.ParameterType.GetNonByRefType()).ToArray();
+
+            for (int index = 0; index < parameterTypes.Length; index++)
+            {
+                if (genericParameterTypeMap.TryGetValue(parameterTypes[index], out var type))
+                {
+                    parameterTypes[index] = type;
+                }
+            }
 
             var il = methodBuilder.GetILGenerator();
 
@@ -618,11 +650,25 @@ namespace Dora.Interception
             if (methodInfo.IsGenericMethod)
             {
                 var genericMethod = methodInfo.MakeGenericMethod(genericParameterTypeMap.Values.ToArray());
-                il.Emit(OpCodes.Call, genericMethod);
+                if (isExplicitlyEmplemented)
+                {
+                    il.Emit(OpCodes.Callvirt, genericMethod);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Call, genericMethod);
+                }
             }
             else
             {
-                il.Emit(OpCodes.Call, methodInfo);
+                if (isExplicitlyEmplemented)
+                {
+                    il.Emit(OpCodes.Callvirt, methodInfo);
+                }
+                else
+                {
+                    il.Emit(OpCodes.Call, methodInfo);
+                }
             }
 
             //Save return value to InvocationContext.ReturnValue

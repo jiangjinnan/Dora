@@ -16,10 +16,10 @@ namespace Dora.Interception
         /// <returns>The task to invoke interceptor and target method.</returns>
         public static Task InvokeHandler(InterceptorDelegate interceptor, InterceptDelegate handler, InvocationContext context)
         {
-            async Task Wrap(InvocationContext _)
+            async Task Wrap(InvocationContext invocationContext)
             {
-                await handler(_);
-                if (_.ReturnValue is Task task)
+                await handler(invocationContext);
+                if (invocationContext.ReturnValue is Task task)
                 {
                     await task;
                 }

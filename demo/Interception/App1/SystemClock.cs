@@ -9,7 +9,7 @@ namespace App
         public SystemClock() { }
 
         [CacheReturnValue]
-        public Task<DateTime> GetCurrentTime(DateTimeKind dateTimeKind)
+        public Task<DateTime> GetCurrentTimeAsync(DateTimeKind dateTimeKind)
         {
             switch (dateTimeKind)
             {

@@ -7,68 +7,136 @@ namespace Dora.Interception.Test
 {
     public class OpenGenericTypeFixture
     {
-        private static Action _action = () => { };
-
         [Fact]
-        public void GetService()
+        public async void Intercept4Interface_Normal()
         {
             var foobar = new ServiceCollection()
-               .AddSingleton<IFoo, Foo>()
-               .AddSingleton<IBar, Bar>()
-               .AddSingleton(typeof(IFoobar<,>), typeof(Foobar<,>))
-               .BuildInterceptableServiceProvider()
-               .GetRequiredService<IFoobar<IFoo, IBar>>();
-            var flag = "";
-            _action = () => flag = "Foobar";
-            var foo = foobar.Foo;
-            Assert.Equal("Foobar", flag);
+                .AddInterception()
+                .AddSingletonInterceptable(typeof(IFoobar<,>), typeof(Foo<,>))
+                .BuildServiceProvider()
+                .GetRequiredService<IFoobar<string, string>>();
 
+            FakeInterceptorAttribute.Reset();
+            await foobar.Invoke<int>("1", "2", 3);
+            Assert.Equal("1", FakeInterceptorAttribute.Result);
+
+            foobar = new ServiceCollection()
+                .AddInterception()
+                .AddSingleton(typeof(IFoobar<,>), typeof(Foo<,>))
+                .BuildInterceptableServiceProvider()
+                .GetRequiredService<IFoobar<string, string>>();
+
+            FakeInterceptorAttribute.Reset();
+            await foobar.Invoke<int>("1", "2", 3);
+            Assert.Equal("1", FakeInterceptorAttribute.Result);
+
+            //foobar = new ServiceCollection()
+            //    .AddInterception()
+            //    .AddSingletonInterceptable(typeof(IFoobar<,>), typeof(Bar<,>))
+            //    .BuildServiceProvider()
+            //    .GetRequiredService<IFoobar<string, string>>();
+
+            //FakeInterceptorAttribute.Reset();
+            //await foobar.Invoke<int>("1", "2", 3);
+            //Assert.Equal("1", FakeInterceptorAttribute.Result);
+
+            //foobar = new ServiceCollection()
+            //    .AddInterception()
+            //    .AddSingleton(typeof(IFoobar<,>), typeof(Bar<,>))
+            //    .BuildInterceptableServiceProvider()
+            //    .GetRequiredService<IFoobar<string, string>>();
+
+            //FakeInterceptorAttribute.Reset();
+            //await foobar.Invoke<int>("1", "2", 3);
+            //Assert.Equal("1", FakeInterceptorAttribute.Result);
         }
 
-        public interface IFoo { }
-        public interface IBar { }
-        public interface IFoobar<TFoo, TBar>
-            where TFoo : IFoo
-            where TBar : IBar
+        [Fact]
+        public async void Intercept4Interface_ExplicitlyImplemented()
         {
-            TFoo Foo { get; }
-            TBar Bar { get; }
-        }
-        public class Foo : IFoo { }
-        public class Bar : IBar { }
-        [Foobar]
-        public class Foobar<TFoo, TBar> : IFoobar<TFoo, TBar>
-            where TFoo : IFoo
-            where TBar : IBar
-        {
-            public Foobar(TFoo foo, TBar bar)
-            {
-                Foo = foo;
-                Bar = bar;
-            }
-            public TFoo Foo { get; }
-            public TBar Bar { get; }
-        }
+            var foobar = new ServiceCollection()
+                .AddInterception()
+                .AddSingletonInterceptable(typeof(IFoobar<,>), typeof(Bar<,>))
+                .BuildServiceProvider()
+                .GetRequiredService<IFoobar<string, string>>();
 
+            FakeInterceptorAttribute.Reset();
+            await foobar.Invoke<int>("1", "2", 3);
+            Assert.Equal("1", FakeInterceptorAttribute.Result);
 
-        public class FoobarInterceptor
-        {
+            foobar = new ServiceCollection()
+                .AddInterception()
+                .AddSingleton(typeof(IFoobar<,>), typeof(Bar<,>))
+                .BuildInterceptableServiceProvider()
+                .GetRequiredService<IFoobar<string, string>>();
 
-            public Task InvokeAsync(InvocationContext context)
-            {
-                _action();
-                return context.ProceedAsync();
-            }
+            FakeInterceptorAttribute.Reset();
+            await foobar.Invoke<int>("1", "2", 3);
+            Assert.Equal("1", FakeInterceptorAttribute.Result);
         }
 
-        public class FoobarAttribute : InterceptorAttribute
+        [Fact]
+        public async void Intercept4Class()
         {
-            public override void Use(IInterceptorChainBuilder builder)
-            {
-                builder.Use<FoobarInterceptor>(Order);
-            }
-        }  
+            //var foobar = new ServiceCollection()
+            //    .AddInterception()
+            //    .AddSingletonInterceptable(typeof(Foo<,>), typeof(Foo<,>))
+            //    .BuildServiceProvider()
+            //    .GetRequiredService<Foo<string, string>>();
+
+            //FakeInterceptorAttribute.Reset();
+            //await foobar.Invoke<int>("1", "2", 3);
+            //Assert.Equal("1", FakeInterceptorAttribute.Result);
+
+            var foobar = new ServiceCollection()
+                .AddInterception()
+                .AddSingleton(typeof(Foo<,>), typeof(Foo<,>))
+                .BuildInterceptableServiceProvider()
+                .GetRequiredService<Foo<string, string>>();
+
+            FakeInterceptorAttribute.Reset();
+            await foobar.Invoke<int>("1", "2", 3);
+            Assert.Equal("1", FakeInterceptorAttribute.Result);
+
+            //foobar = new ServiceCollection()
+            //    .AddInterception()
+            //    .AddSingletonInterceptable(typeof(IFoobar<,>), typeof(Bar<,>))
+            //    .BuildServiceProvider()
+            //    .GetRequiredService<IFoobar<string, string>>();
+
+            //FakeInterceptorAttribute.Reset();
+            //await foobar.Invoke<int>("1", "2", 3);
+            //Assert.Equal("1", FakeInterceptorAttribute.Result);
+
+            //foobar = new ServiceCollection()
+            //    .AddInterception()
+            //    .AddSingleton(typeof(IFoobar<,>), typeof(Bar<,>))
+            //    .BuildInterceptableServiceProvider()
+            //    .GetRequiredService<IFoobar<string, string>>();
+
+            //FakeInterceptorAttribute.Reset();
+            //await foobar.Invoke<int>("1", "2", 3);
+            //Assert.Equal("1", FakeInterceptorAttribute.Result);
+        }
+
+        public interface IFoobar<T1, T2>
+        {
+            Task Invoke<T>(T1 arg1, T2 arg2, T arg3);
+        }
+
+        public class Foo<T3, T4> : IFoobar<T3, T4>
+        {
+            [FakeInterceptor]
+            public virtual Task Invoke<T>(T3 arg1, T4 arg2, T arg3) => Task.CompletedTask;
+        }
+
+
+        public class Bar<T1, T2> : IFoobar<T1, T2>
+        {
+            [FakeInterceptor]
+
+            Task IFoobar<T1, T2>.Invoke<T>(T1 arg1, T2 arg2, T arg3) => Task.CompletedTask;
+        }
     }
-
 }
 

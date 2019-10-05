@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {
             Guard.ArgumentNotNull(services, nameof(services));
-            services.AddInterceptionCore(configure);
+            services.AddInterception(configure);
             var provider = services.BuildServiceProvider();
             var factoryCache = provider.GetRequiredService<IInterceptableProxyFactoryCache>();
             var resolver = provider.GetRequiredService<IInterceptorResolver>();
@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             IServiceCollection newServices = new ServiceCollection();
             foreach (var service in services)
             {
-                foreach (var newService in new InterceptableServiceDescriptor(service, resolver, factoryCache, codeGeneratorFactory).AsServiceDescriptors())
+                foreach (var newService in new ServiceDescriptorConverter(service, resolver, factoryCache, codeGeneratorFactory).AsServiceDescriptors())
                 {
                     newServices.Add(newService);
                 }
@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return newServices.BuildServiceProvider();
         }
 
-        private static IServiceCollection AddInterceptionCore(this IServiceCollection services, Action<InterceptionBuilder> configure)
+        public static IServiceCollection AddInterception(this IServiceCollection services, Action<InterceptionBuilder> configure = null)
         {
             Guard.ArgumentNotNull(services, nameof(services));
             services.AddHttpContextAccessor();
@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var builder = new InterceptionBuilder(services);
             configure?.Invoke(builder);
-            services.AddSingleton<IInterceptorResolver>(provider =>
+            services.TryAddSingleton<IInterceptorResolver>(provider =>
             {
                 var chainBuilder = provider.GetRequiredService<IInterceptorChainBuilder>();
                 var providerResolvers = builder.InterceptorProviderResolvers;

@@ -1,9 +1,6 @@
-﻿using Dora.DynamicProxy;
-using Dora.Interception;
+﻿using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace App
@@ -12,76 +9,87 @@ namespace App
     {
         public static async Task Main()
         {
-            //var clock1 = new ServiceCollection()
-            //  .AddLogging(factory => factory.AddConsole())
-            //  .AddMemoryCache()
-            //  .AddSingleton<ISystemClock, SystemClock>()
-            //  .AddInterception()
-            //  .BuildServiceProvider()
-            //  .GetRequiredService<IInterceptable<ISystemClock>>()
-            //  .Proxy;
+            var foobar = new ServiceCollection()
+               .AddInterception()
+               .AddSingletonInterceptable(typeof(Foo<,>), typeof(Foo<,>))
+               .BuildServiceProvider()
+               .GetRequiredService<Foo<string, string>>();
 
+            FakeInterceptorAttribute.Reset();
+            await foobar.Invoke<int>("1", "2", 3);
+
+            //var clock = new ServiceCollection()
+            //     .AddMemoryCache()
+            //     .AddSingleton<ISystemClock, SystemClock>()
+            //     .BuildInterceptableServiceProvider()
+            //     .GetRequiredService<ISystemClock>();
             //for (int i = 0; i < 5; i++)
             //{
-            //    Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Local)}");
-            //    Task.Delay(1000).Wait();
+            //    Console.WriteLine(await clock.GetCurrentTimeAsync(DateTimeKind.Utc));
+            //    await Task.Delay(1000);
             //}
 
+            //clock = new ServiceCollection()
+            //     .AddInterception()
+            //     .AddMemoryCache()
+            //     .AddSingletonInterceptable<ISystemClock, SystemClock>()
+            //     .BuildServiceProvider()
+            //     .GetRequiredService<ISystemClock>();
             //for (int i = 0; i < 5; i++)
             //{
-            //    Console.WriteLine($"Current time: {await clock1.GetCurrentTime(DateTimeKind.Utc)}");
-            //    Task.Delay(1000).Wait();
-            //}
-
-            var watch = Stopwatch.StartNew();
-            for (int i = 0; i < 10000; i++)
-            {
-                var clock2 = new ServiceCollection()
-              .AddMemoryCache()
-              .AddSingleton<ISystemClock, SystemClock>()
-              .BuildInterceptableServiceProvider()
-              .GetRequiredService<ISystemClock>();
-            }
-            Console.WriteLine(watch.Elapsed);
-            
-
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Local)}");
-            //    Task.Delay(1000).Wait();
-            //}
-
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    Console.WriteLine($"Current time: {await clock2.GetCurrentTime(DateTimeKind.Utc)}");
-            //    Task.Delay(1000).Wait();
+            //    Console.WriteLine(await clock.GetCurrentTimeAsync(DateTimeKind.Utc));
+            //    await Task.Delay(1000);
             //}
         }
     }
-}
 
-public class FoobarInterceptor
-{
-    public IFoo Foo { get; }
-    public string Baz { get; }  
-    public FoobarInterceptor(IFoo foo, string baz)
+    public interface IFoobar<T1, T2>
     {
-        Foo = foo;
-        Baz = baz;
+        Task Invoke<T>(T1 arg1, T2 arg2, T arg3);
     }
 
-    public async Task InvokeAsync(InvocationContext context, IBar bar)
+    public class Foo<T3, T4> : IFoobar<T3, T4>
     {
-        await Foo.DoSomethingAsync();
-        await bar.DoSomethingAsync();
-        await context.ProceedAsync();
+        [FakeInterceptor]
+        public virtual Task Invoke<T>(T3 arg1, T4 arg2, T arg3) => Task.CompletedTask;
+    }
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+    public class FakeInterceptorAttribute : InterceptorAttribute
+    {
+        public int Step { get; }
+        public static string Result;
+
+        public FakeInterceptorAttribute(int step = 1)
+        {
+            Step = step;
+        }
+
+        public static void Reset() => Result = "";
+        public async Task InvokeAsync(InvocationContext invocationContext)
+        {
+            Result += Step.ToString();
+            try
+            {
+                await invocationContext.ProceedAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new FakeException(nameof(FakeException), ex);
+            }
+        }
+        public override void Use(IInterceptorChainBuilder builder) => builder.Use(this, Order);
+    }
+
+
+    [Serializable]
+    public class FakeException : Exception
+    {
+        public FakeException() { }
+        public FakeException(string message) : base(message) { }
+        public FakeException(string message, Exception inner) : base(message, inner) { }
+        protected FakeException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
 }
-
-public interface IFoo {
-    Task DoSomethingAsync();
-}
-public interface IBar {
-    Task DoSomethingAsync();
-}
-

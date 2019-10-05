@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -7,80 +8,238 @@ namespace Dora.Interception.Test
 {
     public class LifetimeFixture
     {
-        private static int _counter;
 
         [Fact]
-        public void Singleton()
+        public void Singleton4Interface()
         {
-            var provider = new ServiceCollection()
+            IServiceProvider root = new ServiceCollection()
+                .AddInterception()
+                .AddSingleton<IFoobar, Foobar>()
+                .BuildServiceProvider();
+
+            Foobar.Counter = 0;
+            var foobar = root.GetRequiredService<IFoobar>();
+            var foobar1 = root.CreateScope().ServiceProvider.GetRequiredService<IFoobar>();
+            var foobar2 = root.CreateScope().ServiceProvider.GetRequiredService<IFoobar>();
+
+            Assert.Equal(1, Foobar.Counter);
+            Assert.Same(foobar, foobar1);
+            Assert.Same(foobar, foobar2);
+
+            root = new ServiceCollection()
+                .AddSingleton<IFoobar, Foobar>()
+                .BuildInterceptableServiceProvider();
+
+            Foobar.Counter = 0;
+            foobar = root.GetRequiredService<IFoobar>();
+            foobar1 = root.CreateScope().ServiceProvider.GetRequiredService<IFoobar>();
+            foobar2 = root.CreateScope().ServiceProvider.GetRequiredService<IFoobar>();
+
+            Assert.Equal(1, Foobar.Counter);
+            Assert.Same(foobar, foobar1);
+            Assert.Same(foobar, foobar2);
+        }
+
+        [Fact]
+        public void Singleton4Class()
+        {
+            IServiceProvider root = new ServiceCollection()
+                .AddInterception()
+                .AddSingleton<Foobar, Foobar>()
+                .BuildServiceProvider();
+
+            Foobar.Counter = 0;
+            var foobar = root.GetRequiredService<Foobar>();
+            var foobar1 = root.CreateScope().ServiceProvider.GetRequiredService<Foobar>();
+            var foobar2 = root.CreateScope().ServiceProvider.GetRequiredService<Foobar>();
+
+            Assert.Equal(1, Foobar.Counter);
+            Assert.Same(foobar, foobar1);
+            Assert.Same(foobar, foobar2);
+
+            root = new ServiceCollection()
                 .AddSingleton<Foobar, Foobar>()
                 .BuildInterceptableServiceProvider();
 
-            _counter = 0;
-            var foobar = provider.GetRequiredService<Foobar>();
-            provider.GetRequiredService<Foobar>();
-            provider.GetRequiredService<Foobar>();
-            Assert.NotSame(typeof(Foobar), foobar.GetType());
-            Assert.Equal(1, _counter);
+            Foobar.Counter = 0;
+            foobar = root.GetRequiredService<Foobar>();
+            foobar1 = root.CreateScope().ServiceProvider.GetRequiredService<Foobar>();
+            foobar2 = root.CreateScope().ServiceProvider.GetRequiredService<Foobar>();
 
-            var foobar1 = provider.GetRequiredService<Foobar>();
-            var foobar2 = provider.GetRequiredService<Foobar>();
-            Assert.NotSame(typeof(Foobar), foobar.GetType());
-            Assert.Same(foobar1, foobar2);
+            Assert.Equal(1, Foobar.Counter);
+            Assert.Same(foobar, foobar1);
+            Assert.Same(foobar, foobar2);
         }
 
         [Fact]
-        public void Trsient()
+        public void Scoped4Interface()
         {
-            var provider = new ServiceCollection()
-                 .AddTransient<Foobar, Foobar>()
-                 .BuildInterceptableServiceProvider();
+            IServiceProvider root = new ServiceCollection()
+                .AddInterception()
+                .AddScopedInterceptable<IFoobar, Foobar>()
+                .BuildServiceProvider();
 
-            _counter = 0;
-            var foobar = provider.GetRequiredService<Foobar>();
-            foobar = provider.GetRequiredService<Foobar>();
-            foobar = provider.GetRequiredService<Foobar>();
-            Assert.Equal(3, _counter);
+            var scope1 = root.CreateScope();
+            var scope2 = root.CreateScope();
+
+            Foobar.Counter = 0;
+            var foobar11 = scope1.ServiceProvider.GetRequiredService<IFoobar>();
+            var foobar12 = scope1.ServiceProvider.GetRequiredService<IFoobar>();
+            var foobar21 = scope2.ServiceProvider.GetRequiredService<IFoobar>();
+            var foobar22 = scope2.ServiceProvider.GetRequiredService<IFoobar>();
+
+            Assert.Equal(2, Foobar.Counter);
+            Assert.Same(foobar11, foobar12);
+            Assert.Same(foobar21, foobar22);
+
+            root = new ServiceCollection()
+                .AddScoped<IFoobar, Foobar>()
+                .BuildInterceptableServiceProvider();
+
+             scope1 = root.CreateScope();
+             scope2 = root.CreateScope();
+
+            Foobar.Counter = 0;
+             foobar11 = scope1.ServiceProvider.GetRequiredService<IFoobar>();
+             foobar12 = scope1.ServiceProvider.GetRequiredService<IFoobar>();
+             foobar21 = scope2.ServiceProvider.GetRequiredService<IFoobar>();
+             foobar22 = scope2.ServiceProvider.GetRequiredService<IFoobar>();
+
+            Assert.Equal(2, Foobar.Counter);
+            Assert.Same(foobar11, foobar12);
+            Assert.Same(foobar21, foobar22);
         }
 
         [Fact]
-        public void Scoped()
+        public void Scoped4Class()
         {
-             var root = new ServiceCollection()
+            IServiceProvider root = new ServiceCollection()
+                .AddInterception()
+                .AddScopedInterceptable<Foobar, Foobar>()
+                .BuildServiceProvider();
+
+            var scope1 = root.CreateScope();
+            var scope2 = root.CreateScope();
+
+            Foobar.Counter = 0;
+            var foobar11 = scope1.ServiceProvider.GetRequiredService<Foobar>();
+            var foobar12 = scope1.ServiceProvider.GetRequiredService<Foobar>();
+            var foobar21 = scope2.ServiceProvider.GetRequiredService<Foobar>();
+            var foobar22 = scope2.ServiceProvider.GetRequiredService<Foobar>();
+
+            Assert.Equal(2, Foobar.Counter);
+            Assert.Same(foobar11, foobar12);
+            Assert.Same(foobar21, foobar22);
+
+            root = new ServiceCollection()
                 .AddScoped<Foobar, Foobar>()
                 .BuildInterceptableServiceProvider();
 
-             var provider1 = root
-               .CreateScope()
-               .ServiceProvider;
-             var provider2 = root
-                .CreateScope()
-                .ServiceProvider;
+            scope1 = root.CreateScope();
+            scope2 = root.CreateScope();
 
-            _counter = 0;
-            provider1.GetRequiredService<Foobar>();
-            provider1.GetRequiredService<Foobar>();
-            provider1.GetRequiredService<Foobar>();
+            Foobar.Counter = 0;
+            foobar11 = scope1.ServiceProvider.GetRequiredService<Foobar>();
+            foobar12 = scope1.ServiceProvider.GetRequiredService<Foobar>();
+            foobar21 = scope2.ServiceProvider.GetRequiredService<Foobar>();
+            foobar22 = scope2.ServiceProvider.GetRequiredService<Foobar>();
 
-            provider2.GetRequiredService<Foobar>();
-            provider2.GetRequiredService<Foobar>();
-            provider2.GetRequiredService<Foobar>();
-            Assert.Equal(2, _counter);
+            Assert.Equal(2, Foobar.Counter);
+            Assert.Same(foobar11, foobar12);
+            Assert.Same(foobar21, foobar22);
         }
 
-
-        private class FakeAttribute : InterceptorAttribute
+        [Fact]
+        public void Transient4Interface()
         {
-            public Task InvokeAsync(InvocationContext context) => context.ProceedAsync();
-            public override void Use(IInterceptorChainBuilder builder) => builder.Use(this, Order);
+            IServiceProvider root = new ServiceCollection()
+                .AddInterception()
+                .AddTransientInterceptable<IFoobar, Foobar>()
+                .BuildServiceProvider();
+
+            var scope1 = root.CreateScope();
+            var scope2 = root.CreateScope();
+
+            Foobar.Counter = 0;
+            var foobar11 = scope1.ServiceProvider.GetRequiredService<IFoobar>();
+            var foobar12 = scope1.ServiceProvider.GetRequiredService<IFoobar>();
+            var foobar21 = scope2.ServiceProvider.GetRequiredService<IFoobar>();
+            var foobar22 = scope2.ServiceProvider.GetRequiredService<IFoobar>();
+
+            Assert.Equal(4, Foobar.Counter);
+            Assert.NotSame(foobar11, foobar12);
+            Assert.NotSame(foobar21, foobar22);
+
+            root = new ServiceCollection()
+                .AddTransient<IFoobar, Foobar>()
+                .BuildInterceptableServiceProvider();
+
+             scope1 = root.CreateScope();
+             scope2 = root.CreateScope();
+
+            Foobar.Counter = 0;
+             foobar11 = scope1.ServiceProvider.GetRequiredService<IFoobar>();
+             foobar12 = scope1.ServiceProvider.GetRequiredService<IFoobar>();
+             foobar21 = scope2.ServiceProvider.GetRequiredService<IFoobar>();
+             foobar22 = scope2.ServiceProvider.GetRequiredService<IFoobar>();
+
+            Assert.Equal(4, Foobar.Counter);
+            Assert.NotSame(foobar11, foobar12);
+            Assert.NotSame(foobar21, foobar22);
         }
 
-        public class Foobar
+        [Fact]
+        public void Transient4Class()
         {
-            public Foobar() => _counter++;
+            IServiceProvider root = new ServiceCollection()
+                .AddInterception()
+                .AddTransientInterceptable<Foobar, Foobar>()
+                .BuildServiceProvider();
 
-            [Fake]
-            public virtual void Invoke() { }
+            var scope1 = root.CreateScope();
+            var scope2 = root.CreateScope();
+
+            Foobar.Counter = 0;
+            var foobar11 = scope1.ServiceProvider.GetRequiredService<Foobar>();
+            var foobar12 = scope1.ServiceProvider.GetRequiredService<Foobar>();
+            var foobar21 = scope2.ServiceProvider.GetRequiredService<Foobar>();
+            var foobar22 = scope2.ServiceProvider.GetRequiredService<Foobar>();
+
+            Assert.Equal(4, Foobar.Counter);
+            Assert.NotSame(foobar11, foobar12);
+            Assert.NotSame(foobar21, foobar22);
+
+            root = new ServiceCollection()
+                .AddTransient<Foobar, Foobar>()
+                .BuildInterceptableServiceProvider();
+
+            scope1 = root.CreateScope();
+            scope2 = root.CreateScope();
+
+            Foobar.Counter = 0;
+            foobar11 = scope1.ServiceProvider.GetRequiredService<Foobar>();
+            foobar12 = scope1.ServiceProvider.GetRequiredService<Foobar>();
+            foobar21 = scope2.ServiceProvider.GetRequiredService<Foobar>();
+            foobar22 = scope2.ServiceProvider.GetRequiredService<Foobar>();
+
+            Assert.Equal(4, Foobar.Counter);
+            Assert.NotSame(foobar11, foobar12);
+            Assert.NotSame(foobar21, foobar22);
+        }
+
+        public interface IFoobar
+        {
+            Task InvokeAsync();
+        }
+
+        public class Foobar : IFoobar
+        {
+            public static int Counter;
+
+            public Foobar() => Interlocked.Increment(ref Counter);
+
+            [FakeInterceptor]
+            public virtual Task InvokeAsync() => Task.CompletedTask;
         }
     }
 }

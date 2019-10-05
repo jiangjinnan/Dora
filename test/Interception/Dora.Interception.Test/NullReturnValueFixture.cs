@@ -26,8 +26,6 @@ namespace Dora.Interception.Test
         }
     }
 
-   
-
     public class NilInterceptorAttribute: InterceptorAttribute
     {
         public Task InvokeAsync(InvocationContext context)

@@ -10,42 +10,162 @@ namespace Dora.Interception.Test
     public class HandleExceptionFixture
     {
         [Fact]
-        public async void InvokeAsync()
+        public async void InterceptInterface()
         {
-            var proxy = new ServiceCollection()
-                .AddScoped<IFoobar, Foobar>()
-                .BuildInterceptableServiceProvider()
+            var foobar = new ServiceCollection()
+                .AddInterception()
+                .AddSingletonInterceptable<IFoobar, Foobar>()
+                .BuildServiceProvider()
                 .GetRequiredService<IFoobar>();
 
             try
             {
-               
-               var result = await proxy.Invoke1Async();
+                await foobar.Invoke1Async();
                 throw new Exception();
             }
             catch (Exception ex)
             {
-                Assert.IsType<InvalidOperationException>(ex);
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
             }
 
             try
             {
-                await proxy.Invoke2Async();
+                await foobar.Invoke2Async();
                 throw new Exception();
             }
             catch (Exception ex)
             {
-                Assert.IsType<InvalidOperationException>(ex);
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
             }
 
             try
             {
-                await proxy.Invoke3Async();
+                await foobar.Invoke3Async();
                 throw new Exception();
             }
             catch (Exception ex)
             {
-                Assert.IsType<TaskCanceledException>(ex);
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<TaskCanceledException>(ex.InnerException);
+            }
+
+            foobar = new ServiceCollection()
+                .AddSingleton<IFoobar, Foobar>()
+                .BuildInterceptableServiceProvider()
+                .GetRequiredService<IFoobar>();
+            try
+            {
+                await foobar.Invoke1Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
+            }
+
+            try
+            {
+                await foobar.Invoke2Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
+            }
+
+            try
+            {
+                await foobar.Invoke3Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<TaskCanceledException>(ex.InnerException);
+            }
+        }
+
+        [Fact]
+        public async void InterceptClass()
+        {
+            var foobar = new ServiceCollection()
+                .AddInterception()
+                .AddSingletonInterceptable<Foobar, Foobar>()
+                .BuildServiceProvider()
+                .GetRequiredService<Foobar>();
+
+            try
+            {
+                await foobar.Invoke1Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
+            }
+
+            try
+            {
+                await foobar.Invoke2Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
+            }
+
+            try
+            {
+                await foobar.Invoke3Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<TaskCanceledException>(ex.InnerException);
+            }
+
+            foobar = new ServiceCollection()
+                .AddSingleton<Foobar, Foobar>()
+                .BuildInterceptableServiceProvider()
+                .GetRequiredService<Foobar>();
+            try
+            {
+                await foobar.Invoke1Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
+            }
+
+            try
+            {
+                await foobar.Invoke2Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<InvalidOperationException>(ex.InnerException);
+            }
+
+            try
+            {
+                await foobar.Invoke3Async();
+                throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsType<FakeException>(ex);
+                Assert.IsType<TaskCanceledException>(ex.InnerException);
             }
         }
 
@@ -56,29 +176,12 @@ namespace Dora.Interception.Test
             Task Invoke3Async();
         }
 
-        [FooInterceptor]
+        [FakeInterceptor]
         public class Foobar : IFoobar
         {
-            public Task<int> Invoke1Async()=>throw new InvalidOperationException();
-            public Task Invoke2Async() => throw new InvalidOperationException();
-            public Task Invoke3Async() => new HttpClient().GetAsync("http://www.baidu.com", new CancellationTokenSource(1).Token);
-        }
-
-        public class FoobarInterceptorAttibute : InterceptorAttribute
-        {
-            public async Task InvokeAsync(InvocationContext context)
-            {
-                try
-                {
-                    await context.ProceedAsync();
-                }
-                catch
-                { }
-            }
-            public override void Use(IInterceptorChainBuilder builder)
-            {
-                builder.Use(this, Order);
-            }
+            public virtual Task<int> Invoke1Async()=>throw new InvalidOperationException();
+            public virtual Task Invoke2Async() => throw new InvalidOperationException();
+            public virtual Task Invoke3Async() => new HttpClient().GetAsync("http://www.baidu.com", new CancellationTokenSource(1).Token);
         }
     }
 }

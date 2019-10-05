@@ -3,86 +3,93 @@ using System;
 
 namespace Dora.Interception
 {
-    public class InterceptableServiceDescriptor
+    public interface IInterceptableServiceDescriptor
     {
-        private readonly ServiceDescriptor _primaryDescriptor;
-        private readonly ServiceDescriptor _secondaryDescriptor = null;
-        public InterceptableServiceDescriptor(
-            Type serviceType,
-            Type implementationType,
-            ServiceLifetime lifetime,
-            IInterceptorResolver interceptorResolver,
-            IInterceptableProxyFactoryCache factoryCache,
-            ICodeGeneratorFactory codeGeneratorFactory)
-            : this(new ServiceDescriptor(serviceType, implementationType, lifetime), interceptorResolver, factoryCache, codeGeneratorFactory)
-        { }
+        Type TargetType { get; }
+    }
 
-        public InterceptableServiceDescriptor(
-            ServiceDescriptor serviceDescriptor,
-            IInterceptorResolver interceptorResolver,
-            IInterceptableProxyFactoryCache factoryCache,
-            ICodeGeneratorFactory codeGeneratorFactory)
+    public sealed class InterceptableServiceDescriptor : ServiceDescriptor, IInterceptableServiceDescriptor
+    {
+        private readonly Type _targetType;
+
+        public InterceptableServiceDescriptor(Type serviceType, Type implementationType, ServiceLifetime lifetime)
+            : base(serviceType, GetImplementationFactory(serviceType, implementationType), lifetime)
         {
-            Guard.ArgumentNotNull(serviceDescriptor, nameof(serviceDescriptor));
-            Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
-            Guard.ArgumentNotNull(factoryCache, nameof(factoryCache));
-
-            if (serviceDescriptor.ImplementationInstance != null || serviceDescriptor.ImplementationFactory != null)
+            if (serviceType.IsGenericTypeDefinition)
             {
-                _primaryDescriptor = serviceDescriptor;
-                return;
+                throw new ArgumentException("Open generic type (generic type definition) is not support", nameof(serviceType));
             }
-            var serviceType = serviceDescriptor.ServiceType;
-            var implementationType = serviceDescriptor.ImplementationType;
-            var lifetime = serviceDescriptor.Lifetime;
+            _targetType = implementationType;
+        }
+        Type IInterceptableServiceDescriptor.TargetType => _targetType;
 
-            if (serviceType.IsInterface)
+        private static Func<IServiceProvider, object> GetImplementationFactory(Type serviceType, Type implementationType)
+        {
+            return serviceProvider =>
             {
-                var interceptors = interceptorResolver.GetInterceptors(serviceType, implementationType);
-                if (interceptors.IsEmpty)
+                var interceptorResolver = serviceProvider.GetRequiredService<IInterceptorResolver>();
+                var codeGeneratorFactory = serviceProvider.GetRequiredService<ICodeGeneratorFactory>();
+                var factoryCache = serviceProvider.GetRequiredService<IInterceptableProxyFactoryCache>();
+                if (serviceType.IsInterface)
                 {
-                    _primaryDescriptor = new ServiceDescriptor(serviceType, implementationType, lifetime);
-                }
-                else if (serviceType.IsGenericTypeDefinition)
-                {
-                    _secondaryDescriptor = new ServiceDescriptor(implementationType, implementationType, lifetime);
-                    var codeGenerator = codeGeneratorFactory.Create();
-                    var context = new CodeGenerationContext(serviceType, implementationType, interceptors);
-                    var proxyType = codeGenerator.GenerateInterceptableProxyClass(context);
-                    _primaryDescriptor = new ServiceDescriptor(serviceType,proxyType, lifetime);
-
-                    //_primaryDescriptor = serviceDescriptor;
-                }
-                else
-                {
-                    _primaryDescriptor = new ServiceDescriptor(serviceType, CreateOrGet, lifetime);
-                    object CreateOrGet(IServiceProvider serviceProvider)
+                    var interceptors = interceptorResolver.GetInterceptors(serviceType, implementationType);
+                    if (interceptors.IsEmpty)
+                    {
+                        return ActivatorUtilities.CreateInstance(serviceProvider, implementationType);
+                    }
+                    else
                     {
                         var target = ActivatorUtilities.CreateInstance(serviceProvider, implementationType);
                         return factoryCache.GetInstanceFactory(serviceType, implementationType).Invoke(target);
                     }
                 }
-            }
-            else
-            {
-                var interceptors = interceptorResolver.GetInterceptors(implementationType);
-                if (interceptors.IsEmpty)
-                {
-                    _primaryDescriptor = new ServiceDescriptor(serviceType, implementationType, lifetime);
-                }
                 else
                 {
-                    _primaryDescriptor = new ServiceDescriptor(serviceType, CreateOrGet, lifetime);
-                    object CreateOrGet(IServiceProvider serviceProvider)
+                    var interceptors = interceptorResolver.GetInterceptors(implementationType);
+                    if (interceptors.IsEmpty)
+                    {
+                        return ActivatorUtilities.CreateInstance(serviceProvider, implementationType);
+                    }
+                    else
                     {
                         return factoryCache.GetTypeFactory(implementationType).Invoke(serviceProvider);
                     }
                 }
+            };
+        }
+    }
+
+    public sealed class GenericInterceptableServiceDescriptor : ServiceDescriptor, IInterceptableServiceDescriptor
+    {
+        private readonly Type _targetType;
+        public GenericInterceptableServiceDescriptor(
+            ICodeGeneratorFactory codeGeneratorFactory,
+            IInterceptorResolver  interceptorResolver,
+            Type serviceType, Type implementationType, ServiceLifetime lifetime)
+           : base(serviceType, GetInterceptableProxyType(codeGeneratorFactory, interceptorResolver, serviceType, implementationType), lifetime)
+        {
+            if (!serviceType.IsGenericTypeDefinition)
+            {
+                throw new ArgumentException("Non-open-generic type (generic type definition) is not support", nameof(serviceType));
             }
+            _targetType = implementationType;
         }
 
-        public ServiceDescriptor[] AsServiceDescriptors() => _secondaryDescriptor == null
-            ? new ServiceDescriptor[] { _primaryDescriptor }
-            : new ServiceDescriptor[] { _primaryDescriptor, _secondaryDescriptor };
+        Type IInterceptableServiceDescriptor.TargetType => _targetType;
+
+        private static Type GetInterceptableProxyType(
+            ICodeGeneratorFactory codeGeneratorFactory,
+            IInterceptorResolver interceptorResolver,
+            Type serviceType, 
+            Type implementationType)
+        {
+            var interceptors = serviceType.IsInterface
+                ? interceptorResolver.GetInterceptors(serviceType, implementationType)
+                : interceptorResolver.GetInterceptors(implementationType);
+            var codeGenerator = codeGeneratorFactory.Create();
+            var context = new CodeGenerationContext(serviceType, implementationType, interceptors);
+            var proxyType = codeGenerator.GenerateInterceptableProxyClass(context);
+            return proxyType;
+        }
     }
 }

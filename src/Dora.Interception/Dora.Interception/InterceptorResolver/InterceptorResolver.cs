@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
+using System.Threading;
 
 namespace Dora.Interception
 {
@@ -12,6 +12,10 @@ namespace Dora.Interception
     public class InterceptorResolver : IInterceptorResolver
     {
         #region Fields
+        private readonly Dictionary<Tuple<Type, Type>, IInterceptorRegistry> _instanceInteceptors;
+        private readonly Dictionary<Type, IInterceptorRegistry> _typeInteceptors;
+        private readonly ReaderWriterLockSlim _instanceLock;
+        private readonly ReaderWriterLockSlim _typeLock;
         private readonly HashSet<Type> _nonInterceptableTypes = new HashSet<Type>();
         private readonly CompositeInterceptorProviderResolver _providerResolver;
         #endregion
@@ -40,6 +44,10 @@ namespace Dora.Interception
             _nonInterceptableTypes = new HashSet<Type>();
             _providerResolver = new CompositeInterceptorProviderResolver(providerResolvers);
             Builder = builder;
+            _instanceInteceptors = new Dictionary<Tuple<Type, Type>, IInterceptorRegistry>();
+            _typeInteceptors = new Dictionary<Type, IInterceptorRegistry>();
+            _instanceLock = new ReaderWriterLockSlim();
+            _typeLock = new ReaderWriterLockSlim();
         }
         #endregion
 
@@ -50,34 +58,67 @@ namespace Dora.Interception
         /// <param name="interfaceType">The type to intercept.</param>
         /// <param name="targetType">Type of the target instance.</param>
         /// <returns>
-        /// The <see cref="T:Dora.DynamicProxy.InterceptorDecoration" /> representing the type members decorated with interceptors.
+        /// The <see cref="IInterceptorRegistry" /> representing the type members decorated with interceptors.
         /// </returns>
         public IInterceptorRegistry GetInterceptors(Type interfaceType, Type targetType)
         {
             Guard.ArgumentNotNull(interfaceType, nameof(interfaceType));
             Guard.ArgumentNotNull(targetType, nameof(targetType));
-            if (interfaceType.IsInterface)
+
+            var key = new Tuple<Type, Type>(interfaceType, targetType);
+            _instanceLock.EnterReadLock();
+            try
             {
-                InterfaceMapping2 mapping;
-                try
+                if (_instanceInteceptors.TryGetValue(key, out var interceptors))
                 {
-                    if (interfaceType.IsGenericTypeDefinition)
-                    {
-                        mapping = ReflectionUtility.GetInterfaceMap(interfaceType, targetType);
-                    }
-                    else
-                    {
-                        mapping = new InterfaceMapping2(targetType.GetInterfaceMap(interfaceType));
-                    }
+                    return interceptors;
                 }
-                catch(Exception ex)
-                {
-                    throw ex;
-                   // return InterceptorRegistry.Empty;
-                }
-                return GetInterceptorsCore(interfaceType, targetType, mapping);
             }
-            return InterceptorRegistry.Empty;
+            finally
+            {
+                _instanceLock.ExitReadLock();
+            }
+
+            _instanceLock.EnterWriteLock();
+            try
+            {
+                if (!_instanceInteceptors.TryGetValue(key, out var interceptors))
+                {
+                    interceptors = CreateInterceptors();
+                    _instanceInteceptors[key] = interceptors;
+                }
+                return interceptors;
+            }
+            finally
+            {
+                _instanceLock.ExitWriteLock();
+            }
+
+            IInterceptorRegistry CreateInterceptors()
+            {
+                if (interfaceType.IsInterface)
+                {
+                    InterfaceMapping2 mapping;
+                    try
+                    {
+                        if (interfaceType.IsGenericTypeDefinition)
+                        {
+                            mapping = ReflectionUtility.GetInterfaceMapForGenericTypeDefinition(interfaceType, targetType);
+                        }
+                        else
+                        {
+                            mapping = new InterfaceMapping2(targetType.GetInterfaceMap(interfaceType));
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        throw ex;
+                        //return InterceptorRegistry.Empty;
+                    }
+                    return GetInterceptorsCore(interfaceType, targetType, mapping);
+                }
+                return InterceptorRegistry.Empty;
+            }
         }
 
         /// <summary>
@@ -90,7 +131,34 @@ namespace Dora.Interception
         public IInterceptorRegistry GetInterceptors(Type typeToIntercept)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
-            return GetInterceptorsCore(typeToIntercept, typeToIntercept);
+
+            _typeLock.EnterReadLock();
+            try
+            {
+                if (_typeInteceptors.TryGetValue(typeToIntercept, out var interceptors))
+                {
+                    return interceptors;
+                }
+            }
+            finally
+            {
+                _typeLock.ExitReadLock();
+            }
+
+            _typeLock.EnterWriteLock();
+            try
+            {
+                if (!_typeInteceptors.TryGetValue(typeToIntercept, out var interceptors))
+                {
+                    interceptors = GetInterceptorsCore(typeToIntercept, typeToIntercept);
+                    _typeInteceptors[typeToIntercept] = interceptors;
+                }
+                return interceptors;
+            }
+            finally
+            {
+                _typeLock.ExitWriteLock();
+            }
         }
         #endregion
 

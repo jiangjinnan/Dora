@@ -37,7 +37,6 @@ namespace Dora.Interception.Test
             Assert.Equal(123, x);
             Assert.Equal(456, y);
 
-
             x = 1;
             y = 0;
             proxy2.Invoke(ref x, out y);

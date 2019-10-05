@@ -5,6 +5,6 @@ namespace App
 {
     public interface ISystemClock
     {
-        Task<DateTime> GetCurrentTime(DateTimeKind dateTimeKind);
+        Task<DateTime> GetCurrentTimeAsync(DateTimeKind dateTimeKind);
     }
 }
