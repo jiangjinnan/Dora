@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Threading;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Dora.Interception.Test
@@ -7,18 +8,46 @@ namespace Dora.Interception.Test
     [AttributeUsage( AttributeTargets.Class| AttributeTargets.Method, AllowMultiple = true)]
     public class FakeInterceptorAttribute : InterceptorAttribute
     {
+        private static readonly ConcurrentDictionary<Type, string> _results = new ConcurrentDictionary<Type, string>();
+
+        public static string GetResult<T>()
+        {
+            var type = typeof(T);
+            if (type.IsGenericType)
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+            return _results.TryGetValue(type, out var value) ? value : "";
+        }
+
         public int Step { get; }
-        public static string Result;
 
         public FakeInterceptorAttribute(int step = 1)
         {
             Step = step;
         }
 
-        public static void Reset() => Result = "";
+        public static void Reset<T>()
+        {
+            var type = typeof(T);
+            if (type.IsGenericType)
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+            _results[type] = "";
+        }
         public async Task InvokeAsync(InvocationContext invocationContext)
         {
-            Result += Step.ToString();
+            var type = invocationContext.Method.DeclaringType;
+            if (type.IsGenericType)
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+            var result = _results.TryGetValue(type, out var value)
+                ? value
+                : _results[type] = "";
+            result += Step.ToString();
+            _results[type] = result;
             try
             {
                 await invocationContext.ProceedAsync();

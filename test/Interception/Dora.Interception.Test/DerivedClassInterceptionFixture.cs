@@ -15,34 +15,34 @@ namespace Dora.Interception.Test
                 .AddSingletonInterceptable<IFoobar, Bar>()
                 .BuildServiceProvider()
                 .GetRequiredService<IFoobar>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar>();
             await foobar.Invoke1();
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<IFoobar>());
 
             foobar = new ServiceCollection()
                 .AddInterception()
                 .AddSingletonInterceptable<IFoobar, Baz>()
                 .BuildServiceProvider()
                 .GetRequiredService<IFoobar>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar>();
             await foobar.Invoke1();
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<IFoobar>());
 
             foobar = new ServiceCollection()
                 .AddSingleton<IFoobar, Bar>()
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<IFoobar>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar>();
             await foobar.Invoke1();
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<IFoobar>());
 
             foobar = new ServiceCollection()
                 .AddSingleton<IFoobar, Baz>()
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<IFoobar>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar>();
             await foobar.Invoke1();
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<IFoobar>());
         }
 
         [Fact]
@@ -53,34 +53,34 @@ namespace Dora.Interception.Test
                 .AddSingletonInterceptable<Foo, Bar>()
                 .BuildServiceProvider()
                 .GetRequiredService<Foo>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<Foo>();
             await foobar.Invoke1();
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<Foo>());
 
             foobar = new ServiceCollection()
                 .AddInterception()
                 .AddSingletonInterceptable<Foo, Baz>()
                 .BuildServiceProvider()
                 .GetRequiredService<Foo>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<Baz>();
             await foobar.Invoke1();
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<Baz>());
 
             foobar = new ServiceCollection()
                 .AddSingleton<Foo, Bar>()
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<Foo>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<Foo>();
             await foobar.Invoke1();
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<Foo>());
 
             foobar = new ServiceCollection()
                 .AddSingleton<Foo, Baz>()
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<Foo>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<Baz>();
             await foobar.Invoke1();
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<Baz>());
         }
 
         public interface IFoobar

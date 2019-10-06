@@ -16,9 +16,9 @@ namespace Dora.Interception.Test
                 .BuildServiceProvider()
                 .GetRequiredService<IFoobar<string, string>>();
 
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar<int, int>>();
             await foobar.Invoke<int>("1", "2", 3);
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<IFoobar<int,int>>());
 
             foobar = new ServiceCollection()
                 .AddInterception()
@@ -26,29 +26,11 @@ namespace Dora.Interception.Test
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<IFoobar<string, string>>();
 
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar<int, int>>();
             await foobar.Invoke<int>("1", "2", 3);
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<IFoobar<int,int>>());
 
-            //foobar = new ServiceCollection()
-            //    .AddInterception()
-            //    .AddSingletonInterceptable(typeof(IFoobar<,>), typeof(Bar<,>))
-            //    .BuildServiceProvider()
-            //    .GetRequiredService<IFoobar<string, string>>();
-
-            //FakeInterceptorAttribute.Reset();
-            //await foobar.Invoke<int>("1", "2", 3);
-            //Assert.Equal("1", FakeInterceptorAttribute.Result);
-
-            //foobar = new ServiceCollection()
-            //    .AddInterception()
-            //    .AddSingleton(typeof(IFoobar<,>), typeof(Bar<,>))
-            //    .BuildInterceptableServiceProvider()
-            //    .GetRequiredService<IFoobar<string, string>>();
-
-            //FakeInterceptorAttribute.Reset();
-            //await foobar.Invoke<int>("1", "2", 3);
-            //Assert.Equal("1", FakeInterceptorAttribute.Result);
+            
         }
 
         [Fact]
@@ -60,9 +42,9 @@ namespace Dora.Interception.Test
                 .BuildServiceProvider()
                 .GetRequiredService<IFoobar<string, string>>();
 
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar<int, int>>();
             await foobar.Invoke<int>("1", "2", 3);
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<IFoobar<int, int>>());
 
             foobar = new ServiceCollection()
                 .AddInterception()
@@ -70,54 +52,35 @@ namespace Dora.Interception.Test
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<IFoobar<string, string>>();
 
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar<int, int>>();
             await foobar.Invoke<int>("1", "2", 3);
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<IFoobar<int, int>>());
         }
 
         [Fact]
-        public async void Intercept4Class()
+        public async void Intercept4Class_Normal()
         {
-            //var foobar = new ServiceCollection()
-            //    .AddInterception()
-            //    .AddSingletonInterceptable(typeof(Foo<,>), typeof(Foo<,>))
-            //    .BuildServiceProvider()
-            //    .GetRequiredService<Foo<string, string>>();
-
-            //FakeInterceptorAttribute.Reset();
-            //await foobar.Invoke<int>("1", "2", 3);
-            //Assert.Equal("1", FakeInterceptorAttribute.Result);
-
             var foobar = new ServiceCollection()
+                .AddInterception()
+                .AddSingletonInterceptable(typeof(Foo<,>), typeof(Foo<,>))
+                .BuildServiceProvider()
+                .GetRequiredService<Foo<string, string>>();
+
+            FakeInterceptorAttribute.Reset<Foo<int, int>>();
+            await foobar.Invoke<int>("1", "2", 3);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<Foo<int, int>>());
+
+            foobar = new ServiceCollection()
                 .AddInterception()
                 .AddSingleton(typeof(Foo<,>), typeof(Foo<,>))
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<Foo<string, string>>();
 
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<Foo<int, int>>();
             await foobar.Invoke<int>("1", "2", 3);
-            Assert.Equal("1", FakeInterceptorAttribute.Result);
-
-            //foobar = new ServiceCollection()
-            //    .AddInterception()
-            //    .AddSingletonInterceptable(typeof(IFoobar<,>), typeof(Bar<,>))
-            //    .BuildServiceProvider()
-            //    .GetRequiredService<IFoobar<string, string>>();
-
-            //FakeInterceptorAttribute.Reset();
-            //await foobar.Invoke<int>("1", "2", 3);
-            //Assert.Equal("1", FakeInterceptorAttribute.Result);
-
-            //foobar = new ServiceCollection()
-            //    .AddInterception()
-            //    .AddSingleton(typeof(IFoobar<,>), typeof(Bar<,>))
-            //    .BuildInterceptableServiceProvider()
-            //    .GetRequiredService<IFoobar<string, string>>();
-
-            //FakeInterceptorAttribute.Reset();
-            //await foobar.Invoke<int>("1", "2", 3);
-            //Assert.Equal("1", FakeInterceptorAttribute.Result);
+            Assert.Equal("1", FakeInterceptorAttribute.GetResult<Foo<int, int>>());
         }
+
 
         public interface IFoobar<T1, T2>
         {

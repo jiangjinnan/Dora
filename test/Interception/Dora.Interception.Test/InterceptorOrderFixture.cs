@@ -17,17 +17,17 @@ namespace Dora.Interception.Test
                 .AddSingletonInterceptable<IFoobar, Foobar>()
                 .BuildServiceProvider()
                 .GetRequiredService<IFoobar>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar>();
             await foobar.InvokeAsync();
-            Assert.Equal("312", FakeInterceptorAttribute.Result);
+            Assert.Equal("312", FakeInterceptorAttribute.GetResult<IFoobar>());
 
             foobar = new ServiceCollection()
                 .AddSingleton<IFoobar, Foobar>()
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<IFoobar>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<IFoobar>();
             await foobar.InvokeAsync();
-            Assert.Equal("312", FakeInterceptorAttribute.Result);
+            Assert.Equal("312", FakeInterceptorAttribute.GetResult<IFoobar>());
         }
 
         [Fact]
@@ -38,17 +38,17 @@ namespace Dora.Interception.Test
                 .AddSingletonInterceptable<Foobar, Foobar>()
                 .BuildServiceProvider()
                 .GetRequiredService<Foobar>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<Foobar>();
             await foobar.InvokeAsync();
-            Assert.Equal("312", FakeInterceptorAttribute.Result);
+            Assert.Equal("312", FakeInterceptorAttribute.GetResult<Foobar>());
 
             foobar = new ServiceCollection()
                 .AddSingleton<Foobar, Foobar>()
                 .BuildInterceptableServiceProvider()
                 .GetRequiredService<Foobar>();
-            FakeInterceptorAttribute.Reset();
+            FakeInterceptorAttribute.Reset<Foobar>();
             await foobar.InvokeAsync();
-            Assert.Equal("312", FakeInterceptorAttribute.Result);
+            Assert.Equal("312", FakeInterceptorAttribute.GetResult<Foobar>());
         }
 
         public interface IFoobar

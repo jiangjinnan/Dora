@@ -16,7 +16,7 @@ namespace Dora.Interception.Policies
             _policy = Guard.ArgumentNotNull(policy, nameof(policy));
             _empty = new IInterceptorProvider[0];
         }
-        public IInterceptorProvider[] GetInterceptorProvidersForMethod(Type targetType, MethodInfo method)
+        public IInterceptorProvider[] GetInterceptorProvidersForMethod(Type targetType, MethodInfo method, out ISet<Type> excludedInterceptorProviders)
         {
             bool Filter(InterceptorProviderPolicy registration)
             {
@@ -44,13 +44,13 @@ namespace Dora.Interception.Policies
 
                 return false;
             }
-
+            excludedInterceptorProviders = new HashSet<Type>();
             return (from it in _policy
                     where Filter(it)
                     select it.InterceptorProviderFactory())
                     .ToArray();
         }       
-        public IInterceptorProvider[] GetInterceptorProvidersForProperty(Type targetType, PropertyInfo property, PropertyMethod propertyMethod)
+        public IInterceptorProvider[] GetInterceptorProvidersForProperty(Type targetType, PropertyInfo property, PropertyMethod propertyMethod, out ISet<Type> excludedInterceptorProviders)
         {
             bool Filter(InterceptorProviderPolicy registration)
             {
@@ -76,18 +76,19 @@ namespace Dora.Interception.Policies
 
                 return false;
             }
-
+            excludedInterceptorProviders = new HashSet<Type>();
             return (from it in _policy
                     where Filter(it)
                     select it.InterceptorProviderFactory())
                     .ToArray();
-        }    
-        public IInterceptorProvider[] GetInterceptorProvidersForType(Type type) => _empty; 
-        public bool? WillIntercept(Type type)
-        {
-            return _policy.Any(it1 => it1.TargetPolicies.Any(it2 => it2.TargetType == type));
         }
-        //public bool? WillIntercept(Type targetType, MethodInfo method) => null;
-        //public bool? WillIntercept(Type targetType, PropertyInfo property) => null;
+        public IInterceptorProvider[] GetInterceptorProvidersForType(Type type, out ISet<Type> excludedInterceptorProviders)
+        {
+            excludedInterceptorProviders = new HashSet<Type>();
+            return _empty;
+        }
+        public bool? WillIntercept(Type type) => null;
+        public bool? WillIntercept(Type targetType, MethodInfo method) => null;
+        public bool? WillIntercept(Type targetType, PropertyInfo property) => null;
     }
 }

@@ -9,37 +9,28 @@ namespace App
     {
         public static async Task Main()
         {
-            var foobar = new ServiceCollection()
-               .AddInterception()
-               .AddSingletonInterceptable(typeof(Foo<,>), typeof(Foo<,>))
-               .BuildServiceProvider()
-               .GetRequiredService<Foo<string, string>>();
+            var clock = new ServiceCollection()
+                 .AddMemoryCache()
+                 .AddSingleton<ISystemClock, SystemClock>()
+                 .BuildInterceptableServiceProvider()
+                 .GetRequiredService<ISystemClock>();
+            for (int i = 0; i < 5; i++)
+            {
+                Console.WriteLine(await clock.GetCurrentTimeAsync(DateTimeKind.Utc));
+                await Task.Delay(1000);
+            }
 
-            FakeInterceptorAttribute.Reset();
-            await foobar.Invoke<int>("1", "2", 3);
-
-            //var clock = new ServiceCollection()
-            //     .AddMemoryCache()
-            //     .AddSingleton<ISystemClock, SystemClock>()
-            //     .BuildInterceptableServiceProvider()
-            //     .GetRequiredService<ISystemClock>();
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    Console.WriteLine(await clock.GetCurrentTimeAsync(DateTimeKind.Utc));
-            //    await Task.Delay(1000);
-            //}
-
-            //clock = new ServiceCollection()
-            //     .AddInterception()
-            //     .AddMemoryCache()
-            //     .AddSingletonInterceptable<ISystemClock, SystemClock>()
-            //     .BuildServiceProvider()
-            //     .GetRequiredService<ISystemClock>();
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    Console.WriteLine(await clock.GetCurrentTimeAsync(DateTimeKind.Utc));
-            //    await Task.Delay(1000);
-            //}
+            clock = new ServiceCollection()
+                 .AddInterception()
+                 .AddMemoryCache()
+                 .AddSingletonInterceptable<ISystemClock, SystemClock>()
+                 .BuildServiceProvider()
+                 .GetRequiredService<ISystemClock>();
+            for (int i = 0; i < 5; i++)
+            {
+                Console.WriteLine(await clock.GetCurrentTimeAsync(DateTimeKind.Utc));
+                await Task.Delay(1000);
+            }
         }
     }
 

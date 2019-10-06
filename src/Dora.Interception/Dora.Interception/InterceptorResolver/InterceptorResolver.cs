@@ -166,6 +166,7 @@ namespace Dora.Interception
         private IInterceptorRegistry GetInterceptorsCore(Type typeToIntercept, Type targetType, InterfaceMapping2? interfaceMapping = null)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
+            var execludedProviderTypes = new HashSet<Type>();
             targetType ??= typeToIntercept;
             var isInterface = interfaceMapping != null;
             if (_nonInterceptableTypes.Contains(typeToIntercept))
@@ -183,7 +184,11 @@ namespace Dora.Interception
             var dictionary = new Dictionary<MethodInfo, InterceptorDelegate>();
 
             //Get all InterceptorProvider for target type.
-            var providersOfType = _providerResolver.GetInterceptorProvidersForType(targetType);   
+            var providersOfType = _providerResolver.GetInterceptorProvidersForType(targetType, out var excluded4Type);
+            foreach (var type in excluded4Type)
+            {
+                execludedProviderTypes.Add(type);
+            }
 
             //Filter based on AllowMultiple property
             providersOfType = SelectEffectiveProviders(providersOfType);       
@@ -196,8 +201,18 @@ namespace Dora.Interception
                 {
                     var methodToIntercept = candidateMethods[index];
                     var targetMethod = GetTargetMethod(methodToIntercept, interfaceMapping);
-                    var providersOfMethod = _providerResolver.GetInterceptorProvidersForMethod(targetType,targetMethod);
-                    var providers = SelectEffectiveProviders(providersOfType, providersOfMethod);
+
+                    if (_providerResolver.WillIntercept(targetType, targetMethod) == false)
+                    {
+                        continue;
+                    }                        
+
+                    var providersOfMethod = _providerResolver.GetInterceptorProvidersForMethod(targetType,targetMethod, out var execluded4Method);
+                    foreach (var type in execluded4Method)
+                    {
+                        execludedProviderTypes.Add(type);
+                    }
+                    var providers = SelectEffectiveProviders(providersOfType, providersOfMethod, execludedProviderTypes);
                     if (providers.Length > 0)
                     {
                         var builder = Builder.New();
@@ -213,14 +228,24 @@ namespace Dora.Interception
             {
                 var property = candidateProperties[index];
                 var targetProperty = GetTargetProperty(property, targetType, interfaceMapping);
+
+                if (_providerResolver.WillIntercept(targetType, targetProperty) == false)
+                {
+                    continue;
+                }
+
                 var getMethod = property.GetMethod;
                 var setMethod = property.SetMethod;
 
                 //GET method
                 if (null != getMethod && (isInterface || getMethod.IsOverridable()))
                 {
-                    var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetType,targetProperty, PropertyMethod.Get);
-                    var providers = SelectEffectiveProviders(providersOfType, providersOfProperty);
+                    var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetType,targetProperty, PropertyMethod.Get, out var execluded4Get);
+                    foreach (var type in execluded4Get)
+                    {
+                        execludedProviderTypes.Add(type);
+                    }
+                    var providers = SelectEffectiveProviders(providersOfType, providersOfProperty, execludedProviderTypes);
                     if (providers.Length > 0)
                     {
                         var builder = Builder.New();
@@ -231,8 +256,12 @@ namespace Dora.Interception
 
                 if (null != setMethod && (isInterface || setMethod.IsOverridable()))
                 {
-                    var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetType,targetProperty, PropertyMethod.Set);
-                    var providers = SelectEffectiveProviders(providersOfType, providersOfProperty);
+                    var providersOfProperty = _providerResolver.GetInterceptorProvidersForProperty(targetType,targetProperty, PropertyMethod.Set, out var execued4Set);
+                    foreach (var type in execued4Set)
+                    {
+                        execludedProviderTypes.Add(type);
+                    }
+                    var providers = SelectEffectiveProviders(providersOfType, providersOfProperty, execludedProviderTypes);
                     if (providers.Length > 0)
                     {
                         var builder = Builder.New();
@@ -288,7 +317,7 @@ namespace Dora.Interception
                 .Where(it => indicators[it])
                 .ToArray();
         }
-        private IInterceptorProvider[] SelectEffectiveProviders(IInterceptorProvider[] globalProviders, IInterceptorProvider[] specificProviders)
+        private IInterceptorProvider[] SelectEffectiveProviders(IInterceptorProvider[] globalProviders, IInterceptorProvider[] specificProviders, HashSet<Type> execludedProviders)
         {
             //For interceptor providers of the same type, only keep the last one if not AllowMultiple.
             var globalIndicators = globalProviders.ToDictionary(it => it, it => true);
@@ -315,9 +344,9 @@ namespace Dora.Interception
                 }
             }
 
-            return Concat(
-                globalProviders.Where(it => globalIndicators[it]).ToArray(),
-                specificProviders.Where(it => specificIndicators[it]).ToArray());
+            return Concat(globalProviders.Where(it => globalIndicators[it]).ToArray(), specificProviders.Where(it => specificIndicators[it]).ToArray())
+                .Where(it => !execludedProviders.Contains(it.GetType()))
+                .ToArray();
         }
         private IInterceptorProvider[] Concat(IInterceptorProvider[] providers1, IInterceptorProvider[] providers2)
         {
