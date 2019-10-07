@@ -11,12 +11,12 @@ namespace App
         [CacheReturnValue]
         public Task<DateTime> GetCurrentTimeAsync(DateTimeKind dateTimeKind)
         {
-            switch (dateTimeKind)
+            return dateTimeKind switch
             {
-                case DateTimeKind.Local: return Task.FromResult( DateTime.UtcNow.ToLocalTime());
-                case DateTimeKind.Unspecified: return Task.FromResult(DateTime.Now);
-                default: return Task.FromResult(DateTime.UtcNow);
-            }
+                DateTimeKind.Local => Task.FromResult(DateTime.UtcNow.ToLocalTime()),
+                DateTimeKind.Unspecified => Task.FromResult(DateTime.Now),
+                _ => Task.FromResult(DateTime.UtcNow),
+            };
         }
     }
 }

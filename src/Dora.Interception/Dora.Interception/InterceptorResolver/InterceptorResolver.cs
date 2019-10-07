@@ -98,7 +98,7 @@ namespace Dora.Interception
             {
                 if (interfaceType.IsInterface)
                 {
-                    InterfaceMapping2 mapping;
+                    InterfaceMethodMapping mapping;
                     try
                     {
                         if (interfaceType.IsGenericTypeDefinition)
@@ -107,7 +107,7 @@ namespace Dora.Interception
                         }
                         else
                         {
-                            mapping = new InterfaceMapping2(targetType.GetInterfaceMap(interfaceType));
+                            mapping = new InterfaceMethodMapping(targetType.GetInterfaceMap(interfaceType));
                         }
                     }
                     catch(Exception ex)
@@ -163,7 +163,7 @@ namespace Dora.Interception
         #endregion
 
         #region Private Methods
-        private IInterceptorRegistry GetInterceptorsCore(Type typeToIntercept, Type targetType, InterfaceMapping2? interfaceMapping = null)
+        private IInterceptorRegistry GetInterceptorsCore(Type typeToIntercept, Type targetType, InterfaceMethodMapping? interfaceMapping = null)
         {
             Guard.ArgumentNotNull(typeToIntercept, nameof(typeToIntercept));
             var execludedProviderTypes = new HashSet<Type>();
@@ -364,7 +364,7 @@ namespace Dora.Interception
 
             return array;
         }
-        private MethodInfo GetTargetMethod(MethodInfo methodToIntercept, InterfaceMapping2? interfaceMapping = null)
+        private MethodInfo GetTargetMethod(MethodInfo methodToIntercept, InterfaceMethodMapping? interfaceMapping = null)
         {
             if (interfaceMapping == null)
             {
@@ -374,7 +374,7 @@ namespace Dora.Interception
             var index = Array.IndexOf(interfaceMapping.Value.InterfaceMethods, methodToIntercept);
             return interfaceMapping.Value.TargetMethods[index];
         }
-        private PropertyInfo GetTargetProperty(PropertyInfo propertyToIntercept, Type targetType = null, InterfaceMapping2? interfaceMapping = null)
+        private PropertyInfo GetTargetProperty(PropertyInfo propertyToIntercept, Type targetType = null, InterfaceMethodMapping? interfaceMapping = null)
         {
             if (interfaceMapping == null)
             {

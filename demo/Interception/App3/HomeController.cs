@@ -15,7 +15,6 @@ namespace App
         public HomeController(ISystemClock  clock)
         {
             _clock = clock;
-            //Debug.Assert(typeof(SystemClock) != _clock.GetType());
         }
 
         [HttpGet("/{kind?}")]

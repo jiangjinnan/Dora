@@ -1,4 +1,4 @@
-﻿using Dora.DynamicProxy;
+﻿using Dora.Interception;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Reflection;
@@ -70,7 +70,7 @@ namespace App
                 int hashCode = Method.GetHashCode();
                 foreach (var argument in InputArguments)
                 {
-                    hashCode = hashCode ^ argument.GetHashCode();
+                    hashCode ^= argument.GetHashCode();
                 }
                 return hashCode;
             }

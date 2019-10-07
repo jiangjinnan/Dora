@@ -3,12 +3,12 @@ using System;
 
 namespace App
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class CacheReturnValueAttribute : InterceptorAttribute
+[AttributeUsage(AttributeTargets.Method)]
+public class CacheReturnValueAttribute : InterceptorAttribute
+{
+    public override void Use(IInterceptorChainBuilder builder)
     {
-        public override void Use(IInterceptorChainBuilder builder)
-        {
-            builder.Use<CacheInterceptor>(Order);
-        }   
-    }
+        builder.Use<CacheInterceptor>(Order);
+    }   
+}
 }

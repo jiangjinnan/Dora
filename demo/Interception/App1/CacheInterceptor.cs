@@ -40,7 +40,6 @@ namespace App
                 Method = method;
                 InputArguments = arguments;
             }
-
             public override bool Equals(object obj)
             {
                 if (!(obj is Cachekey another))

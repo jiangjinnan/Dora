@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace App
 {
-    public class Program
+public class Program
+{
+    public static void Main(string[] args)
     {
-        public static void Main()
-        {
-            new WebHostBuilder()
-                 .UseKestrel()
-                 .UseStartup<Startup>()
-                 .Build()
-                 .Run();
-        }
+        Host.CreateDefaultBuilder()
+                .UseInterceptableServiceProvider()
+                .ConfigureWebHostDefaults(buider => buider.UseStartup<Startup>())
+                .Build()
+                .Run();
     }
+}
 }

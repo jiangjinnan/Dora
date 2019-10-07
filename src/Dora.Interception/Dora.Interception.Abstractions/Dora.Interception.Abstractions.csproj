@@ -18,6 +18,7 @@
     <PackageReleaseNotes>Performance enhancement, more ways to register interceptors, bug fixing.</PackageReleaseNotes>
     <LangVersion>8.0</LangVersion>
     <PackageId>Dora.Interception.Abstractions</PackageId>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

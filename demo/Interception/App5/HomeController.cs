@@ -12,10 +12,10 @@ namespace App
     public class HomeController : Controller
     {
         private readonly ISystemClock _clock;
-        public HomeController(IInterceptable<ISystemClock> clockAccessor)
+        public HomeController(ISystemClock  clock)
         {
-            _clock = clockAccessor.Proxy;
-            Debug.Assert(typeof(SystemClock) != _clock.GetType());
+            _clock = clock;
+            //Debug.Assert(typeof(SystemClock) != _clock.GetType());
         }
 
         [HttpGet("/{kind?}")]

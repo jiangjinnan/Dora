@@ -3,15 +3,19 @@ using System;
 
 namespace Dora.Interception
 {
-    public interface IInterceptableServiceDescriptor
-    {
-        Type TargetType { get; }
-    }
-
+    /// <summary>
+    /// Represents a normal non-open-generic type based interceptable <see cref="ServiceDescriptor"/>.
+    /// </summary>
     public sealed class InterceptableServiceDescriptor : ServiceDescriptor, IInterceptableServiceDescriptor
     {
         private readonly Type _targetType;
 
+        /// <summary>
+        /// Create a new <see cref="InterceptableServiceDescriptor"/>.
+        /// </summary>
+        /// <param name="serviceType">The service type.</param>
+        /// <param name="implementationType">The <see cref="Type"/> implementing the service.</param>
+        /// <param name="lifetime">The <see cref="ServiceLifetime"/> of the service registration.</param>
         public InterceptableServiceDescriptor(Type serviceType, Type implementationType, ServiceLifetime lifetime)
             : base(serviceType, GetImplementationFactory(serviceType, implementationType), lifetime)
         {
@@ -21,6 +25,7 @@ namespace Dora.Interception
             }
             _targetType = implementationType;
         }
+
         Type IInterceptableServiceDescriptor.TargetType => _targetType;
 
         private static Func<IServiceProvider, object> GetImplementationFactory(Type serviceType, Type implementationType)
@@ -59,37 +64,5 @@ namespace Dora.Interception
         }
     }
 
-    public sealed class GenericInterceptableServiceDescriptor : ServiceDescriptor, IInterceptableServiceDescriptor
-    {
-        private readonly Type _targetType;
-        public GenericInterceptableServiceDescriptor(
-            ICodeGeneratorFactory codeGeneratorFactory,
-            IInterceptorResolver  interceptorResolver,
-            Type serviceType, Type implementationType, ServiceLifetime lifetime)
-           : base(serviceType, GetInterceptableProxyType(codeGeneratorFactory, interceptorResolver, serviceType, implementationType), lifetime)
-        {
-            if (!serviceType.IsGenericTypeDefinition)
-            {
-                throw new ArgumentException("Non-open-generic type (generic type definition) is not support", nameof(serviceType));
-            }
-            _targetType = implementationType;
-        }
-
-        Type IInterceptableServiceDescriptor.TargetType => _targetType;
-
-        private static Type GetInterceptableProxyType(
-            ICodeGeneratorFactory codeGeneratorFactory,
-            IInterceptorResolver interceptorResolver,
-            Type serviceType, 
-            Type implementationType)
-        {
-            var interceptors = serviceType.IsInterface
-                ? interceptorResolver.GetInterceptors(serviceType, implementationType)
-                : interceptorResolver.GetInterceptors(implementationType);
-            var codeGenerator = codeGeneratorFactory.Create();
-            var context = new CodeGenerationContext(serviceType, implementationType, interceptors);
-            var proxyType = codeGenerator.GenerateInterceptableProxyClass(context);
-            return proxyType;
-        }
-    }
+    
 }

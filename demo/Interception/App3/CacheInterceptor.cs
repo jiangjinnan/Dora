@@ -1,4 +1,4 @@
-﻿using Dora.DynamicProxy;
+﻿using Dora.Interception;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Reflection;

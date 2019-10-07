@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Dora.Interception
 {
+    /// <summary>
+    /// Default implementation of <see cref="ICodeGenerator"/>
+    /// </summary>
     public class CodeGenerator : ICodeGenerator
     {
 
@@ -21,10 +24,14 @@ namespace Dora.Interception
         private readonly MethodInfo _methodOfGetInterceptor = ReflectionUtility.GetMethod<IInterceptorRegistry>(_ => _.GetInterceptor(null));
         private readonly MethodInfo _getInterceptorsMethod4Interface = ReflectionUtility.GetMethod<IInterceptorResolver>(_ => _.GetInterceptors(null, null));
         private readonly MethodInfo _getInterceptorsMethod4Class = ReflectionUtility.GetMethod<IInterceptorResolver>(_ => _.GetInterceptors(null));
-        private readonly MethodInfo _writeLineMethod = typeof(Console).GetMethod("WriteLine", new Type[] { typeof(object) });
         #endregion
 
         #region Public methods
+        /// <summary>
+        /// Generates interceptable proxy class.
+        /// </summary>
+        /// <param name="context">The <see cref="CodeGenerationContext"/> representing code generation based execution context.</param>
+        /// <returns>The generated interceptable proxy class</returns>
         public Type GenerateInterceptableProxyClass(CodeGenerationContext context)
         {
             _interfaceOrBaseType = context.InterfaceOrBaseType;
@@ -140,6 +147,17 @@ namespace Dora.Interception
         /// Defines the constructors for class inheriting the specified type.
         /// </summary>          
         /// <returns>The <see cref="ConstructorBuilder"/> array representing the generated constructors.</returns>
+        /// <example>
+        /// public class FoobarProxy: Foobar
+        /// {
+        ///     private readonly IInterceptionRegistry _interceptors;
+        ///     private InterceptorRegistry _interceptors;
+        ///     public (Foo foo, Bar bar, IInterceptorResolver resolver):base(foo, bar)
+        ///     {
+        ///         _interceptors = resolver.GetInterceptors(typeof(Foobar));
+        ///     }
+        /// }
+        /// </example>
         private ConstructorBuilder[] DefineConstructorsForSubClass()
         {
             var constructors = _interfaceOrBaseType.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
@@ -163,7 +181,6 @@ namespace Dora.Interception
                 il.EmitLoadArgument(parameterTypes.Count - 1);
                 il.Emit(OpCodes.Ldtoken, _interfaceOrBaseType);
                 il.Emit(OpCodes.Callvirt, _getInterceptorsMethod4Class);
-                //il.Emit(OpCodes.Call, _writeLineMethod);
                 il.Emit(OpCodes.Stfld, _interceptorsField);
 
                 il.Emit(OpCodes.Ret);

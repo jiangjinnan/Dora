@@ -1,21 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Dora.Interception;
 
 namespace App
 {
-    public class Program
+public class Program
+{
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        Host.CreateDefaultBuilder()
+            .UseInterceptableServiceProvider(configure: Configure)
+                .ConfigureWebHostDefaults(buider => buider.UseStartup<Startup>())
+                .Build()
+                .Run();
+
+        static void Configure(InterceptionBuilder interceptionBuilder)
         {
-            new WebHostBuilder()
-                 .UseKestrel()
-                 .UseStartup<Startup>()
-                 .Build()
-                 .Run();
+            interceptionBuilder.AddPolicy(policyBuilder => policyBuilder
+                .For<CacheReturnValueAttribute>(order: 1, cache => cache
+                    .To<SystemClock>(target => target
+                        .IncludeMethod(clock => clock.GetCurrentTime(default)))));
         }
     }
+}
 }

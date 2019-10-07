@@ -2,17 +2,17 @@
 
 namespace App
 {
-    public class SystemClock : ISystemClock
+public class SystemClock : ISystemClock
+{
+    [CacheReturnValue]
+    public DateTime GetCurrentTime(DateTimeKind dateTimeKind)
     {
-        [CacheReturnValue]
-        public DateTime GetCurrentTime(DateTimeKind dateTimeKind)
+        return dateTimeKind switch
         {
-            switch (dateTimeKind)
-            {
-                case DateTimeKind.Local: return DateTime.UtcNow.ToLocalTime();
-                case DateTimeKind.Unspecified: return DateTime.Now;
-                default: return DateTime.UtcNow;
-            }
-        }
+            DateTimeKind.Local => DateTime.UtcNow.ToLocalTime(),
+            DateTimeKind.Unspecified => DateTime.Now,
+            _ => DateTime.UtcNow,
+        };
     }
+}
 }

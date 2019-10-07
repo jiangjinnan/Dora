@@ -7,61 +7,210 @@ using System.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// Defines <see cref="IServiceCollection"/> specific extension methods.
+    /// </summary>
     public static class AddInterceptionExtensions
     {
         #region AddInterceptable
+
+        /// <summary>
+        /// Add interceptable <see cref="ServiceDescriptor"/>.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <param name="lifetime">The lifetime of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection AddInterceptable(this IServiceCollection services, Type serviceType, Type implementationType, ServiceLifetime lifetime)
             => services.AddInterceptableCore(serviceType, implementationType, lifetime, AddKind.AlwaysAdd);
+
+        /// <summary>
+        /// Add interceptable <see cref="ServiceDescriptor"/> with transient lifetime.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection AddTransientInterceptable(this IServiceCollection services, Type serviceType, Type implementationType)
             => services.AddInterceptableCore(serviceType, implementationType,  ServiceLifetime.Transient, AddKind.AlwaysAdd);
+
+        /// <summary>
+        /// Add interceptable <see cref="ServiceDescriptor"/> with scoped lifetime.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection AddScopedInterceptable(this IServiceCollection services, Type serviceType, Type implementationType)
             => services.AddInterceptableCore(serviceType, implementationType, ServiceLifetime.Scoped, AddKind.AlwaysAdd);
+
+        /// <summary>
+        /// Add interceptable <see cref="ServiceDescriptor"/> with singleton lifetime.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection AddSingletonInterceptable(this IServiceCollection services, Type serviceType, Type implementationType)
             => services.AddInterceptableCore(serviceType, implementationType, ServiceLifetime.Singleton, AddKind.AlwaysAdd);
 
-
+        /// <summary>
+        /// Add interceptable <see cref="ServiceDescriptor"/>.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="lifetime">The lifetime of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection AddInterceptable<TService, TImplementation>(this IServiceCollection services, ServiceLifetime lifetime)
             where TImplementation: TService
             => services.AddInterceptableCore(typeof(TService), typeof(TImplementation), lifetime, AddKind.AlwaysAdd);
+
+        /// <summary>
+        /// Add interceptable <see cref="ServiceDescriptor"/> with transient lifetime.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection AddTransientInterceptable<TService, TImplementation>(this IServiceCollection services)
             where TImplementation : TService
             => services.AddInterceptableCore(typeof(TService), typeof(TImplementation),  ServiceLifetime.Transient, AddKind.AlwaysAdd);
+
+        /// <summary>
+        /// Add interceptable <see cref="ServiceDescriptor"/> with scoped lifetime.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection AddScopedInterceptable<TService, TImplementation>(this IServiceCollection services)
            where TImplementation : TService
            => services.AddInterceptableCore(typeof(TService), typeof(TImplementation), ServiceLifetime.Scoped, AddKind.AlwaysAdd);
+
+        /// <summary>
+        /// Add interceptable <see cref="ServiceDescriptor"/> with singleton lifetime.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection AddSingletonInterceptable<TService, TImplementation>(this IServiceCollection services)
            where TImplementation : TService
            => services.AddInterceptableCore(typeof(TService), typeof(TImplementation), ServiceLifetime.Singleton, AddKind.AlwaysAdd);
         #endregion
 
         #region TryAddInterceptable
+
+        /// <summary>
+        /// Try to add interceptable <see cref="ServiceDescriptor"/>.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <param name="lifetime">The lifetime of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddInterceptable(this IServiceCollection services, Type serviceType, Type implementationType, ServiceLifetime lifetime)
             => services.AddInterceptableCore(serviceType, implementationType, lifetime, AddKind.TryAdd);
+
+        /// <summary>
+        /// Try to add interceptable <see cref="ServiceDescriptor"/> with transient lifetime.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddTransientInterceptable(this IServiceCollection services, Type serviceType, Type implementationType)
             => services.AddInterceptableCore(serviceType, implementationType, ServiceLifetime.Transient, AddKind.TryAdd);
+
+        /// <summary>
+        /// Try to add interceptable <see cref="ServiceDescriptor"/> with scoped lifetime.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddScopedInterceptable(this IServiceCollection services, Type serviceType, Type implementationType)
             => services.AddInterceptableCore(serviceType, implementationType, ServiceLifetime.Scoped, AddKind.TryAdd);
+
+        /// <summary>
+        /// Try to add interceptable <see cref="ServiceDescriptor"/> with singleton lifetime.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddSingletonInterceptable(this IServiceCollection services, Type serviceType, Type implementationType)
             => services.AddInterceptableCore(serviceType, implementationType, ServiceLifetime.Singleton, AddKind.TryAdd);
 
+        /// <summary>
+        /// Try to add interceptable <see cref="ServiceDescriptor"/>.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="lifetime">The lifetime of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddInterceptable<TService, TImplementation>(this IServiceCollection services, ServiceLifetime lifetime)
             where TImplementation : TService
             => services.AddInterceptableCore(typeof(TService), typeof(TImplementation), lifetime, AddKind.TryAdd);
+
+        /// <summary>
+        /// Try to add interceptable <see cref="ServiceDescriptor"/> with transient lifetime.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddInterceptable<TService, TImplementation>(this IServiceCollection services)
             where TImplementation : TService
             => services.AddInterceptableCore(typeof(TService), typeof(TImplementation), ServiceLifetime.Transient, AddKind.TryAdd);
+
+        /// <summary>
+        /// Try to add interceptable <see cref="ServiceDescriptor"/> with scoped lifetime.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddScopedInterceptable<TService, TImplementation>(this IServiceCollection services)
            where TImplementation : TService
            => services.AddInterceptableCore(typeof(TService), typeof(TImplementation), ServiceLifetime.Scoped, AddKind.TryAdd);
+
+        /// <summary>
+        /// Try to add interceptable <see cref="ServiceDescriptor"/> with singleton lifetime.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddSingletonInterceptable<TService, TImplementation>(this IServiceCollection services)
            where TImplementation : TService
            => services.AddInterceptableCore(typeof(TService), typeof(TImplementation), ServiceLifetime.Singleton, AddKind.TryAdd);
         #endregion
 
         #region TryAddEnumerableInterceptable
+
+        /// <summary>
+        /// Adds a interceptable <see cref="ServiceDescriptor"/> if an existing one with the same type and implementation that does not already exist in services.
+        /// </summary>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="serviceType">The type of service registration.</param>
+        /// <param name="implementationType">The implementation type of service registration.</param>
+        /// <param name="lifetime">The lifetime of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddEnumerableInterceptable(this IServiceCollection services, Type serviceType, Type implementationType, ServiceLifetime lifetime)
             => services.AddInterceptableCore(serviceType, implementationType, lifetime, AddKind.TryAddEnumerable);
 
+        /// <summary>
+        /// Adds a interceptable <see cref="ServiceDescriptor"/> if an existing one with the same type and implementation that does not already exist in services.
+        /// </summary>
+        /// <typeparam name="TService">The type of service registration.</typeparam>
+        /// <typeparam name="TImplementation">The implementation type of service registration.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> which the new service registration is added in.</param>
+        /// <param name="lifetime">The lifetime of service registration.</param>
+        /// <returns>The current <see cref="IServiceCollection"/></returns>.
         public static IServiceCollection TryAddEnumerableInterceptable<TService, TImplementation>(this IServiceCollection services, ServiceLifetime lifetime)
             where TImplementation : TService
             => services.AddInterceptableCore(typeof(TService), typeof(TImplementation), lifetime, AddKind.TryAddEnumerable);
@@ -136,7 +285,6 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             return services;
         }
-
         private enum AddKind
         {
             AlwaysAdd,

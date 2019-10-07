@@ -3,7 +3,7 @@ using System;
 
 namespace Dora.Interception
 {
-    public sealed class ServiceDescriptorConverter
+    internal sealed class ServiceDescriptorConverter
     {
         private readonly ServiceDescriptor _primaryDescriptor;
         private readonly ServiceDescriptor _secondaryDescriptor = null;
@@ -27,7 +27,7 @@ namespace Dora.Interception
             Guard.ArgumentNotNull(interceptorResolver, nameof(interceptorResolver));
             Guard.ArgumentNotNull(factoryCache, nameof(factoryCache));
 
-            if (serviceDescriptor.ImplementationInstance != null || serviceDescriptor.ImplementationFactory != null)
+            if (serviceDescriptor.ImplementationInstance != null || serviceDescriptor.ImplementationFactory != null || serviceDescriptor.IsInterceptable())
             {
                 _primaryDescriptor = serviceDescriptor;
                 return;

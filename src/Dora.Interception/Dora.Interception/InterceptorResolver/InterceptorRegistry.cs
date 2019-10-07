@@ -72,7 +72,7 @@ namespace Dora.Interception
         /// <exception cref="ArgumentException">Specified <paramref name="interceptors" /> is empty.</exception>
         public InterceptorRegistry(
             IDictionary<MethodInfo, InterceptorDelegate> interceptors, 
-            InterfaceMapping2? interfaceMapping = null)
+            InterfaceMethodMapping? interfaceMapping = null)
         {
             Guard.ArgumentNotNull(interceptors, nameof(interceptors));
             var dictionary = interceptors.ToDictionary(it => it.Key.MetadataToken, it => it.Value);  

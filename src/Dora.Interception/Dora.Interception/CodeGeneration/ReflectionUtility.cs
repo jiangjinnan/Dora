@@ -106,11 +106,11 @@ namespace Dora.Interception
             return (PropertyInfo)((MemberExpression)propertyAccessExpression.Body).Member;
         }
 
-        public static InterfaceMapping2 GetInterfaceMapForGenericTypeDefinition(Type @interface, Type targetType)
+        public static InterfaceMethodMapping GetInterfaceMapForGenericTypeDefinition(Type @interface, Type targetType)
         {
-            var interfaceMethods = @interface.GetMethods();
+            var interfaceMethods = @interface.GetMethods(); 
             var targetMethods = new MethodInfo[interfaceMethods.Length];
-            var implementedInterface = targetType.GetInterfaces().Single(it => it.GetGenericTypeDefinition() == @interface.GetGenericTypeDefinition());
+            var implementedInterface = targetType.GetInterfaces().Single(it => it.IsGenericType && it.GetGenericTypeDefinition() == @interface.GetGenericTypeDefinition());
             var interfaceGenericParameters = ((TypeInfo)@interface).GenericTypeParameters;
             var targetGenericParameters = ((TypeInfo)targetType).GenericTypeParameters;
             var typeGenericParameterMap = new Dictionary<Type, Type>();
@@ -130,7 +130,7 @@ namespace Dora.Interception
                 }
             }
 
-            return new InterfaceMapping2
+            return new InterfaceMethodMapping
             {
                 InterfaceMethods = interfaceMethods,
                 TargetMethods = targetMethods,

@@ -6,12 +6,12 @@ namespace App
     {
         public virtual DateTime GetCurrentTime(DateTimeKind dateTimeKind)
         {
-            switch (dateTimeKind)
+            return dateTimeKind switch
             {
-                case DateTimeKind.Local: return DateTime.UtcNow.ToLocalTime();
-                case DateTimeKind.Unspecified: return DateTime.Now;
-                default: return DateTime.UtcNow;
-            }
+                DateTimeKind.Local => DateTime.UtcNow.ToLocalTime(),
+                DateTimeKind.Unspecified => DateTime.Now,
+                _ => DateTime.UtcNow,
+            };
         }
     }
 }
