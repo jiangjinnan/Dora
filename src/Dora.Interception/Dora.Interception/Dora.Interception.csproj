@@ -12,10 +12,10 @@
     <Product>Dora</Product>
     <Version>3.0.0</Version>
     <PackageTags>Dependency Injection, DI, AOP, Interception, Proxy</PackageTags>
-    <!--<PackageIcon>http://www.doranet.org/images/logo.png</PackageIcon>-->
+    <PackageIconUrl>http://www.doranet.org/images/logo.png</PackageIconUrl>
     <PackageProjectUrl>http://www.doranet.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>Refacorting, Align with .NET Core 3.0, Performance enhancement, Bug fixing.</PackageReleaseNotes>
     <LangVersion>8.0</LangVersion>
     <PackageId>Dora.Interception</PackageId>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
