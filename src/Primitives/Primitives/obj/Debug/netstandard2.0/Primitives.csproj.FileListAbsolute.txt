@@ -1,0 +1,9 @@
+D:\Projects\My\dora5\src\Primitives\Primitives\bin\Debug\netstandard2.0\Dora.Primitives.deps.json
+D:\Projects\My\dora5\src\Primitives\Primitives\bin\Debug\netstandard2.0\Dora.Primitives.dll
+D:\Projects\My\dora5\src\Primitives\Primitives\bin\Debug\netstandard2.0\Dora.Primitives.pdb
+D:\Projects\My\dora5\src\Primitives\Primitives\obj\Debug\netstandard2.0\Primitives.csprojAssemblyReference.cache
+D:\Projects\My\dora5\src\Primitives\Primitives\obj\Debug\netstandard2.0\Primitives.AssemblyInfoInputs.cache
+D:\Projects\My\dora5\src\Primitives\Primitives\obj\Debug\netstandard2.0\Primitives.AssemblyInfo.cs
+D:\Projects\My\dora5\src\Primitives\Primitives\obj\Debug\netstandard2.0\Primitives.csproj.CoreCompileInputs.cache
+D:\Projects\My\dora5\src\Primitives\Primitives\obj\Debug\netstandard2.0\Dora.Primitives.dll
+D:\Projects\My\dora5\src\Primitives\Primitives\obj\Debug\netstandard2.0\Dora.Primitives.pdb

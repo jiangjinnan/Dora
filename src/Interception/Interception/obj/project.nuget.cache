@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "dgSpecHash": "GBcNw2ItAU49bahn+e8EUTrhiPkNJbtJw43vxFctu6pJ1r6dcNZWlMe5Pz2aXCZuma9doUUyz5FkiiWARoA+Rw==",
+  "success": true,
+  "projectFilePath": "D:\\Projects\\My\\dora5\\src\\Interception\\Interception\\Interception.csproj",
+  "expectedPackageFiles": [
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\5.0.0\\microsoft.bcl.asyncinterfaces.5.0.0.nupkg.sha512",
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\5.0.0\\microsoft.extensions.dependencyinjection.5.0.0.nupkg.sha512",
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\5.0.0\\microsoft.extensions.dependencyinjection.abstractions.5.0.0.nupkg.sha512",
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\system.reflection.emit\\4.7.0\\system.reflection.emit.4.7.0.nupkg.sha512",
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\system.reflection.emit.ilgeneration\\4.7.0\\system.reflection.emit.ilgeneration.4.7.0.nupkg.sha512",
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.5.3\\system.runtime.compilerservices.unsafe.4.5.3.nupkg.sha512",
+    "D:\\MyConfiguration\\jjn47239\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512"
+  ],
+  "logs": []
+}
