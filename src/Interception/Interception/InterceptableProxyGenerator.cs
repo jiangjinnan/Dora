@@ -266,8 +266,6 @@ namespace Dora.Interception
                 var constructorBuilder = closureType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, constructorParameterTypes);
                 var il = constructorBuilder.GetILGenerator();
 
-                il.EmitWriteLine("ss");
-
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Call, Members.ConstructorOfObject);
 
@@ -328,10 +326,7 @@ namespace Dora.Interception
                     il.Emit(OpCodes.Ldc_I4, index);
                     il.Emit(OpCodes.Ldelem_Ref);
                     var parameterType = parameters[index].ParameterType;
-                    if (parameterType.IsValueType)
-                    {
-                        il.Emit(OpCodes.Unbox, parameterType);
-                    }
+                    il.EmitUnboxOrCast(parameterType);
                 }              
                 il.Emit(OpCodes.Br_S, argumentsLoaded);
 

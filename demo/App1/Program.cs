@@ -52,6 +52,7 @@ namespace App1
 
     public class Calculator: ICalculator
     {
+
         public int DivideAsResult(int x, int y)
         {
             Console.WriteLine("DivideAsResult");
@@ -119,11 +120,12 @@ namespace App1
     {
         public IEnumerable<InterceptorRegistration> Registrations => new InterceptorRegistration[] {
             new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsVoid"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsResult"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTask"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0)
+            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsResult"), 0),
+            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTask"), 0),
+            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
+            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
+            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
+            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsOut"), 0)
         };
     }
 }
