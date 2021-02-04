@@ -12,9 +12,11 @@ namespace Dora.Interception
         void InvokeAsVoid(int x, int y);
         int InvokeAsResult(int x, int y);
         Task InvokeAsTask(int x, int y);
-         Task<int> InvokeAsTaskOfResult(int x, int y);
-         ValueTask InvokeAsValueTask(int x, int y);
-         ValueTask<int> InvokeAsValueTaskOfResult(int x, int y);
+        Task<int> InvokeAsTaskOfResult(int x, int y);
+        ValueTask InvokeAsValueTask(int x, int y);
+        ValueTask<int> InvokeAsValueTaskOfResult(int x, int y);
+
+        T GenericInvokeAsResult<T>(T x, T y);
     }
     public class Foobar : IFoobar
     {
@@ -44,6 +46,16 @@ namespace Dora.Interception
         }
 
         public ValueTask<int> InvokeAsValueTaskOfResult(int x, int y)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void InvokeAsRefOut(ref int x, ref int y, out int result)
+        {
+            throw new NotImplementedException();
+        }
+
+        public T GenericInvokeAsResult<T>(T x, T y)
         {
             throw new NotImplementedException();
         }
@@ -131,6 +143,18 @@ namespace Dora.Interception
 
             var task = interceptor.Delegate(next)(invocationContext);
             return ProxyGeneratorHelper.GetValueTaskOfResult<int>(task, invocationContext);
+        }
+
+        public T GenericInvokeAsResult<T>(T x, T y)
+        {
+            MethodInfo currentMethod = null;
+            var interceptor = _interceptorProvider.GetInterceptor(currentMethod);
+            var invocationContext = interceptor.CaptureArguments
+                ? new InvocationContext(_target, currentMethod, new object[] { x, y })
+                : new InvocationContext(_target, currentMethod);
+            InvokerDelegate next = new GenericInvokeAsResultClosure<T>(_target, x, y, invocationContext.Arguments).Invoke;
+            var task = interceptor.Delegate(next)(invocationContext);
+            return ProxyGeneratorHelper.GetResult<T>(task, invocationContext);
         }
 
         private class InvokeAsVoidClosure
@@ -285,6 +309,43 @@ namespace Dora.Interception
                 var valueTask = _target.InvokeAsValueTaskOfResult(_x, _y);
                 return ProxyGeneratorHelper.AsTaskByValueTaskOfResult(valueTask, invocationContext);
             }
-        }       
+        }
+
+        private class GenericInvokeAsResultClosure<T>
+        {
+            private Foobar _target;
+            private T _x;
+            private T _y;
+            private object[] _arugments;
+
+            public GenericInvokeAsResultClosure(Foobar target, T x, T y, object[] arguments)
+            {
+                _target = target;
+                if (arguments == null)
+                {
+                    _x = x;
+                    _y = y;
+                }
+                else
+                {
+                    _arugments = arguments;
+                }
+            }
+
+            public Task Invoke(InvocationContext invocationContext)
+            {
+                T result;
+                if (_arugments == null)
+                {
+                     result = _target.GenericInvokeAsResult(_x, _y);
+                }
+                else
+                {
+                     result = _target.GenericInvokeAsResult((T)_arugments[0], (T)_arugments[1]);
+                }
+                invocationContext.SetReturnValue(result);
+                return Task.CompletedTask;
+            }
+        }
     }
 }

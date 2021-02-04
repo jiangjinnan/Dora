@@ -9,10 +9,13 @@ namespace Dora.Interception
     {
         public MethodInfo MethodInfo { get; }
         public MethodReturnKind ReturnKind { get; }
+
+        public bool IsGenericMethod { get; }
         public MethodMetadata(MethodInfo methodInfo)
         {
             MethodInfo = methodInfo;
             ReturnKind = methodInfo.GetReturnKind();
+            IsGenericMethod = methodInfo.IsGenericMethod;
         }
     }
 }

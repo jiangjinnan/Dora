@@ -21,6 +21,21 @@ namespace Dora.Interception
             return il;
         }
 
+        public static void EmitTryBox(this ILGenerator il, Type typeOnStack)
+        {
+            if (typeOnStack.IsValueType || typeOnStack.IsGenericParameter)
+            {
+                il.Emit(OpCodes.Box, typeOnStack);
+            }
+            if (typeOnStack.IsByRef)
+            {
+                var nonByRefType = typeOnStack.GetNonByRefType();
+                if (nonByRefType.IsValueType)
+                {
+                    il.Emit(OpCodes.Box, nonByRefType);
+                }
+            }
+        }
         public static void EmitUnboxOrCast(this ILGenerator il, Type targetType)
         {
             if (targetType.IsValueType || targetType.IsGenericParameter)

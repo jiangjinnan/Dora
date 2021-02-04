@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -72,12 +73,17 @@ namespace Dora.Interception
             void DefineInterceptableMethod(MethodMetadata methodMetadata)
             {
                 var targetMethod = methodMetadata.MethodInfo;
-                var closureType = DefineClosureType(methodMetadata, out var invokeMethod, out var constructor);
-                var parameters = targetMethod.GetParameters();
-                var parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
-                var methodBuilder = proxyType.DefineMethod(targetMethod.Name, attributes, targetMethod.ReturnType, parameterTypes);
+                var closureType = DefineClosureType(methodMetadata, out var invokeMethod, out var closureConstructor);
+                if (methodMetadata.IsGenericMethod)
+                {
+                    closureType = closureType.MakeGenericType(methodMetadata.MethodInfo.GetGenericArguments());
+                    closureConstructor = closureType.GetConstructors().Single();
+                    invokeMethod = closureType.GetMethod("InvokeAsync");
+                }
+                var methodBuilder = CreateMethodBuilder(methodMetadata, out var parameterTypes, out var returnType);
 
                 var il = methodBuilder.GetILGenerator();
+             
 
                 //var method = MethodBase.GetMethodFromHandleOfMethodBase(..);
                 var method = il.DeclareLocal(typeof(MethodInfo));
@@ -107,24 +113,21 @@ namespace Dora.Interception
                 il.Emit(OpCodes.Newobj, Members.ConstructorOfInvocationContext);
                 il.Emit(OpCodes.Stloc, invocationContext);
 
+
                 il.Emit(OpCodes.Br_S, contextCreated);
 
                 il.MarkLabel(captureArgument);
 
                 //var arguments = new object[]{arg1, arg2,...}
                 var arguments = il.DeclareLocal(typeof(object[]));
-                il.Emit(OpCodes.Ldc_I4, parameters.Length);
+                il.Emit(OpCodes.Ldc_I4, parameterTypes.Length);
                 il.Emit(OpCodes.Newarr, typeof(object));
-                for (int index = 0; index < parameters.Length; index++)
+                for (int index = 0; index < parameterTypes.Length; index++)
                 {
-                    var parameter = parameters[index];
                     il.Emit(OpCodes.Dup);
                     il.Emit(OpCodes.Ldc_I4, index);
                     il.EmitLdArgs(index + 1);
-                    if (parameter.ParameterType.IsValueType)
-                    {
-                        il.Emit(OpCodes.Box, parameter.ParameterType);
-                    }
+                    il.EmitTryBox(parameterTypes[index]);
                     il.Emit(OpCodes.Stelem_Ref);
                 }
                 il.Emit(OpCodes.Stloc, arguments);
@@ -139,17 +142,19 @@ namespace Dora.Interception
 
                 il.MarkLabel(contextCreated);
 
+
                 //var closure = new Closure(target, arg1, arg2, ..., arguments);
                 var closure = il.DeclareLocal(closureType);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldfld, target);
-                for (int index = 0; index < parameters.Length; index++)
+                for (int index = 0; index < parameterTypes.Length; index++)
                 {
                     il.EmitLdArgs(index + 1);
                 }
                 il.Emit(OpCodes.Ldloc, arguments);
-                il.Emit(OpCodes.Newobj, constructor);
+                il.Emit(OpCodes.Newobj, closureConstructor);
                 il.Emit(OpCodes.Stloc, closure);
+
 
                 //var next = closure.InvokeAsync;
                 var next = il.DeclareLocal(typeof(InvokerDelegate));
@@ -157,6 +162,7 @@ namespace Dora.Interception
                 il.Emit(OpCodes.Ldftn, invokeMethod);
                 il.Emit(OpCodes.Newobj, Members.ConstructorOfInvokerDelegate);
                 il.Emit(OpCodes.Stloc, next);
+
 
                 //var task = interceptor.Delegate(next)(invocationContext);
                 var task = il.DeclareLocal(typeof(Task));
@@ -167,7 +173,6 @@ namespace Dora.Interception
                 il.Emit(OpCodes.Stloc, task);
 
                 var returnKind = methodMetadata.ReturnKind;
-                var returnType = targetMethod.ReturnType;
                 switch (returnKind)
                 {
                     case MethodReturnKind.Void:
@@ -215,21 +220,18 @@ namespace Dora.Interception
                             il.Emit(OpCodes.Ret);
                             break;
                         }
-                }               
+                }
             }
 
             void DefineNonInterceptableMethod(MethodMetadata methodMetadata)
             {
                 var targetMethod = methodMetadata.MethodInfo;
-                var closureType = DefineClosureType(methodMetadata, out var invokeMethod, out var constructor);
-                var parameters = targetMethod.GetParameters();
-                var parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
-                var methodBuilder = proxyType.DefineMethod(targetMethod.Name, attributes, targetMethod.ReturnType, parameterTypes);
+                var methodBuilder = CreateMethodBuilder(methodMetadata, out var parameterTypes, out var returnType);
 
                 var il = methodBuilder.GetILGenerator();
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldfld, target);
-                for (int index = 0; index < parameters.Length; index++)
+                for (int index = 0; index < parameterTypes.Length; index++)
                 {
                     il.EmitLdArgs(index + 1);
                 }
@@ -248,17 +250,17 @@ namespace Dora.Interception
             Type DefineClosureType(MethodMetadata methodMetadata, out MethodInfo invokeMethod, out ConstructorInfo constructor)
             {
                 var targetMethod = methodMetadata.MethodInfo;
-                var parameters = targetMethod.GetParameters();
-                var closureType = _moduleBuilder.DefineType($"{targetMethod.DeclaringType.Name}_{targetMethod.Name}Closure", TypeAttributes.Public, typeof(object));
-                var fields = new FieldBuilder[parameters.Length + 2];
-                var constructorParameterTypes = new Type[parameters.Length + 2];
+                var closureType = CreateClosureType(methodMetadata, out var parameterTypes, out var returnType);
+                var fields = new FieldBuilder[parameterTypes.Length + 2];
+                var constructorParameterTypes = new Type[parameterTypes.Length + 2];
                 fields[0] = closureType.DefineField("_target", implementationType, FieldAttributes.Private | FieldAttributes.InitOnly);
                 constructorParameterTypes[0] = implementationType;
-                for (int index = 0; index < parameters.Length; index++)
+                var parameters = targetMethod.GetParameters();
+                for (int index = 0; index < parameterTypes.Length; index++)
                 {
                     var parameter = parameters[index];
-                    fields[index + 1] = closureType.DefineField($"_{parameter.Name}", parameter.ParameterType, FieldAttributes.Private);
-                    constructorParameterTypes[index + 1] = parameter.ParameterType;
+                    fields[index + 1] = closureType.DefineField($"_{parameter.Name}", parameterTypes[index], FieldAttributes.Private);
+                    constructorParameterTypes[index + 1] = parameterTypes[index];
                 }
                 fields[fields.Length - 1] = closureType.DefineField("_arguments", typeof(object[]), FieldAttributes.Private);
                 constructorParameterTypes[fields.Length - 1] = typeof(object[]);
@@ -301,7 +303,7 @@ namespace Dora.Interception
 
                 constructor = constructorBuilder;
 
-                var invokeMethodBuilder = closureType.DefineMethod("InvokeAsync", MethodAttributes.Public| MethodAttributes.HideBySig, typeof(Task), new Type[] { typeof(InvocationContext) });
+                var invokeMethodBuilder = closureType.DefineMethod("InvokeAsync", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(Task), new Type[] { typeof(InvocationContext) });
                 il = invokeMethodBuilder.GetILGenerator();
 
                 //Load _target
@@ -325,9 +327,8 @@ namespace Dora.Interception
                     il.Emit(OpCodes.Ldfld, fields.Last());
                     il.Emit(OpCodes.Ldc_I4, index);
                     il.Emit(OpCodes.Ldelem_Ref);
-                    var parameterType = parameters[index].ParameterType;
-                    il.EmitUnboxOrCast(parameterType);
-                }              
+                    il.EmitUnboxOrCast(parameterTypes[index]);
+                }
                 il.Emit(OpCodes.Br_S, argumentsLoaded);
 
                 il.MarkLabel(argumentIsNull);
@@ -339,6 +340,10 @@ namespace Dora.Interception
                 }
 
                 il.MarkLabel(argumentsLoaded);
+                if (targetMethod.IsGenericMethodDefinition)
+                {
+                    targetMethod = targetMethod.MakeGenericMethod(closureType.GetGenericArguments());
+                }
                 if (implementationType == targetMethod.DeclaringType)
                 {
                     il.Emit(OpCodes.Call, targetMethod);
@@ -347,9 +352,9 @@ namespace Dora.Interception
                 {
                     il.Emit(OpCodes.Callvirt, targetMethod);
                 }
+
                 LocalBuilder returnValue = null;
                 var returnKind = methodMetadata.ReturnKind;
-                var returnType = targetMethod.ReturnType;
                 switch (returnKind)
                 {
                     case MethodReturnKind.Void:
@@ -391,7 +396,7 @@ namespace Dora.Interception
                             il.Emit(OpCodes.Ret);
                             break;
                         }
-                }           
+                }
 
                 invokeMethod = invokeMethodBuilder;
                 return closureType.CreateTypeInfo();
@@ -402,6 +407,134 @@ namespace Dora.Interception
                     il.Emit(OpCodes.Ldloc, returnValue);
                     il.Emit(OpCodes.Call, Members.SetReturnValueOfInvocationContext.MakeGenericMethod(returnType));
                 }
+            }
+
+            MethodBuilder CreateMethodBuilder(MethodMetadata methodMetadata, out Type[] parameterTypes, out Type returnType)
+            {
+                var method = methodMetadata.MethodInfo;
+                var parameters = method.GetParameters();
+                if (!methodMetadata.IsGenericMethod)
+                {
+                    parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
+                    returnType = method.ReturnType;
+                    return proxyType.DefineMethod(method.Name, attributes, method.ReturnType, parameterTypes);
+                }
+
+                var methodBuilder = proxyType.DefineMethod(method.Name, attributes);
+                var genericArguments = method.GetGenericArguments();
+                var genericArgumentNames = genericArguments.Select(it => it.Name).ToArray();
+                var generaicParameterBuilders = methodBuilder.DefineGenericParameters(genericArgumentNames);
+
+                for (int index = 0; index < genericArguments.Length; index++)
+                {
+                    var builder = generaicParameterBuilders[index];
+                    var genericArgument = genericArguments[index];
+                    builder.SetGenericParameterAttributes(genericArgument.GenericParameterAttributes);
+
+                    var interfaceConstraints = new List<Type>();
+                    foreach (Type constraint in genericArgument.GetGenericParameterConstraints())
+                    {
+                        if (constraint.IsClass)
+                        {
+                            builder.SetBaseTypeConstraint(constraint);
+                        }
+                        else
+                        {
+                            interfaceConstraints.Add(constraint);
+                        }
+                    }
+                    if (interfaceConstraints.Count > 0)
+                    {
+                        builder.SetInterfaceConstraints(interfaceConstraints.ToArray());
+                    }
+                }
+
+                genericArguments = methodBuilder.GetGenericArguments();
+                parameterTypes = new Type[parameters.Length];
+                for (int index = 0; index < parameters.Length; index++)
+                {
+                    var parameterType = parameters[index].ParameterType;
+                    if (parameterType.IsGenericParameter)
+                    {
+                        parameterTypes[index] = genericArguments.Single(it => it.Name == parameterType.Name);
+                    }
+                    else
+                    {
+                        parameterTypes[index] = parameterType;
+                    }
+                }
+                methodBuilder.SetParameters(parameterTypes);
+                if (method.ReturnType.IsGenericParameter)
+                {
+                    returnType = genericArguments.Single(it => it.Name == method.ReturnType.Name);
+                }
+                else
+                {
+                    returnType = method.ReturnType;
+                }
+                methodBuilder.SetReturnType(returnType);
+                return methodBuilder;
+            }
+
+            TypeBuilder CreateClosureType(MethodMetadata methodMetadata, out Type[] parameterTypes, out Type returnType)
+            {
+                var targetMethod = methodMetadata.MethodInfo;
+                var parameters = targetMethod.GetParameters();
+                var closureType = _moduleBuilder.DefineType($"{targetMethod.DeclaringType.Name}_{targetMethod.Name}Closure", TypeAttributes.Public, typeof(object));
+                if (!methodMetadata.IsGenericMethod)
+                {
+                    parameterTypes = targetMethod.GetParameters().Select(it => it.ParameterType).ToArray();
+                    returnType = targetMethod.ReturnType;
+                }
+                else
+                {
+                    var genericArguments = targetMethod.GetGenericArguments();
+                    var genericArgumentNames = genericArguments.Select(it => it.Name).ToArray();
+                    var genericParameterBuilders = closureType.DefineGenericParameters(genericArgumentNames);
+                    for (int index = 0; index < genericArguments.Length; index++)
+                    {
+                        var builder = genericParameterBuilders[index];
+                        var genericArgument = genericArguments[index];
+                        builder.SetGenericParameterAttributes(genericArgument.GenericParameterAttributes);
+
+                        var interfaceConstraints = new List<Type>();
+                        foreach (Type constraint in genericArgument.GetGenericParameterConstraints())
+                        {
+                            if (constraint.IsClass)
+                            {
+                                builder.SetBaseTypeConstraint(constraint);
+                            }
+                            else
+                            {
+                                interfaceConstraints.Add(constraint);
+                            }
+                        }
+                        if (interfaceConstraints.Count > 0)
+                        {
+                            builder.SetInterfaceConstraints(interfaceConstraints.ToArray());
+                        }
+                    }
+                    genericArguments = closureType.GetGenericArguments();
+                    parameterTypes = new Type[parameters.Length];
+                    for (int index = 0; index < parameters.Length; index++)
+                    {
+                        var parameterType = parameters[index].ParameterType;
+                        if (parameterType.IsGenericParameter)
+                        {
+                            parameterTypes[index] = genericArguments.Single(it => it.Name == parameterType.Name);
+                        }
+                        else
+                        {
+                            parameterTypes[index] = parameterType;
+                        }
+                    }
+                    returnType = targetMethod.ReturnType;
+                    if (returnType.IsGenericParameter)
+                    {
+                        returnType = genericArguments.Single(it => it.Name == targetMethod.ReturnType.Name);
+                    }
+                }
+                return closureType;
             }
         }
     }
