@@ -14,7 +14,7 @@ namespace App1
             var services = new ServiceCollection()
                 .AddSingleton<ICalculator, Calculator>()
                 .AddSingleton<IInterceptorProvider, FakeInterceptorProvider>()
-                .AddSingleton<IInterceptableProxyGenerator, InterceptableProxyGenerator>()
+                .AddSingleton<IInterceptableProxyGenerator, InterfaceProxyGenerator>()
                 .AddSingleton<IInterceptorRegistrationProvider, FakeInterceptorRegistrationProvider>();
             var calculator = new InterceptionContainer(services)
                 .BuildServiceProvider()
@@ -33,12 +33,27 @@ namespace App1
             Console.WriteLine(await calculator.DivideAsValueTaskOfResult(2, 1));
             Console.WriteLine();
             Console.WriteLine(calculator.GenericDivideAsResult(2, 1));
+
+            //Console.WriteLine(calculator.Add<double>(2, 1));
         }
 
         static async ValueTask InvokeAsync()
         {
             await Task.Delay(10);
             throw new Exception();
+        }
+    }
+
+    internal interface ICalculator<T>
+    {
+        TResult Add<TResult>(T x, T y);
+    }
+
+    internal class Calculator<T> : ICalculator<T>
+    {
+        public TResult Add<TResult>(T x, T y)
+        {
+            return default;
         }
     }
 
@@ -134,7 +149,8 @@ namespace App1
             new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
             new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
             new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
-            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0)
+            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0),
+            new InterceptorRegistration(typeof(Calculator<>), typeof(Calculator<>).GetMethod("Add"), 0)
         };
     }
 }

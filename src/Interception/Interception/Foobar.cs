@@ -63,13 +63,13 @@ namespace Dora.Interception
 
     public class FoobarProxy : IFoobar
     {
-        private readonly Foobar _target;
-        private readonly IInterceptorProvider   _interceptorProvider;
-        public FoobarProxy(IServiceProvider serviceProvider, IInterceptorProvider interceptorProvider)
-        {
-            _target = ActivatorUtilities.CreateInstance<Foobar>(serviceProvider);
-            _interceptorProvider = interceptorProvider;
-        }
+private readonly Foobar _target;
+private readonly IInterceptorProvider   _interceptorProvider;
+public FoobarProxy(IServiceProvider serviceProvider, IInterceptorProvider interceptorProvider)
+{
+    _target = ActivatorUtilities.CreateInstance<Foobar>(serviceProvider);
+    _interceptorProvider = interceptorProvider;
+}
 
         public void InvokeAsVoid(int x, int y)
         {
