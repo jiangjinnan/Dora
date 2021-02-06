@@ -18,6 +18,7 @@ namespace Dora.Interception
 
         public static MethodInfo CreateInstanceOfActivatorUtilities;
         public static MethodInfo GetMethodFromHandleOfMethodBase;
+        public static MethodInfo GetMethodFromHandle2OfMethodBase;
         public static MethodInfo GetInterceptorOfInterceptorProvider;
         public static MethodInfo GetCaptureArgumentsOfInterceptor;
         public static MethodInfo GetAlterArgumentsOfInterceptor;
@@ -43,6 +44,7 @@ namespace Dora.Interception
             ConstructorOfValueTask = typeof(ValueTask).GetConstructor(new Type[] { typeof(Task) });
 
             GetMethodFromHandleOfMethodBase = ResolveMethodInfo(() => MethodBase.GetMethodFromHandle(default));
+            GetMethodFromHandle2OfMethodBase = ResolveMethodInfo(() => MethodBase.GetMethodFromHandle(default, default));
             GetInterceptorOfInterceptorProvider = ResolveMethodInfo<IInterceptorProvider>(p => p.GetInterceptor(default));
             GetCaptureArgumentsOfInterceptor = typeof(IInterceptor).GetProperty(nameof(IInterceptor.CaptureArguments)).GetMethod;
             GetAlterArgumentsOfInterceptor = typeof(IInterceptor).GetProperty(nameof(IInterceptor.AlterArguments)).GetMethod;

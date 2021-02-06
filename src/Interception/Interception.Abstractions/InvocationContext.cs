@@ -13,7 +13,7 @@ namespace Dora.Interception
         public InvocationContext(object target, MethodInfo method, object[] arguments = null)
         {
             Target = target ?? throw new ArgumentNullException(nameof(target));
-            Method = method ?? throw new ArgumentNullException(nameof(method));
+            Method = method?? throw new ArgumentNullException(nameof(method));
             Arguments = arguments;
         }
 

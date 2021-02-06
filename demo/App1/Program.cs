@@ -13,28 +13,33 @@ namespace App1
         {
             var services = new ServiceCollection()
                 .AddSingleton<ICalculator, Calculator>()
+                .AddSingleton(typeof(ICalculator<>), typeof(Calculator<>))
                 .AddSingleton<IInterceptorProvider, FakeInterceptorProvider>()
                 .AddSingleton<IInterceptableProxyGenerator, InterfaceProxyGenerator>()
                 .AddSingleton<IInterceptorRegistrationProvider, FakeInterceptorRegistrationProvider>();
-            var calculator = new InterceptionContainer(services)
+            var calculator1 = new InterceptionContainer(services)
                 .BuildServiceProvider()
                 .GetRequiredService<ICalculator>();
 
-            calculator.DivideAsVoid(2, 1);
+            calculator1.DivideAsVoid(2, 1);
             Console.WriteLine();
-            Console.WriteLine(calculator.DivideAsResult(2, 1));
+            Console.WriteLine(calculator1.DivideAsResult(2, 1));
             Console.WriteLine();
-            await calculator.DivideAsTask(2, 1);
+            await calculator1.DivideAsTask(2, 1);
             Console.WriteLine();
-            Console.WriteLine(await calculator.DivideAsTaskOfResult(2, 1));
+            Console.WriteLine(await calculator1.DivideAsTaskOfResult(2, 1));
             Console.WriteLine();
-            await calculator.DivideAsValueTask(2, 1);
+            await calculator1.DivideAsValueTask(2, 1);
             Console.WriteLine();
-            Console.WriteLine(await calculator.DivideAsValueTaskOfResult(2, 1));
+            Console.WriteLine(await calculator1.DivideAsValueTaskOfResult(2, 1));
             Console.WriteLine();
-            Console.WriteLine(calculator.GenericDivideAsResult(2, 1));
+            Console.WriteLine(calculator1.GenericDivideAsResult(2, 1));
 
-            //Console.WriteLine(calculator.Add<double>(2, 1));
+            var calculator2 = new InterceptionContainer(services)
+               .BuildServiceProvider()
+               .GetRequiredService<ICalculator<int>>();
+            Console.WriteLine();
+            Console.WriteLine(calculator2.Add<double>(2, 1));
         }
 
         static async ValueTask InvokeAsync()
@@ -44,15 +49,16 @@ namespace App1
         }
     }
 
-    internal interface ICalculator<T>
+    public interface ICalculator<T>
     {
         TResult Add<TResult>(T x, T y);
     }
 
-    internal class Calculator<T> : ICalculator<T>
+    public class Calculator<T> : ICalculator<T>
     {
         public TResult Add<TResult>(T x, T y)
         {
+            Console.WriteLine("Add");
             return default;
         }
     }
@@ -143,13 +149,13 @@ namespace App1
     public class FakeInterceptorRegistrationProvider : IInterceptorRegistrationProvider
     {
         public IEnumerable<InterceptorRegistration> Registrations => new InterceptorRegistration[] {
-            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsVoid"), 0),
-            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsResult"), 0),
-            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTask"), 0),
-            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
-            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
-            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
-            new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0),
+            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsVoid"), 0),
+            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsResult"), 0),
+            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTask"), 0),
+            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
+            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
+            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
+            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0),
             new InterceptorRegistration(typeof(Calculator<>), typeof(Calculator<>).GetMethod("Add"), 0)
         };
     }

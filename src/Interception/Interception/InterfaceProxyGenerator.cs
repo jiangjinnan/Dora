@@ -32,16 +32,34 @@ namespace Dora.Interception
             CreateProxyTypeBuilder();
             DefineConstructor();
 
-            var mapping = _implementationType.GetInterfaceMap(_interface);
-            foreach (var targetMethod in mapping.TargetMethods)
+            if (serviceType.IsGenericTypeDefinition)
             {
-                if (RegistrationProvider.WillIntercept(targetMethod))
+                //TODO
+                foreach (var targetMethod in implementationType.GetMethods())
                 {
-                    DefineInterceptableMethod(new MethodMetadata(targetMethod));
+                    if (RegistrationProvider.WillIntercept(targetMethod))
+                    {
+                        DefineInterceptableMethod(new MethodMetadata(targetMethod));
+                    }
+                    else
+                    {
+                        DefineNonInterceptableMethod(new MethodMetadata(targetMethod));
+                    }
                 }
-                else
+            }
+            else
+            {
+                var mapping = _implementationType.GetInterfaceMap(_interface);
+                foreach (var targetMethod in mapping.TargetMethods)
                 {
-                    DefineNonInterceptableMethod(new MethodMetadata(targetMethod));
+                    if (RegistrationProvider.WillIntercept(targetMethod))
+                    {
+                        DefineInterceptableMethod(new MethodMetadata(targetMethod));
+                    }
+                    else
+                    {
+                        DefineNonInterceptableMethod(new MethodMetadata(targetMethod));
+                    }
                 }
             }
 
@@ -119,8 +137,8 @@ namespace Dora.Interception
 
         private void DefineInterceptableMethod(MethodMetadata methodMetadata)
         {
-            var targetMethod = methodMetadata.MethodInfo;
-            var closureTypeBuilder = DefineClosureType(methodMetadata, out var invokeMethod, out var closureConstructor, out var constructorParameterTypes);          
+            var closureTypeBuilder = DefineClosureType(methodMetadata, out var invokeMethod, out var closureConstructor, out var constructorParameterTypes);
+            Type closureType = closureTypeBuilder.CreateTypeInfo();
             var methodBuilder = CreateMethodBuilder(methodMetadata, out var parameterTypes, out var returnType);
             if (closureTypeBuilder.IsGenericType)
             {
@@ -130,16 +148,26 @@ namespace Dora.Interception
                 var genericType = closureTypeBuilder.MakeGenericType(genericArguments);
                 closureConstructor = TypeBuilder.GetConstructor(genericType, closureConstructor);
                 invokeMethod = TypeBuilder.GetMethod(genericType, invokeMethod);
+                closureType = closureType.MakeGenericType(genericArguments);
             }
-            var closureType = closureTypeBuilder.CreateTypeInfo();
 
             var il = methodBuilder.GetILGenerator();
 
-
             //var method = MethodBase.GetMethodFromHandleOfMethodBase(..);
             var method = il.DeclareLocal(typeof(MethodInfo));
-            il.Emit(OpCodes.Ldtoken, targetMethod);
-            il.Emit(OpCodes.Call, Members.GetMethodFromHandleOfMethodBase);
+            if (_isGenericType)
+            {
+                var closeType = _implementationType.MakeGenericType(_genericArguments);
+                il.Emit(OpCodes.Ldtoken, methodMetadata.MethodInfo);
+                il.Emit(OpCodes.Ldtoken, closeType);
+                il.Emit(OpCodes.Call, Members.GetMethodFromHandle2OfMethodBase);
+            }
+            else
+            {
+                il.Emit(OpCodes.Ldtoken, methodMetadata.MethodInfo);
+                il.Emit(OpCodes.Call, Members.GetMethodFromHandleOfMethodBase);
+            }
+           
             il.Emit(OpCodes.Stloc, method);
 
             //var interceptor = _interceptorProvider.GetInterceptor(method);
@@ -163,7 +191,6 @@ namespace Dora.Interception
             il.Emit(OpCodes.Ldnull);
             il.Emit(OpCodes.Newobj, Members.ConstructorOfInvocationContext);
             il.Emit(OpCodes.Stloc, invocationContext);
-
 
             il.Emit(OpCodes.Br_S, contextCreated);
 
@@ -276,8 +303,13 @@ namespace Dora.Interception
 
         private TypeBuilder DefineClosureType(MethodMetadata methodMetadata, out MethodInfo invokeMethod, out ConstructorInfo constructor, out Type[] constructorParameterTypes)
         {
+            var closureType = CreateClosureType(methodMetadata, out var targetType, out var parameterTypes, out var returnType, out var genericMethodArguments);
             var targetMethod = methodMetadata.MethodInfo;
-            var closureType = CreateClosureType(methodMetadata, out var targetType, out var parameterTypes, out var returnType);
+            if (targetMethod.DeclaringType.IsGenericTypeDefinition)
+            {
+                targetMethod = GenericTypeUtility.GetMethodInfo(targetType, targetMethod);
+            }
+
             var fields = new FieldBuilder[parameterTypes.Length + 2];
             constructorParameterTypes = new Type[parameterTypes.Length + 2];
             fields[0] = closureType.DefineField("_target", targetType, FieldAttributes.Private | FieldAttributes.InitOnly);
@@ -369,7 +401,7 @@ namespace Dora.Interception
             il.MarkLabel(argumentsLoaded);
             if (targetMethod.IsGenericMethodDefinition)
             {
-                targetMethod = targetMethod.MakeGenericMethod(closureType.GetGenericArguments());
+                targetMethod = targetMethod.MakeGenericMethod(genericMethodArguments);
             }
             if (targetType == targetMethod.DeclaringType)
             {
@@ -438,7 +470,7 @@ namespace Dora.Interception
             }
         }
 
-        private TypeBuilder CreateClosureType(MethodMetadata methodMetadata, out Type targetType, out Type[] parameterTypes, out Type returnType)
+        private TypeBuilder CreateClosureType(MethodMetadata methodMetadata, out Type targetType, out Type[] parameterTypes, out Type returnType, out Type[] genericMethodArguments)
         {
             var targetMethod = methodMetadata.MethodInfo;
             var parameters = targetMethod.GetParameters();
@@ -448,12 +480,13 @@ namespace Dora.Interception
                 parameterTypes = targetMethod.GetParameters().Select(it => it.ParameterType).ToArray();
                 returnType = targetMethod.ReturnType;
                 targetType = _implementationType;
+                genericMethodArguments = Array.Empty<Type>();
             }
             else
             {
                 var genericArguments = !methodMetadata.IsGenericMethod
-                    ? _genericArguments
-                    : _genericArguments.Concat( targetMethod.GetGenericArguments()).ToArray();
+                    ? _implementationType.GetGenericArguments()
+                    : _implementationType.GetGenericArguments().Concat( targetMethod.GetGenericArguments()).ToArray();
                 var genericArgumentNames = genericArguments.Select(it => it.Name).ToArray();
                 var genericParameterBuilders = closureType.DefineGenericParameters(genericArgumentNames);
                 CopyGenericParameterAttributes(genericArguments, genericParameterBuilders);
@@ -463,7 +496,7 @@ namespace Dora.Interception
                                   let type = parameter.ParameterType
                                   select type.IsGenericParameter ? genericArguments.Single(it => it.Name == type.Name) : type)
                                   .ToArray();
-               
+
                 returnType = targetMethod.ReturnType;
                 if (returnType.IsGenericParameter)
                 {
@@ -473,7 +506,17 @@ namespace Dora.Interception
                 targetType = methodMetadata.IsGenericMethod
                     ? _implementationType
                     : _implementationType.MakeGenericType(_implementationType.GetGenericArguments().Select(it => genericArguments.Single(it2 => it2.Name == it.Name)).ToArray());
+
+                if (targetMethod.IsGenericMethod)
+                {
+                    genericMethodArguments = targetMethod.GetGenericArguments().Select(it => genericArguments.Single(it2 => it2.Name == it.Name)).ToArray();
+                }
+                else
+                {
+                    genericMethodArguments = Array.Empty<Type>();
+                }
             }
+
             return closureType;
         }
 
