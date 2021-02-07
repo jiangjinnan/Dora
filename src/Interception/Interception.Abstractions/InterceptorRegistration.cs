@@ -5,12 +5,12 @@ namespace Dora.Interception
 {
     public class InterceptorRegistration
     {
-        public Type InterceptorType { get; }
+        public Func<IServiceProvider, object> InterceptorFactory { get; }
         public MethodInfo Target { get; }
         public int Order { get; }
-        public InterceptorRegistration(Type interceptorType, MethodInfo target, int order)
+        public InterceptorRegistration(Func<IServiceProvider, object> interceptorFactory, MethodInfo target, int order)
         {
-            InterceptorType = interceptorType ?? throw new ArgumentNullException(nameof(interceptorType));
+            InterceptorFactory = interceptorFactory ?? throw new ArgumentNullException(nameof(interceptorFactory));
             Target = target ?? throw new ArgumentNullException(nameof(target));
             Order = order;
         }

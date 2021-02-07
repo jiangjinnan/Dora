@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dora.Interception
@@ -10,11 +8,18 @@ namespace Dora.Interception
     internal interface ICalculator<T>
     {
         TResult Add<TResult>(T x, T y);
+
+        void AddRefAndOutArguments<TResult>(ref T x, ref T y, out TResult result);
     }
 
     internal class Calculator<T> : ICalculator<T>
     {
         public TResult Add<TResult>(T x, T y)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddRefAndOutArguments<TResult>(ref T x, ref T y, out TResult result)
         {
             throw new NotImplementedException();
         }
@@ -40,6 +45,20 @@ namespace Dora.Interception
             InvokerDelegate next = new AddClosure<T, TResult>(_target, x, y, invocationContext.Arguments).InvokeAsync;
             var task = interceptor.Delegate(next)(invocationContext);
             return ProxyGeneratorHelper.GetResult<TResult>(task, invocationContext);
+        }
+
+        public void AddRefAndOutArguments<TResult>(ref T x, ref T y, out TResult result)
+        {
+            MethodInfo currentMethod = null;
+            var interceptor = _interceptorProvider.GetInterceptor(currentMethod);
+            var arguments = new object[] { x, y, null };
+            var invocationContext = new InvocationContext(_target, currentMethod, arguments);
+            InvokerDelegate next = new AddRefAndOutArgumentsClosure<T, TResult>(_target, invocationContext.Arguments).InvokeAsync;
+            var task = interceptor.Delegate(next)(invocationContext);
+            x = (T)arguments[0];
+            y = (T)arguments[1];
+            result = (TResult)arguments[2];
+            task.Wait();
         }
     }
 
@@ -72,36 +91,27 @@ namespace Dora.Interception
             invocationContext.SetReturnValue(result);
             return Task.CompletedTask;
         }
+    }
+    internal class AddRefAndOutArgumentsClosure<T, TResult>
+    {
+        private readonly Calculator<T> _target;
+        private object[] _arguments;
 
-        internal class AddClosure2<T, TResult>
+        public AddRefAndOutArgumentsClosure(Calculator<T> target, object[] arguments)
         {
-            private readonly Calculator<T> _target;
-            private readonly T _x;
-            private readonly T _y;
-            private object[] _arguments;
+            _target = target;
+            _arguments = arguments;
+        }
 
-            public AddClosure2(Calculator<T> target, T x, T y, object[] arguments)
-            {
-                _target = target;
-                _x = x;
-                _y = y;
-                _arguments = arguments;
-            }
-
-            public Task InvokeAsync(InvocationContext invocationContext)
-            {
-                TResult result;
-                if (_arguments == null)
-                {
-                    result = _target.Add<TResult>(_x, _y);
-                }
-                else
-                {
-                    result = _target.Add<TResult>((T)_arguments[0], (T)_arguments[1]);
-                }
-                invocationContext.SetReturnValue(result);
-                return Task.CompletedTask;
-            }
+        public Task InvokeAsync(InvocationContext invocationContext)
+        {
+            var x = (T)_arguments[0];
+            var y = (T)_arguments[1];
+            _target.AddRefAndOutArguments<TResult>(ref x, ref y, out var result);
+            _arguments[0] = x;
+            _arguments[1] = y;
+            _arguments[2] = result;
+            return Task.CompletedTask;
         }
     }
 }

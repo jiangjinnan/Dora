@@ -20,7 +20,6 @@ namespace Dora.Interception
         private Type _implementationType;
         private Type _targetType;
 
-
         public InterfaceProxyGenerator(IInterceptorRegistrationProvider registrationProvider) : base(registrationProvider)
         {             
         }
@@ -69,7 +68,7 @@ namespace Dora.Interception
         private void  CreateProxyTypeBuilder()
         {
             _isGenericType = _implementationType.IsGenericTypeDefinition;
-            _proxyTypeBuilder = ModuleBuilder.DefineType($"{_implementationType}Proxy", TypeAttributes.Public, typeof(object), new Type[] { _interface });           
+            _proxyTypeBuilder = ModuleBuilder.DefineType($"{_implementationType}Proxy_{Guid.NewGuid().ToString().Replace("-", "")}", TypeAttributes.Public, typeof(object), new Type[] { _interface });           
 
             if (_isGenericType)
             {
@@ -233,14 +232,12 @@ namespace Dora.Interception
             il.Emit(OpCodes.Newobj, closureConstructor);
             il.Emit(OpCodes.Stloc, closure);
 
-
             //var next = closure.InvokeAsync;
             var next = il.DeclareLocal(typeof(InvokerDelegate));
             il.Emit(OpCodes.Ldloc, closure);
             il.Emit(OpCodes.Ldftn, invokeMethod);
             il.Emit(OpCodes.Newobj, Members.ConstructorOfInvokerDelegate);
             il.Emit(OpCodes.Stloc, next);
-
 
             //var task = interceptor.Delegate(next)(invocationContext);
             var task = il.DeclareLocal(typeof(Task));
@@ -303,7 +300,7 @@ namespace Dora.Interception
 
         private TypeBuilder DefineClosureType(MethodMetadata methodMetadata, out MethodInfo invokeMethod, out ConstructorInfo constructor, out Type[] constructorParameterTypes)
         {
-            var closureType = CreateClosureType(methodMetadata, out var targetType, out var parameterTypes, out var returnType, out var genericMethodArguments);
+            var closureTypeBuilder = CreateClosureType(methodMetadata, out var targetType, out var parameterTypes, out var returnType, out var genericMethodArguments);
             var targetMethod = methodMetadata.MethodInfo;
             if (targetMethod.DeclaringType.IsGenericTypeDefinition)
             {
@@ -312,19 +309,19 @@ namespace Dora.Interception
 
             var fields = new FieldBuilder[parameterTypes.Length + 2];
             constructorParameterTypes = new Type[parameterTypes.Length + 2];
-            fields[0] = closureType.DefineField("_target", targetType, FieldAttributes.Private | FieldAttributes.InitOnly);
+            fields[0] = closureTypeBuilder.DefineField("_target", targetType, FieldAttributes.Private | FieldAttributes.InitOnly);
             constructorParameterTypes[0] = targetType;
             var parameters = targetMethod.GetParameters();
             for (int index = 0; index < parameterTypes.Length; index++)
             {
                 var parameter = parameters[index];
-                fields[index + 1] = closureType.DefineField($"_{parameter.Name}", parameterTypes[index], FieldAttributes.Private);
+                fields[index + 1] = closureTypeBuilder.DefineField($"_{parameter.Name}", parameterTypes[index], FieldAttributes.Private);
                 constructorParameterTypes[index + 1] = parameterTypes[index];
             }
-            fields[fields.Length - 1] = closureType.DefineField("_arguments", typeof(object[]), FieldAttributes.Private);
+            fields[fields.Length - 1] = closureTypeBuilder.DefineField("_arguments", typeof(object[]), FieldAttributes.Private);
             constructorParameterTypes[fields.Length - 1] = typeof(object[]);
 
-            var constructorBuilder = closureType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, constructorParameterTypes);
+            var constructorBuilder = closureTypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, constructorParameterTypes);
             var il = constructorBuilder.GetILGenerator();
 
             il.Emit(OpCodes.Ldarg_0);
@@ -362,7 +359,7 @@ namespace Dora.Interception
 
             constructor = constructorBuilder;
 
-            var invokeMethodBuilder = closureType.DefineMethod("InvokeAsync", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(Task), new Type[] { typeof(InvocationContext) });
+            var invokeMethodBuilder = closureTypeBuilder.DefineMethod("InvokeAsync", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(Task), new Type[] { typeof(InvocationContext) });
             il = invokeMethodBuilder.GetILGenerator();
 
             //Load _target
@@ -458,9 +455,7 @@ namespace Dora.Interception
             }
 
             invokeMethod = invokeMethodBuilder;
-            return closureType
-                //.CreateTypeInfo()
-                ;
+            return closureTypeBuilder;
 
             void SetReturnValue()
             {

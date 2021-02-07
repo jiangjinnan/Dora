@@ -71,7 +71,6 @@ namespace App1
         Task<int> DivideAsTaskOfResult(int x, int y);
         ValueTask DivideAsValueTask(int x, int y);
         ValueTask<int> DivideAsValueTaskOfResult(int x, int y);
-
         T GenericDivideAsResult<T>(T x, T y);
     }
 
@@ -127,9 +126,7 @@ namespace App1
     public class FakeInterceptor : IInterceptor
     {
         public bool AlterArguments => false;
-
         public bool CaptureArguments => true;
-
         public InterceptorDelegate Delegate => _next =>
         {
             return async invocationContext =>
@@ -149,14 +146,14 @@ namespace App1
     public class FakeInterceptorRegistrationProvider : IInterceptorRegistrationProvider
     {
         public IEnumerable<InterceptorRegistration> Registrations => new InterceptorRegistration[] {
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsVoid"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsResult"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTask"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
-            //new InterceptorRegistration(typeof(Calculator), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0),
-            new InterceptorRegistration(typeof(Calculator<>), typeof(Calculator<>).GetMethod("Add"), 0)
+            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsVoid"), 0),
+            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsResult"), 0),
+            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsTask"), 0),
+            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
+            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
+            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
+            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0),
+            new InterceptorRegistration(_=> new object(), typeof(Calculator<>).GetMethod("Add"), 0)
         };
     }
 }

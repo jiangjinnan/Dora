@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dora.Interception
@@ -21,7 +19,6 @@ namespace Dora.Interception
         public static MethodInfo GetMethodFromHandle2OfMethodBase;
         public static MethodInfo GetInterceptorOfInterceptorProvider;
         public static MethodInfo GetCaptureArgumentsOfInterceptor;
-        public static MethodInfo GetAlterArgumentsOfInterceptor;
         public static MethodInfo ExecuteInterceptorOfProxyGeneratorHelper;
         public static MethodInfo WaitOfTask;
         public static MethodInfo GetCompletedTaskOfTask;
@@ -47,15 +44,16 @@ namespace Dora.Interception
             GetMethodFromHandle2OfMethodBase = ResolveMethodInfo(() => MethodBase.GetMethodFromHandle(default, default));
             GetInterceptorOfInterceptorProvider = ResolveMethodInfo<IInterceptorProvider>(p => p.GetInterceptor(default));
             GetCaptureArgumentsOfInterceptor = typeof(IInterceptor).GetProperty(nameof(IInterceptor.CaptureArguments)).GetMethod;
-            GetAlterArgumentsOfInterceptor = typeof(IInterceptor).GetProperty(nameof(IInterceptor.AlterArguments)).GetMethod;
             ConstructorOfInvocationContext = typeof(InvocationContext).GetConstructor(new Type[] { typeof(object), typeof(MethodInfo), typeof(object[]) });
             ConstructorOfInvokerDelegate = typeof(InvokerDelegate).GetConstructors().Single();
             ExecuteInterceptorOfProxyGeneratorHelper = ResolveMethodInfo(() => ProxyGeneratorHelper.ExecuteInterceptor(default, default, default));
             WaitOfTask = ResolveMethodInfo<Task>(task => task.Wait());
             SetReturnValueOfInvocationContext = ResolveGenericMethodDefinition<InvocationContext>(context => context.SetReturnValue<int>(default));
             GetResultOfProxyGeneratorHelper = ResolveGenericMethodDefinition(()=>ProxyGeneratorHelper.GetResult<int>(default,default));
+            #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             GetTaskOfResultOfProxyGeneratorHelper = ResolveGenericMethodDefinition(() => ProxyGeneratorHelper.GetTaskOfResult<int>(default, default));
-            GetValueTasOfProxyGeneratorHelper = ResolveMethodInfo(()=>ProxyGeneratorHelper.GetValueTask(default,default));
+            GetValueTasOfProxyGeneratorHelper = ResolveMethodInfo(() => ProxyGeneratorHelper.GetValueTask(default, default));
+            #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             GetValueTaskOfResultOfProxyGeneratorHelper = ResolveGenericMethodDefinition(() => ProxyGeneratorHelper.GetValueTaskOfResult<int>(default, default));
             AsTaskOfValueTask = ResolveMethodInfo<ValueTask>(valueTask => valueTask.AsTask());
             AsTaskOfValueTaskOfResult = ResolveGenericMethodDefinition(() => AsTask<int>());
@@ -64,25 +62,12 @@ namespace Dora.Interception
             AsTaskByValueTaskOfResultOfProxyGeneratorHelper = ResolveGenericMethodDefinition(() => ProxyGeneratorHelper.AsTaskByValueTaskOfResult<int>(default, default));
         }
 
-        public static MethodInfo AsTask<T>() => ResolveMethodInfo<ValueTask<T>>(valueTask => valueTask.AsTask());
-
-        static MethodInfo ResolveMethodInfo(Expression<Action> expression)
-        {
-            return ((MethodCallExpression)(expression.Body)).Method;
-        }
-        static MethodInfo ResolveMethodInfo<T>(Expression<Action<T>> expression)
-        {
-            return ((MethodCallExpression)(expression.Body)).Method;
-        }
-        static MethodInfo ResolveGenericMethodDefinition(Expression<Action> expression)
-        {
-            return ((MethodCallExpression)(expression.Body)).Method.GetGenericMethodDefinition();
-        }
-        static MethodInfo ResolveGenericMethodDefinition<T>(Expression<Action<T>> expression)
-        {
-            return ((MethodCallExpression)(expression.Body)).Method.GetGenericMethodDefinition();
-        }
-
         public static T CreateInstance<T>(IServiceProvider serviceProvider) => ActivatorUtilities.CreateInstance<T>(serviceProvider);
+        private static MethodInfo AsTask<T>() => ResolveMethodInfo<ValueTask<T>>(valueTask => valueTask.AsTask());
+        private static MethodInfo ResolveMethodInfo(Expression<Action> expression) => ((MethodCallExpression)(expression.Body)).Method;
+        private static MethodInfo ResolveMethodInfo<T>(Expression<Action<T>> expression) => ((MethodCallExpression)(expression.Body)).Method;
+        private static MethodInfo ResolveGenericMethodDefinition(Expression<Action> expression)=> ((MethodCallExpression)(expression.Body)).Method.GetGenericMethodDefinition();
+        private static MethodInfo ResolveGenericMethodDefinition<T>(Expression<Action<T>> expression)=> ((MethodCallExpression)(expression.Body)).Method.GetGenericMethodDefinition();
+        
     }
 }

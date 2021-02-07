@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Dora.Interception
 {
@@ -9,6 +10,7 @@ namespace Dora.Interception
         public MethodInfo Method { get; }
         public object[] Arguments { get; }
         public object ReturnValue { get; private set; }
+        public InvokerDelegate Next { get; set; }
 
         public InvocationContext(object target, MethodInfo method, object[] arguments = null)
         {
@@ -16,7 +18,7 @@ namespace Dora.Interception
             Method = method?? throw new ArgumentNullException(nameof(method));
             Arguments = arguments;
         }
-
+        public Task InvokeAsync() => Next?.Invoke(this);
         public void SetReturnValue<T>(T result) => ReturnValue = result;
         public T GetReturnValue<T>() => (T)ReturnValue;
     }
