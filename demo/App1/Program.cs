@@ -10,18 +10,16 @@ namespace App1
     {
         static async Task Main(string[] args)
         {
-            var services = new ServiceCollection()
+            var serviceProvider = new ServiceCollection()
                 .AddSingleton<ICalculator, Calculator>()
                 .AddSingleton(typeof(ICalculator<>), typeof(Calculator<>))
-                .AddSingleton<IServiceProviderAccessor, ServiceProviderAccessor>()
-                .AddSingleton<IInterceptorBuilder, InterceptorBuilder>()
-                .AddSingleton<IInterceptorProvider, InterceptorProvider>()
-                .AddSingleton<IInterceptableProxyGenerator, InterfaceProxyGenerator>();
-            services.TryAddEnumerable(ServiceDescriptor.Singleton< IInterceptorRegistrationProvider, AttributeInterceptorRegistrationProvider>());
+                .BuildInterceptableServiceProvider(interception => interception
+                .RegisterInterceptors(registry => registry.For<TestInterceptorAttribute>(assigner => assigner
+                      .AssignToMethod<Calculator>(it => it.DivideAsResult(default, default), 0)
+                      .AssignToProperty<Calculator,int>(it=>it.Value, PropertyMethodKind.Get,0)
+                      )));
 
-            var calculator1 = new InterceptionContainer(services)
-                .BuildServiceProvider()
-                .GetRequiredService<ICalculator>();
+            var calculator1 = serviceProvider.GetRequiredService<ICalculator>();
 
             calculator1.DivideAsVoid(2, 1);
             Console.WriteLine();
@@ -40,9 +38,7 @@ namespace App1
             Console.WriteLine();
             Console.WriteLine(calculator1.Value);
 
-            var calculator2 = new InterceptionContainer(services)
-               .BuildServiceProvider()
-               .GetRequiredService<ICalculator<int>>();
+            var calculator2 = serviceProvider.GetRequiredService<ICalculator<int>>();
             Console.WriteLine();
             Console.WriteLine(calculator2.Add<double>(2, 1));
         }
@@ -59,7 +55,7 @@ namespace App1
         TResult Add<TResult>(T x, T y);
     }
 
-    [TestInterceptor]
+    //[TestInterceptor]
     public class Calculator<T> : ICalculator<T>
     {
         public TResult Add<TResult>(T x, T y)
@@ -85,7 +81,7 @@ namespace App1
         event EventHandler Event;
     }
 
-    [TestInterceptor]
+    //[TestInterceptor]
     public class Calculator: ICalculator
     {
         private int _value;

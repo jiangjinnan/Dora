@@ -13,7 +13,7 @@ namespace Dora.Interception
         private readonly IInterceptorRegistrationProvider[] _registrationProviders;
         private readonly IInterceptorBuilder _interceptorBuilder;
 
-        public InterceptorProvider(IEnumerable< IInterceptorRegistrationProvider> registrationProviders, IInterceptorBuilder interceptorBuilder)
+        public InterceptorProvider(IEnumerable<IInterceptorRegistrationProvider> registrationProviders, IInterceptorBuilder interceptorBuilder)
         {
             _registrationProviders = (registrationProviders ?? throw new ArgumentNullException(nameof(registrationProviders))).ToArray();
             _interceptorBuilder = interceptorBuilder ?? throw new ArgumentNullException(nameof(interceptorBuilder));
