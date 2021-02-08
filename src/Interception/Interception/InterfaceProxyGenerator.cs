@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Dora.Interception
@@ -31,37 +30,50 @@ namespace Dora.Interception
             CreateProxyTypeBuilder();
             DefineConstructor();
 
-            if (serviceType.IsGenericTypeDefinition)
+            var methodMap = InterfaceMapper.GetMethodMap(serviceType, implementationType);
+            foreach (var method in methodMap.Values)
             {
-                //TODO
-                foreach (var targetMethod in implementationType.GetMethods())
+                if (method.IsSpecialName)
                 {
-                    if (RegistrationProvider.WillIntercept(targetMethod))
-                    {
-                        DefineInterceptableMethod(new MethodMetadata(targetMethod));
-                    }
-                    else
-                    {
-                        DefineNonInterceptableMethod(new MethodMetadata(targetMethod));
-                    }
+                    continue;
                 }
+                var metadata = new MethodMetadata(method);
+                _ = RegistrationProvider.WillIntercept(method) ? DefineInterceptableMethod(metadata) : DefineNonInterceptableMethod(metadata);
             }
-            else
+
+            var properties = _implementationType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var property in properties)
             {
-                var mapping = _implementationType.GetInterfaceMap(_interface);
-                foreach (var targetMethod in mapping.TargetMethods)
+                var method = property.GetMethod;
+                if (method != null && methodMap.Values.Contains(method))
                 {
-                    if (RegistrationProvider.WillIntercept(targetMethod))
-                    {
-                        DefineInterceptableMethod(new MethodMetadata(targetMethod));
-                    }
-                    else
-                    {
-                        DefineNonInterceptableMethod(new MethodMetadata(targetMethod));
-                    }
+                    DefineProperty(property);
+                    continue;
+                }
+
+                method = property.SetMethod;
+                if (method != null && methodMap.Values.Contains(method))
+                {
+                    DefineProperty(property);
                 }
             }
 
+            var events = _implementationType.GetEvents(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            foreach (var @event in events)
+            {
+                var method = @event.AddMethod;
+                if (method != null && methodMap.Values.Contains(method))
+                {
+                    DefineEvent(@event);
+                    continue;
+                }
+
+                method = @event.RemoveMethod;
+                if (method != null && methodMap.Values.Contains(method))
+                {
+                    DefineEvent(@event);
+                }
+            }
             return _proxyTypeBuilder.CreateTypeInfo();
         }
 
@@ -110,7 +122,7 @@ namespace Dora.Interception
             il.Emit(OpCodes.Ret);
         }
 
-        void DefineNonInterceptableMethod(MethodMetadata methodMetadata)
+        MethodBuilder DefineNonInterceptableMethod(MethodMetadata methodMetadata)
         {
             var targetMethod = methodMetadata.MethodInfo;
             var methodBuilder = CreateMethodBuilder(methodMetadata, out var parameterTypes, out var returnType);
@@ -132,9 +144,10 @@ namespace Dora.Interception
                 il.Emit(OpCodes.Callvirt, targetMethod);
             }
             il.Emit(OpCodes.Ret);
+            return methodBuilder;
         }
 
-        private void DefineInterceptableMethod(MethodMetadata methodMetadata)
+        private MethodBuilder DefineInterceptableMethod(MethodMetadata methodMetadata)
         {
             var closureTypeBuilder = DefineClosureType(methodMetadata, out var invokeMethod, out var closureConstructor, out var constructorParameterTypes);
             Type closureType = closureTypeBuilder.CreateTypeInfo();
@@ -296,6 +309,38 @@ namespace Dora.Interception
                         break;
                     }
             }
+            return methodBuilder;
+        }
+
+        private void DefineProperty(PropertyInfo property)
+        {
+            var parameterTypes = property.GetIndexParameters().Select(it => it.ParameterType).ToArray();
+            var propertyBuilder = _proxyTypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, parameterTypes);
+            var getMethod = property.GetMethod;
+            if (null != getMethod)
+            {
+                var metadata = new MethodMetadata(getMethod);
+                var getMethodBuilder = RegistrationProvider.WillIntercept(getMethod)
+                    ? DefineInterceptableMethod(metadata)
+                    : DefineNonInterceptableMethod(metadata);
+                propertyBuilder.SetGetMethod(getMethodBuilder);
+            }
+            var setMethod = property.SetMethod;
+            if (null != setMethod)
+            {
+                var metadata = new MethodMetadata(setMethod);
+                var setMethodBuilder = RegistrationProvider.WillIntercept(setMethod)
+                      ? DefineInterceptableMethod(metadata)
+                      : DefineNonInterceptableMethod(metadata);
+                propertyBuilder.SetGetMethod(setMethodBuilder);
+            }
+        }
+
+        private void DefineEvent(EventInfo eventInfo)
+        {
+            var eventBuilder = _proxyTypeBuilder.DefineEvent(eventInfo.Name, eventInfo.Attributes, eventInfo.EventHandlerType);
+            eventBuilder.SetAddOnMethod(DefineNonInterceptableMethod(new MethodMetadata(eventInfo.AddMethod)));
+            eventBuilder.SetRemoveOnMethod(DefineNonInterceptableMethod(new MethodMetadata(eventInfo.RemoveMethod)));
         }
 
         private TypeBuilder DefineClosureType(MethodMetadata methodMetadata, out MethodInfo invokeMethod, out ConstructorInfo constructor, out Type[] constructorParameterTypes)

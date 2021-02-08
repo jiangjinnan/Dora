@@ -2,8 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace App1
@@ -39,6 +37,9 @@ namespace App1
             Console.WriteLine();
             Console.WriteLine(calculator1.GenericDivideAsResult(2, 1));
 
+            Console.WriteLine();
+            Console.WriteLine(calculator1.Value);
+
             var calculator2 = new InterceptionContainer(services)
                .BuildServiceProvider()
                .GetRequiredService<ICalculator<int>>();
@@ -58,6 +59,7 @@ namespace App1
         TResult Add<TResult>(T x, T y);
     }
 
+    [TestInterceptor]
     public class Calculator<T> : ICalculator<T>
     {
         public TResult Add<TResult>(T x, T y)
@@ -75,12 +77,34 @@ namespace App1
         Task<int> DivideAsTaskOfResult(int x, int y);
         ValueTask DivideAsValueTask(int x, int y);
         ValueTask<int> DivideAsValueTaskOfResult(int x, int y);
+
         T GenericDivideAsResult<T>(T x, T y);
+
+        int Value { get; set; }
+
+        event EventHandler Event;
     }
 
     [TestInterceptor]
     public class Calculator: ICalculator
     {
+        private int _value;
+        public int Value
+        {
+            get
+            {
+                Console.WriteLine("Get_Value");
+                return _value;
+            }
+            set
+            {
+                Console.WriteLine("Set_Value");
+                _value = value;
+            }
+        }
+
+        public event EventHandler Event;
+
         public int DivideAsResult(int x, int y)
         {
             Console.WriteLine("DivideAsResult");
@@ -121,6 +145,7 @@ namespace App1
             _ = x / y;
         }
 
+        [DisallowIntercept]
         public T GenericDivideAsResult<T>(T x, T y)
         {
             Console.WriteLine("GenericDivideAsResult");

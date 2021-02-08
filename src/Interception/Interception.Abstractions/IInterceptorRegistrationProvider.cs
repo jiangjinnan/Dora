@@ -5,6 +5,6 @@ namespace Dora.Interception
 {
     public interface IInterceptorRegistrationProvider
     {
-        IEnumerable<InterceptorRegistration> GetRegistrations(Type serviceType);
+        IEnumerable<InterceptorRegistration> GetRegistrations(Type type);
     }
 }

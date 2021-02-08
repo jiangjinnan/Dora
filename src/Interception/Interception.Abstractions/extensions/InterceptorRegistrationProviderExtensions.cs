@@ -8,7 +8,7 @@ namespace Dora.Interception
     {
         public static bool WillIntercept(this IInterceptorRegistrationProvider interceptorRegistrationProvider, Type type)
         {
-            return interceptorRegistrationProvider.GetRegistrations(type).Any(it => it.Target.DeclaringType == type || it.Target.DeclaringType.IsAssignableFrom(type));
+            return interceptorRegistrationProvider.GetRegistrations(type).Any();
         }
 
         public static bool WillIntercept(this IInterceptorRegistrationProvider interceptorRegistrationProvider, MethodInfo  methodInfo)

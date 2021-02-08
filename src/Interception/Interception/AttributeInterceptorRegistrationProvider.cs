@@ -16,7 +16,7 @@ namespace Dora.Interception
 
         public IEnumerable<InterceptorRegistration> CreateRegistrations(Type type)
         {
-            if (type.GetCustomAttributes<DisallowInterceptionAttribute>().Any())
+            if (type.GetCustomAttributes<DisallowInterceptAttribute>().Any())
             {
                 return Array.Empty<InterceptorRegistration>();
             }
@@ -45,7 +45,7 @@ namespace Dora.Interception
             var dictionary = new Dictionary<MethodInfo, IEnumerable<InterceptorAttribute>>();
             foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                if (method.DeclaringType == typeof(object) || method.GetCustomAttributes<DisallowInterceptionAttribute>().Any())
+                if (method.DeclaringType == typeof(object) || method.GetCustomAttributes<DisallowInterceptAttribute>().Any())
                 {
                     continue;
                 }
@@ -53,18 +53,18 @@ namespace Dora.Interception
             }
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                if (property.GetCustomAttributes<DisallowInterceptionAttribute>().Any())
+                if (property.GetCustomAttributes<DisallowInterceptAttribute>().Any())
                 {
                     continue;
                 }
                 var method = property.GetMethod;
-                if (method != null && !method.GetCustomAttributes<DisallowInterceptionAttribute>().Any())
+                if (method != null && !method.GetCustomAttributes<DisallowInterceptAttribute>().Any())
                 {
                     dictionary[method] = method.GetCustomAttributes<InterceptorAttribute>();
                 }
 
                 method = property.SetMethod;
-                if (method != null && !method.GetCustomAttributes<DisallowInterceptionAttribute>().Any())
+                if (method != null && !method.GetCustomAttributes<DisallowInterceptAttribute>().Any())
                 {
                     dictionary[method] = method.GetCustomAttributes<InterceptorAttribute>();
                 }

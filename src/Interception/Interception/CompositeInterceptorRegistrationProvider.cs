@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Dora.Interception
 {
@@ -18,5 +17,5 @@ namespace Dora.Interception
         {
             return _providers.SelectMany(it => it.GetRegistrations(serviceType));
         }
-    }
+     }
 }
