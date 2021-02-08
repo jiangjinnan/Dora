@@ -14,10 +14,12 @@ namespace App1
                 .AddSingleton<ICalculator, Calculator>()
                 .AddSingleton(typeof(ICalculator<>), typeof(Calculator<>))
                 .BuildInterceptableServiceProvider(interception => interception
-                .RegisterInterceptors(registry => registry.For<TestInterceptorAttribute>(assigner => assigner
-                      .AssignToMethod<Calculator>(it => it.DivideAsResult(default, default), 0)
-                      .AssignToProperty<Calculator,int>(it=>it.Value, PropertyMethodKind.Get,0)
-                      )));
+                .RegisterInterceptors(registry => registry.Register<TestInterceptorAttribute>(testInterceptor => testInterceptor
+                    .For<Calculator>(assigner => assigner
+                        .ToMethod(it => it.DivideAsResult(default, default), 1)
+                        .ToMethod(it => it.DivideAsVoid(default, default), 1)
+                        .ToProperty(it => it.Value, PropertyMethodKind.Get, 1)
+                    ))));    
 
             var calculator1 = serviceProvider.GetRequiredService<ICalculator>();
 

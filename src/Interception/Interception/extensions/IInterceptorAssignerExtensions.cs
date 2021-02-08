@@ -6,39 +6,19 @@ namespace Dora.Interception
 {
     public static class IInterceptorAssignerExtensions
     {
-        public static IInterceptorAssigner AssignTo<T>(this IInterceptorAssigner assigner, MethodInfo methodInfo, int order)
+        public static IInterceptorAssigner For<TTarget>(this IInterceptorAssigner assigner, MethodInfo methodInfo, int order)
         {
-            return assigner.AssignTo(typeof(T),methodInfo, order);
+            return assigner.AssignTo(typeof(TTarget), methodInfo, order);
         }
-
-        public static IInterceptorAssigner AssignToMethod<T>(this IInterceptorAssigner assigner, Expression<Action<T>> methodCall, int order)
+        public static IInterceptorAssigner For<TTarget>(this IInterceptorAssigner assigner, Action<IMethodInterceptorAssigner<TTarget>> assignment)
         {
-            var method = ((MethodCallExpression)methodCall.Body).Method;
-            return assigner.AssignTo<T>(method, order);
-        }
-
-        public static IInterceptorAssigner AssignToProperty<T, TValue>(this IInterceptorAssigner assigner, Expression<Func<T, TValue>> propertyAccessor, PropertyMethodKind propertyMethod, int order)
-        {
-            if (!(propertyAccessor.Body is MemberExpression memberAccessor) || !(memberAccessor.Member is PropertyInfo propertyInfo))
+            var methodAssigner = new MethodInterceptorAssigner<TTarget>();
+            assignment(methodAssigner);
+            foreach (var kv in methodAssigner.GetAssignedMethods())
             {
-                throw new ArgumentException("Specified is not valid property accessing expression.", nameof(propertyAccessor));
+                assigner.AssignTo(typeof(TTarget), kv.Key, kv.Value);
             }
-            switch (propertyMethod)
-            {
-                case PropertyMethodKind.Get:
-                    {
-                        return assigner.AssignTo<T>(propertyInfo.GetMethod, order);
-                    }
-                case PropertyMethodKind.Set:
-                    {
-                        return assigner.AssignTo<T>(propertyInfo.SetMethod, order);
-                    }
-                default:
-                    {
-                        assigner.AssignTo<T>(propertyInfo.GetMethod, order);
-                        return assigner.AssignTo<T>(propertyInfo.SetMethod, order);
-                    }
-            }
+            return assigner;
         }
     }
 }

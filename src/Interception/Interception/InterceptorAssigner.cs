@@ -19,4 +19,5 @@ namespace Dora.Interception
 
         public IDictionary<Type, IDictionary<MethodInfo, int>> GetAssignedMethods() => _assignedMethods;
     }
+
 }

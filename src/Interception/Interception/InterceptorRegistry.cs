@@ -8,7 +8,7 @@ namespace Dora.Interception
     public class InterceptorRegistry : IInterceptorRegistry
     {
         private readonly Dictionary<Type, List<InterceptorRegistration>> _registrations = new Dictionary<Type, List<InterceptorRegistration>>();
-        public IInterceptorRegistry For<TInterceptor>(Action<IInterceptorAssigner> assignment, params object[] arguments)
+        public IInterceptorRegistry Register<TInterceptor>(Action<IInterceptorAssigner> assignment, params object[] arguments)
         {
             object CreateInterceptor(IServiceProvider serviceProvider) => ActivatorUtilities.CreateInstance<TInterceptor>(serviceProvider, arguments);
             var assigner = new InterceptorAssigner();
