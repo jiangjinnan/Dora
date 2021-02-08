@@ -25,7 +25,6 @@ namespace Dora.Interception
             var registrations = new List<InterceptorRegistration>();
             foreach (var kv in GetMethods(type))
             {
-
                 var method = kv.Key;
                 if (globalAttributes.Any())
                 {

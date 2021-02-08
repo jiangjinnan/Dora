@@ -2,7 +2,7 @@
 
 namespace Dora.Interception
 {
-    public class Interceptor : IInterceptor
+    public sealed class Interceptor : IInterceptor
     {
         public InterceptorDelegate Delegate { get; }
         public bool CaptureArguments { get; }

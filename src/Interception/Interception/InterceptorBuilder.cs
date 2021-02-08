@@ -75,7 +75,12 @@ namespace Dora.Interception
         private IInterceptor CreateInterceptor(InterceptorRegistration registration)
         {
             var interceptor = registration.InterceptorFactory(_serviceProviderAccessor.ServiceProvider);
+            if (interceptor is IInterceptor interceptor1)
+            {
+                return interceptor1;
+            }
             var type = interceptor.GetType();
+            InterceptorClassVerifier.EnsureValidInterceptorClass(type);
             var delegateAccessor = _delegateAccessors.GetOrAdd(type, CreateDelegateAccessor);
             var captureArgumentsAccessor = _captureArgumentsAccessors.GetOrAdd(type, CreateCaptureArgumentsAccessors);
             return new Interceptor(delegateAccessor(interceptor), captureArgumentsAccessor(interceptor));

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Dora.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace Dora.Interception
@@ -14,10 +15,11 @@ namespace Dora.Interception
         public InterceptorAttribute(Type interceptorType, params object[] arguments)
         {
             _interceptorType = interceptorType ?? throw new ArgumentNullException(nameof(interceptorType));
+            InterceptorClassVerifier.EnsureValidInterceptorClass(interceptorType);
             _arguments = arguments;
         }
 
-        public InterceptorAttribute()
+        protected InterceptorAttribute()
         { }
 
         internal protected virtual object CreateInterceptor(IServiceProvider serviceProvider)
@@ -29,8 +31,9 @@ namespace Dora.Interception
             return ActivatorUtilities.CreateInstance(serviceProvider, _interceptorType, _arguments??Array.Empty<object>());
         }
 
-        protected T CreateInterceptor<T>(IServiceProvider serviceProvider, params object[] arguments)
+        internal protected T CreateInterceptor<T>(IServiceProvider serviceProvider, params object[] arguments)
         {
+            Guard.ArgumentNotNull(serviceProvider, nameof(serviceProvider));
             return ActivatorUtilities.CreateInstance<T>(serviceProvider, arguments ?? Array.Empty<object>());
         }
     }
