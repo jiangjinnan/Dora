@@ -1,5 +1,6 @@
 ﻿using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -14,9 +15,12 @@ namespace App1
             var services = new ServiceCollection()
                 .AddSingleton<ICalculator, Calculator>()
                 .AddSingleton(typeof(ICalculator<>), typeof(Calculator<>))
-                .AddSingleton<IInterceptorProvider, FakeInterceptorProvider>()
-                .AddSingleton<IInterceptableProxyGenerator, InterfaceProxyGenerator>()
-                .AddSingleton<IInterceptorRegistrationProvider, FakeInterceptorRegistrationProvider>();
+                .AddSingleton<IServiceProviderAccessor, ServiceProviderAccessor>()
+                .AddSingleton<IInterceptorBuilder, InterceptorBuilder>()
+                .AddSingleton<IInterceptorProvider, InterceptorProvider>()
+                .AddSingleton<IInterceptableProxyGenerator, InterfaceProxyGenerator>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton< IInterceptorRegistrationProvider, AttributeInterceptorRegistrationProvider>());
+
             var calculator1 = new InterceptionContainer(services)
                 .BuildServiceProvider()
                 .GetRequiredService<ICalculator>();
@@ -74,6 +78,7 @@ namespace App1
         T GenericDivideAsResult<T>(T x, T y);
     }
 
+    [TestInterceptor]
     public class Calculator: ICalculator
     {
         public int DivideAsResult(int x, int y)
@@ -123,6 +128,23 @@ namespace App1
         }
     }
 
+
+    public class TestInterceptorAttribute : InterceptorAttribute
+    {
+        public async Task InvokeAsync(InvocationContext invocationContext)
+        {
+            Console.WriteLine("PreInvoke");
+            await invocationContext.InvokeAsync();
+            Console.WriteLine("PostInvoke");
+        }
+
+        protected override object CreateInterceptor(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
+    }
+
+
     public class FakeInterceptor : IInterceptor
     {
         public bool AlterArguments => false;
@@ -138,22 +160,47 @@ namespace App1
         };
     }
 
-    public class FakeInterceptorProvider : IInterceptorProvider
-    {
-        public IInterceptor GetInterceptor(MethodInfo method) => new FakeInterceptor();
-    }
+    //public class FakeInterceptorProvider : IInterceptorProvider
+    //{
+    //    public IInterceptor GetInterceptor(MethodInfo method) => new FakeInterceptor();
+    //}
 
-    public class FakeInterceptorRegistrationProvider : IInterceptorRegistrationProvider
-    {
-        public IEnumerable<InterceptorRegistration> Registrations => new InterceptorRegistration[] {
-            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsVoid"), 0),
-            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsResult"), 0),
-            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsTask"), 0),
-            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
-            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
-            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
-            new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0),
-            new InterceptorRegistration(_=> new object(), typeof(Calculator<>).GetMethod("Add"), 0)
-        };
-    }
+    //public class FakeInterceptorRegistrationProvider : IInterceptorRegistrationProvider
+    //{
+    //    public IEnumerable<InterceptorRegistration> Registrations => new InterceptorRegistration[] {
+    //        new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsVoid"), 0),
+    //        new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsResult"), 0),
+    //        new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsTask"), 0),
+    //        new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
+    //        new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
+    //        new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
+    //        new InterceptorRegistration(_=> new object(), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0),
+    //        new InterceptorRegistration(_=> new object(), typeof(Calculator<>).GetMethod("Add"), 0)
+    //    };
+
+    //    public IEnumerable<InterceptorRegistration> GetRegistrations(Type serviceType)
+    //    {
+    //        if (serviceType == typeof(Calculator))
+    //        {
+    //            return new InterceptorRegistration[] {
+    //                new InterceptorRegistration(_ => new object(), typeof(Calculator).GetMethod("DivideAsVoid"), 0),
+    //                new InterceptorRegistration(_ => new object(), typeof(Calculator).GetMethod("DivideAsResult"), 0),
+    //                new InterceptorRegistration(_ => new object(), typeof(Calculator).GetMethod("DivideAsTask"), 0),
+    //                new InterceptorRegistration(_ => new object(), typeof(Calculator).GetMethod("DivideAsTaskOfResult"), 0),
+    //                new InterceptorRegistration(_ => new object(), typeof(Calculator).GetMethod("DivideAsValueTask"), 0),
+    //                new InterceptorRegistration(_ => new object(), typeof(Calculator).GetMethod("DivideAsValueTaskOfResult"), 0),
+    //                new InterceptorRegistration(_ => new object(), typeof(Calculator).GetMethod("GenericDivideAsResult"), 0)
+    //            };
+    //        }
+
+    //        if (serviceType == typeof(Calculator<>))
+    //        {
+    //            return new InterceptorRegistration[] {
+    //                new InterceptorRegistration(_=> new object(), typeof(Calculator<>).GetMethod("Add"), 0)
+    //            };
+    //        }
+
+    //        return Array.Empty<InterceptorRegistration>();
+    //    }
+    //}
 }

@@ -17,7 +17,7 @@ namespace Dora.Interception
         public IServiceProvider BuildServiceProvider()
         {
             var serviceProvider = _services.BuildServiceProvider();
-            var registrationProvider = serviceProvider.GetRequiredService<IInterceptorRegistrationProvider>();
+            var registrationProvider = new CompositeInterceptorRegistrationProvider(serviceProvider.GetRequiredService<IEnumerable< IInterceptorRegistrationProvider>>());
             var generator = serviceProvider.GetRequiredService<IInterceptableProxyGenerator>();
             var newServices = new ServiceCollection();
             foreach (var service in _services)

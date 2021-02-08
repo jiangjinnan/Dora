@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Dora.Interception
 {
     public interface IInterceptorRegistrationProvider
     {
-        IEnumerable<InterceptorRegistration> Registrations { get; }
+        IEnumerable<InterceptorRegistration> GetRegistrations(Type serviceType);
     }
 }

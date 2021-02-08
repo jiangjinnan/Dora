@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,18 +8,30 @@ namespace Dora.Interception
 {
     public class InterceptorProvider : IInterceptorProvider
     {
-        private readonly Dictionary<MethodInfo, IInterceptor> _interceptors;
-        public InterceptorProvider(IInterceptorBuilder builder, IInterceptorRegistrationProvider registrationProvider)
-        {
-            builder = builder ?? throw new ArgumentNullException(nameof(builder));
-            registrationProvider = registrationProvider ?? throw new ArgumentNullException(nameof(registrationProvider));
+        private readonly ConcurrentDictionary<Type, IEnumerable<InterceptorRegistration>> _registrations;
+        private readonly ConcurrentDictionary<MethodInfo, IInterceptor> _interceptors;
+        private readonly IInterceptorRegistrationProvider[] _registrationProviders;
+        private readonly IInterceptorBuilder _interceptorBuilder;
 
-            var registrations = registrationProvider.Registrations;
-            _interceptors = registrations
-                .GroupBy(it => it.Target)
-                .ToDictionary(it => it.Key, it => it.OrderBy(reg => reg.Order))
-                .ToDictionary(it => it.Key, it => builder.Build(it.Value));
+        public InterceptorProvider(IEnumerable< IInterceptorRegistrationProvider> registrationProviders, IInterceptorBuilder interceptorBuilder)
+        {
+            _registrationProviders = (registrationProviders ?? throw new ArgumentNullException(nameof(registrationProviders))).ToArray();
+            _interceptorBuilder = interceptorBuilder ?? throw new ArgumentNullException(nameof(interceptorBuilder));
+            _registrations = new ConcurrentDictionary<Type, IEnumerable<InterceptorRegistration>>();
+            _interceptors = new ConcurrentDictionary<MethodInfo, IInterceptor>();
         }
-        public IInterceptor GetInterceptor(MethodInfo method) => _interceptors.TryGetValue(method, out var v) ? v : null;
+
+        public IInterceptor GetInterceptor(MethodInfo method) => _interceptors.GetOrAdd(method, CreateInterceptor);
+        private IInterceptor CreateInterceptor(MethodInfo method)
+        {
+            var registrations = _registrations
+                .GetOrAdd(method.DeclaringType, GetRegistrations)
+                .Where(it => it.Target == method)
+                .OrderBy(it=>it.Order);
+            return _interceptorBuilder.Build(registrations);
+
+            IEnumerable<InterceptorRegistration> GetRegistrations(Type type)
+                => _registrationProviders.SelectMany(it => it.GetRegistrations(type)).ToArray();
+        }
     }
 }
