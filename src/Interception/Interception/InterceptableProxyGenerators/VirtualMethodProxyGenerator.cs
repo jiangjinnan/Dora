@@ -207,7 +207,6 @@ namespace Dora.Interception
                 if (methodInfo != null && methodInfo.IsVirtual && RegistrationProvider.WillIntercept(methodInfo))
                 {
                     var attributes = GetMethodAttributes(methodInfo);
-                    var parameterTypes = property.GetIndexParameters().Select(it => it.ParameterType).ToArray();
                     return DefineInterceptableMethod(new MethodMetadata(methodInfo));
                 }
                 return null;

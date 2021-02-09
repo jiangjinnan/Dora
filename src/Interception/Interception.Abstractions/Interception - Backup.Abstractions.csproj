@@ -8,12 +8,6 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>D:\Projects\My\newdora\src\Interception\Interception.Abstractions\Dora.Interception.Abstractions.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>D:\Projects\My\newdora\src\Interception\Interception.Abstractions\Dora.Interception.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

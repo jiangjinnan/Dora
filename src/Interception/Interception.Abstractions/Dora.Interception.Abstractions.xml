@@ -1,0 +1,282 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Dora.Interception.Abstractions</name>
+    </assembly>
+    <members>
+        <member name="T:Dora.Interception.InterceptorRegistrationProviderExtensions">
+            <summary>
+            <see cref="T:Dora.Interception.IInterceptorRegistrationProvider"/> specific extension methods.
+            </summary>
+        </member>
+        <member name="M:Dora.Interception.InterceptorRegistrationProviderExtensions.WillIntercept(Dora.Interception.IInterceptorRegistrationProvider,System.Type)">
+            <summary>
+            Determines whether to intercept specified type.
+            </summary>
+            <param name="interceptorRegistrationProvider">The interceptor registration provider.</param>
+            <param name="type">The target type to check.</param>
+            <returns>A Boolean value indicating whether to intercept specified type. </returns>
+        </member>
+        <member name="M:Dora.Interception.InterceptorRegistrationProviderExtensions.WillIntercept(Dora.Interception.IInterceptorRegistrationProvider,System.Reflection.MethodInfo)">
+            <summary>
+            Determines whether to intercept specified method.
+            </summary>
+            <param name="interceptorRegistrationProvider">The interceptor registration provider.</param>
+            <param name="targetMethod">The target method.</param>
+            <returns>A Boolean value indicating whether to intercept specified method. </returns>
+        </member>
+        <member name="T:Dora.Interception.IInterceptableProxyGenerator">
+            <summary>
+            Interceptable proxy class generator.
+            </summary>
+        </member>
+        <member name="M:Dora.Interception.IInterceptableProxyGenerator.Generate(System.Type,System.Type)">
+            <summary>
+            Generates the interceptable proxy class.
+            </summary>
+            <param name="serviceType">Type of the service.</param>
+            <param name="implementationType">Type of the implementation.</param>
+            <returns>The interceptable proxy type.</returns>
+        </member>
+        <member name="T:Dora.Interception.IInterceptor">
+            <summary>
+            Interceptor.
+            </summary>
+        </member>
+        <member name="P:Dora.Interception.IInterceptor.CaptureArguments">
+            <summary>
+            Gets a value indicating whether [capture arguments].
+            </summary>
+            <value>
+              <c>true</c> if [capture arguments]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Dora.Interception.IInterceptor.Delegate">
+            <summary>
+            Gets the delegate to execute interception operation.
+            </summary>
+            <value>
+            The  delegate to execute interception operation.
+            </value>
+        </member>
+        <member name="T:Dora.Interception.IInterceptorAssigner">
+            <summary>
+            Assigner to assign interceptor to target methods.
+            </summary>
+        </member>
+        <member name="M:Dora.Interception.IInterceptorAssigner.GetAssignedMethods">
+            <summary>
+            Gets the assigned methods.
+            </summary>
+            <returns>A typed method-order pairs.</returns>
+        </member>
+        <member name="M:Dora.Interception.IInterceptorAssigner.AssignTo(System.Type,System.Reflection.MethodInfo,System.Int32)">
+            <summary>
+            Assigns interceptor to target type and method.
+            </summary>
+            <param name="targetType">The target type..</param>
+            <param name="method">The target method.</param>
+            <param name="order">The order.</param>
+            <returns>The current assigner.</returns>
+        </member>
+        <member name="T:Dora.Interception.IInterceptorBuilder">
+            <summary>
+            Builder to build an interceptor (chain) with specified sorted interceptor registrations.
+            </summary>
+        </member>
+        <member name="M:Dora.Interception.IInterceptorBuilder.Build(System.Collections.Generic.IEnumerable{Dora.Interception.InterceptorRegistration})">
+            <summary>
+            Builds an interceptor (chain) with specified sorted interceptor registrations.
+            </summary>
+            <param name="registrations">The sorted interceptor registrations.</param>
+            <returns>The built interceptor (chain).</returns>
+        </member>
+        <member name="T:Dora.Interception.IInterceptorProvider">
+            <summary>
+            Provider to get <see cref="T:Dora.Interception.IInterceptor"/> assigned to specified method.
+            </summary>
+        </member>
+        <member name="M:Dora.Interception.IInterceptorProvider.GetInterceptor(System.Reflection.MethodInfo)">
+            <summary>
+            Gets the interceptor assigned to specified method.
+            </summary>
+            <param name="method">The method.</param>
+            <returns>The interceptor.</returns>
+        </member>
+        <member name="T:Dora.Interception.IInterceptorRegistrationProvider">
+            <summary>
+            Provider to get interceptor registrations.
+            </summary>
+        </member>
+        <member name="M:Dora.Interception.IInterceptorRegistrationProvider.GetRegistrations(System.Type)">
+            <summary>
+            Gets the interceptor registrations.
+            </summary>
+            <param name="targetType">The target type.</param>
+            <returns>The interceptor registrations.</returns>
+        </member>
+        <member name="T:Dora.Interception.IInterceptorRegistry">
+            <summary>
+            Registry interceptors are registered to.
+            </summary>
+        </member>
+        <member name="M:Dora.Interception.IInterceptorRegistry.Register``1(System.Action{Dora.Interception.IInterceptorAssigner},System.Object[])">
+            <summary>
+            Registers specified type of interceptor.
+            </summary>
+            <typeparam name="TInterceptor">The type of the interceptor.</typeparam>
+            <param name="assignment">The interceptor assignment delegate.</param>
+            <param name="arguments">The arguments for interceptor activation.</param>
+            <returns>The current interceptor registry.</returns>
+        </member>
+        <member name="T:Dora.Interception.IMethodInterceptorAssigner`1">
+            <summary>
+            Assigner to assign interceptor to target methods.
+            </summary>
+            <typeparam name="TTarget">The target type.</typeparam>
+        </member>
+        <member name="M:Dora.Interception.IMethodInterceptorAssigner`1.To(System.Reflection.MethodInfo,System.Int32)">
+            <summary>
+            Assigns interceptor to specified method.
+            </summary>
+            <param name="targetMethod">The target method.</param>
+            <param name="order">The order.</param>
+            <returns>The current assigner.</returns>
+        </member>
+        <member name="M:Dora.Interception.IMethodInterceptorAssigner`1.GetAssignedMethods">
+            <summary>
+            Gets the assigned target methods.
+            </summary>
+            <returns>A dictionary whose entry is method-order pair.</returns>
+        </member>
+        <member name="T:Dora.Interception.InterceptorDelegate">
+            <summary>
+            Interceptor delegate.
+            </summary>
+            <param name="next">The subsequential interceptor chain.</param>
+            <returns>The new interceptor chain including current interceptor.</returns>
+        </member>
+        <member name="T:Dora.Interception.InterceptorRegistration">
+            <summary>
+            Interceptor registration.
+            </summary>
+        </member>
+        <member name="P:Dora.Interception.InterceptorRegistration.InterceptorFactory">
+            <summary>
+            Gets the interceptor factory.
+            </summary>
+            <value>
+            The interceptor factory.
+            </value>
+        </member>
+        <member name="P:Dora.Interception.InterceptorRegistration.TargetMethod">
+            <summary>
+            Gets the target method the interceptor is assigned to.
+            </summary>
+            <value>
+            The target method the interceptor is assigned to.
+            </value>
+        </member>
+        <member name="P:Dora.Interception.InterceptorRegistration.Order">
+            <summary>
+            Gets the order representing the interceptor's position in the interceptor chain.
+            </summary>
+            <value>
+            The order representing the interceptor's position in the interceptor chain.
+            </value>
+        </member>
+        <member name="M:Dora.Interception.InterceptorRegistration.#ctor(System.Func{System.IServiceProvider,System.Object},System.Reflection.MethodInfo,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.Interception.InterceptorRegistration"/> class.
+            </summary>
+            <param name="interceptorFactory">The interceptor factory.</param>
+            <param name="targetMethod">The target method the interceptor is assigned to.</param>
+            <param name="order">The order representing the interceptor's position in the interceptor chain.</param>
+        </member>
+        <member name="T:Dora.Interception.InvocationContext">
+            <summary>
+            Method invocation context.
+            </summary>
+        </member>
+        <member name="P:Dora.Interception.InvocationContext.Target">
+            <summary>
+            Gets the object current method is invoked against.
+            </summary>
+            <value>
+            The object current method is invoked against.
+            </value>
+        </member>
+        <member name="P:Dora.Interception.InvocationContext.Method">
+            <summary>
+            Gets the method.
+            </summary>
+            <value>
+            The method.
+            </value>
+        </member>
+        <member name="P:Dora.Interception.InvocationContext.Arguments">
+            <summary>
+            Gets the arguments.
+            </summary>
+            <value>
+            The arguments.
+            </value>
+        </member>
+        <member name="P:Dora.Interception.InvocationContext.ReturnValue">
+            <summary>
+            Gets the return value.
+            </summary>
+            <value>
+            The return value.
+            </value>
+        </member>
+        <member name="M:Dora.Interception.InvocationContext.#ctor(System.Object,System.Reflection.MethodInfo,System.Object[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.Interception.InvocationContext"/> class.
+            </summary>
+            <param name="target">The object current method is invoked against.</param>
+            <param name="method">The current method.</param>
+            <param name="arguments">The arguments.</param>
+        </member>
+        <member name="M:Dora.Interception.InvocationContext.InvokeAsync">
+            <summary>
+            Invokes the subsequential interceptor chain, including target method.
+            </summary>
+            <returns>The task to invoke the subsequential interceptor chain, including target method.</returns>
+        </member>
+        <member name="M:Dora.Interception.InvocationContext.SetReturnValue``1(``0)">
+            <summary>
+            Sets the return value.
+            </summary>
+            <typeparam name="T">The type of return value to set.</typeparam>
+            <param name="value">The return value to set.</param>
+        </member>
+        <member name="M:Dora.Interception.InvocationContext.GetReturnValue``1">
+            <summary>
+            Gets the return value.
+            </summary>
+            <typeparam name="T">The type of return value to set.</typeparam>
+            <returns>The return value.</returns>
+        </member>
+        <member name="T:Dora.Interception.InvokerDelegate">
+            <summary>
+            Interceptor chain invoker.
+            </summary>
+            <param name="invocationContext">The invocation context.</param>
+            <returns>The task to invoke the interceptor chain.</returns>
+        </member>
+        <member name="T:Dora.Interception.IServiceProviderAccessor">
+            <summary>
+            Accessor to get <see cref="T:System.IServiceProvider"/> for interceptor activation.
+            </summary>
+        </member>
+        <member name="P:Dora.Interception.IServiceProviderAccessor.ServiceProvider">
+            <summary>
+            Gets the <see cref="T:System.IServiceProvider"/> for interceptor activation.
+            </summary>
+            <value>
+            The <see cref="T:System.IServiceProvider"/> for interceptor activation.
+            </value>
+        </member>
+    </members>
+</doc>

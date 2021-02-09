@@ -26,7 +26,7 @@ namespace Dora.Interception
         {
             var registrations = _registrations
                 .GetOrAdd(method.DeclaringType, GetRegistrations)
-                .Where(it => it.Target == method)
+                .Where(it => it.TargetMethod == method)
                 .OrderBy(it=>it.Order);
             return _interceptorBuilder.Build(registrations);
 
