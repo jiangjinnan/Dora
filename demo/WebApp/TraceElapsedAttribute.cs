@@ -14,7 +14,7 @@ namespace WebApp
             var stopwatch = Stopwatch.StartNew();
             await invocationContext.InvokeAsync();
             stopwatch.Stop();
-            await httpContextAccessor.HttpContext.Response.WriteAsync($"[TraceElapsed]{invocationContext.Target.GetType()}.{invocationContext.Method.Name}:{stopwatch.Elapsed}" + Environment.NewLine);
+            await httpContextAccessor.HttpContext.Response.WriteAsync($"[TraceElapsed]{invocationContext.Target.GetType()}.{invocationContext.Method.Name}:{stopwatch.Elapsed}" + Environment.NewLine + Environment.NewLine);
         }
         protected override object CreateInterceptor(IServiceProvider serviceProvider) => this;
     }

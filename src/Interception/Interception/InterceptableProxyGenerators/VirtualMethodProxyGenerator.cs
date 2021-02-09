@@ -39,6 +39,11 @@ namespace Dora.Interception
                 }
                 DefineInterceptableMethod(new MethodMetadata(method));
             }
+
+            foreach (var property in implementationType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                DefineProperty(property);
+            }
             return _proxyTypeBuilder.CreateTypeInfo();
         }
 
@@ -175,6 +180,38 @@ namespace Dora.Interception
             il.Emit(OpCodes.Stloc, task);
             EmitReturnValueExtractionCode(il, methodMetadata.ReturnKind, returnType, invocationContext, task);
             return methodBuilder;
+        }
+
+        private PropertyBuilder DefineProperty(PropertyInfo property)
+        {
+            PropertyBuilder propertyBuilder = null;
+            var getMethod = DefinePropertyMethod(property.GetMethod);
+            var setMethod = DefinePropertyMethod(property.SetMethod);
+            if (getMethod != null || setMethod != null)            
+            {
+                var parameterTypes = property.GetIndexParameters().Select(it => it.ParameterType).ToArray();
+                propertyBuilder = _proxyTypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, parameterTypes);
+                if (getMethod != null)
+                {
+                    propertyBuilder.SetGetMethod(getMethod);
+                }
+                if (setMethod != null)
+                {
+                    propertyBuilder.SetSetMethod(setMethod);
+                }
+            }
+            return propertyBuilder;
+
+            MethodBuilder DefinePropertyMethod(MethodInfo methodInfo)
+            {
+                if (methodInfo != null && methodInfo.IsVirtual && RegistrationProvider.WillIntercept(methodInfo))
+                {
+                    var attributes = GetMethodAttributes(methodInfo);
+                    var parameterTypes = property.GetIndexParameters().Select(it => it.ParameterType).ToArray();
+                    return DefineInterceptableMethod(new MethodMetadata(methodInfo));
+                }
+                return null;
+            }
         }
 
         private void CreateProxyTypeBuilder()

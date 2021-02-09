@@ -37,6 +37,7 @@ namespace WebApp
             {
                 endpoints.MapGet("/", async context =>
                 {
+                    _=writer.Name;
                     await writer.WriteLineAsync(123);
                     await writer.WriteLineAsync("foobar");
                     await writer.WriteLineAsync(new { Foo="123", Bar="456"});

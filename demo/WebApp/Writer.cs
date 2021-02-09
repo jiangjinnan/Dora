@@ -19,7 +19,7 @@ namespace WebApp
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        //[TraceInputs(Order = 1)]
+        [TraceInputs(Order = 1)]
         [TraceElapsed(Order = 2)]
         public virtual async ValueTask WriteLineAsync<T>(T data)
         {
@@ -28,5 +28,7 @@ namespace WebApp
             stopwatch.Stop();
             await _httpContextAccessor.HttpContext.Response.WriteAsync($"Real elapsed: {stopwatch.Elapsed}" + Environment.NewLine);
         }
+
+        public virtual string Name { [TraceInputs][TraceElapsed]get; set; }
     }
 }
