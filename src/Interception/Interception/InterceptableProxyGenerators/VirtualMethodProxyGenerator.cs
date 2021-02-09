@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -7,148 +6,63 @@ using System.Threading.Tasks;
 
 namespace Dora.Interception
 {
-    public class InterfaceProxyGenerator : InterceptableProxyGeneratorBase
+    public class VirtualMethodProxyGenerator : InterceptableProxyGeneratorBase
     {
-        private readonly MethodAttributes _methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final;
+        private Type _implementationType;
         private TypeBuilder _proxyTypeBuilder;
-        private FieldBuilder _targetFieldBuilder;
         private FieldBuilder _interceptorProviderFieldBuilder;
         private bool _isGenericType;
         private Type[] _genericArguments;
-        private Type _interface;
-        private Type _implementationType;
-        private Type _targetType;
 
-        public InterfaceProxyGenerator(IInterceptorRegistrationProvider registrationProvider) : base(registrationProvider)
-        {             
+        public VirtualMethodProxyGenerator(IInterceptorRegistrationProvider registrationProvider) : base(registrationProvider)
+        {
         }
 
         public override Type Generate(Type serviceType, Type implementationType)
         {
-            if (!serviceType.IsInterface)
+            if (serviceType.IsInterface || implementationType.IsSealed)
             {
                 return null;
             }
-            _interface = serviceType;
+
             _implementationType = implementationType;
             CreateProxyTypeBuilder();
-            DefineConstructor();
-
-            var methodMap = InterfaceMapper.GetMethodMap(serviceType, implementationType);
-            foreach (var method in methodMap.Values)
+            foreach (var constructor in implementationType.GetConstructors())
             {
-                if (method.IsSpecialName)
-                {
-                    continue;
-                }
-                var metadata = new MethodMetadata(method);
-                _ = RegistrationProvider.WillIntercept(method) ? DefineInterceptableMethod(metadata) : DefineNonInterceptableMethod(metadata);
+                DefineConstructor(constructor);
             }
-
-            var properties = _implementationType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            foreach (var property in properties)
+            foreach (var method in implementationType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                var method = property.GetMethod;
-                if (method != null && methodMap.Values.Contains(method))
+                if (method.IsSpecialName || !method.IsVirtual || !RegistrationProvider.WillIntercept(method))
                 {
-                    DefineProperty(property);
                     continue;
                 }
-
-                method = property.SetMethod;
-                if (method != null && methodMap.Values.Contains(method))
-                {
-                    DefineProperty(property);
-                }
-            }
-
-            var events = _implementationType.GetEvents(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            foreach (var @event in events)
-            {
-                var method = @event.AddMethod;
-                if (method != null && methodMap.Values.Contains(method))
-                {
-                    DefineEvent(@event);
-                    continue;
-                }
-
-                method = @event.RemoveMethod;
-                if (method != null && methodMap.Values.Contains(method))
-                {
-                    DefineEvent(@event);
-                }
+                DefineInterceptableMethod(new MethodMetadata(method));
             }
             return _proxyTypeBuilder.CreateTypeInfo();
         }
 
-        private void  CreateProxyTypeBuilder()
+        private void DefineConstructor(ConstructorInfo orginalConstructor)
         {
-            _isGenericType = _implementationType.IsGenericTypeDefinition;
-            _proxyTypeBuilder = ModuleBuilder.DefineType($"{_implementationType}Proxy_{Guid.NewGuid().ToString().Replace("-", "")}", TypeAttributes.Public, typeof(object), new Type[] { _interface });           
-
-            if (_isGenericType)
+            var parameterTypes = orginalConstructor.GetParameters().Select(it => it.ParameterType).ToArray();
+            if (parameterTypes.Any(it => it.IsGenericParameter))
             {
-                var genericArguments = _implementationType.GetGenericArguments();
-                var genericParameterNames = genericArguments.Select(it => it.Name).ToArray();
-                var builders = _proxyTypeBuilder.DefineGenericParameters(genericParameterNames);
-                CopyGenericParameterAttributes(genericArguments, builders);
-                _genericArguments = _proxyTypeBuilder.GetGenericArguments();
+                parameterTypes = parameterTypes.Select(it => it.IsGenericParameter ? _genericArguments.Single(it2 => it2.Name == it.Name) : it).ToArray();
             }
-            else
-            {
-                _genericArguments = Array.Empty<Type>();
-            }
-
-            _targetType = _isGenericType ? _implementationType.MakeGenericType(_genericArguments) : _implementationType;
-            _targetFieldBuilder = _proxyTypeBuilder.DefineField("_target", _targetType, FieldAttributes.Private);
-            _interceptorProviderFieldBuilder = _proxyTypeBuilder.DefineField("_interceptorProvider", typeof(IInterceptorProvider), FieldAttributes.Private);
-        }
-
-        private void DefineConstructor()
-        {
-            var constructor = _proxyTypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new Type[] { typeof(IServiceProvider), typeof(IInterceptorProvider) });
+            var constructor = _proxyTypeBuilder.DefineConstructor(orginalConstructor.Attributes, CallingConventions.Standard, parameterTypes.Concat(new Type[] { typeof(IInterceptorProvider) }).ToArray());
             var il = constructor.GetILGenerator();
 
             il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Call, Members.ConstructorOfObject);
+            for (int index = 1; index < parameterTypes.Length + 1; index++)
+            {
+                il.EmitLdArgs(index);
+            }
+            il.Emit(OpCodes.Call, orginalConstructor);
 
-            //_target = ActivatorUtilities.CreateInstance<T>();
-            il.Emit(OpCodes.Ldarg_0); //proxy
-            il.Emit(OpCodes.Ldarg_1);//serviceProvider
-            il.Emit(OpCodes.Call, Members.CreateInstanceOfActivatorUtilities.MakeGenericMethod(_targetType));
-            il.Emit(OpCodes.Stfld, _targetFieldBuilder);
-
-            //_interceptorProvider = interceptorProvider;
-            il.Emit(OpCodes.Ldarg_0); //proxy
-            il.Emit(OpCodes.Ldarg_2); //interceptorProvider
-            il.Emit(OpCodes.Stfld, _interceptorProviderFieldBuilder);
-
-            il.Emit(OpCodes.Ret);
-        }
-
-        MethodBuilder DefineNonInterceptableMethod(MethodMetadata methodMetadata)
-        {
-            var targetMethod = methodMetadata.MethodInfo;
-            var methodBuilder = CreateMethodBuilder(methodMetadata, out var parameterTypes, out var returnType);
-
-            var il = methodBuilder.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, _targetFieldBuilder);
-            for (int index = 0; index < parameterTypes.Length; index++)
-            {
-                il.EmitLdArgs(index + 1);
-            }
-
-            if (targetMethod.DeclaringType == _targetType)
-            {
-                il.Emit(OpCodes.Call, targetMethod);
-            }
-            else
-            {
-                il.Emit(OpCodes.Callvirt, targetMethod);
-            }
+            il.EmitLdArgs(parameterTypes.Length + 1);
+            il.Emit(OpCodes.Stfld, _interceptorProviderFieldBuilder);
             il.Emit(OpCodes.Ret);
-            return methodBuilder;
         }
 
         private MethodBuilder DefineInterceptableMethod(MethodMetadata methodMetadata)
@@ -201,9 +115,8 @@ namespace Dora.Interception
             il.Emit(OpCodes.Ldloc, interceptor);
             il.Emit(OpCodes.Callvirt, Members.GetCaptureArgumentsOfInterceptor);
             il.Emit(OpCodes.Brtrue_S, captureArgument);
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, _targetFieldBuilder);
-            il.Emit(OpCodes.Ldloc, method);
+            il.Emit(OpCodes.Ldarg_0); //this
+            il.Emit(OpCodes.Ldloc, method); //method
             il.Emit(OpCodes.Ldnull);
             il.Emit(OpCodes.Newobj, Members.ConstructorOfInvocationContext);
             il.Emit(OpCodes.Stloc, invocationContext);
@@ -228,7 +141,6 @@ namespace Dora.Interception
 
             // var invocationContext = new InvocationContext(target, method, arguments)
             il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, _targetFieldBuilder);
             il.Emit(OpCodes.Ldloc, method);
             il.Emit(OpCodes.Ldloc, arguments);
             il.Emit(OpCodes.Newobj, Members.ConstructorOfInvocationContext);
@@ -239,7 +151,6 @@ namespace Dora.Interception
             //var closure = new Closure(target, arg1, arg2, ..., arguments);
             var closure = il.DeclareLocal(closureType);
             il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Ldfld, _targetFieldBuilder);
             for (int index = 0; index < parameterTypes.Length; index++)
             {
                 il.EmitLdArgs(index + 1);
@@ -266,37 +177,27 @@ namespace Dora.Interception
             return methodBuilder;
         }
 
-       
+        private void CreateProxyTypeBuilder()
+        {
+            _isGenericType = _implementationType.IsGenericTypeDefinition;
+            _proxyTypeBuilder = ModuleBuilder.DefineType($"{_implementationType}Proxy_{Guid.NewGuid().ToString().Replace("-", "")}", TypeAttributes.Public, _implementationType);
 
-        private void DefineProperty(PropertyInfo property)
-        {
-            var parameterTypes = property.GetIndexParameters().Select(it => it.ParameterType).ToArray();
-            var propertyBuilder = _proxyTypeBuilder.DefineProperty(property.Name, property.Attributes, property.PropertyType, parameterTypes);
-            var getMethod = property.GetMethod;
-            if (null != getMethod)
+            if (_isGenericType)
             {
-                var metadata = new MethodMetadata(getMethod);
-                var getMethodBuilder = RegistrationProvider.WillIntercept(getMethod)
-                    ? DefineInterceptableMethod(metadata)
-                    : DefineNonInterceptableMethod(metadata);
-                propertyBuilder.SetGetMethod(getMethodBuilder);
+                var genericArguments = _implementationType.GetGenericArguments();
+                var genericParameterNames = genericArguments.Select(it => it.Name).ToArray();
+                var builders = _proxyTypeBuilder.DefineGenericParameters(genericParameterNames);
+                CopyGenericParameterAttributes(genericArguments, builders);
+                _genericArguments = _proxyTypeBuilder.GetGenericArguments();
             }
-            var setMethod = property.SetMethod;
-            if (null != setMethod)
+            else
             {
-                var metadata = new MethodMetadata(setMethod);
-                var setMethodBuilder = RegistrationProvider.WillIntercept(setMethod)
-                      ? DefineInterceptableMethod(metadata)
-                      : DefineNonInterceptableMethod(metadata);
-                propertyBuilder.SetGetMethod(setMethodBuilder);
+                _genericArguments = Array.Empty<Type>();
             }
+
+            _interceptorProviderFieldBuilder = _proxyTypeBuilder.DefineField("_interceptorProvider", typeof(IInterceptorProvider), FieldAttributes.Private| FieldAttributes.InitOnly);
         }
-        private void DefineEvent(EventInfo eventInfo)
-        {
-            var eventBuilder = _proxyTypeBuilder.DefineEvent(eventInfo.Name, eventInfo.Attributes, eventInfo.EventHandlerType);
-            eventBuilder.SetAddOnMethod(DefineNonInterceptableMethod(new MethodMetadata(eventInfo.AddMethod)));
-            eventBuilder.SetRemoveOnMethod(DefineNonInterceptableMethod(new MethodMetadata(eventInfo.RemoveMethod)));
-        }        
+
         private MethodBuilder CreateMethodBuilder(MethodMetadata methodMetadata, out Type[] parameterTypes, out Type returnType)
         {
             var targetMethod = methodMetadata.MethodInfo;
@@ -307,10 +208,10 @@ namespace Dora.Interception
             {
                 returnType = originalReturnType.IsGenericParameter ? _genericArguments.Single(it => it.Name == originalReturnType.Name) : originalReturnType;
                 parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
-                return _proxyTypeBuilder.DefineMethod(targetMethod.Name, _methodAttributes, returnType, parameterTypes);
+                return _proxyTypeBuilder.DefineMethod(targetMethod.Name, GetMethodAttributes(targetMethod), returnType, parameterTypes);
             }
 
-            var methodBuilder = _proxyTypeBuilder.DefineMethod(targetMethod.Name, _methodAttributes);
+            var methodBuilder = _proxyTypeBuilder.DefineMethod(targetMethod.Name, GetMethodAttributes(targetMethod));
             var genericArguments = targetMethod.GetGenericArguments();
             var genericArgumentNames = genericArguments.Select(it => it.Name).ToArray();
             var generaicParameterBuilders = methodBuilder.DefineGenericParameters(genericArgumentNames);
@@ -326,6 +227,29 @@ namespace Dora.Interception
             returnType = originalReturnType.IsGenericParameter ? genericArguments.Single(it => it.Name == targetMethod.ReturnType.Name) : originalReturnType;
             methodBuilder.SetReturnType(returnType);
             return methodBuilder;
-        }     
+        }
+
+        private MethodAttributes GetMethodAttributes(MethodInfo methodInfo)
+        {
+            var attributes = MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.Final;
+            if (methodInfo.IsPublic)
+            {
+                return MethodAttributes.Public | attributes;
+            }
+            if (methodInfo.IsFamily)
+            {
+                return MethodAttributes.Family | attributes;
+            }
+            if (methodInfo.IsFamilyAndAssembly)
+            {
+                return MethodAttributes.FamANDAssem | attributes;
+            }
+            if (methodInfo.IsFamilyOrAssembly)
+            {
+                return MethodAttributes.FamORAssem | attributes;
+            }
+
+            throw new Exception(); 
+        }
     }
 }

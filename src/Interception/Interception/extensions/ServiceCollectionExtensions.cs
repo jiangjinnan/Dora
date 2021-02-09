@@ -10,9 +10,10 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.TryAddSingleton<IInterceptorBuilder, InterceptorBuilder>();
             services.TryAddSingleton<IInterceptorProvider, InterceptorProvider>();
-            services.TryAddSingleton<IInterceptableProxyGenerator, InterfaceProxyGenerator>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IInterceptableProxyGenerator, InterfaceProxyGenerator>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IInterceptableProxyGenerator, VirtualMethodProxyGenerator>());
             services.TryAddSingleton<IServiceProviderAccessor, ServiceProviderAccessor>();
-            services.TryAddEnumerable(ServiceDescriptor.Singleton< IInterceptorRegistrationProvider, AttributeInterceptorRegistrationProvider>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IInterceptorRegistrationProvider, AttributeInterceptorRegistrationProvider>());
 
             if (setup != null)
             {

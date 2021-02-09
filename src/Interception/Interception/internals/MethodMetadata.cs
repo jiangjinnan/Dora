@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Dora.Interception
 {
-    internal class MethodMetadata
+    public class MethodMetadata
     {
         public MethodInfo MethodInfo { get; }
         public MethodReturnKind ReturnKind { get; }

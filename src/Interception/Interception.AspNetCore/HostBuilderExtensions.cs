@@ -1,4 +1,5 @@
-﻿using Dora.Interception.AspNetCore;
+﻿using Dora.Interception;
+using Dora.Interception.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +15,7 @@ namespace Microsoft.Extensions.Hosting
         {
             Action<InterceptionBuilder> setup2 = builder => {
                 setup?.Invoke(builder);
+                builder.Services.AddHttpContextAccessor();
                 builder.Services.Replace(ServiceDescriptor.Singleton<IServiceProviderAccessor, RequestServiceProviderAccessor>());
             };
             hostBuilder.UseServiceProviderFactory(new InterceptionServiceProviderFactory(setup2));

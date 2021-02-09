@@ -18,7 +18,7 @@ namespace Dora.Interception
         {
             var serviceProvider = _services.BuildServiceProvider();
             var registrationProvider = new CompositeInterceptorRegistrationProvider(serviceProvider.GetRequiredService<IEnumerable<IInterceptorRegistrationProvider>>());
-            var generator = serviceProvider.GetRequiredService<IInterceptableProxyGenerator>();
+            var generators = serviceProvider.GetServices<IInterceptableProxyGenerator>();
             var newServices = new ServiceCollection();
             foreach (var service in _services)
             {
@@ -29,7 +29,21 @@ namespace Dora.Interception
                 }
                 else
                 {
-                   list.Add(new ServiceDescriptor(service.ServiceType, generator.Generate(service.ServiceType, service.ImplementationType), service.Lifetime));
+                    var intercepted = false;
+                    foreach (var generator in generators)
+                    {
+                        var proxyType = generator.Generate(service.ServiceType, service.ImplementationType);
+                        if (null != proxyType)
+                        {
+                            intercepted = true;
+                            list.Add(new ServiceDescriptor(service.ServiceType, proxyType, service.Lifetime));
+                            continue;
+                        }
+                    }
+                    if (!intercepted)
+                    {
+                        list.Add(service);
+                    }
                 }
             }
             return newServices.BuildServiceProvider();

@@ -18,9 +18,10 @@ namespace WebApp
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-            .UseServiceProviderFactory(new InterceptionServiceProviderFactory())
-                .ConfigureWebHostDefaults(webBuilder =>
+            Host
+            .CreateDefaultBuilder(args)
+            .UseInterception()
+            .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 });
