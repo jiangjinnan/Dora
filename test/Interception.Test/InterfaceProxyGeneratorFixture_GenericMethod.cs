@@ -269,12 +269,12 @@ namespace Interception.Test
 
         public interface IFoobar
         {
-            void InvokeAsVoid<T>(T x, T y) where T: IComparable<T>;
-            int InvokeAsResult<T>(T x, T y) where T : IComparable<T>;
-            Task InvokeAsTask<T>(T x, T y) where T : IComparable<T>;
-            Task<int> InvokeAsTaskOfResult<T>(T x, T y) where T : IComparable<T>;
-            ValueTask InvokeAsValueTask<T>(T x, T y) where T : IComparable<T>;
-            ValueTask<int> InvokeAsValueTaskOfResult<T>(T x, T y) where T : IComparable<T>;
+            void InvokeAsVoid<T>(T x, T y) where T: IComparable<T>, new();
+            int InvokeAsResult<T>(T x, T y) where T : IComparable<T>, new();
+            Task InvokeAsTask<T>(T x, T y) where T : IComparable<T>, new();
+            Task<int> InvokeAsTaskOfResult<T>(T x, T y) where T : IComparable<T>, new();
+            ValueTask InvokeAsValueTask<T>(T x, T y) where T : IComparable<T>, new();
+            ValueTask<int> InvokeAsValueTaskOfResult<T>(T x, T y) where T : IComparable<T>, new();
         }
 
         public class Bar
@@ -287,40 +287,40 @@ namespace Interception.Test
 
             public static bool Invoked { get; private set; }
             public static void Reset() => Invoked = false;
-            public int InvokeAsResult<T>(T x, T y) where T : IComparable<T>
+            public int InvokeAsResult<T>(T x, T y) where T : IComparable<T>, new()
             {
                 Invoked = true;
                 return x.CompareTo(y);
             }
 
-            public async Task InvokeAsTask<T>(T x, T y) where T : IComparable<T>
+            public async Task InvokeAsTask<T>(T x, T y) where T : IComparable<T>, new()
             {
                 Invoked = true;
                 await Task.Delay(10);
                 x.CompareTo(y);
             }
 
-            public async Task<int> InvokeAsTaskOfResult<T>(T x, T y) where T : IComparable<T>
+            public async Task<int> InvokeAsTaskOfResult<T>(T x, T y) where T : IComparable<T>, new()
             {
                 Invoked = true;
                 await Task.Delay(10);
                 return x.CompareTo(y);
             }
 
-            public async ValueTask InvokeAsValueTask<T>(T x, T y) where T : IComparable<T>
+            public async ValueTask InvokeAsValueTask<T>(T x, T y) where T : IComparable<T>, new()
             {
                 Invoked = true;
                 await Task.Delay(10);
             }
 
-            public async ValueTask<int> InvokeAsValueTaskOfResult<T>(T x, T y) where T : IComparable<T>
+            public async ValueTask<int> InvokeAsValueTaskOfResult<T>(T x, T y) where T : IComparable<T>, new()
             {
                 Invoked = true;
                 await Task.Delay(10);
                 return x.CompareTo(y);
             }
 
-            public void InvokeAsVoid<T>(T x, T y) where T : IComparable<T>
+            public void InvokeAsVoid<T>(T x, T y) where T : IComparable<T>, new()
             {
                 Invoked = true;
                 x.CompareTo(y);

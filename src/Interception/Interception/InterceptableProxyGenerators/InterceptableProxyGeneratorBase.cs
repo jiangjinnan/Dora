@@ -246,7 +246,6 @@ namespace Dora.Interception
             {
                 var builder = generaicParameterBuilders[index];
                 var originalGenericArgument = originalGenericArguments[index];
-                var newGenericArgument = newGenericArguments[index];
                 builder.SetGenericParameterAttributes(originalGenericArgument.GenericParameterAttributes);
 
                 var interfaceConstraints = new List<Type>();
@@ -256,12 +255,11 @@ namespace Dora.Interception
                     {
                         if (constraint.IsGenericType)
                         {
-                            var arguments = constraint.GetGenericArguments().Select(it => GetGenericArguments(it)).ToArray();
-                            interfaceConstraints.Add(constraint.GetGenericTypeDefinition().MakeGenericType(arguments));
+                            builder.SetBaseTypeConstraint(MakeGenericType(originalGenericArguments, newGenericArguments, constraint));
                         }
                         else
                         {
-                            builder.SetBaseTypeConstraint(MakeGenericType(originalGenericArguments, newGenericArguments, constraint));
+                            builder.SetBaseTypeConstraint(constraint);
                         }                       
                     }
                     else
@@ -281,22 +279,6 @@ namespace Dora.Interception
                     builder.SetInterfaceConstraints(interfaceConstraints.ToArray());
                 }
             }            
-
-            Type GetGenericArguments(Type constraintArgument)
-            {
-                if (!constraintArgument.IsGenericParameter)
-                {
-                    return constraintArgument;
-                }
-                for (int index = 0; index < originalGenericArguments.Length; index++)
-                {
-                    if (originalGenericArguments[index] == constraintArgument)
-                    {
-                        return newGenericArguments[index];
-                    }
-                }
-                throw new InvalidOperationException("It fails to get generic argument.");
-            }
         }
         
         private TypeBuilder CreateClosureType(MethodMetadata methodMetadata, Type originalTargetType, out Type targetType, out Type[] parameterTypes, out Type returnType, out Type[] genericMethodArguments)
