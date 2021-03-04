@@ -48,7 +48,8 @@ namespace Dora.Interception
             Guard.ArgumentNotNull(registrations, nameof(registrations));
             var interceptors = registrations.Reverse().Select(it => CreateInterceptor(it)).ToArray();
             var captureArguments = interceptors.Any(it => it.CaptureArguments);
-            InterceptorDelegate @delegate = next => {
+            InvokerDelegate Intercept(InvokerDelegate next)
+            {
                 return context =>
                 {
                     foreach (var interceptor in interceptors)
@@ -57,8 +58,8 @@ namespace Dora.Interception
                     }
                     return next(context);
                 };
-            };
-            return new Interceptor(@delegate, captureArguments);
+            }
+            return new Interceptor(Intercept, captureArguments);
         }
         #endregion
 
@@ -87,7 +88,6 @@ namespace Dora.Interception
             {
                 return _ => false;
             }
-
             var interceptor = Expression.Parameter(typeof(object));
             var cast = Expression.Convert(interceptor, type);
             var call = Expression.Call(cast, getMethod);
@@ -96,17 +96,18 @@ namespace Dora.Interception
 
         private IInterceptor CreateInterceptor(InterceptorRegistration registration)
         {
-            var interceptor = registration.InterceptorFactory(_serviceProviderAccessor.ServiceProvider);
-            if (interceptor is IInterceptor interceptor1)
+            var rawInterceptor = registration.InterceptorFactory(_serviceProviderAccessor.ServiceProvider);
+            if (rawInterceptor is IInterceptor interceptor)
             {
-                return interceptor1;
+                return interceptor;
             }
-            var type = interceptor.GetType();
+            var type = rawInterceptor.GetType();
             InterceptorClassVerifier.EnsureValidInterceptorClass(type);
             var delegateAccessor = _delegateAccessors.GetOrAdd(type, CreateDelegateAccessor);
             var captureArgumentsAccessor = _captureArgumentsAccessors.GetOrAdd(type, CreateCaptureArgumentsAccessors);
-            return new Interceptor(delegateAccessor(interceptor), captureArgumentsAccessor(interceptor));
+            return new Interceptor(delegateAccessor(rawInterceptor), captureArgumentsAccessor(rawInterceptor));
         }
+
         private static ExecutorDelegate GetExecutor(Type interceptorType)
         {
             if (_executors.TryGetValue(interceptorType, out var executor))
@@ -120,7 +121,6 @@ namespace Dora.Interception
                 {
                     return executor;
                 }
-
                 var search = from it in interceptorType.GetTypeInfo().GetMethods()
                              let parameters = it.GetParameters()
                              where it.Name == "InvokeAsync" && it.ReturnType == typeof(Task) && parameters.Any(it=>it.ParameterType == typeof(InvocationContext))

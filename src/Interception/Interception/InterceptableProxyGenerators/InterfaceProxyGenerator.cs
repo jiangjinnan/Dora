@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -91,7 +90,7 @@ namespace Dora.Interception
                 var genericArguments = _implementationType.GetGenericArguments();
                 var genericParameterNames = genericArguments.Select(it => it.Name).ToArray();
                 var builders = _proxyTypeBuilder.DefineGenericParameters(genericParameterNames);
-                CopyGenericParameterAttributes(genericArguments, builders);
+                CopyGenericParameterAttributes(genericArguments, _proxyTypeBuilder.GetGenericArguments(), builders);
                 _genericArguments = _proxyTypeBuilder.GetGenericArguments();
             }
             else
@@ -167,20 +166,27 @@ namespace Dora.Interception
                 closureType = closureType.MakeGenericType(genericArguments);
             }
 
+            var targetMethod = methodMetadata.MethodInfo;
+            if (targetMethod.IsGenericMethodDefinition)
+            {
+                targetMethod = targetMethod.MakeGenericMethod(methodBuilder.GetGenericArguments());
+            }
+
             var il = methodBuilder.GetILGenerator();
 
             //var method = MethodBase.GetMethodFromHandleOfMethodBase(..);
             var method = il.DeclareLocal(typeof(MethodInfo));
+           
             if (_isGenericType)
             {
                 var closeType = _implementationType.MakeGenericType(_genericArguments);
-                il.Emit(OpCodes.Ldtoken, methodMetadata.MethodInfo);
+                il.Emit(OpCodes.Ldtoken, targetMethod);
                 il.Emit(OpCodes.Ldtoken, closeType);
                 il.Emit(OpCodes.Call, Members.GetMethodFromHandle2OfMethodBase);
             }
             else
             {
-                il.Emit(OpCodes.Ldtoken, methodMetadata.MethodInfo);
+                il.Emit(OpCodes.Ldtoken, targetMethod);
                 il.Emit(OpCodes.Call, Members.GetMethodFromHandleOfMethodBase);
             }
 
@@ -264,9 +270,7 @@ namespace Dora.Interception
             il.Emit(OpCodes.Stloc, task);
             EmitReturnValueExtractionCode(il, methodMetadata.ReturnKind, returnType, invocationContext, task);
             return methodBuilder;
-        }
-
-       
+        }       
 
         private void DefineProperty(PropertyInfo property)
         {
@@ -314,7 +318,7 @@ namespace Dora.Interception
             var genericArguments = targetMethod.GetGenericArguments();
             var genericArgumentNames = genericArguments.Select(it => it.Name).ToArray();
             var generaicParameterBuilders = methodBuilder.DefineGenericParameters(genericArgumentNames);
-            CopyGenericParameterAttributes(genericArguments, generaicParameterBuilders);
+            CopyGenericParameterAttributes(genericArguments, methodBuilder.GetGenericArguments(), generaicParameterBuilders);
 
             genericArguments = _genericArguments.Concat(methodBuilder.GetGenericArguments()).ToArray();
 

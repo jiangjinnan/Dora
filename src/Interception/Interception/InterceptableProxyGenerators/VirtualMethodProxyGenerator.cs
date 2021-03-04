@@ -223,7 +223,7 @@ namespace Dora.Interception
                 var genericArguments = _implementationType.GetGenericArguments();
                 var genericParameterNames = genericArguments.Select(it => it.Name).ToArray();
                 var builders = _proxyTypeBuilder.DefineGenericParameters(genericParameterNames);
-                CopyGenericParameterAttributes(genericArguments, builders);
+                CopyGenericParameterAttributes(genericArguments, _proxyTypeBuilder.GetGenericArguments(), builders);
                 _genericArguments = _proxyTypeBuilder.GetGenericArguments();
             }
             else
@@ -251,7 +251,7 @@ namespace Dora.Interception
             var genericArguments = targetMethod.GetGenericArguments();
             var genericArgumentNames = genericArguments.Select(it => it.Name).ToArray();
             var generaicParameterBuilders = methodBuilder.DefineGenericParameters(genericArgumentNames);
-            CopyGenericParameterAttributes(genericArguments, generaicParameterBuilders);
+            CopyGenericParameterAttributes(genericArguments, methodBuilder.GetGenericArguments(), generaicParameterBuilders);
 
             genericArguments = _genericArguments.Concat(methodBuilder.GetGenericArguments()).ToArray();
 

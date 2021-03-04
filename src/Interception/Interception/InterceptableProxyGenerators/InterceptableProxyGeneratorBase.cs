@@ -240,33 +240,64 @@ namespace Dora.Interception
             }
         }
 
-        protected  void CopyGenericParameterAttributes(Type[] originalGenericArguments, GenericTypeParameterBuilder[] generaicParameterBuilders)
+        protected  void CopyGenericParameterAttributes(Type[] originalGenericArguments, Type[] newGenericArguments, GenericTypeParameterBuilder[] generaicParameterBuilders)
         {
             for (int index = 0; index < originalGenericArguments.Length; index++)
             {
                 var builder = generaicParameterBuilders[index];
-                var genericArgument = originalGenericArguments[index];
-                builder.SetGenericParameterAttributes(genericArgument.GenericParameterAttributes);
+                var originalGenericArgument = originalGenericArguments[index];
+                var newGenericArgument = newGenericArguments[index];
+                builder.SetGenericParameterAttributes(originalGenericArgument.GenericParameterAttributes);
 
                 var interfaceConstraints = new List<Type>();
-                foreach (Type constraint in genericArgument.GetGenericParameterConstraints())
+                foreach (Type constraint in originalGenericArgument.GetGenericParameterConstraints())
                 {
                     if (constraint.IsClass)
                     {
-                        builder.SetBaseTypeConstraint(constraint);
+                        if (constraint.IsGenericType)
+                        {
+                            var arguments = constraint.GetGenericArguments().Select(it => GetGenericArguments(it)).ToArray();
+                            interfaceConstraints.Add(constraint.GetGenericTypeDefinition().MakeGenericType(arguments));
+                        }
+                        else
+                        {
+                            builder.SetBaseTypeConstraint(MakeGenericType(originalGenericArguments, newGenericArguments, constraint));
+                        }                       
                     }
                     else
                     {
-                        interfaceConstraints.Add(constraint);
+                        if (constraint.IsGenericType)
+                        {
+                            interfaceConstraints.Add(MakeGenericType(originalGenericArguments, newGenericArguments, constraint));
+                        }
+                        else
+                        {
+                            interfaceConstraints.Add(constraint);
+                        }
                     }
                 }
                 if (interfaceConstraints.Count > 0)
                 {
                     builder.SetInterfaceConstraints(interfaceConstraints.ToArray());
                 }
+            }            
+
+            Type GetGenericArguments(Type constraintArgument)
+            {
+                if (!constraintArgument.IsGenericParameter)
+                {
+                    return constraintArgument;
+                }
+                for (int index = 0; index < originalGenericArguments.Length; index++)
+                {
+                    if (originalGenericArguments[index] == constraintArgument)
+                    {
+                        return newGenericArguments[index];
+                    }
+                }
+                throw new InvalidOperationException("It fails to get generic argument.");
             }
         }
-
         
         private TypeBuilder CreateClosureType(MethodMetadata methodMetadata, Type originalTargetType, out Type targetType, out Type[] parameterTypes, out Type returnType, out Type[] genericMethodArguments)
         {
@@ -287,7 +318,7 @@ namespace Dora.Interception
                     : originalTargetType.GetGenericArguments().Concat(targetMethod.GetGenericArguments()).ToArray();
                 var genericArgumentNames = genericArguments.Select(it => it.Name).ToArray();
                 var genericParameterBuilders = closureType.DefineGenericParameters(genericArgumentNames);
-                CopyGenericParameterAttributes(genericArguments, genericParameterBuilders);
+                CopyGenericParameterAttributes(genericArguments, closureType.GetGenericArguments(), genericParameterBuilders);
 
                 genericArguments = closureType.GetGenericArguments();
                 parameterTypes = (from parameter in parameters
@@ -316,6 +347,37 @@ namespace Dora.Interception
             }
 
             return closureType;
+        }
+
+        internal static Type MakeGenericType(Type[] originalGenericArguments, Type[] newGenericArguments, Type genericType)
+        {
+            return genericType.GetGenericTypeDefinition().MakeGenericType(GetGenericArguments(originalGenericArguments, newGenericArguments, genericType));           
+        }
+
+        internal static Type[] GetGenericArguments(Type[] originalGenericArguments, Type[] newGenericArguments, Type genericType)
+        {
+            var originalArguments = genericType.GetGenericArguments();
+            var arguments = new Type[originalArguments.Length];
+            for (int index = 0; index < originalArguments.Length; index++)
+            {
+                var originalArgument = originalArguments[index];
+                if (originalArgument.IsGenericType)
+                {
+                    arguments[index] = MakeGenericType(originalGenericArguments, newGenericArguments, originalArgument);
+                    continue;
+                }
+
+                if (originalArgument.IsGenericParameter)
+                {
+                    var position = Array.IndexOf(originalGenericArguments, originalArgument);
+                    arguments[index] = newGenericArguments[position];
+                    continue;
+                }
+
+                arguments[index] = originalArgument;
+            }
+
+            return arguments;
         }
     }
 }
