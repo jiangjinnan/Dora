@@ -90,16 +90,21 @@ namespace Dora.Interception
 
             //var method = MethodBase.GetMethodFromHandleOfMethodBase(..);
             var method = il.DeclareLocal(typeof(MethodInfo));
+            var targetMethod = methodMetadata.MethodInfo;
+            if (targetMethod.IsGenericMethodDefinition)
+            {
+                targetMethod = targetMethod.MakeGenericMethod(methodBuilder.GetGenericArguments());
+            }
             if (_isGenericType)
             {
                 var closeType = _implementationType.MakeGenericType(_genericArguments);
-                il.Emit(OpCodes.Ldtoken, methodMetadata.MethodInfo);
+                il.Emit(OpCodes.Ldtoken, targetMethod);
                 il.Emit(OpCodes.Ldtoken, closeType);
                 il.Emit(OpCodes.Call, Members.GetMethodFromHandle2OfMethodBase);
             }
             else
             {
-                il.Emit(OpCodes.Ldtoken, methodMetadata.MethodInfo);
+                il.Emit(OpCodes.Ldtoken, targetMethod);
                 il.Emit(OpCodes.Call, Members.GetMethodFromHandleOfMethodBase);
             }
 

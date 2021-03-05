@@ -55,10 +55,11 @@ namespace Dora.Interception
             var invocationContext = new InvocationContext(_target, currentMethod, arguments);
             InvokerDelegate next = new AddRefAndOutArgumentsClosure<T, TResult>(_target, invocationContext.Arguments).InvokeAsync;
             var task = interceptor.Delegate(next)(invocationContext);
+            task.Wait();
+
             x = (T)arguments[0];
             y = (T)arguments[1];
             result = (TResult)arguments[2];
-            task.Wait();
         }
     }
 
@@ -107,10 +108,13 @@ namespace Dora.Interception
         {
             var x = (T)_arguments[0];
             var y = (T)_arguments[1];
+
             _target.AddRefAndOutArguments<TResult>(ref x, ref y, out var result);
+
             _arguments[0] = x;
             _arguments[1] = y;
             _arguments[2] = result;
+
             return Task.CompletedTask;
         }
     }

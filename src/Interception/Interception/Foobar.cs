@@ -63,13 +63,13 @@
 
 //    public class FoobarProxy : IFoobar
 //    {
-//private readonly Foobar _target;
-//private readonly IInterceptorProvider   _interceptorProvider;
-//public FoobarProxy(IServiceProvider serviceProvider, IInterceptorProvider interceptorProvider)
-//{
-//    _target = ActivatorUtilities.CreateInstance<Foobar>(serviceProvider);
-//    _interceptorProvider = interceptorProvider;
-//}
+//        private readonly Foobar _target;
+//        private readonly IInterceptorProvider _interceptorProvider;
+//        public FoobarProxy(IServiceProvider serviceProvider, IInterceptorProvider interceptorProvider)
+//        {
+//            _target = ActivatorUtilities.CreateInstance<Foobar>(serviceProvider);
+//            _interceptorProvider = interceptorProvider;
+//        }
 
 //        public void InvokeAsVoid(int x, int y)
 //        {
@@ -159,7 +159,7 @@
 
 //        private class InvokeAsVoidClosure
 //        {
-//            private  Foobar _target;
+//            private Foobar _target;
 //            private object[] _arguments;
 //            private int _x;
 //            private int _y;
@@ -189,7 +189,7 @@
 //                    _target.InvokeAsVoid((int)_arguments[0], (int)_arguments[1]);
 //                }
 //                return Task.CompletedTask;
-//            }               
+//            }
 //        }
 
 //        private class InvokeAsVoidClosure2
@@ -337,11 +337,11 @@
 //                T result;
 //                if (_arugments == null)
 //                {
-//                     result = _target.GenericInvokeAsResult(_x, _y);
+//                    result = _target.GenericInvokeAsResult(_x, _y);
 //                }
 //                else
 //                {
-//                     result = _target.GenericInvokeAsResult((T)_arugments[0], (T)_arugments[1]);
+//                    result = _target.GenericInvokeAsResult((T)_arugments[0], (T)_arugments[1]);
 //                }
 //                invocationContext.SetReturnValue(result);
 //                return Task.CompletedTask;

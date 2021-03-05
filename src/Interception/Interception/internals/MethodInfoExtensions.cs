@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Dora.Interception
@@ -36,6 +37,11 @@ namespace Dora.Interception
             }
 
             return MethodReturnKind.Result;
+        }
+
+        public static bool HasRefOrOutParameter(this MethodInfo methodInfo)
+        {
+            return methodInfo.GetParameters().Any(it => it.IsOut || it.ParameterType.IsByRef);
         }
     }
 }
