@@ -5,7 +5,7 @@ namespace Dora.Interception
 {
     public class InterceptionServiceProviderFactory : IServiceProviderFactory<InterceptionContainer>
     {
-        public Action<InterceptionBuilder> _setup;
+        public readonly Action<InterceptionBuilder> _setup;
         public InterceptionServiceProviderFactory(Action<InterceptionBuilder> setup = null)
         {
             _setup = setup;

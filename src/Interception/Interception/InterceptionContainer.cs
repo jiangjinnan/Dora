@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Dora.Interception
 {
-    public class InterceptionContainer
+    public sealed class InterceptionContainer
     {
         private readonly IServiceCollection _services;
 

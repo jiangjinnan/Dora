@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Dora.Interception
 {
-    public class InterceptorAssigner : IInterceptorAssigner
+    public sealed class InterceptorAssigner : IInterceptorAssigner
     {
         private readonly Dictionary<Type, IDictionary<MethodInfo, int>> _assignedMethods = new Dictionary<Type, IDictionary<MethodInfo, int>>();
 
@@ -19,5 +19,4 @@ namespace Dora.Interception
 
         public IDictionary<Type, IDictionary<MethodInfo, int>> GetAssignedMethods() => _assignedMethods;
     }
-
 }

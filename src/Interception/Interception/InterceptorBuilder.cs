@@ -143,7 +143,6 @@ namespace Dora.Interception
             }
             return executor;
         }
-
         private static Expression GetArgument(Expression invocationContext, Expression serviceProvider, Type parameterType)
         {
             if (parameterType == typeof(InvocationContext))

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace Dora.Interception
 {
@@ -9,7 +7,6 @@ namespace Dora.Interception
     {
         private readonly Dictionary<MethodInfo, int> _assignedMethods = new Dictionary<MethodInfo, int>();
         public IDictionary<MethodInfo, int> GetAssignedMethods() => _assignedMethods;
-
         public IMethodInterceptorAssigner<TTarget> To(MethodInfo methodInfo, int order)
         {
             _assignedMethods[methodInfo] = order;

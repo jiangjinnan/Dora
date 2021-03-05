@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace Dora.Interception
 {
-    public class MethodMetadata
+    public sealed class MethodMetadata
     {
         public MethodInfo MethodInfo { get; }
         public MethodReturnKind ReturnKind { get; }
-
         public bool IsGenericMethod { get; }
         public MethodMetadata(MethodInfo methodInfo)
         {
-            MethodInfo = methodInfo;
+            MethodInfo = methodInfo ?? throw new ArgumentNullException(nameof(methodInfo));
             ReturnKind = methodInfo.GetReturnKind();
             IsGenericMethod = methodInfo.IsGenericMethod;
         }

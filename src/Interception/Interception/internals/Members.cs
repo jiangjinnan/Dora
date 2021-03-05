@@ -67,7 +67,6 @@ namespace Dora.Interception
         private static MethodInfo ResolveMethodInfo(Expression<Action> expression) => ((MethodCallExpression)(expression.Body)).Method;
         private static MethodInfo ResolveMethodInfo<T>(Expression<Action<T>> expression) => ((MethodCallExpression)(expression.Body)).Method;
         private static MethodInfo ResolveGenericMethodDefinition(Expression<Action> expression)=> ((MethodCallExpression)(expression.Body)).Method.GetGenericMethodDefinition();
-        private static MethodInfo ResolveGenericMethodDefinition<T>(Expression<Action<T>> expression)=> ((MethodCallExpression)(expression.Body)).Method.GetGenericMethodDefinition();
-        
+        private static MethodInfo ResolveGenericMethodDefinition<T>(Expression<Action<T>> expression)=> ((MethodCallExpression)(expression.Body)).Method.GetGenericMethodDefinition();        
     }
 }

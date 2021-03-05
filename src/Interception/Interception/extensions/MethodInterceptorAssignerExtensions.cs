@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dora.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,11 +11,15 @@ namespace Dora.Interception
     {
         public static IMethodInterceptorAssigner<TTarget> ToMethod<TTarget>(this IMethodInterceptorAssigner<TTarget> assigner, Expression<Action<TTarget>> methodCall, int order)
         {
+            Guard.ArgumentNotNull(assigner, nameof(assigner));
+            Guard.ArgumentNotNull(methodCall, nameof(methodCall));
             return assigner.To(((MethodCallExpression)methodCall.Body).Method, order);
         }
 
         public static IMethodInterceptorAssigner<TTarget> ToProperty<TTarget, TProperty>(this IMethodInterceptorAssigner<TTarget> assigner, Expression<Func<TTarget, TProperty>> propertyAccess, PropertyMethodKind propertyMethod, int order)
         {
+            Guard.ArgumentNotNull(assigner, nameof(assigner));
+            Guard.ArgumentNotNull(propertyAccess, nameof(propertyAccess));
             if (propertyAccess.Body is MemberExpression memberExpression && memberExpression.Member is PropertyInfo propertyInfo)
             {
                 switch (propertyMethod)

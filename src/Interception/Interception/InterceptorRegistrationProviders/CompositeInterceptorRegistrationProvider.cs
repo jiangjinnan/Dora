@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Dora.Interception
 {
-    public class CompositeInterceptorRegistrationProvider : IInterceptorRegistrationProvider
+    internal sealed class CompositeInterceptorRegistrationProvider : IInterceptorRegistrationProvider
     {
         private readonly IEnumerable<IInterceptorRegistrationProvider> _providers;
 

@@ -1,4 +1,5 @@
 ﻿using Dora.Interception;
+using Dora.Primitives;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 
@@ -8,6 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddInterception(this IServiceCollection services, Action<InterceptionBuilder> setup = null)
         {
+            Guard.ArgumentNotNull(services, nameof(services));
             services.TryAddSingleton<IInterceptorBuilder, InterceptorBuilder>();
             services.TryAddSingleton<IInterceptorProvider, InterceptorProvider>();
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IInterceptableProxyGenerator, InterfaceProxyGenerator>());
@@ -25,6 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceProvider BuildInterceptableServiceProvider(this IServiceCollection services, Action<InterceptionBuilder> setup = null)
         {
+            Guard.ArgumentNotNull(services, nameof(services));
             return new InterceptionContainer(services.AddInterception(setup)).BuildServiceProvider();
         }
     }
