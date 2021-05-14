@@ -268,8 +268,25 @@ namespace Dora.Interception
             il.Emit(OpCodes.Ldloc, invocationContext);
             il.Emit(OpCodes.Call, Members.ExecuteInterceptorOfProxyGeneratorHelper);
             il.Emit(OpCodes.Stloc, task);
-            EmitReturnValueExtractionCode(il, methodMetadata.ReturnKind, returnType, invocationContext, task);
+            EmitReturnValueExtractionCode(il, methodMetadata.ReturnKind, returnType, invocationContext, task, TrySetRefOutArguments);
             return methodBuilder;
+
+            void TrySetRefOutArguments()
+            {
+                var parameters = methodMetadata.MethodInfo.GetParameters();
+                for (int index = 0; index < parameters.Length; index++)
+                {
+                    if (parameters[index].IsOut || parameterTypes[index].IsByRef)
+                    {
+                        il.EmitLdArgs(index + 1);
+                        il.Emit(OpCodes.Ldloc, arguments);
+                        il.Emit(OpCodes.Ldc_I4, index);
+                        il.Emit(OpCodes.Ldelem_Ref);
+                        il.EmitUnboxOrCast(parameterTypes[index].SelfOrElementType());
+                        il.Emit(OpCodes.Stobj);
+                    }
+                }
+            }
         }       
 
         private void DefineProperty(PropertyInfo property)
@@ -306,15 +323,27 @@ namespace Dora.Interception
             var targetMethod = methodMetadata.MethodInfo;
             var parameters = targetMethod.GetParameters();
             var originalReturnType = targetMethod.ReturnType;
+            MethodBuilder methodBuilder;
 
             if (!methodMetadata.IsGenericMethod)
             {
                 returnType = originalReturnType.IsGenericParameter ? _genericArguments.Single(it => it.Name == originalReturnType.Name) : originalReturnType;
                 parameterTypes = parameters.Select(it => it.ParameterType).ToArray();
-                return _proxyTypeBuilder.DefineMethod(targetMethod.Name, _methodAttributes, returnType, parameterTypes);
+                methodBuilder = _proxyTypeBuilder.DefineMethod(targetMethod.Name, _methodAttributes, returnType, parameterTypes);
+
+                for (int index = 0; index < parameters.Length; index++)
+                {
+                    var parameter = parameters[index];
+                    if (parameter.IsOut)
+                    {
+                        methodBuilder.DefineParameter(index + 1, ParameterAttributes.Out, parameter.Name);
+                    }
+                }
+
+                return methodBuilder;
             }
 
-            var methodBuilder = _proxyTypeBuilder.DefineMethod(targetMethod.Name, _methodAttributes);
+            methodBuilder = _proxyTypeBuilder.DefineMethod(targetMethod.Name, _methodAttributes);
             var genericArguments = targetMethod.GetGenericArguments();
             var genericArgumentNames = genericArguments.Select(it => it.Name).ToArray();
             var generaicParameterBuilders = methodBuilder.DefineGenericParameters(genericArgumentNames);

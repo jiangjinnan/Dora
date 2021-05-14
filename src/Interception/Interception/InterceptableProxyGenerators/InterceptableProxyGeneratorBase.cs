@@ -20,7 +20,7 @@ namespace Dora.Interception
 
         public abstract Type Generate(Type serviceType, Type implementationType);
 
-        protected void EmitReturnValueExtractionCode(ILGenerator il, MethodReturnKind returnKind, Type returnType, LocalBuilder invocationContext, LocalBuilder task)
+        protected void EmitReturnValueExtractionCode(ILGenerator il, MethodReturnKind returnKind, Type returnType, LocalBuilder invocationContext, LocalBuilder task, Action saveRefOutArguments = null)
         {
             switch (returnKind)
             {
@@ -28,6 +28,7 @@ namespace Dora.Interception
                     {
                         il.Emit(OpCodes.Ldloc, task);
                         il.Emit(OpCodes.Call, Members.WaitOfTask);
+                        saveRefOutArguments?.Invoke();
                         il.Emit(OpCodes.Ret);
                         break;
                     }
@@ -83,14 +84,15 @@ namespace Dora.Interception
 
             var fields = new FieldBuilder[parameterTypes.Length + 2];
             constructorParameterTypes = new Type[parameterTypes.Length + 2];
-            fields[0] = closureTypeBuilder.DefineField("_target", targetType, FieldAttributes.Private | FieldAttributes.InitOnly);
+            fields[0] = closureTypeBuilder.DefineField("_target", targetType, FieldAttributes.Private);
             constructorParameterTypes[0] = targetType;
             var parameters = targetMethod.GetParameters();
             for (int index = 0; index < parameterTypes.Length; index++)
             {
                 var parameter = parameters[index];
-                fields[index + 1] = closureTypeBuilder.DefineField($"_{parameter.Name}", parameterTypes[index], FieldAttributes.Private);
-                constructorParameterTypes[index + 1] = parameterTypes[index];
+                var parameterType = parameterTypes[index].SelfOrElementType();
+                fields[index + 1] = closureTypeBuilder.DefineField($"_{parameter.Name}", parameterType, FieldAttributes.Private);
+                constructorParameterTypes[index + 1] = parameterType;
             }
             fields[fields.Length - 1] = closureTypeBuilder.DefineField("_arguments", typeof(object[]), FieldAttributes.Private);
             constructorParameterTypes[fields.Length - 1] = typeof(object[]);
@@ -121,10 +123,14 @@ namespace Dora.Interception
 
             il.MarkLabel(argumentIsNull);
             //_x = x;
-            //_y - y;
+            //_y = y;
             //...
             for (int index = 1; index < fields.Length - 1; index++)
             {
+                if (parameters[index - 1].IsOut)
+                {
+                    continue;
+                }
                 il.Emit(OpCodes.Ldarg_0);
                 il.EmitLdArgs(index + 1);
                 il.Emit(OpCodes.Stfld, fields[index]);
@@ -150,15 +156,41 @@ namespace Dora.Interception
             il.Emit(OpCodes.Ceq);
             il.Emit(OpCodes.Brtrue, argumentIsNull);
 
+            //_arguments != null
             //Load arguments from object array.
             for (int index = 0; index < fields.Length - 2; index++)
             {
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldfld, fields.Last());
-                il.Emit(OpCodes.Ldc_I4, index);
-                il.Emit(OpCodes.Ldelem_Ref);
-                il.EmitUnboxOrCast(parameterTypes[index]);
+                var parameter = parameters[index];
+                var parameterType = parameterTypes[index];
+                #region Ref/Out
+                if (parameterType.IsByRef && !parameter.IsOut)
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                }
+                #endregion
+
+                if (!parameter.IsOut)
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldfld, fields.Last());
+                    il.Emit(OpCodes.Ldc_I4, index);
+                    il.Emit(OpCodes.Ldelem_Ref);
+                    il.EmitUnboxOrCast(parameterTypes[index].SelfOrElementType());
+                }
+
+                #region Ref/Out
+                if (parameterType.IsByRef && !parameter.IsOut)
+                {
+                    il.Emit(OpCodes.Stfld, fields[index + 1]);
+                }
+                if (parameterType.IsByRef)
+                {
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldflda, fields[index + 1]);
+                }
+                #endregion
             }
+
             il.Emit(OpCodes.Br_S, argumentsLoaded);
 
             il.MarkLabel(argumentIsNull);
@@ -183,12 +215,14 @@ namespace Dora.Interception
                 il.Emit(OpCodes.Callvirt, targetMethod);
             }
 
-            LocalBuilder returnValue = null;
+            LocalBuilder returnValue;
             var returnKind = methodMetadata.ReturnKind;
             switch (returnKind)
             {
                 case MethodReturnKind.Void:
                     {
+                        TrySaveRefOutArguments();
+
                         il.Emit(OpCodes.Call, Members.GetCompletedTaskOfTask);
                         il.Emit(OpCodes.Ret);
                         break;
@@ -198,6 +232,9 @@ namespace Dora.Interception
                         returnValue = il.DeclareLocal(returnType);
                         il.Emit(OpCodes.Stloc, returnValue);
                         SetReturnValue();
+
+                        TrySaveRefOutArguments();
+
                         il.Emit(OpCodes.Call, Members.GetCompletedTaskOfTask);
                         il.Emit(OpCodes.Ret);
                         break;
@@ -236,6 +273,26 @@ namespace Dora.Interception
                 il.Emit(OpCodes.Ldarg_1);
                 il.Emit(OpCodes.Ldloc, returnValue);
                 il.Emit(OpCodes.Call, Members.SetReturnValueOfInvocationContext.MakeGenericMethod(returnType));
+            }
+
+            void TrySaveRefOutArguments()
+            {
+                for (int index = 0; index < parameters.Length; index++)
+                {
+                    if (parameters[index].IsOut || parameterTypes[index].IsByRef)
+                    {
+                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Ldfld, fields.Last());
+
+                        il.Emit(OpCodes.Ldc_I4, index);
+
+                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Ldfld, fields[index + 1]);
+                        il.EmitTryBox(parameterTypes[index].SelfOrElementType());
+
+                        il.Emit(OpCodes.Stelem_Ref);
+                    }
+                }
             }
         }
 

@@ -96,6 +96,8 @@ namespace Dora.Interception
     internal class AddRefAndOutArgumentsClosure<T, TResult>
     {
         private readonly Calculator<T> _target;
+        private T _x;
+        private T _y;
         private object[] _arguments;
 
         public AddRefAndOutArgumentsClosure(Calculator<T> target, object[] arguments)
@@ -106,13 +108,13 @@ namespace Dora.Interception
 
         public Task InvokeAsync(InvocationContext invocationContext)
         {
-            var x = (T)_arguments[0];
-            var y = (T)_arguments[1];
+            _x = (T)_arguments[0];
+            _y = (T)_arguments[1];
 
-            _target.AddRefAndOutArguments<TResult>(ref x, ref y, out var result);
+            _target.AddRefAndOutArguments<TResult>(ref _x, ref _y, out var result);
 
-            _arguments[0] = x;
-            _arguments[1] = y;
+            _arguments[0] = _x;
+            _arguments[1] = _y;
             _arguments[2] = result;
 
             return Task.CompletedTask;

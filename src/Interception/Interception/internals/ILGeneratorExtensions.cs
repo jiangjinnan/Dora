@@ -27,7 +27,7 @@ namespace Dora.Interception
             }
             if (typeOnStack.IsByRef)
             {
-                var nonByRefType = typeOnStack.GetNonByRefType();
+                var nonByRefType = typeOnStack.SelfOrElementType();
                 if (nonByRefType.IsValueType)
                 {
                     il.Emit(OpCodes.Box, nonByRefType);
@@ -40,9 +40,9 @@ namespace Dora.Interception
             {
                 il.Emit(OpCodes.Unbox_Any, targetType);
             }
-            else if (targetType.IsByRef && (targetType.GetNonByRefType().IsValueType))
+            else if (targetType.IsByRef && (targetType.SelfOrElementType().IsValueType))
             {
-                il.Emit(OpCodes.Unbox_Any, targetType.GetNonByRefType());
+                il.Emit(OpCodes.Unbox_Any, targetType.SelfOrElementType());
             }
             else
             {
@@ -52,7 +52,7 @@ namespace Dora.Interception
 
         public static void EmitLdInd(this ILGenerator il, Type targetType)
         {
-            var nonByRefType = targetType.GetNonByRefType();
+            var nonByRefType = targetType.SelfOrElementType();
 
             if (nonByRefType == typeof(short))
             {
@@ -97,7 +97,7 @@ namespace Dora.Interception
 
         public static void EmitStInd(this ILGenerator il, Type targetType)
         {
-            var nonByRefType = targetType.GetNonByRefType();
+            var nonByRefType = targetType.SelfOrElementType();
 
             if (nonByRefType == typeof(short))
             {
@@ -137,7 +137,7 @@ namespace Dora.Interception
             }
             if (typeOnStack.IsByRef)
             {
-                var nonByRefType = typeOnStack.GetNonByRefType();
+                var nonByRefType = typeOnStack.SelfOrElementType();
                 if (nonByRefType.IsValueType)
                 {
                     il.Emit(OpCodes.Box, nonByRefType);
