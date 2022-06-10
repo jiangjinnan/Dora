@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "dgSpecHash": "isaUQhHNBJsoHAiXbVeyWBaC/wKpDIrjXcwmkqR7gWtRXZplOLcIAB3bxWhoW4QcHJ3bzHy8ArUftrC+7HKEJQ==",
+  "success": true,
+  "projectFilePath": "D:\\Projects\\Dora\\demo\\Interception\\App1\\App1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\3.3.3\\microsoft.codeanalysis.analyzers.3.3.3.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.codeanalysis.common\\4.2.0\\microsoft.codeanalysis.common.4.2.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.codeanalysis.csharp\\4.2.0\\microsoft.codeanalysis.csharp.4.2.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.codeanalysis.csharp.scripting\\4.2.0\\microsoft.codeanalysis.csharp.scripting.4.2.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.codeanalysis.scripting.common\\4.2.0\\microsoft.codeanalysis.scripting.common.4.2.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\6.0.0\\microsoft.extensions.caching.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.extensions.caching.memory\\6.0.1\\microsoft.extensions.caching.memory.6.0.1.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\6.0.0\\microsoft.extensions.dependencyinjection.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\6.0.0\\microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.extensions.logging\\6.0.0\\microsoft.extensions.logging.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\6.0.0\\microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.extensions.options\\6.0.0\\microsoft.extensions.options.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\system.collections.immutable\\5.0.0\\system.collections.immutable.5.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\system.diagnostics.diagnosticsource\\6.0.0\\system.diagnostics.diagnosticsource.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\system.reflection.metadata\\5.0.0\\system.reflection.metadata.5.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\system.text.encoding.codepages\\6.0.0\\system.text.encoding.codepages.6.0.0.nupkg.sha512",
+    "C:\\Users\\jinnan-win10\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512"
+  ],
+  "logs": []
+}

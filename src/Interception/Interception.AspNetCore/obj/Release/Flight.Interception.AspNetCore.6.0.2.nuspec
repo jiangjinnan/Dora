@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Flight.Interception.AspNetCore</id>
+    <version>6.0.2</version>
+    <authors>机票架构研发部</authors>
+    <description>Interception extensions for ASP.NET Core.</description>
+    <releaseNotes>Fix interception suppression check bug.</releaseNotes>
+    <copyright>Copyright © www.ly.com 2020</copyright>
+    <repository type="git" url="http://git.17usoft.com/flight-arch/dotnet" />
+    <dependencies>
+      <group targetFramework="net6.0">
+        <dependency id="Flight.Interception" version="6.0.2" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="2.2.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Hosting.Abstractions" version="6.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="D:\Projects\Work\flight.interception\src\Interception.AspNetCore\bin\Release\net6.0\Flight.Interception.AspNetCore.dll" target="lib\net6.0\Flight.Interception.AspNetCore.dll" />
+    <file src="D:\Projects\Work\flight.interception\src\Interception.AspNetCore\bin\Release\net6.0\Flight.Interception.AspNetCore.xml" target="lib\net6.0\Flight.Interception.AspNetCore.xml" />
+  </files>
+</package>

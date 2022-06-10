@@ -1,9 +1,0 @@
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\bin\Debug\netstandard2.0\Dora.Interception.Abstractions.deps.json
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\bin\Debug\netstandard2.0\Dora.Interception.Abstractions.dll
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\bin\Debug\netstandard2.0\Dora.Interception.Abstractions.pdb
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\obj\Debug\netstandard2.0\Interception.Abstractions.csprojAssemblyReference.cache
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\obj\Debug\netstandard2.0\Interception.Abstractions.AssemblyInfoInputs.cache
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\obj\Debug\netstandard2.0\Interception.Abstractions.AssemblyInfo.cs
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\obj\Debug\netstandard2.0\Interception.Abstractions.csproj.CoreCompileInputs.cache
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\obj\Debug\netstandard2.0\Dora.Interception.Abstractions.dll
-D:\Projects\My\dora5\src\Interception\Interception.Abstractions\obj\Debug\netstandard2.0\Dora.Interception.Abstractions.pdb
