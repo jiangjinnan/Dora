@@ -56,7 +56,7 @@ namespace Dora.Interception
                     }
                     if (_serviceLifetimeProvider.GetLifetime(parameterType) == ServiceLifetime.Scoped)
                     {
-                        throw new InterceptionException($"Scoped service '{parameterType}' cannot be injected into single interceptor's constructor.");
+                        throw new InterceptionException($"Scoped service '{parameterType}' cannot be injected into singleton interceptor's constructor.");
                     }
                 }
             }
