@@ -25,7 +25,8 @@ namespace Dora.Interception
         {
             if (methodCallExpression.Body is MethodCallExpression methodCall)
             { 
-                return methodCall.Method;
+                var method = methodCall.Method;
+                return typeof(T).GetMethod(method.Name,method.GetParameters().Select(it=>it.ParameterType).ToArray())!;
             }
             throw new ArgumentException("What is specified is not a method call expression.", nameof(methodCallExpression));
         }

@@ -285,11 +285,12 @@
             <param name="methodCall">The expression to call the target method.</param>
             <returns>The current <see cref="T:Dora.Interception.Expressions.IInterceptorRegistry`1"/></returns>
         </member>
-        <member name="M:Dora.Interception.Expressions.IInterceptorRegistry`1.ToMethod(System.Int32,System.Reflection.MethodInfo)">
+        <member name="M:Dora.Interception.Expressions.IInterceptorRegistry`1.ToMethod(System.Int32,System.Type,System.Reflection.MethodInfo)">
             <summary>
             Applies specified interceptor to target method.
             </summary>
             <param name="order">The order determining the specified interceptor in chain.</param>
+            <param name="targetType">The type of target property to which the interceptor is applied.</param>
             <param name="method">The target method to which specified interceptor is applied.</param>
             <returns>The current <see cref="T:Dora.Interception.Expressions.IInterceptorRegistry`1"/></returns>
         </member>
@@ -413,19 +414,21 @@
             Provider to get the interceptors applied specified method.
             </summary>
         </member>
-        <member name="M:Dora.Interception.IInterceptorProvider.GetInterceptors(System.Reflection.MethodInfo)">
+        <member name="M:Dora.Interception.IInterceptorProvider.CanIntercept(System.Type,System.Reflection.MethodInfo)">
+            <summary>
+            Determines specified method can be intercepted.
+            </summary>
+            <param name="targetType">Target type.</param>
+            <param name="method">The method to check.</param>
+            <returns>A <see cref="T:System.Boolean"/>value indicating specified method is intercepted.</returns>
+        </member>
+        <member name="M:Dora.Interception.IInterceptorProvider.GetInterceptors(System.Type,System.Reflection.MethodInfo)">
             <summary>
             Gets the interceptors applied specified method.
             </summary>
+            <param name="targetType">Target type.</param>
             <param name="method">The target method.</param>
             <returns>The <see cref="T:Dora.Interception.Sortable`1"/> represents the applied interceptors.</returns>
-        </member>
-        <member name="M:Dora.Interception.IInterceptorProvider.IsInterceptionSuppressed(System.Reflection.MethodInfo)">
-            <summary>
-            Determines whether to suppress interception against specified method.
-            </summary>
-            <param name="method">The target method.</param>
-            <returns>The <see cref="T:System.Boolean"/>value indicating whether to suppress interception against specified method.</returns>
         </member>
         <member name="M:Dora.Interception.IInterceptorProvider.Validate(System.Type,System.Action{System.Reflection.MethodInfo},System.Action{System.Reflection.PropertyInfo})">
             <summary>
@@ -433,7 +436,7 @@
             </summary>
             <param name="methodValidator">A delegate used to ensure the method to which the interceptors are applied is interceptable.</param>
             <param name="propertyValidator">A delegate used to ensure the property to which the interceptors are applied is interceptable.</param>
-            <param name="type">The type whose methods may be intercepted.</param>
+            <param name="targetType">The type whose methods may be intercepted.</param>
         </member>
         <member name="T:Dora.Interception.IInvocationServiceScopeFactory">
             <summary>
@@ -451,18 +454,20 @@
             Builder used to build the invoker based on specified target method call.
             </summary>
         </member>
-        <member name="M:Dora.Interception.IMethodInvokerBuilder.Build(System.Reflection.MethodInfo,Dora.Interception.InvokeDelegate)">
+        <member name="M:Dora.Interception.IMethodInvokerBuilder.Build(System.Type,System.Reflection.MethodInfo,Dora.Interception.InvokeDelegate)">
             <summary>
             Builds the invoker based on specified target method call.
             </summary>
             <param name="method">The target method.</param>
+            <param name="targetType">The target type.</param>
             <param name="targetMethodInvoker">The target method call.</param>
             <returns>The created <see cref="T:Dora.Interception.InvokeDelegate"/> used to call the applied interceptor chain and target method. </returns>
         </member>
-        <member name="M:Dora.Interception.IMethodInvokerBuilder.CanIntercept(System.Reflection.MethodInfo)">
+        <member name="M:Dora.Interception.IMethodInvokerBuilder.CanIntercept(System.Type,System.Reflection.MethodInfo)">
             <summary>
             Determines whether the specified type is interceptable.
             </summary>
+            <param name="targetType">The target type.</param>
             <param name="method">The target method.</param>
             <returns>
               <c>true</c> if the specified type is interceptable; otherwise, <c>false</c>.

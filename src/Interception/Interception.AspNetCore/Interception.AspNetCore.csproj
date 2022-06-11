@@ -3,8 +3,8 @@
 	<TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Flight.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
-    <AssemblyName>Flight.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>Dora.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <AssemblyName>Dora.$(MSBuildProjectName)</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<Version>6.0.2</Version>
 	<PackageReleaseNotes>Fix interception suppression check bug.</PackageReleaseNotes>

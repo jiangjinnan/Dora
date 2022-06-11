@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Flight.Interception.AspNetCore
+namespace Dora.Interception.AspNetCore
 {
     internal class RequestServiceScopeFactory :  IInvocationServiceScopeFactory
     {
         private readonly InvocationServiceScopeFactory _factory;
         private readonly IHttpContextAccessor  _httpContextAccessor;
-        private NullServiceScope _nullServiceScope;
+        private NullServiceScope? _nullServiceScope;
 
         public RequestServiceScopeFactory(IServiceProvider  serviceProvider, IHttpContextAccessor httpContextAccessor)
         {

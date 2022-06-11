@@ -34,8 +34,9 @@ namespace Dora.Interception.CodeGeneration
 
             var methods = implementationType
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(it => it.IsPublic || it.IsFamily || it.IsFamilyAndAssembly)
-                .Where(it => it.DeclaringType == implementationType);
-            var interceptableMethods = methods.Where(it => _methodInvokerBuilder.CanIntercept( it));
+                //.Where(it => it.DeclaringType == implementationType)
+                ;
+            var interceptableMethods = methods.Where(it => _methodInvokerBuilder.CanIntercept(implementationType, it));
             if (!interceptableMethods.Any())
             {
                 return false;
@@ -114,7 +115,7 @@ namespace Dora.Interception.CodeGeneration
             var proxyClassName = GetInterceptableProxyClassName(implementationType, out var constraints);
             context.References.Add(@interface.Assembly);
             context.References.Add(implementationType.Assembly);
-            var interceptableMethods = targetMethods.Where(it => _methodInvokerBuilder.CanIntercept(it)).ToArray();
+            var interceptableMethods = targetMethods.Where(it => _methodInvokerBuilder.CanIntercept(implementationType, it)).ToArray();
 
             var isDisposable = typeof(IDisposable).IsAssignableFrom(implementationType);
             var isAsyncDisposable = typeof(IAsyncDisposable).IsAssignableFrom(implementationType);
@@ -178,7 +179,7 @@ namespace Dora.Interception.CodeGeneration
                     }
                     string? invokerFieldName = null;
                     invokerAccessorFieldNames?.TryGetValue(method, out invokerFieldName);
-                    GenerateMethod(context, method, invocationContextClassNames[method], invokerFieldName, $"{methodInfoAccessorFieldNames[method]}.Value", @interface,true);
+                    GenerateMethod(context, implementationType, method, invocationContextClassNames[method], invokerFieldName, $"{methodInfoAccessorFieldNames[method]}.Value", @interface,true);
                 }
 
                 //Invoker methods
@@ -197,7 +198,7 @@ namespace Dora.Interception.CodeGeneration
                 {
                     if (!method.IsSpecialName)
                     {
-                        GenerateMethod(context, method, null, null, null, @interface, false);
+                        GenerateMethod(context, implementationType, method, null, null, null, @interface, false);
                     }
                 }
 

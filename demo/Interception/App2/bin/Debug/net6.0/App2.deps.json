@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v6.0": {
       "App2/1.0.0": {
         "dependencies": {
-          "Dora.Interception.AspNetCore": "6.0.0"
+          "Dora.Interception.AspNetCore": "6.0.2"
         },
         "runtime": {
           "App2.dll": {}
@@ -316,7 +316,7 @@
           "Dora.Interception.dll": {}
         }
       },
-      "Dora.Interception.AspNetCore/6.0.0": {
+      "Dora.Interception.AspNetCore/6.0.2": {
         "dependencies": {
           "Dora.Interception": "6.0.0",
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
@@ -514,7 +514,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Dora.Interception.AspNetCore/6.0.0": {
+    "Dora.Interception.AspNetCore/6.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

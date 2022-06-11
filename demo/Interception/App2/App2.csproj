@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Work\flight.interception\src\Interception.AspNetCore\Interception.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\src\Interception\Interception.AspNetCore\Interception.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>

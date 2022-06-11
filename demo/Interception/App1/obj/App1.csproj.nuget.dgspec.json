@@ -10,11 +10,11 @@
         "projectUniqueName": "D:\\Projects\\Dora\\demo\\Interception\\App1\\App1.csproj",
         "projectName": "App1",
         "projectPath": "D:\\Projects\\Dora\\demo\\Interception\\App1\\App1.csproj",
-        "packagesPath": "C:\\Users\\jinnan-win10\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\jinnan\\.nuget\\packages\\",
         "outputPath": "D:\\Projects\\Dora\\demo\\Interception\\App1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\jinnan-win10\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\jinnan\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,9 +22,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "D:\\local-nuget-feed": {},
-          "http://api.nuget.17usoft.com/v3/index.json": {},
-          "http://nugetproxy.17usoft.com/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -67,7 +64,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
         }
       }
     },
@@ -77,11 +74,11 @@
         "projectUniqueName": "D:\\Projects\\Dora\\src\\Interception\\Interception\\Interception.csproj",
         "projectName": "Dora.Interception",
         "projectPath": "D:\\Projects\\Dora\\src\\Interception\\Interception\\Interception.csproj",
-        "packagesPath": "C:\\Users\\jinnan-win10\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\jinnan\\.nuget\\packages\\",
         "outputPath": "D:\\Projects\\Dora\\src\\Interception\\Interception\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\jinnan-win10\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\jinnan\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -89,9 +86,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "D:\\local-nuget-feed": {},
-          "http://api.nuget.17usoft.com/v3/index.json": {},
-          "http://nugetproxy.17usoft.com/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -143,7 +137,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
         }
       }
     }

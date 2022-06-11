@@ -497,7 +497,7 @@
           "bin/placeholder/Dora.Interception.dll": {}
         }
       },
-      "Dora.Interception.AspNetCore/6.0.0": {
+      "Dora.Interception.AspNetCore/6.0.2": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
@@ -1496,19 +1496,19 @@
       "path": "../../../src/Interception/Interception/Interception.csproj",
       "msbuildProject": "../../../src/Interception/Interception/Interception.csproj"
     },
-    "Dora.Interception.AspNetCore/6.0.0": {
+    "Dora.Interception.AspNetCore/6.0.2": {
       "type": "project",
-      "path": "../../../../Work/flight.interception/src/Interception.AspNetCore/Interception.AspNetCore.csproj",
-      "msbuildProject": "../../../../Work/flight.interception/src/Interception.AspNetCore/Interception.AspNetCore.csproj"
+      "path": "../../../src/Interception/Interception.AspNetCore/Interception.AspNetCore.csproj",
+      "msbuildProject": "../../../src/Interception/Interception.AspNetCore/Interception.AspNetCore.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "Dora.Interception.AspNetCore >= 6.0.0"
+      "Dora.Interception.AspNetCore >= 6.0.2"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\jinnan-win10\\.nuget\\packages\\": {}
+    "C:\\Users\\jinnan\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
@@ -1516,11 +1516,11 @@
       "projectUniqueName": "D:\\Projects\\Dora\\demo\\Interception\\App2\\App2.csproj",
       "projectName": "App2",
       "projectPath": "D:\\Projects\\Dora\\demo\\Interception\\App2\\App2.csproj",
-      "packagesPath": "C:\\Users\\jinnan-win10\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\jinnan\\.nuget\\packages\\",
       "outputPath": "D:\\Projects\\Dora\\demo\\Interception\\App2\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\jinnan-win10\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\jinnan\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -1528,15 +1528,15 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "D:\\local-nuget-feed": {},
-        "http://api.nuget.17usoft.com/v3/index.json": {},
-        "http://nugetproxy.17usoft.com/v3/index.json": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
+            "D:\\Projects\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj": {
+              "projectPath": "D:\\Projects\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj"
+            },
             "D:\\Projects\\Work\\flight.interception\\src\\Interception.AspNetCore\\Interception.AspNetCore.csproj": {
               "projectPath": "D:\\Projects\\Work\\flight.interception\\src\\Interception.AspNetCore\\Interception.AspNetCore.csproj"
             }
@@ -1570,7 +1570,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -63,7 +63,7 @@ namespace Dora.Interception.CodeGeneration
         #endregion
 
         #region Internal methods
-        internal static void GenerateMethod(CodeGenerationContext context, MethodInfo method, string? contextClassName, string? invokerFieldName, string? methodAccessor, Type? @interface, bool isInterceptable)
+        internal static void GenerateMethod(CodeGenerationContext context, Type targetType, MethodInfo method, string? contextClassName, string? invokerFieldName, string? methodAccessor, Type? @interface, bool isInterceptable)
         {
             var returnType = method.ReturnType;
             var parameters = method.GetParameters();
@@ -145,7 +145,7 @@ namespace Dora.Interception.CodeGeneration
                 }
                 else
                 {
-                    context.WriteLines($"var invoker = MethodInvokerBuilder.Instance.Build(method, InvokeAsync);");
+                    context.WriteLines($"var invoker = MethodInvokerBuilder.Instance.Build(typeof({targetType.GetOutputName()}),method, InvokeAsync);");
                     context.WriteLines($"var valueTask = invoker(context);");
                 }
 
@@ -284,7 +284,7 @@ namespace Dora.Interception.CodeGeneration
                     var methodName = ResolveInvokerMethodName(method);
                     if (@interface != null)
                     {
-                        context.WriteLines($"private static readonly Lazy<InvokeDelegate> {fieldName} = new Lazy<InvokeDelegate>(() => MethodInvokerBuilder.Instance.Build(ProxyHelper.GetMethodInfo<{targetType.GetOutputName()}>({method.MetadataToken}), {methodName}));");
+                        context.WriteLines($"private static readonly Lazy<InvokeDelegate> {fieldName} = new Lazy<InvokeDelegate>(() => MethodInvokerBuilder.Instance.Build(typeof({targetType.GetOutputName()}),ProxyHelper.GetMethodInfo<{targetType.GetOutputName()}>({method.MetadataToken}), {methodName}));");
                     }
                     else
                     {

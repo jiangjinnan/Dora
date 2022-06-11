@@ -126,7 +126,7 @@ namespace Dora.Interception.CodeGeneration
                                 var method = kv.Key;
                                 var fieldName = kv.Value;
                                 var methodName = invokerMethodNames![method];
-                                context.WriteLines($"{fieldName} = new Lazy<InvokeDelegate>(() => MethodInvokerBuilder.Instance.Build(ProxyHelper.GetMethodInfo<{baseType.GetOutputName()}>({method.MetadataToken}), {methodName}));");
+                                context.WriteLines($"{fieldName} = new Lazy<InvokeDelegate>(() => MethodInvokerBuilder.Instance.Build(typeof({baseType.GetOutputName()}), ProxyHelper.GetMethodInfo<{baseType.GetOutputName()}>({method.MetadataToken}), {methodName}));");
                             }
                         }
                     }
@@ -143,7 +143,7 @@ namespace Dora.Interception.CodeGeneration
                     }
                     string? invokerFieldName = null;
                     invokerAccessorFieldNames?.TryGetValue(method, out invokerFieldName);
-                    GenerateMethod(context, method, invocationContextClassNames[method], invokerFieldName, $"{methodInfoAccessorFieldNames[method]}.Value", null, true);
+                    GenerateMethod(context, baseType, method, invocationContextClassNames[method], invokerFieldName, $"{methodInfoAccessorFieldNames[method]}.Value", null, true);
                     context.WriteLines();
                 }
                 #endregion
@@ -193,7 +193,7 @@ namespace Dora.Interception.CodeGeneration
             Validate(implementationType);
 
             var interceptableMethods = implementationType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(it => _methodInvokerBuilder.CanIntercept(it) && it.IsVirtual)
+                .Where(it => _methodInvokerBuilder.CanIntercept(implementationType, it) && it.IsVirtual)
                 .ToArray();
             if (!interceptableMethods.Any())
             {

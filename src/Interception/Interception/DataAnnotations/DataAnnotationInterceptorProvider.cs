@@ -4,19 +4,20 @@ namespace Dora.Interception
 {
     internal class DataAnnotationInterceptorProvider : IInterceptorProvider
     {
-        private readonly IConventionalInterceptorFactory _conventionalInterceptorFactory;
+        private readonly IConventionalInterceptorFactory _conventionalInterceptorFactory; 
+        private readonly BindingFlags _bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
         public DataAnnotationInterceptorProvider(IConventionalInterceptorFactory conventionalInterceptorFactory)
         {
             _conventionalInterceptorFactory = conventionalInterceptorFactory ?? throw new ArgumentNullException(nameof(conventionalInterceptorFactory));
         }
 
-        public IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(MethodInfo method)
+        public IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method)
         {
             if (method == null) throw new ArgumentNullException(nameof(method));
-            var type = method.DeclaringType!;
 
             var list = new List<Sortable<InvokeDelegate>>();
-            foreach (var attribute in method.DeclaringType!.GetCustomAttributes<InterceptorAttribute>())
+            foreach (var attribute in targetType.GetCustomAttributes<InterceptorAttribute>())
             {
                 list.Add(new Sortable<InvokeDelegate>(attribute.Order, _conventionalInterceptorFactory.CreateInterceptor(attribute.Interceptor, attribute.Arguments)));
             }
@@ -39,21 +40,6 @@ namespace Dora.Interception
             return list;
         }
 
-        public bool IsInterceptionSuppressed(MethodInfo method)
-        {
-            if (method == null) throw new ArgumentNullException(nameof(method));
-            var type = method.DeclaringType!;
-            if (method.IsSpecialName && (method.Name.StartsWith("get_") || method.Name.StartsWith("set_")))
-            {
-                if(MemberUtilities.TryGetProperty(method,out var property) && property!.GetCustomAttribute<NonInterceptableAttribute>() is not null)
-                {
-                    return true;
-                }
-            }
-            return type.GetCustomAttribute<NonInterceptableAttribute>() is not null || method.GetCustomAttribute<NonInterceptableAttribute>() is not null;
-        }
-
-        private readonly BindingFlags _bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
         public void Validate(Type type, Action<MethodInfo> methodValidator, Action<PropertyInfo> propertyValidator)
         {
             if (type is null)
@@ -72,6 +58,28 @@ namespace Dora.Interception
                 propertyValidator(property);
 
             }
+        }
+
+        public bool CanIntercept(Type targetType, MethodInfo method)
+        {
+            if (targetType == null) throw new ArgumentNullException(nameof(targetType));
+            if (method == null) throw new ArgumentNullException(nameof(method));
+            PropertyInfo? property = null;
+
+            if (method.IsSpecialName && (method.Name.StartsWith("get_") || method.Name.StartsWith("set_")))
+            {
+                if (MemberUtilities.TryGetProperty(method, out property) && property!.GetCustomAttribute<NonInterceptableAttribute>() is not null)
+                {
+                    return false;
+                }
+            }
+
+            if (targetType.GetCustomAttribute<NonInterceptableAttribute>() is not null || method.GetCustomAttribute<NonInterceptableAttribute>() is not null)
+            {
+                return false;
+            }
+
+            return method.GetCustomAttributes<InterceptorAttribute>().Any()|| targetType.GetCustomAttributes<InterceptorAttribute>().Any() || (property?.GetCustomAttributes()?.Any() ?? false);
         }
     }
 }

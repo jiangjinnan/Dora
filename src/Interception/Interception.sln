@@ -13,21 +13,25 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ref", "ref", "{18F8DD23-55E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interception.AspNetCore", "..\..\..\Work\flight.interception\src\Interception.AspNetCore\Interception.AspNetCore.csproj", "{18D11E39-9CB0-43A3-B855-B5E601121799}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "..\Shared\Shared.shproj", "{00BFBA7F-B45D-41A3-9BF3-FA85A784B7DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App1", "..\..\demo\Interception\App1\App1.csproj", "{7AF18B80-5833-4906-949C-0E82D16655AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App1", "..\..\demo\Interception\App1\App1.csproj", "{7AF18B80-5833-4906-949C-0E82D16655AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App2", "..\..\demo\Interception\App2\App2.csproj", "{B2581087-41B1-4BC0-B642-2AEF53309224}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App2", "..\..\demo\Interception\App2\App2.csproj", "{B2581087-41B1-4BC0-B642-2AEF53309224}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App3", "..\..\demo\Interception\App3\App3.csproj", "{FFAFF044-561C-4921-B279-C0374A003638}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App3", "..\..\demo\Interception\App3\App3.csproj", "{FFAFF044-561C-4921-B279-C0374A003638}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App4", "..\..\demo\Interception\App4\App4.csproj", "{CFCF751D-379B-4A3D-B064-5CC49AE3938F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App4", "..\..\demo\Interception\App4\App4.csproj", "{CFCF751D-379B-4A3D-B064-5CC49AE3938F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App5", "..\..\demo\Interception\App5\App5.csproj", "{9E85FC3C-BFC8-4043-B1E2-BE5CA693E875}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App5", "..\..\demo\Interception\App5\App5.csproj", "{9E85FC3C-BFC8-4043-B1E2-BE5CA693E875}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interception.AspNetCore", "Interception.AspNetCore\Interception.AspNetCore.csproj", "{281ECED7-9423-4E3C-B820-831CE03663A3}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\Shared\Shared.projitems*{00bfba7f-b45d-41a3-9bf3-fa85a784b7de}*SharedItemsImports = 13
+		..\Shared\Shared.projitems*{e6436c30-093f-413a-b295-6df1d54f5cf1}*SharedItemsImports = 5
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -37,10 +41,6 @@ Global
 		{E6436C30-093F-413A-B295-6DF1D54F5CF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6436C30-093F-413A-B295-6DF1D54F5CF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6436C30-093F-413A-B295-6DF1D54F5CF1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{18D11E39-9CB0-43A3-B855-B5E601121799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{18D11E39-9CB0-43A3-B855-B5E601121799}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{18D11E39-9CB0-43A3-B855-B5E601121799}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{18D11E39-9CB0-43A3-B855-B5E601121799}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7AF18B80-5833-4906-949C-0E82D16655AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7AF18B80-5833-4906-949C-0E82D16655AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AF18B80-5833-4906-949C-0E82D16655AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -61,25 +61,25 @@ Global
 		{9E85FC3C-BFC8-4043-B1E2-BE5CA693E875}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E85FC3C-BFC8-4043-B1E2-BE5CA693E875}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E85FC3C-BFC8-4043-B1E2-BE5CA693E875}.Release|Any CPU.Build.0 = Release|Any CPU
+		{281ECED7-9423-4E3C-B820-831CE03663A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{281ECED7-9423-4E3C-B820-831CE03663A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{281ECED7-9423-4E3C-B820-831CE03663A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{281ECED7-9423-4E3C-B820-831CE03663A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E6436C30-093F-413A-B295-6DF1D54F5CF1} = {90CDCE86-5086-4928-B94E-EAE06530693D}
-		{18D11E39-9CB0-43A3-B855-B5E601121799} = {90CDCE86-5086-4928-B94E-EAE06530693D}
 		{00BFBA7F-B45D-41A3-9BF3-FA85A784B7DE} = {18F8DD23-55E6-4B4F-8C35-3613785A0093}
 		{7AF18B80-5833-4906-949C-0E82D16655AD} = {3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}
 		{B2581087-41B1-4BC0-B642-2AEF53309224} = {3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}
 		{FFAFF044-561C-4921-B279-C0374A003638} = {3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}
 		{CFCF751D-379B-4A3D-B064-5CC49AE3938F} = {3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}
 		{9E85FC3C-BFC8-4043-B1E2-BE5CA693E875} = {3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}
+		{281ECED7-9423-4E3C-B820-831CE03663A3} = {90CDCE86-5086-4928-B94E-EAE06530693D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {29BD750D-AA28-4D2E-B557-3A0C844FBAE7}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\Shared\Shared.projitems*{00bfba7f-b45d-41a3-9bf3-fa85a784b7de}*SharedItemsImports = 13
-		..\Shared\Shared.projitems*{e6436c30-093f-413a-b295-6df1d54f5cf1}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

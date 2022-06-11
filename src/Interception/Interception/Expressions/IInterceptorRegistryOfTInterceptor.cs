@@ -22,9 +22,10 @@ namespace Dora.Interception.Expressions
         /// Applies specified interceptor to target method.
         /// </summary>
         /// <param name="order">The order determining the specified interceptor in chain.</param>
+        /// <param name="targetType">The type of target property to which the interceptor is applied.</param>
         /// <param name="method">The target method to which specified interceptor is applied.</param>
         /// <returns>The current <see cref="IInterceptorRegistry{TInterceptor}"/></returns>
-        IInterceptorRegistry<TInterceptor> ToMethod(int order, MethodInfo method);
+        IInterceptorRegistry<TInterceptor> ToMethod(int order, Type targetType, MethodInfo method);
 
         /// <summary>
         /// Applies specified interceptor to target property's get-method.

@@ -5,26 +5,29 @@ namespace Dora.Interception
     internal class DefaultMethodInvokerBuilder : IMethodInvokerBuilder
     {
         private readonly IEnumerable<IInterceptorProvider> _interceptorProviders;
-        private readonly Dictionary<MethodInfo, Sortable<InvokeDelegate>[]> _cache = new();
+        private readonly Dictionary<Tuple<Type,MethodInfo>, Sortable<InvokeDelegate>[]> _cache = new();
 
         public DefaultMethodInvokerBuilder(IEnumerable<IInterceptorProvider> interceptorProviders)
         {
             _interceptorProviders = interceptorProviders ?? throw new ArgumentNullException(nameof(interceptorProviders));
         }
 
-        public InvokeDelegate Build(MethodInfo method, InvokeDelegate targetMethodInvoker)
+        public InvokeDelegate Build(Type targetType, MethodInfo method, InvokeDelegate targetMethodInvoker)
         {
+            Guard.ArgumentNotNull(targetType);
             Guard.ArgumentNotNull(method);
             Guard.ArgumentNotNull(targetMethodInvoker);
 
-            if (!CanIntercept(method))
+            if (!CanIntercept(targetType, method))
             {
-                throw new InterceptionException($"The method '{method.Name}' of '{method.DeclaringType}' cannot be interceptable.");
+                throw new InterceptionException($"The method '{method.Name}' of '{targetType}' cannot be interceptable.");
             }
 
-            var interceptors = _cache.TryGetValue(method, out var value)
+            var key = new Tuple<Type, MethodInfo>(targetType, method);
+
+            var interceptors = _cache.TryGetValue(key, out var value)
                 ? value!
-                : _cache[method] = _interceptorProviders.SelectMany(it => it.GetInterceptors(method)).OrderBy(it=>it.Order).ToArray();
+                : _cache[key] = _interceptorProviders.SelectMany(it => it.GetInterceptors(targetType,method)).OrderBy(it=>it.Order).ToArray();
         
             var length = interceptors.Length;
             interceptors = Enumerable.Range(0, length).Select(it => new Sortable<InvokeDelegate>(it, interceptors[it].Value)).ToArray();
@@ -42,19 +45,12 @@ namespace Dora.Interception
             }
         }
 
-        public bool CanIntercept(MethodInfo method)
+        public bool CanIntercept(Type targetType, MethodInfo method)
         {
-            Guard.ArgumentNotNull(method);
-            var type = method.DeclaringType!;
-            foreach (var provider in _interceptorProviders)
-            {
-                if (provider.IsInterceptionSuppressed( method))
-                {
-                    return false;
-                }
-            }
 
-            return  _interceptorProviders.Any(it => it.GetInterceptors(method).Any());
+            Guard.ArgumentNotNull(targetType);
+            Guard.ArgumentNotNull(method);
+            return _interceptorProviders.Any(it => it.CanIntercept(targetType,method));
         }
     }
 }
