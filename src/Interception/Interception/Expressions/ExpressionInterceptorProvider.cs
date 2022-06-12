@@ -38,14 +38,11 @@ namespace Dora.Interception.Expressions
         #region Public methods
         public IInterceptorRegistry<TInterceptor> For<TInterceptor>(params object[] arguments)
             => new InterceptorRegistry<TInterceptor>(_interceptorsAccessors, _interceptedMethods,()=> _conventionalInterceptorFactory.CreateInterceptor(typeof(TInterceptor), arguments));
-        public IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method)
+        public IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method, Func<Type, object[], InvokeDelegate> interceptorFactory)
         {
             Guard.ArgumentNotNull(targetType);
-            Guard.ArgumentNotNull(method);
-            if (method == null)
-            {
-                throw new ArgumentNullException(nameof(method));
-            }
+            Guard.ArgumentNotNull(method); 
+            Guard.ArgumentNotNull(interceptorFactory);
 
             var key = new Tuple<Type, MethodInfo>(targetType, method);
             if (_interceptors.TryGetValue(key, out var interceptors))
@@ -62,14 +59,7 @@ namespace Dora.Interception.Expressions
             }
             return Enumerable.Empty<Sortable<InvokeDelegate>>();
         }
-        //public bool IsInterceptionSuppressed(MethodInfo method)
-        //{
-        //    if (method == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(method));
-        //    }
-        //    return _suppressedTypes.Contains(method.DeclaringType!) || _suppressedMethods.Contains(method);
-        //}
+
         public IInterceptorRegistry SupressGetMethod<TTarget>(Expression<Func<TTarget, object>> propertyAccessor)
         {
             var property = MemberUtilities.GetProperty(propertyAccessor);
@@ -141,7 +131,8 @@ namespace Dora.Interception.Expressions
             {
                 _interceptorAccessors = interceptorAccessors;
                 _interceptedMethods = interceptedMethods;
-                _interceptorFatory = interceptorFatory;
+                var lazy = new Lazy<InvokeDelegate>(() => interceptorFatory()); 
+                _interceptorFatory = ()=> lazy.Value;
             }
 
             public IInterceptorRegistry<TInterceptor> ToMethod<TTarget>(int order, Expression<Action<TTarget>> methodCall)

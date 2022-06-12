@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App5", "..\..\demo\Intercep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interception.AspNetCore", "Interception.AspNetCore\Interception.AspNetCore.csproj", "{281ECED7-9423-4E3C-B820-831CE03663A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interception.Test", "..\..\test\Interception\Interception.Test\Interception.Test.csproj", "{948CEB19-0032-4C21-8057-C59AF5396F62}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\Shared\Shared.projitems*{00bfba7f-b45d-41a3-9bf3-fa85a784b7de}*SharedItemsImports = 13
@@ -65,6 +67,10 @@ Global
 		{281ECED7-9423-4E3C-B820-831CE03663A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{281ECED7-9423-4E3C-B820-831CE03663A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{281ECED7-9423-4E3C-B820-831CE03663A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{948CEB19-0032-4C21-8057-C59AF5396F62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{948CEB19-0032-4C21-8057-C59AF5396F62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{948CEB19-0032-4C21-8057-C59AF5396F62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{948CEB19-0032-4C21-8057-C59AF5396F62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +84,7 @@ Global
 		{CFCF751D-379B-4A3D-B064-5CC49AE3938F} = {3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}
 		{9E85FC3C-BFC8-4043-B1E2-BE5CA693E875} = {3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}
 		{281ECED7-9423-4E3C-B820-831CE03663A3} = {90CDCE86-5086-4928-B94E-EAE06530693D}
+		{948CEB19-0032-4C21-8057-C59AF5396F62} = {83290A38-44CF-4E73-ABA6-99A9113E52BB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {29BD750D-AA28-4D2E-B557-3A0C844FBAE7}

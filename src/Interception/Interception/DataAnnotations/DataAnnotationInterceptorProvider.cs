@@ -4,27 +4,23 @@ namespace Dora.Interception
 {
     internal class DataAnnotationInterceptorProvider : IInterceptorProvider
     {
-        private readonly IConventionalInterceptorFactory _conventionalInterceptorFactory; 
         private readonly BindingFlags _bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-        public DataAnnotationInterceptorProvider(IConventionalInterceptorFactory conventionalInterceptorFactory)
+        public IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method, Func<Type, object[], InvokeDelegate> interceptorFactory)
         {
-            _conventionalInterceptorFactory = conventionalInterceptorFactory ?? throw new ArgumentNullException(nameof(conventionalInterceptorFactory));
-        }
-
-        public IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method)
-        {
+            if (targetType == null) throw new ArgumentNullException(nameof(targetType));
             if (method == null) throw new ArgumentNullException(nameof(method));
+            if (interceptorFactory == null) throw new ArgumentNullException(nameof(interceptorFactory));
 
             var list = new List<Sortable<InvokeDelegate>>();
             foreach (var attribute in targetType.GetCustomAttributes<InterceptorAttribute>())
             {
-                list.Add(new Sortable<InvokeDelegate>(attribute.Order, _conventionalInterceptorFactory.CreateInterceptor(attribute.Interceptor, attribute.Arguments)));
+                list.Add(new Sortable<InvokeDelegate>(attribute.Order,  interceptorFactory(attribute.Interceptor, attribute.Arguments)));
             }
 
             foreach (var attribute in method.GetCustomAttributes<InterceptorAttribute>())
             {
-                list.Add(new Sortable<InvokeDelegate>(attribute.Order, _conventionalInterceptorFactory.CreateInterceptor(attribute.Interceptor, attribute.Arguments)));
+                list.Add(new Sortable<InvokeDelegate>(attribute.Order, interceptorFactory(attribute.Interceptor, attribute.Arguments)));
             }
 
             if (method.IsSpecialName && (method.Name.StartsWith("get_") || method.Name.StartsWith("set_")))
@@ -33,7 +29,7 @@ namespace Dora.Interception
                 {
                     foreach (var attribute in property!.GetCustomAttributes<InterceptorAttribute>())
                     {
-                        list.Add(new Sortable<InvokeDelegate>(attribute.Order, _conventionalInterceptorFactory.CreateInterceptor(attribute.Interceptor, attribute.Arguments)));
+                        list.Add(new Sortable<InvokeDelegate>(attribute.Order, interceptorFactory(attribute.Interceptor, attribute.Arguments)));
                     }
                 }
             }

@@ -5,11 +5,14 @@ namespace Dora.Interception
     internal class DefaultMethodInvokerBuilder : IMethodInvokerBuilder
     {
         private readonly IEnumerable<IInterceptorProvider> _interceptorProviders;
-        private readonly Dictionary<Tuple<Type,MethodInfo>, Sortable<InvokeDelegate>[]> _cache = new();
+        private readonly Dictionary<Tuple<Type, MethodInfo>, Sortable<InvokeDelegate>[]> _cache = new();
+        private readonly Func<Type, object[], InvokeDelegate> _interceptorFactory;
 
-        public DefaultMethodInvokerBuilder(IEnumerable<IInterceptorProvider> interceptorProviders)
+        public DefaultMethodInvokerBuilder(IEnumerable<IInterceptorProvider> interceptorProviders, IConventionalInterceptorFactory interceptorFactory)
         {
             _interceptorProviders = interceptorProviders ?? throw new ArgumentNullException(nameof(interceptorProviders));
+            Guard.ArgumentNotNull(interceptorFactory);
+            _interceptorFactory = (type, arguments) => interceptorFactory.CreateInterceptor(type, arguments);
         }
 
         public InvokeDelegate Build(Type targetType, MethodInfo method, InvokeDelegate targetMethodInvoker)
@@ -27,8 +30,8 @@ namespace Dora.Interception
 
             var interceptors = _cache.TryGetValue(key, out var value)
                 ? value!
-                : _cache[key] = _interceptorProviders.SelectMany(it => it.GetInterceptors(targetType,method)).OrderBy(it=>it.Order).ToArray();
-        
+                : _cache[key] = _interceptorProviders.SelectMany(it => it.GetInterceptors(targetType, method, _interceptorFactory)).OrderBy(it => it.Order).ToArray();
+
             var length = interceptors.Length;
             interceptors = Enumerable.Range(0, length).Select(it => new Sortable<InvokeDelegate>(it, interceptors[it].Value)).ToArray();
             Array.ForEach(interceptors, Wrap);
@@ -38,7 +41,8 @@ namespace Dora.Interception
             {
                 var index = sortable.Order;
                 var interceptor = sortable.Value;
-                sortable.Value = context => {
+                sortable.Value = context =>
+                {
                     context.Next = index < length - 1 ? interceptors![index + 1].Value : targetMethodInvoker;
                     return interceptor(context);
                 };
@@ -50,7 +54,7 @@ namespace Dora.Interception
 
             Guard.ArgumentNotNull(targetType);
             Guard.ArgumentNotNull(method);
-            return _interceptorProviders.Any(it => it.CanIntercept(targetType,method));
+            return _interceptorProviders.Any(it => it.CanIntercept(targetType, method));
         }
     }
 }

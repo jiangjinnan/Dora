@@ -2,17 +2,17 @@
 
 namespace App1
 {
-    public interface ISystemTimeProvider
+public interface ISystemTimeProvider
+{
+    DateTime GetCurrentTime(DateTimeKind kind);
+}
+public class SystemTimeProvider : ISystemTimeProvider
+{
+    //[Interceptor(typeof(CachingInterceptor3<DateTimeKind,DateTime>), Order = 1)]
+    public virtual DateTime GetCurrentTime(DateTimeKind kind) => kind switch
     {
-        DateTime GetCurrentTime(DateTimeKind kind);
-    }
-    public class SystemTimeProvider : ISystemTimeProvider
-    {
-        [Interceptor(typeof(CachingInterceptor4<DateTimeKind, DateTime>))]
-        public virtual DateTime GetCurrentTime(DateTimeKind kind) => kind switch
-        {
-            DateTimeKind.Utc => DateTime.UtcNow,
-            _ => DateTime.Now
-        };
-    }
+        DateTimeKind.Utc => DateTime.UtcNow,
+        _ => DateTime.Now
+    };
+}
 }

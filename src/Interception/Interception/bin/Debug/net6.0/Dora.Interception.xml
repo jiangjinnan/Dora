@@ -422,12 +422,13 @@
             <param name="method">The method to check.</param>
             <returns>A <see cref="T:System.Boolean"/>value indicating specified method is intercepted.</returns>
         </member>
-        <member name="M:Dora.Interception.IInterceptorProvider.GetInterceptors(System.Type,System.Reflection.MethodInfo)">
+        <member name="M:Dora.Interception.IInterceptorProvider.GetInterceptors(System.Type,System.Reflection.MethodInfo,System.Func{System.Type,System.Object[],Dora.Interception.InvokeDelegate})">
             <summary>
             Gets the interceptors applied specified method.
             </summary>
             <param name="targetType">Target type.</param>
             <param name="method">The target method.</param>
+            <param name="interceptorFactory">A delegate as a factory to create interceptor (a <see cref="T:Dora.Interception.InvokeDelegate"/> delegate).</param>
             <returns>The <see cref="T:Dora.Interception.Sortable`1"/> represents the applied interceptors.</returns>
         </member>
         <member name="M:Dora.Interception.IInterceptorProvider.Validate(System.Type,System.Action{System.Reflection.MethodInfo},System.Action{System.Reflection.PropertyInfo})">

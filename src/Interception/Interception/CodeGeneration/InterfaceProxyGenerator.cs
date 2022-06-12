@@ -34,7 +34,7 @@ namespace Dora.Interception.CodeGeneration
 
             var methods = implementationType
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(it => it.IsPublic || it.IsFamily || it.IsFamilyAndAssembly)
-                //.Where(it => it.DeclaringType == implementationType)
+                .Where(it => it.DeclaringType != typeof(object))
                 ;
             var interceptableMethods = methods.Where(it => _methodInvokerBuilder.CanIntercept(implementationType, it));
             if (!interceptableMethods.Any())

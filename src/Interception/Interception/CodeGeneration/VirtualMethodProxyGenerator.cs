@@ -193,7 +193,7 @@ namespace Dora.Interception.CodeGeneration
             Validate(implementationType);
 
             var interceptableMethods = implementationType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(it => _methodInvokerBuilder.CanIntercept(implementationType, it) && it.IsVirtual)
+                .Where(it => it.DeclaringType!= typeof(object) && _methodInvokerBuilder.CanIntercept(implementationType, it) && it.IsVirtual)
                 .ToArray();
             if (!interceptableMethods.Any())
             {

@@ -20,8 +20,9 @@ namespace Dora.Interception
         /// </summary>
         /// <param name="targetType">Target type.</param>
         /// <param name="method">The target method.</param>
+        /// <param name="interceptorFactory">A delegate as a factory to create interceptor (a <see cref="InvokeDelegate"/> delegate).</param>
         /// <returns>The <see cref="Sortable{InvokeDelegate}"/> represents the applied interceptors.</returns>
-        IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method);
+        IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method, Func<Type, object[], InvokeDelegate> interceptorFactory);
 
         /// <summary>
         /// Validates and ensure interceptors are applied to approriate members of specified type.
