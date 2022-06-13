@@ -38,3 +38,17 @@ D:\Projects\Dora\src\Interception\Interception\obj\Debug\net6.0\refint\Dora.Inte
 D:\Projects\Dora\src\Interception\Interception\obj\Debug\net6.0\Dora.Interception.xml
 D:\Projects\Dora\src\Interception\Interception\obj\Debug\net6.0\Dora.Interception.pdb
 D:\Projects\Dora\src\Interception\Interception\obj\Debug\net6.0\ref\Dora.Interception.dll
+D:\Projects\Dora\Dora\src\Interception\Interception\bin\Debug\net6.0\Dora.Interception.deps.json
+D:\Projects\Dora\Dora\src\Interception\Interception\bin\Debug\net6.0\Dora.Interception.dll
+D:\Projects\Dora\Dora\src\Interception\Interception\bin\Debug\net6.0\Dora.Interception.pdb
+D:\Projects\Dora\Dora\src\Interception\Interception\bin\Debug\net6.0\Dora.Interception.xml
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\Interception.csproj.AssemblyReference.cache
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\Interception.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\Interception.AssemblyInfoInputs.cache
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\Interception.AssemblyInfo.cs
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\Interception.csproj.CoreCompileInputs.cache
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\Dora.Interception.dll
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\refint\Dora.Interception.dll
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\Dora.Interception.xml
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\Dora.Interception.pdb
+D:\Projects\Dora\Dora\src\Interception\Interception\obj\Debug\net6.0\ref\Dora.Interception.dll

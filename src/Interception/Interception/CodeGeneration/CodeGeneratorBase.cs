@@ -497,11 +497,25 @@ namespace Dora.Interception.CodeGeneration
                     {
                         if (methodModifier == modifier)
                         {
-                            context.WriteLines($"get => _target.{property.Name};");
+                            if (@interface != null)
+                            {
+                                context.WriteLines($"get => _target.{property.Name};");
+                            }
+                            else
+                            {
+                                context.WriteLines($"get => base.{property.Name};");
+                            }
                         }
                         else
                         {
-                            context.WriteLines($"{methodModifier} get => _target.{property.Name};");
+                            if (@interface != null)
+                            {
+                                context.WriteLines($"{methodModifier} get => _target.{property.Name};");
+                            }
+                            else
+                            {
+                                context.WriteLines($"{methodModifier} get => base.{property.Name};");
+                            }
                         }                        
                     }
                     else
@@ -533,11 +547,25 @@ namespace Dora.Interception.CodeGeneration
                     {
                         if (methodModifier == modifier)
                         {
-                            context.WriteLines($"set => _target.{property.Name} = value;");
+                            if (@interface != null)
+                            {
+                                context.WriteLines($"set => _target.{property.Name} = value;");
+                            }
+                            else
+                            {
+                                context.WriteLines($"set => base.{property.Name} = value;");
+                            }
                         }
                         else
                         {
-                            context.WriteLines($"{methodModifier} set => _target.{property.Name} = value;");
+                            if (@interface != null)
+                            {
+                                context.WriteLines($"{methodModifier} set => _target.{property.Name} = value;");
+                            }
+                            else
+                            {
+                                context.WriteLines($"{methodModifier} set => base.{property.Name} = value;");
+                            }
                         }
                     }
                     else

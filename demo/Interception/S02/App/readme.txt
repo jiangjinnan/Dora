@@ -1,0 +1,1 @@
+﻿Non-Generic interceptor + expression based registration

@@ -1,0 +1,1 @@
+﻿Create interceptor based on passed arguments.

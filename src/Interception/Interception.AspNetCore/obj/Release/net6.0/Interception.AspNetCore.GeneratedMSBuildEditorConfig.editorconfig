@@ -6,5 +6,5 @@ build_property.ProjectTypeGuids =
 build_property.InvariantGlobalization = 
 build_property.PlatformNeutralAssembly = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
-build_property.RootNamespace = Flight.Interception.AspNetCore
-build_property.ProjectDir = C:\Users\jinnan\Source\Repos\jiangjinnan\Dora\src\Interception\Interception.AspNetCore\
+build_property.RootNamespace = Dora.Interception.AspNetCore
+build_property.ProjectDir = D:\Projects\Dora\Dora\src\Interception\Interception.AspNetCore\

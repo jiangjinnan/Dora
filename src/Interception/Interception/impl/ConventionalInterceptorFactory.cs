@@ -4,9 +4,11 @@ using System.Reflection;
 
 namespace Dora.Interception
 {
+    [NonInterceptable]
     internal sealed class ConventionalInterceptorFactory : IConventionalInterceptorFactory
     {
         #region Fields
+        private readonly object[] _emptyArugments = Array.Empty<object>();
         private readonly IApplicationServicesAccessor _applicationServicesAccessor;
         private readonly IServiceLifetimeProvider _serviceLifetimeProvider;
         private static readonly Dictionary<Type, Func<object, InvocationContext, ValueTask>> _invokers = new();
@@ -34,6 +36,18 @@ namespace Dora.Interception
             }
             return context => invoker!(instance, context);         
         }
+
+        public InvokeDelegate CreateInterceptor(object interceptor)
+        {
+            Guard.ArgumentNotNull(interceptor);
+            var interceptorType = interceptor.GetType();
+            EnsourceValidInterceptorType(interceptorType, _emptyArugments, out var invokeAsyncMethod);
+            if (!TryGetInvoke(interceptorType, invokeAsyncMethod, out var invoker))
+            {
+                throw new ArgumentException($"Specified is not a valid interceptor type.", nameof(interceptorType));
+            }
+            return context => invoker!(interceptor, context);
+        }
         #endregion
 
         #region Private methods
@@ -56,7 +70,7 @@ namespace Dora.Interception
                     }
                     if (_serviceLifetimeProvider.GetLifetime(parameterType) == ServiceLifetime.Scoped)
                     {
-                        throw new InterceptionException($"Scoped service '{parameterType}' cannot be injected into singleton interceptor's constructor.");
+                        throw new InterceptionException($"Scoped service '{parameterType}' cannot be injected into interceptor's constructor.");
                     }
                 }
             }
@@ -127,7 +141,7 @@ namespace Dora.Interception
             }
             Expression callGetService = Expression.Call(_getRequiredServiceMethod.MakeGenericMethod(parameterType), invocationContext);
             return Expression.Convert(callGetService, parameterType);
-        }
+        }    
         #endregion
     }
 }

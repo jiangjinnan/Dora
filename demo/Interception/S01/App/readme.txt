@@ -1,0 +1,1 @@
+﻿Non-Generic interceptor + attribute based registration

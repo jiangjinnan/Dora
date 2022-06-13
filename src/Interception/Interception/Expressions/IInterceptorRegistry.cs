@@ -48,7 +48,7 @@ namespace Dora.Interception
         /// <typeparam name="TTarget">The type whose property is suppressed.</typeparam>
         /// <param name="propertyAccessor">The property access expression against the suppressed property.</param>
         /// <returns>The current <see cref="IInterceptorRegistry"/>.</returns>
-        IInterceptorRegistry SupressProperty<TTarget>(Expression<Func<TTarget, object>> propertyAccessor);
+        IInterceptorRegistry SupressProperty<TTarget>(Expression<Func<TTarget, object?>> propertyAccessor);
 
         /// <summary>
         /// Supresses the set method of property to be suppressed.
@@ -56,7 +56,7 @@ namespace Dora.Interception
         /// <typeparam name="TTarget">The type whose property is suppressed.</typeparam>
         /// <param name="propertyAccessor">The property access expression against the suppressed property.</param>
         /// <returns>The current <see cref="IInterceptorRegistry"/>.</returns>
-        IInterceptorRegistry SupressSetMethod<TTarget>(Expression<Func<TTarget, object>> propertyAccessor);
+        IInterceptorRegistry SupressSetMethod<TTarget>(Expression<Func<TTarget, object?>> propertyAccessor);
 
         /// <summary>
         /// Supresses the get method of property to be suppressed.
@@ -64,6 +64,6 @@ namespace Dora.Interception
         /// <typeparam name="TTarget">The type whose property is suppressed.</typeparam>
         /// <param name="propertyAccessor">The property access expression against the suppressed property.</param>
         /// <returns>The current <see cref="IInterceptorRegistry"/>.</returns>
-        IInterceptorRegistry SupressGetMethod<TTarget>(Expression<Func<TTarget, object>> propertyAccessor);
+        IInterceptorRegistry SupressGetMethod<TTarget>(Expression<Func<TTarget, object?>> propertyAccessor);
     }
 }

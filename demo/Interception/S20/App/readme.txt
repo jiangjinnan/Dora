@@ -1,0 +1,1 @@
+﻿Apply to all methods.

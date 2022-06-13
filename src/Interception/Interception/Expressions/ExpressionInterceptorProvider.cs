@@ -4,63 +4,81 @@ using System.Reflection;
 
 namespace Dora.Interception.Expressions
 {
-    internal class ExpressionInterceptorProvider : IInterceptorProvider, IInterceptorRegistry
+    [NonInterceptable]
+    internal class ExpressionInterceptorProvider : InterceptorProviderBase, IInterceptorRegistry
     {
         #region Fields
         private readonly IConventionalInterceptorFactory _conventionalInterceptorFactory;
-        private readonly Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> _interceptorsAccessors = new();
-        private readonly Dictionary<Tuple<Type,MethodInfo>, List<Sortable<InvokeDelegate>>> _interceptors = new();
-        private readonly HashSet<Type>_suppressedTypes = new();
+        private readonly Dictionary<Type, List<Func<Sortable<InvokeDelegate>>>> _interceptorsAccessors4Type = new();
+        private readonly Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> _interceptorsAccessors4Method = new();
+        private readonly Dictionary<Tuple<Type, MethodInfo>, List<Sortable<InvokeDelegate>>> _interceptors = new();
+        private readonly HashSet<Type> _suppressedTypes = new();
         private readonly HashSet<MethodInfo> _suppressedMethods = new();
-        private readonly HashSet<Tuple<Type, MethodInfo>> _interceptedMethods = new();
         #endregion
 
         #region Constructors
-        public ExpressionInterceptorProvider(IConventionalInterceptorFactory conventionalInterceptorFactory, IOptions<InterceptionOptions> optionsAccessor)
+        public ExpressionInterceptorProvider(IConventionalInterceptorFactory conventionalInterceptorFactory, IOptions<InterceptionOptions> optionsAccessor) : base(conventionalInterceptorFactory)
         {
             _conventionalInterceptorFactory = conventionalInterceptorFactory ?? throw new ArgumentNullException(nameof(conventionalInterceptorFactory));
             var registrations = (optionsAccessor ?? throw new ArgumentNullException(nameof(optionsAccessor))).Value.InterceptorRegistrations;
             registrations?.Invoke(this);
         }
 
-        public bool CanIntercept(Type targetType, MethodInfo method)
+        public override bool CanIntercept(Type targetType, MethodInfo method, out bool suppressed)
         {
             Guard.ArgumentNotNull(targetType);
             Guard.ArgumentNotNull(method);
             if (_suppressedTypes.Contains(targetType) || _suppressedMethods.Contains(method))
             {
+                suppressed = true;
                 return false;
             }
-            return _interceptedMethods.Contains(new Tuple<Type, MethodInfo>(targetType, method));
+            suppressed = false;
+            return _interceptorsAccessors4Type.ContainsKey(targetType) || _interceptorsAccessors4Method.ContainsKey(new Tuple<Type, MethodInfo>(targetType, method));
         }
         #endregion
 
         #region Public methods
         public IInterceptorRegistry<TInterceptor> For<TInterceptor>(params object[] arguments)
-            => new InterceptorRegistry<TInterceptor>(_interceptorsAccessors, _interceptedMethods,()=> _conventionalInterceptorFactory.CreateInterceptor(typeof(TInterceptor), arguments));
-        public IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method, Func<Type, object[], InvokeDelegate> interceptorFactory)
+            => new InterceptorRegistry<TInterceptor>(_interceptorsAccessors4Type, _interceptorsAccessors4Method, () => _conventionalInterceptorFactory.CreateInterceptor(typeof(TInterceptor), arguments));
+        public override IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method)
         {
             Guard.ArgumentNotNull(targetType);
-            Guard.ArgumentNotNull(method); 
-            Guard.ArgumentNotNull(interceptorFactory);
+            Guard.ArgumentNotNull(method);
 
             var key = new Tuple<Type, MethodInfo>(targetType, method);
             if (_interceptors.TryGetValue(key, out var interceptors))
-            { 
+            {
                 return interceptors;
             }
 
-            if (_interceptorsAccessors.TryGetValue(key, out var interceptorAccessors))
+            if (_interceptorsAccessors4Type.TryGetValue(targetType, out var interceptorAccessors))
             {
-                interceptors = interceptorAccessors.Select(it=>it()).ToList();
+                interceptors = interceptorAccessors.Select(it => it()).ToList();
+            }
+
+            if (_interceptorsAccessors4Method.TryGetValue(key, out interceptorAccessors))
+            {
+                if (interceptors is null)
+                {
+                    interceptors = interceptorAccessors.Select(it => it()).ToList();
+                }
+                else
+                {
+                    interceptors.AddRange(interceptorAccessors.Select(it => it()));
+                }
+            }
+
+            if (interceptors?.Any() ?? false)
+            {
                 _interceptors[key] = interceptors;
                 return interceptors;
-
             }
+
             return Enumerable.Empty<Sortable<InvokeDelegate>>();
         }
 
-        public IInterceptorRegistry SupressGetMethod<TTarget>(Expression<Func<TTarget, object>> propertyAccessor)
+        public IInterceptorRegistry SupressGetMethod<TTarget>(Expression<Func<TTarget, object?>> propertyAccessor)
         {
             var property = MemberUtilities.GetProperty(propertyAccessor);
             var method = property.GetMethod;
@@ -73,7 +91,7 @@ namespace Dora.Interception.Expressions
         }
         public IInterceptorRegistry SupressMethod<TTarget>(Expression<Action<TTarget>> methodCall)
         {
-            if(methodCall == null) throw new ArgumentNullException(nameof(methodCall));
+            if (methodCall == null) throw new ArgumentNullException(nameof(methodCall));
             var method = MemberUtilities.GetMethod(methodCall);
             _suppressedMethods.Add(method);
             return this;
@@ -83,7 +101,7 @@ namespace Dora.Interception.Expressions
             Array.ForEach(methods, it => _suppressedMethods.Add(it));
             return this;
         }
-        public IInterceptorRegistry SupressProperty<TTarget>(Expression<Func<TTarget, object>> propertyAccessor)
+        public IInterceptorRegistry SupressProperty<TTarget>(Expression<Func<TTarget, object?>> propertyAccessor)
         {
             var property = MemberUtilities.GetProperty(propertyAccessor);
             var method = property.GetMethod;
@@ -98,7 +116,7 @@ namespace Dora.Interception.Expressions
             }
             return this;
         }
-        public IInterceptorRegistry SupressSetMethod<TTarget>(Expression<Func<TTarget, object>> propertyAccessor)
+        public IInterceptorRegistry SupressSetMethod<TTarget>(Expression<Func<TTarget, object?>> propertyAccessor)
         {
             var property = MemberUtilities.GetProperty(propertyAccessor);
             var method = property.SetMethod;
@@ -124,15 +142,15 @@ namespace Dora.Interception.Expressions
         #region Private methods
         private sealed class InterceptorRegistry<TInterceptor> : IInterceptorRegistry<TInterceptor>
         {
-            private readonly Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> _interceptorAccessors;
+            private readonly Dictionary<Type, List<Func<Sortable<InvokeDelegate>>>> _interceptorAccessors4Type;
+            private readonly Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> _interceptorAccessors4Method;
             private readonly Func<InvokeDelegate> _interceptorFatory;
-            private readonly HashSet<Tuple<Type, MethodInfo>> _interceptedMethods;
-            public InterceptorRegistry(Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> interceptorAccessors, HashSet<Tuple<Type, MethodInfo>> interceptedMethods, Func<InvokeDelegate> interceptorFatory)
+            public InterceptorRegistry(Dictionary<Type, List<Func<Sortable<InvokeDelegate>>>> interceptorAccessors4Type, Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> interceptorAccessors4Method, Func<InvokeDelegate> interceptorFatory)
             {
-                _interceptorAccessors = interceptorAccessors;
-                _interceptedMethods = interceptedMethods;
-                var lazy = new Lazy<InvokeDelegate>(() => interceptorFatory()); 
-                _interceptorFatory = ()=> lazy.Value;
+                _interceptorAccessors4Type = interceptorAccessors4Type;
+                _interceptorAccessors4Method = interceptorAccessors4Method;
+                var lazy = new Lazy<InvokeDelegate>(() => interceptorFatory());
+                _interceptorFatory = () => lazy.Value;
             }
 
             public IInterceptorRegistry<TInterceptor> ToMethod<TTarget>(int order, Expression<Action<TTarget>> methodCall)
@@ -146,7 +164,7 @@ namespace Dora.Interception.Expressions
                 return ToMethod(order, typeof(TTarget), method);
             }
 
-            public IInterceptorRegistry<TInterceptor> ToGetMethod<TTarget>(int order, Expression<Func<TTarget, object>> propertyAccessor)
+            public IInterceptorRegistry<TInterceptor> ToGetMethod<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
             {
                 if (propertyAccessor == null)
                 {
@@ -161,7 +179,7 @@ namespace Dora.Interception.Expressions
                 return ToMethod(order, typeof(TTarget), getMethod);
             }
 
-            public IInterceptorRegistry<TInterceptor> ToProperty<TTarget>(int order, Expression<Func<TTarget, object>> propertyAccessor)
+            public IInterceptorRegistry<TInterceptor> ToProperty<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
             {
                 if (propertyAccessor == null)
                 {
@@ -191,7 +209,7 @@ namespace Dora.Interception.Expressions
                 return this;
             }
 
-            public IInterceptorRegistry<TInterceptor> ToSetMethod<TTarget>(int order, Expression<Func<TTarget, object>> propertyAccessor)
+            public IInterceptorRegistry<TInterceptor> ToSetMethod<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
             {
                 if (propertyAccessor == null)
                 {
@@ -203,26 +221,43 @@ namespace Dora.Interception.Expressions
                 {
                     throw new InterceptionException($"Specified property '{property.Name}' of '{property.DeclaringType}' does not have Get method.");
                 }
-                return ToMethod(order,typeof(TTarget), setMethod);
+                return ToMethod(order, typeof(TTarget), setMethod);
             }
 
             public IInterceptorRegistry<TInterceptor> ToMethod(int order, Type targetType, MethodInfo method)
             {
-                if (method == null)
+                Guard.ArgumentNotNull(targetType);
+                Guard.ArgumentNotNull(method);
+
+                if (!targetType.IsPublic)
                 {
-                    throw new ArgumentNullException(nameof(method));
+                    throw new InterceptionException($"The interceptor '{typeof(TInterceptor)}' must not be applied to non-public type {targetType}.");
                 }
 
                 if (!MemberUtilities.IsInterfaceOrVirtualMethod(method))
                 {
-                    throw new InterceptionException($"Interceptor is applied to the method '{method.Name}' of type '{targetType}', which is neither virtual method nor interface implementation method.");
+                    throw new InterceptionException($"The interceptor '{typeof(TInterceptor)}' is applied to the method '{method.Name}' of type '{targetType}', which is neither virtual method nor interface implementation method.");
                 }
+
                 var key = new Tuple<Type, MethodInfo>(targetType, method);
-                _interceptedMethods.Add(key);
-                var list = _interceptorAccessors.TryGetValue(key, out var value)
+                var list = _interceptorAccessors4Method.TryGetValue(key, out var value)
                     ? value
-                    : _interceptorAccessors[key] = new List<Func<Sortable<InvokeDelegate>>>();
-                list.Add(()=>new Sortable<InvokeDelegate>(order, _interceptorFatory()));
+                    : _interceptorAccessors4Method[key] = new List<Func<Sortable<InvokeDelegate>>>();
+                list.Add(() => new Sortable<InvokeDelegate>(order, _interceptorFatory()));
+                return this;
+            }
+
+            public IInterceptorRegistry<TInterceptor> ToAllMethods<TTarget>(int order)
+            {
+                var targetType = typeof(TTarget);
+                if (!targetType.IsPublic)
+                {
+                    throw new InterceptionException($"The interceptor '{typeof(TInterceptor)}' must not be applied to non-public type {targetType}.");
+                }
+                var list = _interceptorAccessors4Type.TryGetValue(targetType, out var value)
+                   ? value
+                   : _interceptorAccessors4Type[targetType] = new List<Func<Sortable<InvokeDelegate>>>();
+                list.Add(() => new Sortable<InvokeDelegate>(order, _interceptorFatory()));
                 return this;
             }
         }

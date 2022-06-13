@@ -2,17 +2,16 @@
 
 namespace Dora.Interception
 {
+    [NonInterceptable]
+
     internal class DefaultMethodInvokerBuilder : IMethodInvokerBuilder
     {
         private readonly IEnumerable<IInterceptorProvider> _interceptorProviders;
         private readonly Dictionary<Tuple<Type, MethodInfo>, Sortable<InvokeDelegate>[]> _cache = new();
-        private readonly Func<Type, object[], InvokeDelegate> _interceptorFactory;
 
-        public DefaultMethodInvokerBuilder(IEnumerable<IInterceptorProvider> interceptorProviders, IConventionalInterceptorFactory interceptorFactory)
+        public DefaultMethodInvokerBuilder(IEnumerable<IInterceptorProvider> interceptorProviders)
         {
             _interceptorProviders = interceptorProviders ?? throw new ArgumentNullException(nameof(interceptorProviders));
-            Guard.ArgumentNotNull(interceptorFactory);
-            _interceptorFactory = (type, arguments) => interceptorFactory.CreateInterceptor(type, arguments);
         }
 
         public InvokeDelegate Build(Type targetType, MethodInfo method, InvokeDelegate targetMethodInvoker)
@@ -30,7 +29,7 @@ namespace Dora.Interception
 
             var interceptors = _cache.TryGetValue(key, out var value)
                 ? value!
-                : _cache[key] = _interceptorProviders.SelectMany(it => it.GetInterceptors(targetType, method, _interceptorFactory)).OrderBy(it => it.Order).ToArray();
+                : _cache[key] = _interceptorProviders.SelectMany(it => it.GetInterceptors(targetType, method)).OrderBy(it => it.Order).ToArray();
 
             var length = interceptors.Length;
             interceptors = Enumerable.Range(0, length).Select(it => new Sortable<InvokeDelegate>(it, interceptors[it].Value)).ToArray();
@@ -51,10 +50,21 @@ namespace Dora.Interception
 
         public bool CanIntercept(Type targetType, MethodInfo method)
         {
-
             Guard.ArgumentNotNull(targetType);
             Guard.ArgumentNotNull(method);
-            return _interceptorProviders.Any(it => it.CanIntercept(targetType, method));
+            bool interceptable = false; 
+            foreach (var provider in _interceptorProviders)
+            {
+                if (provider.CanIntercept(targetType, method, out var suppressed))
+                {
+                    interceptable = true;
+                }
+                if (suppressed)
+                {
+                    return false;
+                }
+            }
+            return interceptable;
         }
     }
 }

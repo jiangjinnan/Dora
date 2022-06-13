@@ -37,7 +37,7 @@ namespace Dora.Interception
         /// <typeparam name="TTarget">The type of target instance the method is called against.</typeparam>
         /// <param name="propertyAccessExpression">The property access expression.</param>
         /// <returns>The <see cref="MethodInfo"/>.</returns>
-        public static PropertyInfo GetProperty<TTarget>(Expression<Func<TTarget, object>> propertyAccessExpression)
+        public static PropertyInfo GetProperty<TTarget>(Expression<Func<TTarget, object?>> propertyAccessExpression)
         {
             // Property
             if (propertyAccessExpression.Body is MemberExpression  memberExpression && memberExpression.Member is PropertyInfo property)

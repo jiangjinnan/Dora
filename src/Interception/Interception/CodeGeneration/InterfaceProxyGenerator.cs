@@ -4,6 +4,7 @@ using System.Reflection;
 
 namespace Dora.Interception.CodeGeneration
 {
+    [NonInterceptable]
     internal class InterfaceProxyGenerator : CodeGeneratorBase
     {
         private readonly Lazy<IVirtualMethodProxyGenerator> _virtualMethodProxyGeneratorAccessor;
@@ -31,6 +32,11 @@ namespace Dora.Interception.CodeGeneration
             }
 
             Validate(implementationType);
+
+            if (!@interface.IsPublic)
+            {
+                return false;
+            }
 
             var methods = implementationType
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Where(it => it.IsPublic || it.IsFamily || it.IsFamilyAndAssembly)

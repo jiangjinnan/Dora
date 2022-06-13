@@ -11,18 +11,18 @@ namespace Dora.Interception
         /// Determines specified method can be intercepted.
         /// </summary>
         /// <param name="targetType">Target type.</param>
-        /// <param name="method">The method to check.</param>
+        /// <param name="method">The method to check.</param>        
+        /// <param name="suppressed">A <see cref="Boolean"/>value indicating whether to suppress interception.</param>
         /// <returns>A <see cref="Boolean"/>value indicating specified method is intercepted.</returns>
-        bool CanIntercept(Type targetType, MethodInfo method);
+        bool CanIntercept(Type targetType, MethodInfo method, out bool suppressed);
 
         /// <summary>
         /// Gets the interceptors applied specified method.
         /// </summary>
         /// <param name="targetType">Target type.</param>
         /// <param name="method">The target method.</param>
-        /// <param name="interceptorFactory">A delegate as a factory to create interceptor (a <see cref="InvokeDelegate"/> delegate).</param>
         /// <returns>The <see cref="Sortable{InvokeDelegate}"/> represents the applied interceptors.</returns>
-        IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method, Func<Type, object[], InvokeDelegate> interceptorFactory);
+        IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method);
 
         /// <summary>
         /// Validates and ensure interceptors are applied to approriate members of specified type.

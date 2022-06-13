@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace Dora.Interception.CodeGeneration
 {
+    [NonInterceptable]
     internal class VirtualMethodProxyGenerator : CodeGeneratorBase, IVirtualMethodProxyGenerator, ICodeGenerator
     {
         private readonly IMethodInvokerBuilder _methodInvokerBuilder;

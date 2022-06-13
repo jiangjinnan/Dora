@@ -31,11 +31,13 @@ namespace Microsoft.Extensions.Hosting
         {
             if (hostBuilder == null) throw new ArgumentNullException(nameof(hostBuilder));
             if (serviceProviderOptions == null) throw new ArgumentNullException(nameof(serviceProviderOptions));
-            Action<InterceptionBuilder>  configure = builder => {
+            hostBuilder.ConfigureServices((_, services) => services.AddHttpContextAccessor());
+            Action<InterceptionBuilder> configure = builder =>
+            {
                 builder.Services.Replace(ServiceDescriptor.Singleton<IInvocationServiceScopeFactory, RequestServiceScopeFactory>());
                 setup?.Invoke(builder);
             };
-            return hostBuilder.UseServiceProviderFactory(new InterceptionServiceProviderFactory(serviceProviderOptions?? new ServiceProviderOptions(), configure));
+            return hostBuilder.UseServiceProviderFactory(new InterceptionServiceProviderFactory(serviceProviderOptions ?? new ServiceProviderOptions(), configure));
         }
 
         private class InterceptionServiceProviderFactory : IServiceProviderFactory<InterceptableContainerBuilder>

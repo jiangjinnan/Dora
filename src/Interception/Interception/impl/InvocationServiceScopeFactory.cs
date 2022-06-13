@@ -2,6 +2,7 @@
 
 namespace Dora.Interception
 {
+    [NonInterceptable]
     internal class InvocationServiceScopeFactory : IInvocationServiceScopeFactory
     {
         private readonly IApplicationServicesAccessor _applicationServicesAccessor;

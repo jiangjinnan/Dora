@@ -1,0 +1,1 @@
+﻿Method injection - ASP.NET Core

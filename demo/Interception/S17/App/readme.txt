@@ -1,0 +1,1 @@
+﻿Define InterceptorAttribute derived interceptor class.

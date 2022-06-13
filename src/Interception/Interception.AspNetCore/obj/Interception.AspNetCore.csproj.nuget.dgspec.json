@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projects\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj": {}
+    "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj": {}
   },
   "projects": {
-    "D:\\Projects\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj": {
+    "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj": {
       "version": "6.0.2",
       "restore": {
-        "projectUniqueName": "D:\\Projects\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj",
+        "projectUniqueName": "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj",
         "projectName": "Dora.Interception.AspNetCore",
-        "projectPath": "D:\\Projects\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj",
-        "packagesPath": "C:\\Users\\jinnan\\.nuget\\packages\\",
-        "outputPath": "D:\\Projects\\Dora\\src\\Interception\\Interception.AspNetCore\\obj\\",
+        "projectPath": "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception.AspNetCore\\Interception.AspNetCore.csproj",
+        "packagesPath": "C:\\Users\\jinnan-win10\\.nuget\\packages\\",
+        "outputPath": "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception.AspNetCore\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\jinnan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\jinnan-win10\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -22,14 +22,17 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "D:\\local-nuget-feed": {},
+          "http://api.nuget.17usoft.com/v3/index.json": {},
+          "http://nugetproxy.17usoft.com/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "D:\\Projects\\Dora\\src\\Interception\\Interception\\Interception.csproj": {
-                "projectPath": "D:\\Projects\\Dora\\src\\Interception\\Interception\\Interception.csproj"
+              "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception\\Interception.csproj": {
+                "projectPath": "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception\\Interception.csproj"
               }
             }
           }
@@ -45,6 +48,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Http": {
+              "target": "Package",
+              "version": "[2.2.2, )"
+            },
             "Microsoft.AspNetCore.Http.Abstractions": {
               "target": "Package",
               "version": "[2.2.0, )"
@@ -69,21 +76,21 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\Projects\\Dora\\src\\Interception\\Interception\\Interception.csproj": {
+    "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception\\Interception.csproj": {
       "version": "6.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projects\\Dora\\src\\Interception\\Interception\\Interception.csproj",
+        "projectUniqueName": "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception\\Interception.csproj",
         "projectName": "Dora.Interception",
-        "projectPath": "D:\\Projects\\Dora\\src\\Interception\\Interception\\Interception.csproj",
-        "packagesPath": "C:\\Users\\jinnan\\.nuget\\packages\\",
-        "outputPath": "D:\\Projects\\Dora\\src\\Interception\\Interception\\obj\\",
+        "projectPath": "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception\\Interception.csproj",
+        "packagesPath": "C:\\Users\\jinnan-win10\\.nuget\\packages\\",
+        "outputPath": "D:\\Projects\\Dora\\Dora\\src\\Interception\\Interception\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\jinnan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\jinnan-win10\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -91,6 +98,9 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "D:\\local-nuget-feed": {},
+          "http://api.nuget.17usoft.com/v3/index.json": {},
+          "http://nugetproxy.17usoft.com/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -142,7 +152,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.300\\RuntimeIdentifierGraph.json"
         }
       }
     }

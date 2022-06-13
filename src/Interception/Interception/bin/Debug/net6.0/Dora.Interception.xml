@@ -276,6 +276,14 @@
             </summary>
             <typeparam name="TInterceptor">The type of the interceptor.</typeparam>
         </member>
+        <member name="M:Dora.Interception.Expressions.IInterceptorRegistry`1.ToAllMethods``1(System.Int32)">
+            <summary>
+            Applies specified interceptor to all methods of target method.
+            </summary>
+            <typeparam name="TTarget">The type of target method to which the interceptor is applied.</typeparam>
+            <param name="order">The order determining the specified interceptor in chain.</param>
+            <returns>The current <see cref="T:Dora.Interception.Expressions.IInterceptorRegistry`1"/></returns>
+        </member>
         <member name="M:Dora.Interception.Expressions.IInterceptorRegistry`1.ToMethod``1(System.Int32,System.Linq.Expressions.Expression{System.Action{``0}})">
             <summary>
             Applies specified interceptor to target method.
@@ -405,8 +413,15 @@
             <summary>
             Creates the interceptor based <see cref="T:Dora.Interception.InvokeDelegate"/>.
             </summary>
-            <param name="interceptorType">Type of the interceptor based <see cref="T:Dora.Interception.InvokeDelegate"/>.</param>
+            <param name="interceptorType">Type of the interceptor.</param>
             <param name="arguments">The arguments passed to constructor.</param>
+            <returns>The created interceptor based <see cref="T:Dora.Interception.InvokeDelegate"/>.</returns>
+        </member>
+        <member name="M:Dora.Interception.IConventionalInterceptorFactory.CreateInterceptor(System.Object)">
+            <summary>
+            Creates the interceptor based <see cref="T:Dora.Interception.InvokeDelegate"/>.
+            </summary>
+            <param name="interceptor">The interceptor.</param>
             <returns>The created interceptor based <see cref="T:Dora.Interception.InvokeDelegate"/>.</returns>
         </member>
         <member name="T:Dora.Interception.IInterceptorProvider">
@@ -414,21 +429,21 @@
             Provider to get the interceptors applied specified method.
             </summary>
         </member>
-        <member name="M:Dora.Interception.IInterceptorProvider.CanIntercept(System.Type,System.Reflection.MethodInfo)">
+        <member name="M:Dora.Interception.IInterceptorProvider.CanIntercept(System.Type,System.Reflection.MethodInfo,System.Boolean@)">
             <summary>
             Determines specified method can be intercepted.
             </summary>
             <param name="targetType">Target type.</param>
-            <param name="method">The method to check.</param>
+            <param name="method">The method to check.</param>        
+            <param name="suppressed">A <see cref="T:System.Boolean"/>value indicating whether to suppress interception.</param>
             <returns>A <see cref="T:System.Boolean"/>value indicating specified method is intercepted.</returns>
         </member>
-        <member name="M:Dora.Interception.IInterceptorProvider.GetInterceptors(System.Type,System.Reflection.MethodInfo,System.Func{System.Type,System.Object[],Dora.Interception.InvokeDelegate})">
+        <member name="M:Dora.Interception.IInterceptorProvider.GetInterceptors(System.Type,System.Reflection.MethodInfo)">
             <summary>
             Gets the interceptors applied specified method.
             </summary>
             <param name="targetType">Target type.</param>
             <param name="method">The target method.</param>
-            <param name="interceptorFactory">A delegate as a factory to create interceptor (a <see cref="T:Dora.Interception.InvokeDelegate"/> delegate).</param>
             <returns>The <see cref="T:Dora.Interception.Sortable`1"/> represents the applied interceptors.</returns>
         </member>
         <member name="M:Dora.Interception.IInterceptorProvider.Validate(System.Type,System.Action{System.Reflection.MethodInfo},System.Action{System.Reflection.PropertyInfo})">
@@ -517,6 +532,47 @@
             The interceptor registrations.
             </value>
         </member>
+        <member name="T:Dora.Interception.InterceptorProviderBase">
+            <summary>
+            Provider to get the interceptors applied specified method.
+            </summary>
+        </member>
+        <member name="M:Dora.Interception.InterceptorProviderBase.#ctor(Dora.Interception.IConventionalInterceptorFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Dora.Interception.InterceptorProviderBase"/> class.
+            </summary>
+            <param name="interceptorFactory">The interceptor factory.</param>
+            <exception cref="T:System.ArgumentNullException">interceptorFactory</exception>
+        </member>
+        <member name="P:Dora.Interception.InterceptorProviderBase.InterceptorFactory">
+            <summary>
+            Gets the factory to create interceptor based on specified type and optional arguments.
+            </summary>
+            <value>
+            The factory to create interceptor based on specified type and optional arguments.
+            </value>
+        </member>
+        <member name="M:Dora.Interception.InterceptorProviderBase.CanIntercept(System.Type,System.Reflection.MethodInfo,System.Boolean@)">
+            <summary>
+            Determines specified method can be intercepted.
+            </summary>
+            <param name="targetType">Target type.</param>
+            <param name="method">The method to check.</param>
+            <param name="suppressed">A <see cref="T:System.Boolean" />value indicating whether to suppress interception.</param>
+            <returns>
+            A <see cref="T:System.Boolean" />value indicating specified method is intercepted.
+            </returns>
+        </member>
+        <member name="M:Dora.Interception.InterceptorProviderBase.GetInterceptors(System.Type,System.Reflection.MethodInfo)">
+            <summary>
+            Gets the interceptors applied specified method.
+            </summary>
+            <param name="targetType">Target type.</param>
+            <param name="method">The target method.</param>
+            <returns>
+            The <see cref="T:Dora.Interception.Sortable`1" /> represents the applied interceptors.
+            </returns>
+        </member>
         <member name="T:Dora.Interception.InvocationContext">
             <summary>
             Method invocation context.
@@ -544,6 +600,14 @@
             </summary>
             <value>
             The method invocation scope based <see cref="T:System.IServiceProvider"/>.
+            </value>
+        </member>
+        <member name="P:Dora.Interception.InvocationContext.Properties">
+            <summary>
+            Gets the dictionary used to attach any property data into the invocation context.
+            </summary>
+            <value>
+            The dictionary used to attach any property data into the invocation context.
             </value>
         </member>
         <member name="M:Dora.Interception.InvocationContext.GetArgument``1(System.String)">

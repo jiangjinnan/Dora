@@ -1,0 +1,1 @@
+﻿Generic interceptor + attribute based registration

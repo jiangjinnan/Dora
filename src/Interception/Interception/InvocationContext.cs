@@ -32,6 +32,14 @@ namespace Dora.Interception
         public abstract IServiceProvider InvocationServices { get; }
 
         /// <summary>
+        /// Gets the dictionary used to attach any property data into the invocation context.
+        /// </summary>
+        /// <value>
+        /// The dictionary used to attach any property data into the invocation context.
+        /// </value>
+        public IDictionary<object, object> Properties { get; } = new Dictionary<object, object>();
+
+        /// <summary>
         /// Gets the argument value based on specified name.
         /// </summary>
         /// <typeparam name="TArgument">The type of the argument.</typeparam>

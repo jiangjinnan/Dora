@@ -1,0 +1,1 @@
+﻿Get invocation context information.
