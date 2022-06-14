@@ -47,7 +47,7 @@ namespace Dora.Interception
                 throw new ArgumentNullException(nameof(type));
             }
 
-            var isPublic = type.IsPublic;
+            var isPublic = type.IsPublic || type.IsNestedPublic;
             var attribute = type.GetCustomAttributes<InterceptorAttribute>().FirstOrDefault();
             if (!isPublic && attribute is not null)
             {

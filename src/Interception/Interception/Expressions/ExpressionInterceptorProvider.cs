@@ -231,7 +231,7 @@ namespace Dora.Interception.Expressions
                 Guard.ArgumentNotNull(targetType);
                 Guard.ArgumentNotNull(method);
 
-                if (!targetType.IsPublic)
+                if (!targetType.IsPublic && !targetType.IsNestedPublic)
                 {
                     throw new InterceptionException($"The interceptor '{typeof(TInterceptor)}' must not be applied to non-public type {targetType}.");
                 }
@@ -252,7 +252,7 @@ namespace Dora.Interception.Expressions
             public IInterceptorRegistry<TInterceptor> ToAllMethods<TTarget>(int order)
             {
                 var targetType = typeof(TTarget);
-                if (!targetType.IsPublic)
+                if (!targetType.IsPublic && !targetType.IsNested)
                 {
                     throw new InterceptionException($"The interceptor '{typeof(TInterceptor)}' must not be applied to non-public type {targetType}.");
                 }

@@ -33,7 +33,7 @@ namespace Dora.Interception.CodeGeneration
 
             Validate(implementationType);
 
-            if (!@interface.IsPublic)
+            if (!@interface.IsPublic && !@interface.IsNestedPublic)
             {
                 return false;
             }
