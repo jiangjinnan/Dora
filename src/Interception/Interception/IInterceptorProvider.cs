@@ -30,6 +30,6 @@ namespace Dora.Interception
         /// <param name="methodValidator">A delegate used to ensure the method to which the interceptors are applied is interceptable.</param>
         /// <param name="propertyValidator">A delegate used to ensure the property to which the interceptors are applied is interceptable.</param>
         /// <param name="targetType">The type whose methods may be intercepted.</param>
-        void Validate(Type targetType, Action<MethodInfo> methodValidator, Action<PropertyInfo> propertyValidator) {}
+        void Validate(Type targetType, Action<MethodInfo> methodValidator, Action<PropertyInfo> propertyValidator);
     }
 }

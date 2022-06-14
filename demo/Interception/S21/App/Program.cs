@@ -8,18 +8,24 @@ var provider = new ServiceCollection()
 
 var foobar = provider.GetRequiredService<Foobar>();
 
-foobar.M(1, 1.1);
+foobar.M(1, 1);
+foobar.M(3.14, 3.14);
 foobar.P1 = null;
 _ = foobar.P1;
 foobar.P2 = null;
 _ = foobar.P2;
-Console.WriteLine();
+foobar.P3 = null;
+_ = foobar.P3;
+Console.ReadLine();
 
 static void RegisterInterceptors(IInterceptorRegistry registry)
 {
     var foobar = registry.For<FoobarInterceptor>();
     foobar
-        .ToMethod<Foobar>(order: 1, it => it.M(default, default))
+        .ToMethod<Foobar>(order: 1, it => it.M(default(int), default(int)))
+        .ToMethod<Foobar>(order: 1, it => it.M(default(double), default(double)))
         .ToProperty<Foobar>(order: 1, it => it.P1)
-        .ToSetMethod<Foobar>(order: 1, it=>it.P2);
+        .ToGetMethod<Foobar>(order: 1, it => it.P2)
+        .ToSetMethod<Foobar>(order: 1, it => it.P3)
+        ;
 }

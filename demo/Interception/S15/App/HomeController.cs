@@ -2,15 +2,15 @@
 
 namespace App
 {
-    public class HomeController
+public class HomeController
+{
+    [HttpGet("/")]
+    public string Index([FromServices] Invoker invoker)
     {
-        [HttpGet("/")]
-        public string Index([FromServices] Invoker invoker)
-        {
-            invoker.Invoke();
-            Console.WriteLine();
-            invoker.Invoke();
-            return "OK";
-        }
+        invoker.Invoke();
+        Console.WriteLine();
+        invoker.Invoke();
+        return "OK";
     }
+}
 }

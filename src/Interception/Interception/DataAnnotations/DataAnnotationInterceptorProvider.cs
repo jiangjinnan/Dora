@@ -40,7 +40,7 @@ namespace Dora.Interception
             return list;
         }
 
-        public void Validate(Type type, Action<MethodInfo> methodValidator, Action<PropertyInfo> propertyValidator)
+        public override void Validate(Type type, Action<MethodInfo> methodValidator, Action<PropertyInfo> propertyValidator)
         {
             if (type is null)
             {

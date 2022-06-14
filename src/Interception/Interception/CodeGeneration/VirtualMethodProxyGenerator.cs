@@ -89,7 +89,7 @@ namespace Dora.Interception.CodeGeneration
                             invokerAccessorFieldNames?.TryGetValue(setMethod, out setInvokerFieldName);
                         }
 
-                        if (!string.IsNullOrWhiteSpace(setInvocationContextClassName))
+                        if (!string.IsNullOrWhiteSpace(getInvocationContextClassName) || !string.IsNullOrWhiteSpace(setInvocationContextClassName))
                         {
                             GenerateProperty(context, property, getInvocationContextClassName, setInvocationContextClassName, getMethodAccessor, setMethodAccessor, getInvokerFieldName, setInvokerFieldName, null);
                         }

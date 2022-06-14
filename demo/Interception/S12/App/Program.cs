@@ -8,3 +8,5 @@ var invoker = new ServiceCollection()
 
 invoker.Invoke();
 
+Console.Read();
+

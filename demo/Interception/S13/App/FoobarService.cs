@@ -1,6 +1,4 @@
 ﻿namespace App
 {
-    public class FoobarService
-    {
-    }
+public class FoobarService { }
 }

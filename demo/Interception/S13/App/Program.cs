@@ -1,8 +1,7 @@
 ﻿using App;
 using Microsoft.Extensions.DependencyInjection;
-
-Invoke((ServiceLifetime)int.Parse(args.FirstOrDefault()??"0"));
-
+var lifetime = (ServiceLifetime)int.Parse(args.FirstOrDefault() ?? "0");
+Invoke(lifetime);
 
 static void Invoke(ServiceLifetime lifetime)
 {

@@ -7,4 +7,3 @@ var invoker = new ServiceCollection()
     .GetRequiredService<Invoker>();
 
 invoker.Invoke();
-

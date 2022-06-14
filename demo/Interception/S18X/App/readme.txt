@@ -1,0 +1,1 @@
+﻿Apply interceptor to type & property

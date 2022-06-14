@@ -2,13 +2,13 @@
 
 namespace App
 {
-    public class FoobarInterceptorAttribute : InterceptorAttribute
+public class FoobarInterceptorAttribute : InterceptorAttribute
+{
+    public ValueTask InvokeAsync(InvocationContext invocationContext)
     {
-        public ValueTask InvokeAsync(InvocationContext invocationContext)
-        {
-            var method = invocationContext.MethodInfo;
-            Console.WriteLine($"{method.DeclaringType!.Name}.{method.Name} is intercepted.");
-            return invocationContext.ProceedAsync();
-        }
+        var method = invocationContext.MethodInfo;
+        Console.WriteLine($"{method.DeclaringType!.Name}.{method.Name} is intercepted.");
+        return invocationContext.ProceedAsync();
     }
+}
 }

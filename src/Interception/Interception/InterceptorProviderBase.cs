@@ -42,6 +42,14 @@ namespace Dora.Interception
         /// <returns>
         /// The <see cref="Sortable{InvokeDelegate}" /> represents the applied interceptors.
         /// </returns>
-        public abstract IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method);        
+        public abstract IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method);
+
+        /// <summary>
+        /// Validates and ensure interceptors are applied to approriate members of specified type.
+        /// </summary>
+        /// <param name="targetType">The type whose methods may be intercepted.</param>
+        /// <param name="methodValidator">A delegate used to ensure the method to which the interceptors are applied is interceptable.</param>
+        /// <param name="propertyValidator">A delegate used to ensure the property to which the interceptors are applied is interceptable.</param>
+        public virtual void Validate(Type targetType, Action<MethodInfo> methodValidator, Action<PropertyInfo> propertyValidator) { }
     }
 }

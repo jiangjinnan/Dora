@@ -2,18 +2,14 @@
 using Dora.Interception;
 using Microsoft.Extensions.DependencyInjection;
 
-var provider = new ServiceCollection()
+var foobar = new ServiceCollection()
     .AddSingleton<Foobar>()
-    .BuildInterceptableServiceProvider(interception => interception.RegisterInterceptors(RegisterInterceptors));
-
-var foobar = provider.GetRequiredService<Foobar>();
+    .BuildInterceptableServiceProvider(interception => interception.RegisterInterceptors(RegisterInterceptors))
+    .GetRequiredService<Foobar>();
 
 foobar.M();
-foobar.P1 = null;
-_ = foobar.P1;
-foobar.P2 = null;
-_ = foobar.P2;
-Console.WriteLine();
+foobar.P = null;
+_ = foobar.P;
 
 static void RegisterInterceptors(IInterceptorRegistry registry)
 {

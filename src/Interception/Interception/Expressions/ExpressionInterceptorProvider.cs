@@ -179,6 +179,21 @@ namespace Dora.Interception.Expressions
                 return ToMethod(order, typeof(TTarget), getMethod);
             }
 
+            public IInterceptorRegistry<TInterceptor> ToSetMethod<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
+            {
+                if (propertyAccessor == null)
+                {
+                    throw new ArgumentNullException(nameof(propertyAccessor));
+                }
+                var property = MemberUtilities.GetProperty(propertyAccessor);
+                var setMethod = property.SetMethod;
+                if (setMethod is null)
+                {
+                    throw new InterceptionException($"Specified property '{property.Name}' of '{property.DeclaringType}' does not have Set method.");
+                }
+                return ToMethod(order, typeof(TTarget), setMethod);
+            }
+
             public IInterceptorRegistry<TInterceptor> ToProperty<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
             {
                 if (propertyAccessor == null)
@@ -209,20 +224,7 @@ namespace Dora.Interception.Expressions
                 return this;
             }
 
-            public IInterceptorRegistry<TInterceptor> ToSetMethod<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
-            {
-                if (propertyAccessor == null)
-                {
-                    throw new ArgumentNullException(nameof(propertyAccessor));
-                }
-                var property = MemberUtilities.GetProperty(propertyAccessor);
-                var setMethod = property.SetMethod;
-                if (setMethod is null)
-                {
-                    throw new InterceptionException($"Specified property '{property.Name}' of '{property.DeclaringType}' does not have Get method.");
-                }
-                return ToMethod(order, typeof(TTarget), setMethod);
-            }
+           
 
             public IInterceptorRegistry<TInterceptor> ToMethod(int order, Type targetType, MethodInfo method)
             {
