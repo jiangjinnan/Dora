@@ -12,6 +12,8 @@ invoker.M1();
 Console.WriteLine();
 invoker.M2();
 
+Console.ReadLine();
+
 static void RegisterInterceptors(IInterceptorRegistry registry)
 {
     registry.For<FoobarInterceptor>("Interceptor1").ToMethod<Invoker>(order: 1, it => it.M1());

@@ -16,7 +16,6 @@ foobar.P2 = null;
 _ = foobar.P2;
 foobar.P3 = null;
 _ = foobar.P3;
-Console.ReadLine();
 
 static void RegisterInterceptors(IInterceptorRegistry registry)
 {

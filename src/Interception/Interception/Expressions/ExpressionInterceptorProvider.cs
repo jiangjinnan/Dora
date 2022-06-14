@@ -161,7 +161,7 @@ namespace Dora.Interception.Expressions
                 }
 
                 var method = MemberUtilities.GetMethod(methodCall);
-                return ToMethod(order, typeof(TTarget), method);
+                return ToMethods<TTarget>(order, method);
             }
 
             public IInterceptorRegistry<TInterceptor> ToGetMethod<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
@@ -176,7 +176,7 @@ namespace Dora.Interception.Expressions
                 {
                     throw new InterceptionException($"Specified property '{property.Name}' of '{property.DeclaringType}' does not have Get method.");
                 }
-                return ToMethod(order, typeof(TTarget), getMethod);
+                return ToMethods<TTarget>(order, getMethod);
             }
 
             public IInterceptorRegistry<TInterceptor> ToSetMethod<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
@@ -191,7 +191,7 @@ namespace Dora.Interception.Expressions
                 {
                     throw new InterceptionException($"Specified property '{property.Name}' of '{property.DeclaringType}' does not have Set method.");
                 }
-                return ToMethod(order, typeof(TTarget), setMethod);
+                return ToMethods<TTarget>(order, setMethod);
             }
 
             public IInterceptorRegistry<TInterceptor> ToProperty<TTarget>(int order, Expression<Func<TTarget, object?>> propertyAccessor)
@@ -205,14 +205,14 @@ namespace Dora.Interception.Expressions
                 var valid = false;
                 if (method is not null && MemberUtilities.IsInterfaceOrVirtualMethod(method))
                 {
-                    ToMethod(order, typeof(TTarget), method);
+                    ToMethods<TTarget>(order, method);
                     valid = true;
                 }
 
                 method = property.SetMethod;
                 if (method is not null && MemberUtilities.IsInterfaceOrVirtualMethod(method))
                 {
-                    ToMethod(order, typeof(TTarget), method);
+                    ToMethods<TTarget>(order, method);
                     valid = true;
                 }
 
@@ -222,30 +222,32 @@ namespace Dora.Interception.Expressions
                 }
 
                 return this;
-            }
+            }           
 
-           
-
-            public IInterceptorRegistry<TInterceptor> ToMethod(int order, Type targetType, MethodInfo method)
+            public IInterceptorRegistry<TInterceptor> ToMethods<TTarget>(int order, params MethodInfo[] methods)
             {
-                Guard.ArgumentNotNull(targetType);
-                Guard.ArgumentNotNull(method);
-
+                var targetType = typeof(TTarget);
                 if (!targetType.IsPublic && !targetType.IsNestedPublic)
                 {
                     throw new InterceptionException($"The interceptor '{typeof(TInterceptor)}' must not be applied to non-public type {targetType}.");
                 }
 
-                if (!MemberUtilities.IsInterfaceOrVirtualMethod(method))
+                foreach (var method in methods)
                 {
-                    throw new InterceptionException($"The interceptor '{typeof(TInterceptor)}' is applied to the method '{method.Name}' of type '{targetType}', which is neither virtual method nor interface implementation method.");
+                    if (!MemberUtilities.IsInterfaceOrVirtualMethod(method))
+                    {
+                        throw new InterceptionException($"The interceptor '{typeof(TInterceptor)}' is applied to the method '{method.Name}' of type '{targetType}', which is neither virtual method nor interface implementation method.");
+                    }
                 }
 
-                var key = new Tuple<Type, MethodInfo>(targetType, method);
-                var list = _interceptorAccessors4Method.TryGetValue(key, out var value)
-                    ? value
-                    : _interceptorAccessors4Method[key] = new List<Func<Sortable<InvokeDelegate>>>();
-                list.Add(() => new Sortable<InvokeDelegate>(order, _interceptorFatory()));
+                foreach (var method in methods)
+                {
+                    var key = new Tuple<Type, MethodInfo>(targetType, method);
+                    var list = _interceptorAccessors4Method.TryGetValue(key, out var value)
+                        ? value
+                        : _interceptorAccessors4Method[key] = new List<Func<Sortable<InvokeDelegate>>>();
+                    list.Add(() => new Sortable<InvokeDelegate>(order, _interceptorFatory()));
+                }
                 return this;
             }
 

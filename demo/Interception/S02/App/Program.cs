@@ -16,7 +16,6 @@ for (int index = 0; index < 5; index++)
     await Task.Delay(1000);
 }
 
-
 Console.WriteLine("Local time:");
 for (int index = 0; index < 5; index++)
 {
@@ -26,6 +25,5 @@ for (int index = 0; index < 5; index++)
 
 static void RegisterInterceptors(IInterceptorRegistry registry)
 {
-    var method = typeof(SystemTimeProvider).GetMethod("GetCurrentTime")!;
-    registry.For<CachingInterceptor>().ToMethod(1, typeof(SystemTimeProvider), method);
+    registry.For<CachingInterceptor>().ToMethod<SystemTimeProvider>(1, it => it.GetCurrentTime(default));
 }
