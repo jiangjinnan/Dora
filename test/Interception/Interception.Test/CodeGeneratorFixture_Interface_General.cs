@@ -62,7 +62,7 @@ namespace Dora.Interception.Test
         [Bar(Order = 2)]
         public class Foobar : IFoobar
         {
-            public string P1 { get; set; }
+            public string P1 { get; set; } = default!;
 
             public void M1(int x, int y) { }
 

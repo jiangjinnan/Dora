@@ -6,9 +6,17 @@
     <RootNamespace>Dora.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <AssemblyName>Dora.$(MSBuildProjectName)</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<Version>6.0.2</Version>
-	<PackageReleaseNotes>Fix interception suppression check bug.</PackageReleaseNotes>
+	<Version>6.0.0</Version>
+	<PackageTags>AOP, .NET, .NET Core, Roslyn, Code Generation</PackageTags>
 	<Description>Interception extensions for ASP.NET Core.</Description>
+	<RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>
+	<SignAssembly>True</SignAssembly>
+	<AssemblyOriginatorKeyFile>..\..\..\asset\Key.snk</AssemblyOriginatorKeyFile>
+	<Authors>Jiang Jin Nan</Authors>
+	<Company>Jiang Jin Nan</Company>
+	<Product>Dora</Product>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<Copyright>© Jiang Jin Nan. All rights reserved.</Copyright>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>

@@ -60,7 +60,7 @@ namespace Dora.Interception.Test
             where T1 : IDisposable, IConvertable<int>
             where T2 : IConvertable<int>
         {
-            public virtual T2 P1 { get; set; }
+            public virtual T2? P1 { get; set; }
 
             public virtual void M1(T1 x, T2 y) { }
 

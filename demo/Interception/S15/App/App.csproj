@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Interception\Interception.AspNetCore\Interception.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Interception\Interception\Interception.csproj" />
+	<PackageReference Include="Dora.Interception.AspNetCore" Version="6.0.0" />
+    <PackageReference Include="Dora.Interception" Version="6.0.0" />
   </ItemGroup>
 
 </Project>

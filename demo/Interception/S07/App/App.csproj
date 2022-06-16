@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="Dora.Interception.AspNetCore" Version="6.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Interception\Interception.AspNetCore\Interception.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>

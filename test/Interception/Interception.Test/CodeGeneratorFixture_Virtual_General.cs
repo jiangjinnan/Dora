@@ -53,7 +53,7 @@ namespace Dora.Interception.Test
         [Bar(Order = 2)]
         public class Foobar
         {
-            public virtual string P1 { get; set; }
+            public virtual string? P1 { get; set; }
 
             public virtual void M1(int x, int y) { }
 
