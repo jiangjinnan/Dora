@@ -6,7 +6,8 @@
     <RootNamespace>Dora.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <AssemblyName>Dora.$(MSBuildProjectName)</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<Version>6.0.0</Version>
+	<Version>6.0.1</Version>
+	<PackageReleaseNotes>Fix bug for inherited method based interceptor registration.</PackageReleaseNotes>
 	<PackageTags>AOP, .NET, .NET Core, Roslyn, Code Generation</PackageTags>
 	<Description>Interception extensions for ASP.NET Core.</Description>
 	<RepositoryUrl>https://github.com/jiangjinnan/Dora</RepositoryUrl>

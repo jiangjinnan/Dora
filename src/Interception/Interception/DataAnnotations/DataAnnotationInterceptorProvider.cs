@@ -16,13 +16,19 @@ namespace Dora.Interception
             if (targetType == null) throw new ArgumentNullException(nameof(targetType));
             if (method == null) throw new ArgumentNullException(nameof(method));
 
+            var declaringType = method.DeclaringType!;
+            if (declaringType != targetType)
+            {
+                return GetInterceptors(declaringType, method);
+            }
+
             var list = new List<Sortable<InvokeDelegate>>();
-            foreach (var attribute in targetType.GetCustomAttributes<InterceptorAttribute>())
+            foreach (var attribute in targetType.GetCustomAttributes<InterceptorAttribute>(false))
             {
                 list.Add(new Sortable<InvokeDelegate>(attribute.Order, CreateInterceptor(attribute)));
             }
 
-            foreach (var attribute in method.GetCustomAttributes<InterceptorAttribute>())
+            foreach (var attribute in method.GetCustomAttributes<InterceptorAttribute>(false))
             {
                 list.Add(new Sortable<InvokeDelegate>(attribute.Order, CreateInterceptor(attribute)));
             }
@@ -31,7 +37,7 @@ namespace Dora.Interception
             {
                 if (MemberUtilities.TryGetProperty(method, out var property))
                 {
-                    foreach (var attribute in property!.GetCustomAttributes<InterceptorAttribute>())
+                    foreach (var attribute in property!.GetCustomAttributes<InterceptorAttribute>(false))
                     {
                         list.Add(new Sortable<InvokeDelegate>(attribute.Order, CreateInterceptor(attribute)));
                     }
@@ -121,7 +127,12 @@ namespace Dora.Interception
             }
 
             suppressed = false;
-            return method.GetCustomAttributes<InterceptorAttribute>().Any()|| targetType.GetCustomAttributes<InterceptorAttribute>().Any() || (property?.GetCustomAttributes()?.Any() ?? false);
+            if (method.DeclaringType == targetType)
+            {
+                return method.GetCustomAttributes<InterceptorAttribute>(false).Any() || targetType.GetCustomAttributes<InterceptorAttribute>(false).Any() || (property?.GetCustomAttributes(false)?.Any() ?? false);
+            }
+
+            return CanIntercept(method.DeclaringType!, method, out suppressed);
         }
 
         private InvokeDelegate CreateInterceptor(InterceptorAttribute interceptorAttribute)

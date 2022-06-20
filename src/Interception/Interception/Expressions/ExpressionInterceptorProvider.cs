@@ -10,8 +10,8 @@ namespace Dora.Interception.Expressions
         #region Fields
         private readonly IConventionalInterceptorFactory _conventionalInterceptorFactory;
         private readonly Dictionary<Type, List<Func<Sortable<InvokeDelegate>>>> _interceptorsAccessors4Type = new();
-        private readonly Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> _interceptorsAccessors4Method = new();
-        private readonly Dictionary<Tuple<Type, MethodInfo>, List<Sortable<InvokeDelegate>>> _interceptors = new();
+        private readonly Dictionary<int, List<Func<Sortable<InvokeDelegate>>>> _interceptorsAccessors4Method = new();
+        private readonly Dictionary<int, List<Sortable<InvokeDelegate>>> _interceptors = new();
         private readonly HashSet<Type> _suppressedTypes = new();
         private readonly HashSet<MethodInfo> _suppressedMethods = new();
         #endregion
@@ -24,6 +24,10 @@ namespace Dora.Interception.Expressions
             registrations?.Invoke(this);
         }
 
+
+        #endregion
+
+        #region Public methods
         public override bool CanIntercept(Type targetType, MethodInfo method, out bool suppressed)
         {
             Guard.ArgumentNotNull(targetType);
@@ -34,11 +38,8 @@ namespace Dora.Interception.Expressions
                 return false;
             }
             suppressed = false;
-            return _interceptorsAccessors4Type.ContainsKey(targetType) || _interceptorsAccessors4Method.ContainsKey(new Tuple<Type, MethodInfo>(targetType, method));
+            return _interceptorsAccessors4Type.ContainsKey(targetType) || _interceptorsAccessors4Method.ContainsKey(method.MetadataToken);
         }
-        #endregion
-
-        #region Public methods
         public IInterceptorRegistry<TInterceptor> For<TInterceptor>(params object[] arguments)
             => new InterceptorRegistry<TInterceptor>(_interceptorsAccessors4Type, _interceptorsAccessors4Method, () => _conventionalInterceptorFactory.CreateInterceptor(typeof(TInterceptor), arguments));
         public override IEnumerable<Sortable<InvokeDelegate>> GetInterceptors(Type targetType, MethodInfo method)
@@ -46,7 +47,7 @@ namespace Dora.Interception.Expressions
             Guard.ArgumentNotNull(targetType);
             Guard.ArgumentNotNull(method);
 
-            var key = new Tuple<Type, MethodInfo>(targetType, method);
+            var key = method.MetadataToken;
             if (_interceptors.TryGetValue(key, out var interceptors))
             {
                 return interceptors;
@@ -143,9 +144,9 @@ namespace Dora.Interception.Expressions
         private sealed class InterceptorRegistry<TInterceptor> : IInterceptorRegistry<TInterceptor>
         {
             private readonly Dictionary<Type, List<Func<Sortable<InvokeDelegate>>>> _interceptorAccessors4Type;
-            private readonly Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> _interceptorAccessors4Method;
+            private readonly Dictionary<int, List<Func<Sortable<InvokeDelegate>>>> _interceptorAccessors4Method;
             private readonly Func<InvokeDelegate> _interceptorFatory;
-            public InterceptorRegistry(Dictionary<Type, List<Func<Sortable<InvokeDelegate>>>> interceptorAccessors4Type, Dictionary<Tuple<Type, MethodInfo>, List<Func<Sortable<InvokeDelegate>>>> interceptorAccessors4Method, Func<InvokeDelegate> interceptorFatory)
+            public InterceptorRegistry(Dictionary<Type, List<Func<Sortable<InvokeDelegate>>>> interceptorAccessors4Type, Dictionary<int, List<Func<Sortable<InvokeDelegate>>>> interceptorAccessors4Method, Func<InvokeDelegate> interceptorFatory)
             {
                 _interceptorAccessors4Type = interceptorAccessors4Type;
                 _interceptorAccessors4Method = interceptorAccessors4Method;
@@ -242,7 +243,7 @@ namespace Dora.Interception.Expressions
 
                 foreach (var method in methods)
                 {
-                    var key = new Tuple<Type, MethodInfo>(targetType, method);
+                    var key = method.MetadataToken;
                     var list = _interceptorAccessors4Method.TryGetValue(key, out var value)
                         ? value
                         : _interceptorAccessors4Method[key] = new List<Func<Sortable<InvokeDelegate>>>();

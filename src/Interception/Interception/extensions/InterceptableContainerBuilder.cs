@@ -48,7 +48,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var applicationServiceAccessor = provider.GetRequiredService<IApplicationServicesAccessor>();
                ((ApplicationServicesAccessor) applicationServiceAccessor).ApplicationServices = provider;
                 MethodInvokerBuilder.Instance = provider.GetRequiredService<IMethodInvokerBuilder>();
-                var logger = provider.GetRequiredService<ILogger<InterceptableContainerBuilder>>();
+                var logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger("Dora.Interception");
                 var log4GenerateCode = LoggerMessage.Define<string>(LogLevel.Information, 0, "Interceptable proxy classes are generated. " + Environment.NewLine + Environment.NewLine + "{0}");
                 var codeGenerators = provider.GetServices<ICodeGenerator>();
                 return CreateServiceProviderCore(codeGenerators, logger, log4GenerateCode);
