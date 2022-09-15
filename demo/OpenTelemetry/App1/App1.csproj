@@ -12,6 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\OpenTelemetry\OpenTelemetry.Http\OpenTelemetry.Http.csproj" />
+    <ProjectReference Include="..\..\..\src\OpenTelemetry\OpenTelemetry.OpenTelemetryProtocol\OpenTelemetry.OpenTelemetryProtocol.csproj" />
     <ProjectReference Include="..\..\..\src\OpenTelemetry\OpenTelemetry.Zipkin\OpenTelemetry.Zipkin.csproj" />
     <ProjectReference Include="..\..\..\src\OpenTelemetry\OpenTelemetry\OpenTelemetry.csproj" />
   </ItemGroup>

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Dora.OpenTelemetry.OpenTelemetryProtocol</RootNamespace>
+    <AssemblyName>Dora.OpenTelemetry.OpenTelemetryProtocol</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenTelemetry\OpenTelemetry.csproj" />
+	  <PackageReference Include="Google.Protobuf" Version="3.21.5" />
+	  <PackageReference Include="Grpc" Version="2.46.3" />
+	  <PackageReference Include="Grpc.Net.Client" Version="2.48.0" />
+	  <PackageReference Include="Grpc.Tools" Version="2.48.1" PrivateAssets="all" />
+	  <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<Protobuf Include="**/*.proto" Access="public">
+			<ProtoRoot>.</ProtoRoot>
+		</Protobuf>
+	</ItemGroup>
+
+</Project>

@@ -3,40 +3,44 @@ using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
-    .AddOpenTelemetryTracing(tracing => tracing.SetServiceInstance("app2")
+    .AddOpenTelemetryTracing(tracing => tracing
         .AddConsoleExporter()
-        .AddZipkinExporter()
-        .InstrumentAspNetCore()
-        );
+        .ExportToOtlpCollector()
+        //.ExportToZipkin()
+        .InstrumentAspNetCore()); ;
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-
-var summaries = new[]
+var random = new Random();
+app.MapGet("/weatherforecast", async (ActivitySource source) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", (ActivitySource source) =>
-{
-    using (source.StartActivity("qux"))
+    using (source.StartActivity("baz")
+        ?.AddEvent(new ActivityEvent(
+        "log",
+        DateTime.UtcNow,
+        new ActivityTagsCollection(
+            new Dictionary<string, object?>
+            {
+                { "log.severity", "error" },
+                { "log.message", "User not found" },
+                { "enduser.id", 123 },
+            }
+        )
+    )))
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-       new WeatherForecast
-       (
-           DateTime.Now.AddDays(index),
-           Random.Shared.Next(-20, 55),
-           summaries[Random.Shared.Next(summaries.Length)]
-       ))
-        .ToArray();
-        return forecast;
+        await Task.Delay(100);
+        using (new SuppressScope())
+        {
+            using (source.StartActivity("qux"))
+            {
+                if (random.Next(10) > 5)
+                {
+                    throw new InvalidOperationException("manually thrown exception");
+                }
+
+                await Task.Delay(100);
+            }
+        }
     }
 });
 
 app.Run();
-
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

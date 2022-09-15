@@ -12,6 +12,7 @@ namespace Dora.OpenTelemetry.Zipkin
         private readonly Action<ILogger, Exception> _logError;
         private readonly ILogger _logger;
         private readonly IZipkinSpanWriter _writer;
+        private readonly TimeSpan _timeout;
 
         public ZipkinExporter(IHttpClientFactory httpClientFactory, IZipkinSpanWriter writer, IOptions<ZipkinExporterOptions> optionsAccessor, ILogger<ZipkinExporter> logger)
         {
@@ -20,6 +21,7 @@ namespace Dora.OpenTelemetry.Zipkin
             _endpoint = (optionsAccessor ?? throw new ArgumentNullException(nameof(optionsAccessor))).Value.Endpoint;
             _logError = LoggerMessage.Define(LogLevel.Error, 0, "Failed to export activities to zipkin.");
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _timeout = optionsAccessor.Value.SendTimeout;
         }
 
         public void Export(IEnumerable<Activity> activities)
@@ -31,7 +33,12 @@ namespace Dora.OpenTelemetry.Zipkin
                     Content = new ZipkinTraceContent(_writer, activities)
                 };
                 var httpCient = _httpClientFactory.CreateClient(ZipkinDefaults.HttpClientName);
-                httpCient.Send(request).EnsureSuccessStatusCode();
+                using (new SuppressScope())
+                {
+                    var source = new CancellationTokenSource();
+                    source.CancelAfter(_timeout);
+                    httpCient.Send(request, source.Token).EnsureSuccessStatusCode();
+                }
             }
             catch (Exception ex)
             {

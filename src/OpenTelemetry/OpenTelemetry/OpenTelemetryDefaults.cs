@@ -24,9 +24,6 @@
             public const string LibraryName = "otel.library.name";
             public const string LibraryVersion = "otel.library.version";
 
-            // The set of constants matches the specification as of this commit.
-            // https://github.com/open-telemetry/opentelemetry-specification/tree/main/specification/trace/semantic_conventions
-            // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/exceptions.md
             public const string NetTransport = "net.transport";
             public const string NetPeerIp = "net.peer.ip";
             public const string NetPeerPort = "net.peer.port";

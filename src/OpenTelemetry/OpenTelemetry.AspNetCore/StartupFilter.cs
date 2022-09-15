@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Dora.OpenTelemetry.AspNetCore
 {
@@ -10,7 +11,7 @@ namespace Dora.OpenTelemetry.AspNetCore
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
         {
             return app => {
-                app.ApplicationServices.GetRequiredService<IActivitySourceProvider>().GetActivitySource();
+                app.ApplicationServices.GetRequiredService<IActivitySourceProvider>().GetActivitySource();                
                 next(app);
             };
         }

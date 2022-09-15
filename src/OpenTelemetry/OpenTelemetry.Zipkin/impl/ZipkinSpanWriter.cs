@@ -80,10 +80,10 @@ namespace Dora.OpenTelemetry.Zipkin
             {
                 if (ZipkinTagTransformer.Instance.TryTransformTag(attribute, out var result))
                 {
-                    writer.WriteString(attribute.Key, result);
+                    writer.WriteStringIfExists(attribute.Key, result);
                 }
             }
-
+           
             var isStatusAdded = false;
             if (activity.Status != ActivityStatusCode.Unset)
             {
@@ -98,19 +98,7 @@ namespace Dora.OpenTelemetry.Zipkin
                 }
                 isStatusAdded = true;
             }
-
-            foreach (var tag in activity.Tags)
-            {
-                if (ResolveRemotePeer(tag.Key, tag.Value))
-                {
-                    continue;
-                }
-                if (isStatusAdded && tag.Key == OpenTelemetryDefaults.SpanAttributeNames.StatusCode)
-                {
-                    continue;
-                }
-                writer.WriteStringIfExists(tag.Key, tag.Value);
-            }
+           
             foreach (var tagObject in activity.TagObjects)
             {
                 if (ResolveRemotePeer(tagObject.Key, tagObject.Value))
@@ -126,17 +114,22 @@ namespace Dora.OpenTelemetry.Zipkin
                     writer.WriteString(tagObject.Key, result);
                 }
             }
-
-            writer.WriteStringIfExists(OpenTelemetryDefaults.SpanAttributeNames.PeerService, peerService ?? peerHostName ?? peerAddress ?? httpHost ?? dbInstance);
+            if (activity.Kind == ActivityKind.Client || activity.Kind == ActivityKind.Producer)
+            {
+                writer.WriteStringIfExists(OpenTelemetryDefaults.SpanAttributeNames.PeerService, peerService ?? peerHostName ?? peerAddress ?? httpHost ?? dbInstance);
+            }
             writer.WriteEndObject();
 
             bool ResolveRemotePeer(string key, object? value)
             {
-                if (key == OpenTelemetryDefaults.SpanAttributeNames.PeerService) { peerAddress = value?.ToString(); return true; }
-                 if (key == OpenTelemetryDefaults.SpanAttributeNames.PeerHostName) { peerHostName = value?.ToString(); return true; }
-                if (key == OpenTelemetryDefaults.SpanAttributeNames.PeerAddress) { peerAddress = value?.ToString(); return true; }
-                if (key == OpenTelemetryDefaults.SpanAttributeNames.HttpHost) { httpHost = value?.ToString(); return true; }
-                if (key == OpenTelemetryDefaults.SpanAttributeNames.DbInstance) { dbInstance = value?.ToString(); return true; }
+                if (activity.Kind == ActivityKind.Client || activity.Kind == ActivityKind.Producer)
+                {
+                    if (key == OpenTelemetryDefaults.SpanAttributeNames.PeerService) { peerAddress = value?.ToString(); return true; }
+                    if (key == OpenTelemetryDefaults.SpanAttributeNames.PeerHostName) { peerHostName = value?.ToString(); return true; }
+                    if (key == OpenTelemetryDefaults.SpanAttributeNames.PeerAddress) { peerAddress = value?.ToString(); return true; }
+                    if (key == OpenTelemetryDefaults.SpanAttributeNames.HttpHost) { httpHost = value?.ToString(); return true; }
+                    if (key == OpenTelemetryDefaults.SpanAttributeNames.DbInstance) { dbInstance = value?.ToString(); return true; }
+                }
                 return false;
             }
         }

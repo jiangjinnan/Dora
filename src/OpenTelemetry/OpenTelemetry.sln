@@ -19,15 +19,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App1", "..\..\demo\OpenTele
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTelemetry.Zipkin", "OpenTelemetry.Zipkin\OpenTelemetry.Zipkin.csproj", "{2E638838-6A65-4ED3-8B46-ED6C8DF62CAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.AspNetCore", "OpenTelemetry.AspNetCore\OpenTelemetry.AspNetCore.csproj", "{14BB8877-BBBD-49CF-AC10-0359DAF816A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenTelemetry.AspNetCore", "OpenTelemetry.AspNetCore\OpenTelemetry.AspNetCore.csproj", "{14BB8877-BBBD-49CF-AC10-0359DAF816A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App2", "..\..\demo\OpenTelemetry\App2\App2.csproj", "{CA6282A5-90D0-432D-A954-ECA859FC0808}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App2", "..\..\demo\OpenTelemetry\App2\App2.csproj", "{CA6282A5-90D0-432D-A954-ECA859FC0808}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.Http", "OpenTelemetry.Http\OpenTelemetry.Http.csproj", "{4C204220-E408-4979-80BA-CBE96DA0F7B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.OpenTelemetryProtocol", "OpenTelemetry.OpenTelemetryProtocol\OpenTelemetry.OpenTelemetryProtocol.csproj", "{4763A60C-95EE-4CC9-AF97-A4AE7F328018}"
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\Shared\Shared.projitems*{00bfba7f-b45d-41a3-9bf3-fa85a784b7de}*SharedItemsImports = 13
-		..\Shared\Shared.projitems*{dd6906a0-de65-4497-866b-daba7b222f45}*SharedItemsImports = 5
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -53,6 +53,14 @@ Global
 		{CA6282A5-90D0-432D-A954-ECA859FC0808}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA6282A5-90D0-432D-A954-ECA859FC0808}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA6282A5-90D0-432D-A954-ECA859FC0808}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C204220-E408-4979-80BA-CBE96DA0F7B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C204220-E408-4979-80BA-CBE96DA0F7B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C204220-E408-4979-80BA-CBE96DA0F7B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C204220-E408-4979-80BA-CBE96DA0F7B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4763A60C-95EE-4CC9-AF97-A4AE7F328018}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4763A60C-95EE-4CC9-AF97-A4AE7F328018}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4763A60C-95EE-4CC9-AF97-A4AE7F328018}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4763A60C-95EE-4CC9-AF97-A4AE7F328018}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,8 +72,14 @@ Global
 		{2E638838-6A65-4ED3-8B46-ED6C8DF62CAF} = {90CDCE86-5086-4928-B94E-EAE06530693D}
 		{14BB8877-BBBD-49CF-AC10-0359DAF816A0} = {90CDCE86-5086-4928-B94E-EAE06530693D}
 		{CA6282A5-90D0-432D-A954-ECA859FC0808} = {3FCBC6A3-A837-4E38-805F-E0CEE02C34C0}
+		{4C204220-E408-4979-80BA-CBE96DA0F7B8} = {90CDCE86-5086-4928-B94E-EAE06530693D}
+		{4763A60C-95EE-4CC9-AF97-A4AE7F328018} = {90CDCE86-5086-4928-B94E-EAE06530693D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {29BD750D-AA28-4D2E-B557-3A0C844FBAE7}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\Shared\Shared.projitems*{00bfba7f-b45d-41a3-9bf3-fa85a784b7de}*SharedItemsImports = 13
+		..\Shared\Shared.projitems*{dd6906a0-de65-4497-866b-daba7b222f45}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

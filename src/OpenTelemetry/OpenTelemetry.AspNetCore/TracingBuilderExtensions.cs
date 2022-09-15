@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Dora.OpenTelemetry.Tracing
 {
@@ -21,12 +22,14 @@ namespace Dora.OpenTelemetry.Tracing
                     builder.Services.Remove(service);
                 }
             }
-            //var activitySourceService = builder.Services.SingleOrDefault(it=>it.ServiceType == typeof(ActivitySource) && it.ImplementationType is null);
-            //if (activitySourceService is not null)
-            //{ 
-            //    builder.Services.Remove(activitySourceService);
-            //}
-            return builder;
+            builder.Services.AddOptions<TracingOptions>().Configure<IServiceProvider>((options, provider) => {
+                var appName = provider.GetRequiredService<IHostingEnvironment>().ApplicationName;
+                var assemblyName = new AssemblyName(appName);
+                var assembly = Assembly.Load(assemblyName);
+                var version = assembly?.GetName()?.Version?.ToString();
+                options.ServiceInstance = new ServiceInstance(appName, null, version, null);
+            });
+            return builder;            
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Dora.OpenTelemetry.Tracing
 {
     public static class TracingBuilderExtensions
     {
-        public static TracingBuilder AddZipkinExporter(this TracingBuilder builder, Action<ZipkinExporterOptions>? setup = null)
+        public static TracingBuilder ExportToZipkin(this TracingBuilder builder, Action<ZipkinExporterOptions>? setup = null)
         { 
             if(builder == null) throw new ArgumentNullException(nameof(builder));
             builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IActivityExporter, ZipkinExporter>());
@@ -20,10 +20,7 @@ namespace Dora.OpenTelemetry.Tracing
             builder.Services.AddHttpClient(ZipkinDefaults.HttpClientName, (provider, httpClient) =>
             {
                 var options = provider.GetRequiredService<IOptions<ZipkinExporterOptions>>().Value;
-                foreach (var setup in options.HttpClientSetups)
-                {
-                    setup(httpClient);
-                }
+                options.HttpClientConfigurator(httpClient);
             });
             return builder;
 

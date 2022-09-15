@@ -22,17 +22,23 @@ namespace App1
         public async Task InvokeAsync()
         {
             var counter = _counter;
-            using (var a = _source.StartActivity($"[{counter + 2}]foo"))
+            using (var a = _source.StartActivity($"[{counter + 2}]Job"))
             {
-                await _httpClient.GetStringAsync("http://localhost:5002/weatherforecast");
-                await Task.Delay(100);
-                using (_source.StartActivity($"[{counter + 1}]bar"))
+                try
                 {
-                    //await Task.Delay(1000);
-                    using (_source.StartActivity($"[{counter}]baz"))
+                    await Task.Delay(100);
+                    using (_source.StartActivity($"[{counter + 1}]foo"))
                     {
-                       // await Task.Delay(1000);
+                        await _httpClient.GetStringAsync("http://localhost:5002/weatherforecast");
+                        using (_source.StartActivity($"[{counter}]bar"))
+                        {
+                            await Task.Delay(1000);
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    a?.RecordException(ex);
                 }
             }
             _counter += 3;

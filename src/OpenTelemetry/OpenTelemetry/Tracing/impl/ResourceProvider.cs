@@ -17,7 +17,7 @@ namespace Dora.OpenTelemetry.Tracing
             if (_attributes == null)
             {
                 _attributes = new ActivityTagsCollection();
-                _attributes.Add(OpenTelemetryDefaults.ResourceAttributes.SdkName, "dora.optl");
+                _attributes.Add(OpenTelemetryDefaults.ResourceAttributes.SdkName, "dora");
                 _attributes.Add(OpenTelemetryDefaults.ResourceAttributes.SdkVersion, "1.0.0");
                 _attributes.Add(OpenTelemetryDefaults.ResourceAttributes.SdkLanguage, "dotnet");
 

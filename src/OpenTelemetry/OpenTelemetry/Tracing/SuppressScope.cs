@@ -2,15 +2,14 @@
 {
     public  class SuppressScope : IDisposable
     {
-        private readonly SuppressScope? _original;
-        private static readonly AsyncLocal<SuppressScope?> _current = new();
-        public static SuppressScope? Current => _current.Value;
+        private readonly bool _originallySuppressed;
+        private static readonly AsyncLocal<bool> _suppressed = new();
         public SuppressScope()
         {
-            _original = _current.Value;
-            _current.Value = new SuppressScope();
+            _originallySuppressed = _suppressed.Value;
+            _suppressed.Value = true;
         }
-        public static bool IsSuppressed=> _current.Value is not null;
-        public void Dispose()=> _current.Value = _original;
+        public static bool IsSuppressed => _suppressed.Value;
+        public void Dispose()=> _suppressed.Value = _originallySuppressed;
     }
 }

@@ -14,10 +14,10 @@ namespace Dora.OpenTelemetry
             {
                 case char:
                 case string:
-                    result = TransformStringTag(tag.Key, Convert.ToString(tag.Value)!);
+                    result = TransformString(tag.Key, Convert.ToString(tag.Value)!);
                     break;
                 case bool b:
-                    result = TransformBooleanTag(tag.Key, b);
+                    result = TransformBoolean(tag.Key, b);
                     break;
                 case byte:
                 case sbyte:
@@ -26,11 +26,11 @@ namespace Dora.OpenTelemetry
                 case int:
                 case uint:
                 case long:
-                    result = TransformIntegralTag(tag.Key, Convert.ToInt64(tag.Value));
+                    result = TransformInt64(tag.Key, Convert.ToInt64(tag.Value));
                     break;
                 case float:
                 case double:
-                    result = TransformFloatingPointTag(tag.Key, Convert.ToDouble(tag.Value));
+                    result = TransformDouble(tag.Key, Convert.ToDouble(tag.Value));
                     break;
                 case Array array:
                     try
@@ -54,7 +54,7 @@ namespace Dora.OpenTelemetry
                 default:
                     try
                     {
-                        result = TransformStringTag(tag.Key, tag.Value.ToString());
+                        result = TransformString(tag.Key, tag.Value?.ToString()??"");
                     }
                     catch
                     {
@@ -68,33 +68,33 @@ namespace Dora.OpenTelemetry
             return true;
         }
 
-        protected abstract T TransformIntegralTag(string key, long value);
+        protected abstract T TransformInt64(string key, long value);
 
-        protected abstract T TransformFloatingPointTag(string key, double value);
+        protected abstract T TransformDouble(string key, double value);
 
-        protected abstract T TransformBooleanTag(string key, bool value);
+        protected abstract T TransformBoolean(string key, bool value);
 
-        protected abstract T TransformStringTag(string key, string value);
+        protected abstract T TransformString(string key, string value);
 
-        protected abstract T TransformArrayTag(string key, Array array);
+        protected abstract T TransformArray(string key, Array array);
 
         private T TransformArrayTagInternal(string key, Array array)
         {
             // This switch ensures the values of the resultant array-valued tag are of the same type.
             return array switch
             {
-                char[] => TransformArrayTag(key, array),
-                string[] => TransformArrayTag(key, array),
-                bool[] => TransformArrayTag(key, array),
-                byte[] => TransformArrayTag(key, array),
-                sbyte[] => TransformArrayTag(key, array),
-                short[] => TransformArrayTag(key, array),
-                ushort[] => TransformArrayTag(key, array),
-                int[] => TransformArrayTag(key, array),
-                uint[] => TransformArrayTag(key, array),
-                long[] => TransformArrayTag(key, array),
-                float[] => TransformArrayTag(key, array),
-                double[] => TransformArrayTag(key, array),
+                char[] => TransformArray(key, array),
+                string[] => TransformArray(key, array),
+                bool[] => TransformArray(key, array),
+                byte[] => TransformArray(key, array),
+                sbyte[] => TransformArray(key, array),
+                short[] => TransformArray(key, array),
+                ushort[] => TransformArray(key, array),
+                int[] => TransformArray(key, array),
+                uint[] => TransformArray(key, array),
+                long[] => TransformArray(key, array),
+                float[] => TransformArray(key, array),
+                double[] => TransformArray(key, array),
                 _ => ConvertToStringArrayThenTransformArrayTag(key, array),
             };
         }
@@ -108,7 +108,7 @@ namespace Dora.OpenTelemetry
                 stringArray[i] = array.GetValue(i)?.ToString()??"";
             }
 
-            return TransformArrayTag(key, stringArray);
+            return TransformArray(key, stringArray);
         }
     }
 }

@@ -42,6 +42,10 @@ namespace Dora.OpenTelemetry.Tracing
         private void OnStopped(Activity activity)
         {
             if (activity == null) throw new ArgumentNullException(nameof(activity));
+            if (!activity.IsAllDataRequested || SuppressScope.IsSuppressed)
+            {
+                return;
+            }
             _processor.OnActivityStopped(activity);
         }
     }

@@ -26,7 +26,7 @@ namespace Dora.OpenTelemetry.Tracing
             var channel = Channel.CreateUnbounded<PooledActivityCollection>();
             _startHandler = CreateStartHandler(handlers);
             _stopHandler = CreateStopHandler(handlers, channel, options, logger);
-            StartConsumeActivities(channel, exporters);
+            StartConsumeActivities(channel, exporters, logger);
         }
 
         public void OnActivityStarted(Activity activity) => _startHandler(activity);
@@ -61,7 +61,7 @@ namespace Dora.OpenTelemetry.Tracing
             var handlerArray = handlers.ToArray();
             var handlerCount = handlerArray.Length;
             var singleHandler = handlerArray.FirstOrDefault();
-            var log4BufferOverflow = LoggerMessage.Define(LogLevel.Warning, 0, "Activity buffer overflow, and the specified activity will be discarded.");
+            var log4BufferOverflow = LoggerMessage.Define(LogLevel.Warning, 0, "Activity buffer overflow, and the specified activity will be discarded.");            
             var writer = processChannel.Writer;
             var deliverer = new BatchDeliverer<Activity>(options.BufferCapacity, options.BatchSize, options.CheckInterval, options.DeliveryInterval, QueueActivities);
 
@@ -104,13 +104,14 @@ namespace Dora.OpenTelemetry.Tracing
             }
         }
 
-        private static void StartConsumeActivities(Channel<PooledActivityCollection> processChannel, IEnumerable<IActivityExporter> exporters)
+        private static void StartConsumeActivities(Channel<PooledActivityCollection> processChannel, IEnumerable<IActivityExporter> exporters, ILogger logger)
         {
-            var count = exporters.Count();
+            var exporterArray = exporters.ToArray();
+            var count = exporterArray.Length;
             var singleExporter = count <= 1 ? exporters.SingleOrDefault() : null;
-            var exporterChannels = count > 1 ? exporters.ToDictionary(it => it, it => Channel.CreateUnbounded<PooledActivityCollection>()) : null;
             var processReader = processChannel.Reader;
-            if (exporterChannels is null)
+            var log4ExportFailure = LoggerMessage.Define(LogLevel.Error, 0, "Failed to export activities.");
+            if (count<2)
             {
                 Task.Factory.StartNew(() =>
                 {
@@ -143,13 +144,20 @@ namespace Dora.OpenTelemetry.Tracing
                     {
                         if (processReader.TryRead(out var collection))
                         {
-                            foreach (var kv in exporterChannels)
+                            try
                             {
-                                var writer = kv.Value.Writer;
-                                if (!writer.TryWrite(collection))
+                                for (int index = 0; index < count; index++)
                                 {
-                                    writer.WriteAsync(collection).AsTask().GetAwaiter().GetResult();
+                                    exporterArray[index].Export(collection.Activities);
                                 }
+                            }
+                            //catch (Exception ex)
+                            //{
+                            //    log4ExportFailure(logger, ex);
+                            //}
+                            finally
+                            {
+                                collection.Dispose();
                             }
                         }
                         else
@@ -157,36 +165,7 @@ namespace Dora.OpenTelemetry.Tracing
                             processReader.WaitToReadAsync().AsTask().Wait();
                         }
                     }
-                }, TaskCreationOptions.LongRunning);
-
-                foreach (var item in exporterChannels)
-                {                    
-                    Task.Factory.StartNew(state =>
-                    {
-                        var kv = (KeyValuePair<IActivityExporter, Channel<PooledActivityCollection>>)state!;
-                        var exporter = kv.Key;
-                        var reader = kv.Value.Reader;
-                        while (true)
-                        {
-                            if (processReader.TryRead(out var collection))
-                            {
-                                try
-                                {
-                                    exporter.Export(collection.Activities);
-                                }
-                                finally
-                                {
-                                    collection.Dispose();
-                                }
-                            }
-                            else
-                            {
-                                processReader.WaitToReadAsync().AsTask().Wait();
-                            }
-
-                        }
-                    },item, TaskCreationOptions.LongRunning);
-                }
+                }, TaskCreationOptions.LongRunning);              
             }
         }
     }

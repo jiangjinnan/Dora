@@ -1,10 +1,13 @@
 ﻿using Dora.OpenTelemetry;
 using Dora.OpenTelemetry.Tracing;
+using System.Linq.Expressions;
 
 namespace System.Diagnostics
 {
     public static class ActivityExtensions
     {
+        private static readonly Action<Activity?, ActivityKind> _kindSetter = CreateActivityKindSetter();
+
         public static IInstrumentation? GetInstrumentation(this Activity? activity)
         {
             return activity?.TagObjects?.SingleOrDefault(it => it.Key == "Instrumentation").Value as IInstrumentation;
@@ -15,12 +18,12 @@ namespace System.Diagnostics
             return activity?.SetTag("Instrumentation", instrumentation);
         }
 
-        public static void RecordException(this Activity activity, Exception ex)
+        public static void RecordException(this Activity? activity, Exception ex)
         {
             activity?.RecordException(ex, default);
         }
 
-        public static void RecordException(this Activity activity, Exception ex, in TagList tags)
+        public static void RecordException(this Activity? activity, Exception ex, in TagList tags)
         {
             if (ex == null || activity == null)
             {
@@ -44,6 +47,20 @@ namespace System.Diagnostics
             }
 
             activity.AddEvent(new ActivityEvent(OpenTelemetryDefaults.SpanAttributeNames.ExceptionEventName, default, tagsCollection));
+        }
+
+        public static Activity? ChangeKind(this Activity? activity, ActivityKind kind)
+        {
+            _kindSetter(activity, kind);
+            return activity;
+        }
+
+        private static Action<Activity?, ActivityKind> CreateActivityKindSetter()
+        {
+            var instance = Expression.Parameter(typeof(Activity), "instance");
+            var propertyValue = Expression.Parameter(typeof(ActivityKind), "propertyValue");
+            var body = Expression.Assign(Expression.Property(instance, "Kind"), propertyValue);
+            return Expression.Lambda<Action<Activity?, ActivityKind>>(body, instance, propertyValue).Compile();
         }
     }
 }
