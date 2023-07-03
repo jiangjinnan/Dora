@@ -25,6 +25,24 @@ namespace Dora.Interception.CodeGeneration
             typeof(CodeGenerationContext).Assembly
         };
 
+        /// <summary>
+        /// Add reference, support generic type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public ISet<Assembly> AddReference(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                var types = type.GetGenericArguments();
+                foreach (var t in types)
+                   return AddReference(t);
+            }
+            else
+                this.References.Add(type.Assembly);
+            return References;
+        }
+
         /// <summary>Gets the indent level.</summary>
         /// <value>The indent level.</value>
         public int IndentLevel { get; private set; }
