@@ -203,10 +203,10 @@ namespace Dora.Interception.CodeGeneration
 
             foreach (var method in interceptableMethods)
             {                
-                codeGenerationContext.References.Add(method.ReturnType.Assembly);
+                codeGenerationContext.AddReference(method.ReturnType);
                 foreach (var parameter in method.GetParameters())
                 {
-                    codeGenerationContext.References.Add(parameter.ParameterType.Assembly);
+                    codeGenerationContext.AddReference(parameter.ParameterType);
                 }
             }
 
